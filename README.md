@@ -1,19 +1,22 @@
-# Road to 12% v3.1.1 Cache Hotfix
+# Road to 12% v4.0
 
-This build fixes the situation where the new HTML loaded but Safari continued using the old broken `app.js`.
+## New in v4
+- V4 Coach guidance card
+- Weekly training score
+- Monthly workout calendar
+- Three-way exercise visual guide:
+  - Your actual gym photo
+  - Machine setup diagram
+  - Muscle-focus illustration
+- Guided 40-second set timer
+- Personal-record board
+- Existing readiness, RPE, cardio, check-in and backup features
+- New cache-proof filenames
 
-The JavaScript and stylesheet have unique filenames:
-- `app-3.1.1.js`
-- `styles-3.1.1.css`
+## Deploy
+Upload everything inside `road_to_12_v4` to the root of the existing `road-to-12` repository and replace matching files.
 
-That forces Safari to download the working files rather than reuse Version 3.0's cached JavaScript.
+After the green deployment check, open:
+https://harrison0550.github.io/road-to-12/?v=4
 
-## Deployment
-1. Upload everything inside `road_to_12_v3_1_hotfix` to the repository root.
-2. Replace existing files and commit to `main`.
-3. Wait for the green deployment check.
-4. Open:
-   https://harrison0550.github.io/road-to-12/?v=3.1.1
-5. Confirm the header says `VERSION 3.1.1`.
-
-You may leave the older `app.js` and `styles.css` files in GitHub; Version 3.1.1 no longer references them.
+The header must show VERSION 4.0.
