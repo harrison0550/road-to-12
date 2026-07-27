@@ -1,7 +1,16 @@
 
 const data=window.WORKOUT_DATA;
 const state=JSON.parse(localStorage.getItem("road12v5")||"{}");
-Object.assign(state,{tab:state.tab||"home",step:state.step||0,logs:state.logs||{},sessions:state.sessions||0,weight:state.weight||221,waist:state.waist||43,history:state.history||[]});
+Object.assign(state,{tab:state.tab||"home",step:state.step||0,logs:state.logs||{},sessions:state.sessions||0,weight:state.weight||221,waist:state.waist||43,history:state.history||[],selectedDay:Number.isInteger(state.selectedDay)?state.selectedDay:0});
+const weekPlan=[
+ {short:"MON",icon:"🏋️",title:"Full Body A",detail:"Guided strength • chest, back, quads and shoulders",action:"workout"},
+ {short:"TUE",icon:"🚶",title:"Cardio + Mobility",detail:"Incline treadmill and mobility recovery",action:"cardio"},
+ {short:"WED",icon:"💪",title:"Full Body B",detail:"Guided strength • alternate full-body session",action:"upcoming"},
+ {short:"THU",icon:"🧘",title:"Core + Recovery",detail:"Core training, stretching and easy movement",action:"recovery"},
+ {short:"FRI",icon:"🏋️",title:"Full Body C",detail:"Guided strength • third weekly full-body session",action:"upcoming"},
+ {short:"SAT",icon:"❤️",title:"Zone 2 Cardio",detail:"Longer easy bike, rower or treadmill session",action:"cardio"},
+ {short:"SUN",icon:"📏",title:"Recovery + Check-in",detail:"Rest, waist measurement, photos and weekly review",action:"progress"}
+];
 const app=document.querySelector("#app"), nav=[...document.querySelectorAll("nav button")];
 let timerId=null, remaining=0;
 const save=()=>localStorage.setItem("road12v5",JSON.stringify(state));
@@ -9,7 +18,26 @@ function setTab(t){state.tab=t;save();render()}
 nav.forEach(b=>b.onclick=()=>setTab(b.dataset.tab));
 document.querySelector("#reset").onclick=()=>{if(confirm("Reset Version 5 workout data?")){localStorage.removeItem("road12v5");location.reload()}};
 function render(){clearInterval(timerId);nav.forEach(b=>b.classList.toggle("active",b.dataset.tab===state.tab));({home:home,workout:workout,library:library,equipment:equipment,progress:progress}[state.tab]||home)()}
-function home(){app.innerHTML=`<section class="hero"><img src="${window.HERO_IMAGE}"><div class="shade"></div><div class="hero-copy"><span class="pill">WEEK 1 • DAY 1</span><h2>Full Body A</h2><p>Guided session: briefing, warm-up, mobility, strength, cooldown.</p><button class="primary" id="start">Start today's guided workout</button></div></section><section class="stats"><div><small>WEIGHT</small><strong>${state.weight} lb</strong></div><div><small>WAIST</small><strong>${state.waist} in</strong></div><div><small>SESSIONS</small><strong>${state.sessions}</strong></div></section><section class="card"><h2>Version 5 guided mode</h2><p class="muted">The app now walks you through every phase and every movement, with animated demonstrations, equipment setup, form cues, set logging, rest timers and a completion summary.</p></section>`;document.querySelector("#start").onclick=()=>{state.step=0;setTab("workout")}}
+function home(){
+ const day=weekPlan[state.selectedDay];
+ app.innerHTML=`<section class="hero"><img src="${window.HERO_IMAGE}"><div class="shade"></div><div class="hero-copy"><span class="pill">WEEK 1 • FOUNDATION</span><h2>${day.title}</h2><p>${day.detail}</p><button class="primary" id="start">${day.action==="workout"?"Start today's guided workout":"Open selected day"}</button></div></section>
+ <section class="card week-card"><h2>Training schedule</h2><p class="muted">Tap any day to view its plan.</p><div class="week-strip">${weekPlan.map((d,i)=>`<button class="day-button ${i===state.selectedDay?"selected":""}" data-day="${i}"><span class="day-icon">${d.icon}</span><strong>${d.short}</strong><small>${i===state.selectedDay?"Selected":""}</small></button>`).join("")}</div><div class="selected-plan"><div class="large-icon">${day.icon}</div><div><h3>${day.title}</h3><p class="muted">${day.detail}</p></div></div></section>
+ <section class="stats"><div><small>WEIGHT</small><strong>${state.weight} lb</strong></div><div><small>WAIST</small><strong>${state.waist} in</strong></div><div><small>SESSIONS</small><strong>${state.sessions}</strong></div></section>`;
+ document.querySelectorAll("[data-day]").forEach(b=>b.onclick=()=>{state.selectedDay=+b.dataset.day;save();home()});
+ document.querySelector("#start").onclick=()=>{
+   const action=weekPlan[state.selectedDay].action;
+   if(action==="workout"){state.step=0;setTab("workout")}
+   else if(action==="progress")setTab("progress");
+   else showDayPlan();
+ };
+}
+
+function showDayPlan(){
+ const d=weekPlan[state.selectedDay];
+ app.innerHTML=`<section class="card"><div class="phase"><span class="pill">${d.short} PLAN</span><strong>${d.icon}</strong></div><h2>${d.title}</h2><p class="muted">${d.detail}</p>${d.action==="cardio"?`<div class="selected-plan"><div class="large-icon">⏱️</div><div><h3>Recommended session</h3><p class="muted">5-minute warm-up, 25–40 minutes at conversational intensity, then a 5-minute cooldown.</p></div></div>`:`<div class="selected-plan"><div class="large-icon">✓</div><div><h3>Recovery focus</h3><p class="muted">Easy movement, hydration, mobility and no hard strength work.</p></div></div>`}</section><button class="primary" id="backHome">Back to schedule</button>`;
+ document.querySelector("#backHome").onclick=()=>setTab("home");
+}
+
 function workout(){
  if(state.step===0)return briefing();
  if(state.step>data.length)return summary();
