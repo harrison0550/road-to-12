@@ -1224,3 +1224,190 @@ body.workout-mode nav {
 @keyframes chestPressLeft{from{transform:rotate(28deg)}to{transform:rotate(-54deg)}}@keyframes chestPressRight{from{transform:rotate(-28deg)}to{transform:rotate(54deg)}}@keyframes cablePressLeft{from{transform:rotate(8deg) scaleX(.86)}to{transform:rotate(-6deg) scaleX(1.12)}}@keyframes cablePressRight{from{transform:rotate(-8deg) scaleX(.86)}to{transform:rotate(6deg) scaleX(1.12)}}
 .setup-complete{padding:13px;border:1px solid rgba(88,228,157,.35);border-radius:16px;background:rgba(88,228,157,.09)}.setup-complete strong{color:#67e6a1}
 @media(max-width:430px){.setup-stage-nav{grid-template-columns:repeat(2,minmax(0,1fr))}.pin-guide{grid-template-columns:72px minmax(0,1fr);gap:10px}.pin-rail{height:360px;padding-inline:10px}.pin-number{left:16px}.m1-stage{min-height:320px}}
+
+
+/* =========================================================
+   ROAD TO 12% — VERSION 7.0
+   Realistic visual exercise library
+   ========================================================= */
+
+.visual-library-hero,
+.realistic-guide {
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  overflow: hidden;
+  background: #0b0e12;
+}
+
+.visual-library-hero img,
+.realistic-guide img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.visual-library-copy,
+.realistic-guide-copy {
+  padding: 14px;
+}
+
+.visual-library-copy h3,
+.realistic-guide-copy h3 {
+  margin: 0 0 6px;
+}
+
+.visual-library-copy p,
+.realistic-guide-copy p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.asset-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 9px;
+  padding: 7px 10px;
+  border: 1px solid rgba(88,228,157,.35);
+  border-radius: 999px;
+  background: rgba(88,228,157,.09);
+  color: #69e7a7;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .7px;
+  text-transform: uppercase;
+}
+
+.guide-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 11px;
+}
+
+.guide-actions button {
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  padding: 12px 9px;
+  background: #171d25;
+  color: #e8ecf0;
+  font-weight: 850;
+}
+
+.guide-actions button.primary-guide {
+  border-color: #ff5360;
+  background: rgba(239,57,71,.16);
+}
+
+.fullscreen-asset {
+  position: fixed;
+  z-index: 100;
+  inset: 0;
+  display: none;
+  background: rgba(4,6,8,.97);
+  padding: calc(12px + env(safe-area-inset-top)) 10px calc(12px + env(safe-area-inset-bottom));
+  overflow: auto;
+}
+
+.fullscreen-asset.open {
+  display: block;
+}
+
+.fullscreen-asset img {
+  display: block;
+  width: min(1600px, 100%);
+  height: auto;
+  margin: 58px auto 30px;
+  border-radius: 14px;
+}
+
+.fullscreen-asset button {
+  position: fixed;
+  z-index: 2;
+  top: calc(10px + env(safe-area-inset-top));
+  right: 12px;
+  border: 1px solid #3a444f;
+  border-radius: 14px;
+  padding: 11px 15px;
+  background: #1a2129;
+  color: white;
+  font-weight: 900;
+}
+
+.video-ready-card {
+  display: grid;
+  grid-template-columns: 48px minmax(0,1fr);
+  gap: 12px;
+  align-items: center;
+  margin-top: 12px;
+  padding: 13px;
+  border: 1px solid #33404d;
+  border-radius: 16px;
+  background: #121820;
+}
+
+.video-ready-icon {
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+  background: #c92f3c;
+  color: white;
+  font-size: 22px;
+}
+
+.video-ready-card h4 {
+  margin: 0 0 4px;
+}
+
+.video-ready-card p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.exercise-library-grid {
+  display: grid;
+  grid-template-columns: repeat(2,minmax(0,1fr));
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.exercise-library-tile {
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 13px;
+  background: #131920;
+  color: white;
+  text-align: left;
+}
+
+.exercise-library-tile .tag {
+  display: block;
+  margin-bottom: 6px;
+}
+
+.exercise-library-tile strong {
+  display: block;
+  line-height: 1.25;
+}
+
+.exercise-library-tile small {
+  display: block;
+  margin-top: 5px;
+  color: var(--muted);
+  line-height: 1.3;
+}
+
+.realistic-demo-panel {
+  display: grid;
+  gap: 12px;
+}
+
+@media (max-width:430px) {
+  .guide-actions {
+    grid-template-columns: 1fr;
+  }
+}
