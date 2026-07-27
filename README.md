@@ -1,8 +1,8 @@
-# Road to 12% — Version 7.0
+# Road to 12% — Version 7.1
 
 Upload all files in this folder to the same GitHub repository folder.
 
-Version 7.0 adds:
+Version 7.1 adds:
 - Complete guided workout flow
 - Session briefing and muscle-group summary
 - Warm-up, dynamic mobility, strength work, cooldown and stretching
@@ -15,7 +15,7 @@ Version 7.0 adds:
 
 Existing Version 4.1 device data uses a different storage key, so it remains separate.
 
-## Version 7.0 fixes
+## Version 7.1 fixes
 - Restored tappable seven-day training schedule on Home
 - Added selected-day plan preview and routing
 - Corrected iPhone text autosizing and responsive typography
@@ -23,7 +23,7 @@ Existing Version 4.1 device data uses a different storage key, so it remains sep
 - Bumped service-worker cache so GitHub Pages loads the new CSS/JS
 
 
-## Version 7.0 changes
+## Version 7.1 changes
 - Removed the universal stick-figure animation
 - Added exercise-specific animated media:
   - treadmill belt, console, walking stride and posture guide
@@ -41,7 +41,7 @@ These are lightweight in-app animations and do not require external GIF or video
 The next media upgrade can replace any animation with an MP4 file without changing the workout flow.
 
 
-## Version 7.0 changes
+## Version 7.1 changes
 - Added Safari-specific animation reliability fixes
 - Replaced the treadmill egg-shaped CSS body with a refined SVG human figure
 - Added separate head, neck, torso, pelvis, upper/lower arms, thighs, shins and shoes
@@ -54,7 +54,7 @@ The next media upgrade can replace any animation with an MP4 file without changi
 - Added extra Safari-safe bottom spacing and dynamic viewport handling
 - Preserved all Version 5.2 schedule, logging, setup and guided-workout features
 
-## Version 7.0
+## Version 7.1
 - Interactive RitFit M1 setup coach using James' actual numbered rail photo
 - Exact pin positions for each cable exercise
 - Four stages: Pin Position, Attachment, Body Setup, Movement
@@ -64,7 +64,7 @@ The next media upgrade can replace any animation with an MP4 file without changi
 - Preserves schedule, Safari fixes, timers, logging and progress
 
 
-## Version 7.0
+## Version 7.1
 - Deploys the realistic Cable Chest Press instructional asset
 - Deploys the complete RitFit M1, cable, barbell and bumper-plate visual library
 - Adds full-screen zoom for detailed study on iPhone
@@ -74,3 +74,15 @@ The next media upgrade can replace any animation with an MP4 file without changi
 - Adds bumper-plate exercise references including squat, bench press, deadlift, overhead press, rows, hip thrust and split squat
 - Adds video-ready player slots for future MP4 form demonstrations
 - Preserves the weekly plan, timers, logging, progress and Safari layout fixes
+
+
+## Version 7.1
+- Shows only the current exercise asset inside guided workouts
+- Moves the complete exercise poster to the Library tab only
+- Adds separate Demo, Video, Setup and Steps tabs
+- Removes fake play buttons from static images
+- Adds dedicated cropped assets for chest press, row, pulldown, shoulder press, pushdown, curl, squat patterns, treadmill, rower, bike and stretching
+- Adds trusted external video/form resources from Concept2, ACE, OriGym and Life Fitness
+- Adds Rower Technique and Stationary Bike Setup to the Library
+- Keeps exact RitFit M1 setup guidance in the Setup tab
+- Preserves timers, logging, schedule, progress and Safari fixes

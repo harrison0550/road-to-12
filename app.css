@@ -1411,3 +1411,143 @@ body.workout-mode nav {
     grid-template-columns: 1fr;
   }
 }
+
+
+/* =========================================================
+   ROAD TO 12% — VERSION 7.1
+   Focused exercise assets + separate video tab
+   ========================================================= */
+
+.media-tabs {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.focused-demo {
+  display: grid;
+  gap: 11px;
+}
+
+.focused-demo-frame {
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  overflow: hidden;
+  background: #090c10;
+}
+
+.focused-demo-frame img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.focused-demo-copy {
+  padding: 13px;
+}
+
+.focused-demo-copy h3 {
+  margin: 0 0 5px;
+}
+
+.focused-demo-copy p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+.video-resource {
+  display: grid;
+  gap: 12px;
+}
+
+.video-resource-card {
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 16px;
+  background: linear-gradient(145deg,#151b22,#10151a);
+}
+
+.video-resource-icon {
+  width: 56px;
+  height: 56px;
+  display: grid;
+  place-items: center;
+  margin-bottom: 12px;
+  border-radius: 17px;
+  background: #d4313f;
+  color: white;
+  font-size: 26px;
+}
+
+.video-resource-card h3 {
+  margin: 0 0 5px;
+}
+
+.video-resource-card p {
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.video-source {
+  display: inline-block;
+  margin-bottom: 9px;
+  color: #69e7a7;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .7px;
+  text-transform: uppercase;
+}
+
+.open-video-button {
+  width: 100%;
+  border: 1px solid #ff5360;
+  border-radius: 14px;
+  padding: 14px;
+  background: rgba(239,57,71,.16);
+  color: white;
+  font-weight: 900;
+}
+
+.video-disclaimer {
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.4;
+  background: #11161c;
+}
+
+.library-section-title {
+  margin: 18px 0 8px;
+  color: #eef2f6;
+  font-size: 18px;
+}
+
+.library-master {
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  overflow: hidden;
+  background: #0b0e12;
+}
+
+.library-master img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.library-master-copy {
+  padding: 14px;
+}
+
+.library-master-copy p {
+  margin: 0;
+  color: var(--muted);
+}
+
+@media(max-width:430px){
+  .media-tabs button {
+    font-size: 10px;
+    padding-inline: 4px;
+  }
+}

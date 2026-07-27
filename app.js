@@ -111,36 +111,50 @@ function m1SetupCoach(ex){
 }
 function bindSetupCoach(){document.querySelectorAll("[data-setup-stage]").forEach(btn=>{btn.onclick=()=>{const target=btn.dataset.setupStage;document.querySelectorAll("[data-setup-stage]").forEach(x=>x.classList.toggle("active",x===btn));document.querySelectorAll("[data-setup-panel]").forEach(p=>p.classList.toggle("active",p.dataset.setupPanel===target));bindAnimationControls()}})}
 
-function realisticGuideMarkup(ex){
-  if(ex.guideImage){
-    return `<div class="realistic-demo-panel">
-      <div class="realistic-guide">
-        <img src="${ex.guideImage}" alt="${ex.guideTitle}">
-        <div class="realistic-guide-copy">
-          <span class="asset-badge">Realistic form reference</span>
-          <h3>${ex.guideTitle}</h3>
-          <p>${ex.videoStatus}. Use the enlarged view to study pulley setup, body position, movement path, muscles worked and common mistakes.</p>
-          <div class="guide-actions">
-            <button class="primary-guide" data-open-asset="${ex.guideImage}">Open full-screen guide</button>
-            <button data-open-library>Open full M1 library</button>
-          </div>
+function focusedDemoMarkup(ex){
+  return `<div class="focused-demo">
+    <div class="focused-demo-frame">
+      <img src="${ex.demoImage}" alt="${ex.name} form demonstration">
+      <div class="focused-demo-copy">
+        <span class="asset-badge">Current exercise only</span>
+        <h3>${ex.name} demonstration</h3>
+        <p>Start, movement and finish positions for the exercise you are performing now.</p>
+        <div class="guide-actions">
+          <button class="primary-guide" data-open-asset="${ex.demoImage}">Open full-screen demo</button>
         </div>
       </div>
-      <div class="video-ready-card">
-        <div class="video-ready-icon">▶</div>
-        <div><h4>Video-ready exercise slot</h4><p>The player area is prepared for front, side and 45° MP4 demonstrations. The current release uses the realistic frame sequence while the video clips are produced.</p></div>
+    </div>
+  </div>`;
+}
+
+function videoMarkup(ex){
+  const v=ex.videoResource;
+  if(!v){
+    return `<div class="video-resource">
+      <div class="video-resource-card">
+        <div class="video-resource-icon">▶</div>
+        <span class="video-source">Video resource pending</span>
+        <h3>${ex.name}</h3>
+        <p>A verified form video has not been assigned yet. Use the dedicated Demo, Setup and Steps tabs rather than a fake play button.</p>
       </div>
     </div>`;
   }
-  return `<div class="realistic-guide">
-    <img src="${ex.libraryImage}" alt="RitFit M1 exercise visual library">
-    <div class="realistic-guide-copy">
-      <span class="asset-badge">RitFit visual library</span>
-      <h3>${ex.name}</h3>
-      <p>This movement is included in the realistic M1 and bumper-plate visual library. Open the full image to review the available demonstrations and setup references.</p>
-      <div class="guide-actions"><button class="primary-guide" data-open-asset="${ex.libraryImage}">Open full-screen library</button></div>
+  return `<div class="video-resource">
+    <div class="video-resource-card">
+      <div class="video-resource-icon">▶</div>
+      <span class="video-source">${v.source}</span>
+      <h3>${v.title}</h3>
+      <p>${v.note}</p>
+      <button class="open-video-button" data-video-url="${v.url}">Open trusted video guide</button>
     </div>
+    <div class="video-disclaimer">The linked video or exercise page opens from its original publisher. It is not copied into Road to 12%, and availability is controlled by that publisher.</div>
   </div>`;
+}
+
+function bindVideoLinks(){
+  document.querySelectorAll("[data-video-url]").forEach(btn=>{
+    btn.onclick=()=>window.open(btn.dataset.videoUrl,"_blank","noopener,noreferrer");
+  });
 }
 
 function bindAssetViewer(){
@@ -166,45 +180,8 @@ function openAsset(src){
   viewer.querySelector("#closeAsset").onclick=()=>viewer.classList.remove("open");
 }
 function mediaMarkup(ex){
-  const type=mediaType(ex);
-
-  if(type==="treadmill"){
-    return `<div class="media-heading"><strong>Exercise-specific demo</strong><span>Side view • natural stride</span></div>
-    <div class="exercise-media treadmill-scene is-playing" data-animation-root>
-      <div class="wall-line"></div>
-      <div class="treadmill">
-        <div class="deck"></div><div class="belt motion-part"></div><div class="upright"></div>
-        <div class="console"><div class="screen"></div></div>
-      </div>
-      ${humanSvg()}
-      <div class="posture-line"></div>
-    </div>
-    <p class="media-note">Treadmill walk with upright posture, natural arm swing and heel-to-toe stride.</p>
-    <div class="animation-controls">
-      <button class="active" data-animation-play>Pause animation</button>
-      <button data-animation-restart>Restart animation</button>
-    </div>`;
-  }
-
-  if(type.startsWith("cable-") && ex.m1){return `<div class="realistic-demo-panel">${realisticGuideMarkup(ex)}${m1SetupCoach(ex)}</div>`}
-  if(type.startsWith("cable-")){
-    const level=type.split("-")[1];
-    return `<div class="media-heading"><strong>RitFit M1 demonstration</strong><span>${level} pulley position</span></div><div class="exercise-media cable-scene ${level} is-playing" data-animation-root><div class="rack"></div><div class="crossbar"></div><i class="pulley left"></i><i class="pulley right"></i><i class="cable left motion-part"></i><i class="cable right motion-part"></i><i class="handle left motion-part"></i><i class="handle right motion-part"></i><span class="motion-arrow motion-part">→</span></div><p class="media-note">Pulley height, cable path and movement direction.</p>`;
-  }
-
-  const cls = type==="circles" ? "circles" : type==="squat" ? "squat" : type==="hinge" ? "hinge" : "";
-  return `<div class="media-heading"><strong>Movement pattern</strong><span>Controlled demonstration</span></div>
-  <div class="exercise-media mobility-scene ${cls} is-playing" data-animation-root>
-    <div class="floor"></div><div class="body-block motion-part"></div>
-    ${type==="circles" ? '<div class="orbit motion-part"></div>' : ""}
-  </div>
-  <p class="media-note">${type==="squat" ? "Controlled lowering and standing pattern." : type==="hinge" ? "Hips move backward while the spine stays long." : type==="circles" ? "Shoulder-circle path with a controlled range." : "Controlled mobility demonstration."}</p>
-  <div class="animation-controls">
-    <button class="active" data-animation-play>Pause animation</button>
-    <button data-animation-restart>Restart animation</button>
-  </div>`;
+  return focusedDemoMarkup(ex);
 }
-
 function bindAnimationControls(){
   const root=document.querySelector("[data-animation-root]");
   const play=document.querySelector("[data-animation-play]");
@@ -270,6 +247,7 @@ function exercise(ex){
 
    <div class="media-tabs">
      <button class="active" data-guide-tab="demo">Demo</button>
+     <button data-guide-tab="video">Video</button>
      <button data-guide-tab="setup">Setup</button>
      <button data-guide-tab="steps">Steps</button>
    </div>
@@ -279,9 +257,12 @@ function exercise(ex){
      ${quickSettings(ex)}
    </div>
 
+   <div class="guide-panel hidden" data-guide-panel="video">
+     ${videoMarkup(ex)}
+   </div>
+
    <div class="guide-panel hidden" data-guide-panel="setup">
-     <div class="setup-grid">${ex.setup.map((x,i)=>`<div><small>${i===0?"SETUP":"CHECK"}</small><strong>${x}</strong></div>`).join("")}</div>
-     <div class="cue"><strong>Before you begin</strong><p>Confirm the machine, attachment, cable path and working area are secure and clear.</p></div>
+     ${ex.m1 ? m1SetupCoach(ex) : `<div class="setup-grid">${ex.setup.map((x,i)=>`<div><small>${i===0?"SETUP":"CHECK"}</small><strong>${x}</strong></div>`).join("")}</div><div class="cue"><strong>Before you begin</strong><p>Confirm the equipment and working area are secure and clear.</p></div>`}
    </div>
 
    <div class="guide-panel hidden" data-guide-panel="steps">
@@ -300,6 +281,7 @@ function exercise(ex){
  bindGuideTabs();
  bindSetupCoach();
  bindAssetViewer();
+ bindVideoLinks();
  bindAnimationControls();
  document.querySelector("#back").onclick=()=>{state.step=Math.max(0,state.step-1);save();workout()};
  document.querySelector("#next").onclick=next;
@@ -314,27 +296,55 @@ function startTimer(sec){remaining=sec;const el=document.querySelector("#timer")
 function next(){state.step++;save();workout()}
 function summary(){state.sessions++;state.history.push({date:new Date().toLocaleDateString(),name:"Full Body A"});state.step=0;save();app.innerHTML=`<section class="card complete"><div class="check">✓</div><h2>Full Body A complete</h2><p class="muted">You completed the full guided flow: briefing, warm-up, mobility, seven strength exercises and cooldown.</p><div class="brief-grid"><div><small>STRENGTH SETS</small><strong>18</strong></div><div><small>MUSCLE GROUPS</small><strong>Full body</strong></div><div><small>SESSION</small><strong>#${state.sessions}</strong></div><div><small>NEXT</small><strong>Recovery + hydration</strong></div></div></section><button class="primary" id="home">Return home</button>`;document.querySelector("#home").onclick=()=>setTab("home")}
 function library(){
+ const extras=window.EXTRA_LIBRARY_DATA||[];
+ const all=[...data,...extras];
  app.innerHTML=`<section class="card">
-   <h2>RitFit M1 Exercise Library</h2>
-   <p class="muted">Realistic cable-machine and bumper-plate references designed around your home-gym equipment.</p>
-   <div class="visual-library-hero">
-     <img src="assets/ritfit-exercise-library.png" alt="RitFit M1 and bumper plate exercise library">
-     <div class="visual-library-copy">
-       <span class="asset-badge">Version 7 visual library</span>
-       <h3>Cables, barbell and bumper plates</h3>
-       <p>Includes realistic form references, pulley settings, attachments, muscle groups, coaching cues and common mistakes.</p>
-       <div class="guide-actions">
-         <button class="primary-guide" data-open-asset="assets/ritfit-exercise-library.png">Open full-screen library</button>
-         <button data-open-asset="assets/cable-chest-press-guide.png">Open chest-press guide</button>
-       </div>
+   <h2>Exercise Library</h2>
+   <p class="muted">Select an exercise to open its dedicated Demo, Video, Setup and Steps tabs.</p>
+
+   <div class="library-master">
+     <img src="assets/exercise-library-v7-1.png" alt="Complete RitFit, barbell and cardio exercise library">
+     <div class="library-master-copy">
+       <span class="asset-badge">Master reference</span>
+       <h3>Complete home-gym asset library</h3>
+       <p>The full poster stays here in the Library and no longer appears inside individual workouts.</p>
+       <div class="guide-actions"><button class="primary-guide" data-open-asset="assets/exercise-library-v7-1.png">Open master library</button></div>
      </div>
    </div>
+
+   <h3 class="library-section-title">Today's guided exercises</h3>
    <div class="exercise-library-grid">
-     ${data.map((x,i)=>`<button class="exercise-library-tile" data-i="${i}"><span class="tag">${x.type}</span><strong>${x.name}</strong><small>${x.m1?`M1 pin guide included`:"Guided movement reference"}</small></button>`).join("")}
+     ${data.map((x,i)=>`<button class="exercise-library-tile" data-workout-i="${i}"><span class="tag">${x.type}</span><strong>${x.name}</strong><small>Dedicated exercise asset</small></button>`).join("")}
+   </div>
+
+   <h3 class="library-section-title">Other equipment</h3>
+   <div class="exercise-library-grid">
+     ${extras.map((x,i)=>`<button class="exercise-library-tile" data-extra-i="${i}"><span class="tag">${x.type}</span><strong>${x.name}</strong><small>Demo and trusted video resource</small></button>`).join("")}
    </div>
  </section>`;
  bindAssetViewer();
- document.querySelectorAll("[data-i]").forEach(x=>x.onclick=()=>{state.step=+x.dataset.i+1;setTab("workout")});
+ document.querySelectorAll("[data-workout-i]").forEach(x=>x.onclick=()=>{state.step=+x.dataset.workoutI+1;setTab("workout")});
+ document.querySelectorAll("[data-extra-i]").forEach(x=>x.onclick=()=>showLibraryExercise(extras[+x.dataset.extraI]));
+}
+
+function showLibraryExercise(ex){
+ app.innerHTML=`<section class="card workout-card">
+   <button class="secondary" id="libraryBack">Back to Library</button>
+   <h2>${ex.name}</h2>
+   <p class="muted workout-subtitle">${ex.muscles}</p>
+   <div class="media-tabs">
+     <button class="active" data-guide-tab="demo">Demo</button>
+     <button data-guide-tab="video">Video</button>
+     <button data-guide-tab="setup">Setup</button>
+     <button data-guide-tab="steps">Steps</button>
+   </div>
+   <div class="guide-panel" data-guide-panel="demo">${focusedDemoMarkup(ex)}</div>
+   <div class="guide-panel hidden" data-guide-panel="video">${videoMarkup(ex)}</div>
+   <div class="guide-panel hidden" data-guide-panel="setup"><div class="setup-grid">${ex.setup.map((x,i)=>`<div><small>${i===0?"SETUP":"CHECK"}</small><strong>${x}</strong></div>`).join("")}</div></div>
+   <div class="guide-panel hidden" data-guide-panel="steps"><ol class="steps">${ex.steps.map(s=>`<li>${s}</li>`).join("")}</ol><div class="cue"><strong>Coach cues</strong><p>${ex.cues.join(" • ")}</p></div></div>
+ </section>`;
+ document.querySelector("#libraryBack").onclick=library;
+ bindGuideTabs();bindAssetViewer();bindVideoLinks();
 }
 function equipment(){app.innerHTML=`<section class="card"><h2>Your equipment</h2><div class="library-row"><h3>RitFit M1 Pro</h3><p class="muted">Primary strength station. Every cable exercise includes pulley height, attachment and bench setup.</p></div><div class="library-row"><h3>Adjustable bench</h3><p class="muted">Used for rows, pulldowns and shoulder pressing.</p></div><div class="library-row"><h3>Treadmill</h3><p class="muted">Warm-up, cooldown and Zone 2 cardio.</p></div><div class="library-row"><h3>Bike and rower</h3><p class="muted">Available for future conditioning days and substitutions.</p></div></section>`}
 function progress(){app.innerHTML=`<section class="card"><h2>Progress check-in</h2><label>Weight (lb)<input id="w" value="${state.weight}"></label><br><label>Waist (in)<input id="wa" value="${state.waist}"></label><br><button class="primary" id="saveP">Save check-in</button></section><section class="card"><h3>Workout history</h3>${state.history.length?state.history.slice().reverse().map(h=>`<div class="library-row"><strong>${h.name}</strong><small class="muted">${h.date}</small></div>`).join(""):'<p class="muted">No completed sessions yet.</p>'}</section>`;document.querySelector("#saveP").onclick=()=>{state.weight=document.querySelector("#w").value;state.waist=document.querySelector("#wa").value;save();progress()}}
