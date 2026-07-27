@@ -1,8 +1,8 @@
-# Road to 12% — Version 5.3
+# Road to 12% — Version 6.0
 
 Upload all files in this folder to the same GitHub repository folder.
 
-Version 5.3 adds:
+Version 6.0 adds:
 - Complete guided workout flow
 - Session briefing and muscle-group summary
 - Warm-up, dynamic mobility, strength work, cooldown and stretching
@@ -15,7 +15,7 @@ Version 5.3 adds:
 
 Existing Version 4.1 device data uses a different storage key, so it remains separate.
 
-## Version 5.3 fixes
+## Version 6.0 fixes
 - Restored tappable seven-day training schedule on Home
 - Added selected-day plan preview and routing
 - Corrected iPhone text autosizing and responsive typography
@@ -23,7 +23,7 @@ Existing Version 4.1 device data uses a different storage key, so it remains sep
 - Bumped service-worker cache so GitHub Pages loads the new CSS/JS
 
 
-## Version 5.3 changes
+## Version 6.0 changes
 - Removed the universal stick-figure animation
 - Added exercise-specific animated media:
   - treadmill belt, console, walking stride and posture guide
@@ -41,7 +41,7 @@ These are lightweight in-app animations and do not require external GIF or video
 The next media upgrade can replace any animation with an MP4 file without changing the workout flow.
 
 
-## Version 5.3 changes
+## Version 6.0 changes
 - Added Safari-specific animation reliability fixes
 - Replaced the treadmill egg-shaped CSS body with a refined SVG human figure
 - Added separate head, neck, torso, pelvis, upper/lower arms, thighs, shins and shoes
@@ -53,3 +53,12 @@ The next media upgrade can replace any animation with an MP4 file without changi
 - Added Start/Stop timer controls
 - Added extra Safari-safe bottom spacing and dynamic viewport handling
 - Preserved all Version 5.2 schedule, logging, setup and guided-workout features
+
+## Version 6.0
+- Interactive RitFit M1 setup coach using James' actual numbered rail photo
+- Exact pin positions for each cable exercise
+- Four stages: Pin Position, Attachment, Body Setup, Movement
+- Position 1 is bottom; position 13 is top
+- Chest Press 5/5; Row 1/1; Lat Pulldown 13/13; Shoulder Press 1/1; Pushdown 13; Curl 1
+- Attachment, bench, facing direction, stance, starting posture and finish cues
+- Preserves schedule, Safari fixes, timers, logging and progress

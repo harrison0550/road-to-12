@@ -98,6 +98,18 @@ function humanSvg(){
   </svg>`;
 }
 
+
+function pinRailMarkup(pin){return `<div class="pin-rail">${Array.from({length:13},(_,i)=>13-i).map(n=>`<div class="pin-hole ${n===pin?"selected":""}"><span class="pin-number">${n%2===1?n:""}</span></div>`).join("")}</div>`}
+function m1PinClass(pin){if(pin>=10)return"pin-13";if(pin<=2)return"pin-1";return"pin-5"}
+function m1SetupCoach(ex){
+ const m=ex.m1,rightText=m.pinRight?`Right pulley: position ${m.pinRight}`:"Use one pulley only";
+ return `<div class="setup-coach"><div class="setup-stage-nav"><button class="active" data-setup-stage="pin">1. Pin position</button><button data-setup-stage="attachment">2. Attachment</button><button data-setup-stage="body">3. Body setup</button><button data-setup-stage="movement">4. Movement</button></div>
+ <section class="setup-stage-panel active" data-setup-panel="pin"><div class="pin-guide">${pinRailMarkup(m.pinLeft)}<div class="pin-copy"><h3>Set position ${m.pinLeft}</h3><p>${m.pinNote}</p><span class="pin-chip">Left: ${m.pinLeft}</span><span class="pin-chip">${rightText}</span><p class="muted">Pull the pop pin, slide the carriage until the selected hole aligns, release it, and tug the carriage to confirm it is locked.</p></div></div><div class="m1-photo-card"><img src="assets/ritfit-m1-pin-rail.jpeg" alt="James' actual RitFit M1 numbered pulley rail"><div class="m1-photo-caption">Your actual M1 rail: position 1 is at the bottom and position 13 is at the top. Odd numbers are printed; even positions are the holes between them.</div></div></section>
+ <section class="setup-stage-panel" data-setup-panel="attachment"><div class="attachment-board"><div class="attachment-card"><div class="attachment-icon">🔗</div><div><h4>${m.attachment}</h4><p>Open the carabiner, install the attachment, and confirm the gate closes completely.</p></div></div><div class="attachment-card"><div class="attachment-icon">✓</div><div><h4>Cable safety check</h4><p>Confirm the cable is seated in the pulley and the working area is clear.</p></div></div><div class="attachment-card"><div class="attachment-icon">⚖️</div><div><h4>Select a light starting weight</h4><p>Use the first set to confirm the resistance and movement path.</p></div></div></div></section>
+ <section class="setup-stage-panel" data-setup-panel="body"><div class="body-setup-board"><div class="position-card"><div class="position-icon">🪑</div><div><h4>${m.bench}</h4><p>Place or remove the bench before handling the cables.</p></div></div><div class="position-card"><div class="position-icon">↔️</div><div><h4>${m.facing}</h4><p>${m.stance}</p></div></div><div class="position-card"><div class="position-icon">🎯</div><div><h4>Starting posture</h4><p>${m.start}</p></div></div></div><div class="m1-stage ${m1PinClass(m.pinLeft)}"><div class="rack-left"></div><div class="rack-right"></div><div class="rack-top"></div><i class="pulley-dot left"></i><i class="pulley-dot right"></i><i class="cable-line left"></i><i class="cable-line right"></i><div class="human-demo"><i class="head"></i><i class="torso"></i><i class="pelvis"></i><i class="arm left"></i><i class="arm right"></i><i class="leg left"></i><i class="leg right"></i></div><i class="footprint one"></i><i class="footprint two"></i></div></section>
+ <section class="setup-stage-panel" data-setup-panel="movement"><div class="performance-board"><div class="performance-step"><div class="performance-index">1</div><div><h4>Start position</h4><p>${m.start}</p></div></div><div class="performance-step"><div class="performance-index">2</div><div><h4>Working motion</h4><p>${m.finish}</p></div></div><div class="performance-step"><div class="performance-index">3</div><div><h4>Best viewing angle</h4><p>${m.view}</p></div></div></div><div class="m1-stage ${m1PinClass(m.pinLeft)} is-playing" data-animation-root><div class="rack-left"></div><div class="rack-right"></div><div class="rack-top"></div><i class="pulley-dot left"></i><i class="pulley-dot right"></i><i class="cable-line left motion-part"></i><i class="cable-line right motion-part"></i><div class="human-demo"><i class="head"></i><i class="torso"></i><i class="pelvis"></i><i class="arm left motion-part"></i><i class="arm right motion-part"></i><i class="leg left"></i><i class="leg right"></i></div><i class="footprint one"></i><i class="footprint two"></i></div><div class="animation-controls"><button class="active" data-animation-play>Pause animation</button><button data-animation-restart>Restart animation</button></div><div class="setup-complete"><strong>Setup complete.</strong> Confirm both pins are locked, attachment gates are closed, and the selected weight is appropriate.</div></section></div>`;
+}
+function bindSetupCoach(){document.querySelectorAll("[data-setup-stage]").forEach(btn=>{btn.onclick=()=>{const target=btn.dataset.setupStage;document.querySelectorAll("[data-setup-stage]").forEach(x=>x.classList.toggle("active",x===btn));document.querySelectorAll("[data-setup-panel]").forEach(p=>p.classList.toggle("active",p.dataset.setupPanel===target));bindAnimationControls()}})}
 function mediaMarkup(ex){
   const type=mediaType(ex);
 
@@ -119,21 +131,10 @@ function mediaMarkup(ex){
     </div>`;
   }
 
+  if(type.startsWith("cable-") && ex.m1){return m1SetupCoach(ex)}
   if(type.startsWith("cable-")){
     const level=type.split("-")[1];
-    return `<div class="media-heading"><strong>RitFit M1 demonstration</strong><span>${level} pulley position</span></div>
-    <div class="exercise-media cable-scene ${level} is-playing" data-animation-root>
-      <div class="rack"></div><div class="crossbar"></div>
-      <i class="pulley left"></i><i class="pulley right"></i>
-      <i class="cable left motion-part"></i><i class="cable right motion-part"></i>
-      <i class="handle left motion-part"></i><i class="handle right motion-part"></i>
-      <span class="motion-arrow motion-part">→</span>
-    </div>
-    <p class="media-note">Pulley height, cable path and movement direction are shown without covering the visual.</p>
-    <div class="animation-controls">
-      <button class="active" data-animation-play>Pause animation</button>
-      <button data-animation-restart>Restart animation</button>
-    </div>`;
+    return `<div class="media-heading"><strong>RitFit M1 demonstration</strong><span>${level} pulley position</span></div><div class="exercise-media cable-scene ${level} is-playing" data-animation-root><div class="rack"></div><div class="crossbar"></div><i class="pulley left"></i><i class="pulley right"></i><i class="cable left motion-part"></i><i class="cable right motion-part"></i><i class="handle left motion-part"></i><i class="handle right motion-part"></i><span class="motion-arrow motion-part">→</span></div><p class="media-note">Pulley height, cable path and movement direction.</p>`;
   }
 
   const cls = type==="circles" ? "circles" : type==="squat" ? "squat" : type==="hinge" ? "hinge" : "";
@@ -242,6 +243,7 @@ function exercise(ex){
  </div>`;
 
  bindGuideTabs();
+ bindSetupCoach();
  bindAnimationControls();
  document.querySelector("#back").onclick=()=>{state.step=Math.max(0,state.step-1);save();workout()};
  document.querySelector("#next").onclick=next;
