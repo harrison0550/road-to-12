@@ -1689,3 +1689,13 @@ body.workout-mode nav {
     border-radius: 15px;
   }
 }
+
+/* VERSION 7.3 — Beginner Coach */
+.why-card,.weight-coach-card,.coach-mode-card{margin-top:12px;padding:14px;border:1px solid var(--line);border-radius:17px;background:#121820}
+.why-card{border-left:4px solid #69e7a7}.weight-coach-card{border-left:4px solid #ffb84d}
+.why-card h3,.weight-coach-card h3,.coach-mode-card h3{margin:0 0 6px;font-size:17px}.why-card p,.weight-coach-card p,.coach-mode-card p{margin:0;color:var(--muted);line-height:1.45}
+.coach-mode-card{display:grid;grid-template-columns:52px minmax(0,1fr);gap:12px;align-items:center}.coach-mode-icon{width:52px;height:52px;display:grid;place-items:center;border-radius:16px;background:rgba(239,57,71,.16);font-size:25px}
+.coach-controls{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.coach-controls button{border:1px solid var(--line);border-radius:13px;padding:11px 8px;background:#171d25;color:white;font-weight:850}.coach-controls button.active{border-color:#ff5360;background:rgba(239,57,71,.16)}
+.rest-coach-message{min-height:42px;margin:8px 0 2px;padding:10px 12px;border-radius:13px;background:#10151b;color:#d5dbe3;font-size:13px}
+.equipment-grid-v73{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.equipment-card-v73{padding:14px;border:1px solid var(--line);border-radius:17px;background:#131920}.equipment-card-v73 span{display:block;font-size:24px;margin-bottom:8px}.equipment-card-v73 strong{display:block;margin-bottom:4px}.equipment-card-v73 small{color:var(--muted)}
+@media(max-width:430px){.coach-controls{grid-template-columns:1fr}}
