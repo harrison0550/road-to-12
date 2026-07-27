@@ -2,6 +2,16 @@
 const data=window.WORKOUT_DATA;
 const state=JSON.parse(localStorage.getItem("road12v5")||"{}");
 Object.assign(state,{tab:state.tab||"home",step:state.step||0,logs:state.logs||{},sessions:state.sessions||0,weight:state.weight||221,waist:state.waist||43,history:state.history||[],selectedDay:Number.isInteger(state.selectedDay)?state.selectedDay:0,coachMode:state.coachMode!==false});
+state.equipment=Object.assign({
+  ritfitM1:true,
+  bench:true,
+  treadmill:true,
+  rower:true,
+  kickrCore:true,
+  bumperPlates:false,
+  dumbbells:false,
+  olympicBarbell:false
+},state.equipment||{});
 const weekPlan=[
  {short:"MON",icon:"🏋️",title:"Full Body A",detail:"Guided strength • chest, back, quads and shoulders",action:"workout"},
  {short:"TUE",icon:"🚶",title:"Cardio + Mobility",detail:"Incline treadmill and mobility recovery",action:"cardio"},
@@ -14,16 +24,55 @@ const weekPlan=[
 const app=document.querySelector("#app"), nav=[...document.querySelectorAll("nav button")];
 let timerId=null, remaining=0;
 const save=()=>localStorage.setItem("road12v5",JSON.stringify(state));
+const equipmentLabels={
+  ritfitM1:"RitFit M1 Pro",
+  bench:"Adjustable bench",
+  treadmill:"iFIT treadmill",
+  rower:"iFIT rower",
+  kickrCore:"Wahoo KICKR CORE",
+  bumperPlates:"Olympic bumper plates",
+  dumbbells:"Dumbbells / kettlebells",
+  olympicBarbell:"Free Olympic barbell"
+};
+function hasRequirements(ex){
+  return (ex.requires||["bodyweight"]).every(key=>key==="bodyweight"||state.equipment[key]);
+}
+function missingEquipment(ex){
+  return (ex.requires||[]).filter(key=>!state.equipment[key]).map(key=>equipmentLabels[key]||key);
+}
+function resolveExercise(ex){
+  if(hasRequirements(ex))return ex;
+  const replacement=ex.substituteId && window.SUBSTITUTION_DATA?.[ex.substituteId];
+  if(replacement && hasRequirements(replacement)){
+    return Object.assign({},replacement,{
+      originalExercise:ex.name,
+      substitutionReason:`${ex.name} needs ${missingEquipment(ex).join(", ")}.`
+    });
+  }
+  return Object.assign({},ex,{unavailable:true});
+}
+function activeWorkout(){
+  return data.map(resolveExercise).filter(ex=>!ex.unavailable);
+}
+function substitutionCount(){
+  return activeWorkout().filter(ex=>ex.originalExercise).length;
+}
+
 function setTab(t){state.tab=t;save();render()}
 nav.forEach(b=>b.onclick=()=>setTab(b.dataset.tab));
-document.querySelector("#reset").onclick=()=>{if(confirm("Reset Version 5 workout data?")){localStorage.removeItem("road12v5");location.reload()}};
+document.querySelector("#reset").onclick=()=>{if(confirm("Reset Road to 12% workout data?")){localStorage.removeItem("road12v5");location.reload()}};
 function render(){clearInterval(timerId);document.body.classList.toggle("workout-mode",state.tab==="workout");nav.forEach(b=>b.classList.toggle("active",b.dataset.tab===state.tab));({home:home,workout:workout,library:library,equipment:equipment,progress:progress}[state.tab]||home)()}
 function home(){
  const day=weekPlan[state.selectedDay];
  app.innerHTML=`<section class="hero"><img src="${window.HERO_IMAGE}"><div class="shade"></div><div class="hero-copy"><span class="pill">WEEK 1 • FOUNDATION</span><h2>${day.title}</h2><p>${day.detail}</p><button class="primary" id="start">${day.action==="workout"?"Start today's guided workout":"Open selected day"}</button></div></section>
  <section class="card week-card"><h2>Training schedule</h2><p class="muted">Tap any day to view its plan.</p><div class="week-strip">${weekPlan.map((d,i)=>`<button class="day-button ${i===state.selectedDay?"selected":""}" data-day="${i}"><span class="day-icon">${d.icon}</span><strong>${d.short}</strong><small>${i===state.selectedDay?"Selected":""}</small></button>`).join("")}</div><div class="selected-plan"><div class="large-icon">${day.icon}</div><div><h3>${day.title}</h3><p class="muted">${day.detail}</p></div></div></section>
+ <section class="card equipment-ready-card">
+   <div><span class="ready-icon">✓</span><div><strong>Tonight’s workout is equipment-ready</strong><p class="muted">${state.equipment.bumperPlates?"Bumper plates are enabled.":"Bumper plates are off. Plate-dependent barbell work is excluded."} ${substitutionCount()} automatic substitution${substitutionCount()===1?"":"s"} active.</p></div></div>
+   <button class="secondary" id="editEquipment">My equipment</button>
+ </section>
  <section class="stats"><div><small>WEIGHT</small><strong>${state.weight} lb</strong></div><div><small>WAIST</small><strong>${state.waist} in</strong></div><div><small>SESSIONS</small><strong>${state.sessions}</strong></div></section>`;
  document.querySelectorAll("[data-day]").forEach(b=>b.onclick=()=>{state.selectedDay=+b.dataset.day;save();home()});
+ document.querySelector("#editEquipment").onclick=()=>setTab("equipment");
  document.querySelector("#start").onclick=()=>{
    const action=weekPlan[state.selectedDay].action;
    if(action==="workout"){state.step=0;setTab("workout")}
@@ -229,25 +278,34 @@ function bindGuideTabs(){
 }
 
 function workout(){
+ const workoutData=activeWorkout();
  if(state.step===0)return briefing();
- if(state.step>data.length)return summary();
- const ex=data[state.step-1]; exercise(ex);
+ if(state.step>workoutData.length)return summary();
+ const ex=workoutData[state.step-1]; exercise(ex,workoutData);
 }
-function briefing(){app.innerHTML=`<section class="card"><div class="phase"><span class="pill">SESSION BRIEFING</span><strong>55–65 min</strong></div><h2>Full Body A</h2><p class="muted">Foundation workout focused on controlled form, learning your starting weights and training the major muscle groups safely.</p><div class="brief-grid"><div><small>PRIMARY</small><strong>Chest, back, quads, shoulders</strong></div><div><small>SECONDARY</small><strong>Arms, glutes, core</strong></div><div><small>EQUIPMENT</small><strong>RitFit M1, bench, treadmill</strong></div><div><small>INTENSITY</small><strong>Leave 2–3 reps in reserve</strong></div></div></section><section class="card muscles"><h3>Today's muscle-group summary</h3><p>Push: chest, shoulders and triceps. Pull: lats, mid-back and biceps. Lower body: quads, glutes and hamstrings. Your core stabilizes every movement.</p></section><button class="primary" id="go">Begin warm-up</button>`;document.querySelector("#go").onclick=next}
+function briefing(){
+ const workoutData=activeWorkout();
+ const swaps=workoutData.filter(ex=>ex.originalExercise);
+ const swapMarkup=swaps.map(ex=>`<div class="swap-row"><div><small>REPLACED</small><strong>${ex.originalExercise}</strong></div><span>→</span><div><small>TONIGHT</small><strong>${ex.name}</strong></div></div>`).join("");
+ app.innerHTML=`<section class="card"><div class="phase"><span class="pill">EQUIPMENT-SAFE SESSION</span><strong>50–60 min</strong></div><h2>Full Body A</h2><p class="muted">Tonight’s session uses only equipment currently marked available. Bumper plates and free-barbell loading are disabled.</p><div class="brief-grid"><div><small>PRIMARY</small><strong>Chest, back, quads, shoulders</strong></div><div><small>AVAILABLE</small><strong>RitFit M1, bench, treadmill</strong></div><div><small>PLATES</small><strong>${state.equipment.bumperPlates?"Available":"Not installed"}</strong></div><div><small>INTENSITY</small><strong>Leave 2–3 reps in reserve</strong></div></div></section>
+ ${swaps.length?`<section class="card substitution-summary"><h3>Automatic substitutions</h3>${swapMarkup}<p class="muted">Use the empty Smith bar tonight. No bumper plates are needed.</p></section>`:""}
+ <section class="card muscles"><h3>Today's muscle-group summary</h3><p>Push: chest, shoulders and triceps. Pull: lats, mid-back and biceps. Lower body: quads, glutes and hamstrings. Your core stabilizes every movement.</p></section><button class="primary" id="go">Begin warm-up</button>`;
+ document.querySelector("#go").onclick=next
+}
 
 function speakCoach(text){if(!state.coachMode||!("speechSynthesis"in window))return;window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.rate=.92;window.speechSynthesis.speak(u)}
 function coachScript(ex){const setup=ex.m1?`Set the pulleys as shown in Setup. Attach ${ex.m1.attachment}. ${ex.m1.facing}.`:`Review setup and clear the area.`;return `${ex.name}. ${ex.why} ${setup} ${ex.steps[0]||""}`}
 function bindCoachMode(ex){const t=document.querySelector("#coachToggle"),r=document.querySelector("#coachReplay");if(t){t.classList.toggle("active",state.coachMode);t.textContent=state.coachMode?"Coach voice on":"Coach voice off";t.onclick=()=>{state.coachMode=!state.coachMode;save();if(state.coachMode)speakCoach(coachScript(ex));else speechSynthesis?.cancel();exercise(ex)}}if(r)r.onclick=()=>speakCoach(coachScript(ex))}
 function restCoachText(n){if(n<=10)return"Get ready and set your posture.";if(n<=20)return"Review the next setup and take two slow breaths.";if(n<=40)return"Drink water if needed and relax your grip.";return"Recover and prepare for the next set."}
-function exercise(ex){
- const pct=Math.round(state.step/data.length*100), strength=ex.type==="strength";
+function exercise(ex,workoutData=activeWorkout()){
+ const pct=Math.round(state.step/workoutData.length*100), strength=ex.type==="strength";
  const key=ex.name; if(strength&&!state.logs[key])state.logs[key]=Array(ex.sets).fill(null);
 
  app.innerHTML=`<section class="card workout-card">
-   <div class="phase"><span class="tag">${ex.type}</span><strong>${state.step}/${data.length}</strong></div>
+   <div class="phase"><span class="tag">${ex.type}</span><strong>${state.step}/${workoutData.length}</strong></div>
    <div class="progress workout-progress"><i style="width:${pct}%"></i></div>
    <h2>${ex.name}</h2>
-   <p class="muted workout-subtitle">${ex.muscles}</p><div class="why-card"><h3>Why this exercise?</h3><p>${ex.why}</p></div><div class="coach-mode-card"><div class="coach-mode-icon">🔊</div><div><h3>Coach Mode</h3><p>Hear the purpose, setup and first cue.</p><div class="coach-controls"><button id="coachToggle">Coach voice on</button><button id="coachReplay">Replay instructions</button></div></div></div>
+   <p class="muted workout-subtitle">${ex.muscles}</p>${ex.originalExercise?`<div class="substitution-alert"><strong>Equipment substitution</strong><p>${ex.originalExercise} was replaced with ${ex.name} because the required equipment is not available.</p></div>`:""}<div class="why-card"><h3>Why this exercise?</h3><p>${ex.why}</p></div><div class="coach-mode-card"><div class="coach-mode-icon">🔊</div><div><h3>Coach Mode</h3><p>Hear the purpose, setup and first cue.</p><div class="coach-controls"><button id="coachToggle">Coach voice on</button><button id="coachReplay">Replay instructions</button></div></div></div>
 
    <div class="media-tabs">
      <button class="active" data-guide-tab="demo">Demo</button>
@@ -280,7 +338,7 @@ function exercise(ex){
 
  <div class="workout-actions">
    <button class="secondary" id="back">Back</button>
-   <button class="primary" id="next">${state.step===data.length?"Finish session":"Complete & continue"}</button>
+   <button class="primary" id="next">${state.step===workoutData.length?"Finish session":"Complete & continue"}</button>
  </div>`;
 
  bindGuideTabs();
@@ -300,7 +358,7 @@ function bindTimer(ex){let b=document.querySelector("#rest");if(b)b.onclick=()=>
 function stopTimer(){clearInterval(timerId);timerId=null;}
 function startTimer(sec){remaining=sec;const el=document.querySelector("#timer");clearInterval(timerId);tick();timerId=setInterval(()=>{remaining--;tick();if(remaining<=0){clearInterval(timerId);navigator.vibrate?.([200,100,200])}},1000);function tick(){el.textContent=`${String(Math.floor(remaining/60)).padStart(2,"0")}:${String(remaining%60).padStart(2,"0")}`;const c=document.querySelector("#restCoach");if(c)c.textContent=restCoachText(remaining)}}
 function next(){state.step++;save();workout()}
-function summary(){state.sessions++;state.history.push({date:new Date().toLocaleDateString(),name:"Full Body A"});state.step=0;save();app.innerHTML=`<section class="card complete"><div class="check">✓</div><h2>Full Body A complete</h2><p class="muted">You completed the full guided flow: briefing, warm-up, mobility, seven strength exercises and cooldown.</p><div class="brief-grid"><div><small>STRENGTH SETS</small><strong>18</strong></div><div><small>MUSCLE GROUPS</small><strong>Full body</strong></div><div><small>SESSION</small><strong>#${state.sessions}</strong></div><div><small>NEXT</small><strong>Recovery + hydration</strong></div></div></section><button class="primary" id="home">Return home</button>`;document.querySelector("#home").onclick=()=>setTab("home")}
+function summary(){state.sessions++;state.history.push({date:new Date().toLocaleDateString(),name:"Full Body A"});state.step=0;save();app.innerHTML=`<section class="card complete"><div class="check">✓</div><h2>Full Body A complete</h2><p class="muted">You completed the equipment-safe guided workout using only equipment marked available.</p><div class="brief-grid"><div><small>STRENGTH SETS</small><strong>${activeWorkout().filter(x=>x.type==="strength").reduce((n,x)=>n+(x.sets||0),0)}</strong></div><div><small>MUSCLE GROUPS</small><strong>Full body</strong></div><div><small>SESSION</small><strong>#${state.sessions}</strong></div><div><small>NEXT</small><strong>Recovery + hydration</strong></div></div></section><button class="primary" id="home">Return home</button>`;document.querySelector("#home").onclick=()=>setTab("home")}
 function library(){
  const extras=window.EXTRA_LIBRARY_DATA||[];
  const all=[...data,...extras];
@@ -352,6 +410,26 @@ function showLibraryExercise(ex){
  document.querySelector("#libraryBack").onclick=library;
  bindGuideTabs();bindAssetViewer();bindVideoLinks();
 }
-function equipment(){app.innerHTML=`<section class="card"><h2>Your Home Gym</h2><p class="muted">Setup, safety and maintenance references.</p><div class="equipment-grid-v73"><div class="equipment-card-v73"><span>🏋️</span><strong>RitFit M1</strong><small>Pin positions and attachments.</small></div><div class="equipment-card-v73"><span>🏃</span><strong>iFIT Treadmill</strong><small>Walking, incline and safety.</small></div><div class="equipment-card-v73"><span>🚣</span><strong>iFIT Rower</strong><small>Catch, drive, finish and recovery.</small></div><div class="equipment-card-v73"><span>🚴</span><strong>KICKR CORE</strong><small>Bike mounting, ERG mode and cadence.</small></div><div class="equipment-card-v73"><span>⚫</span><strong>Bumper Plates</strong><small>Loading, collars and storage.</small></div><div class="equipment-card-v73"><span>🧰</span><strong>Maintenance</strong><small>Cleaning and inspection reminders.</small></div></div></section>`}
+function equipment(){
+ const items=[
+  ["ritfitM1","🏋️","RitFit M1 Pro","Required for cable and Smith-machine exercises."],
+  ["bench","🪑","Adjustable bench","Used for seated rows, pulldowns and supported movements."],
+  ["treadmill","🏃","iFIT treadmill","Used for warm-ups, cooldowns and cardio."],
+  ["rower","🚣","iFIT rower","Available for technique and cardio sessions."],
+  ["kickrCore","🚴","Wahoo KICKR CORE","Available for cycling sessions."],
+  ["bumperPlates","⚫","Olympic bumper plates","Keep off until the plates arrive and are ready to use."],
+  ["dumbbells","🔩","Dumbbells / kettlebells","Keep off unless you have usable free weights."],
+  ["olympicBarbell","🏋️‍♂️","Free Olympic barbell","This refers to free-barbell work, not the M1 Smith bar."]
+ ];
+ app.innerHTML=`<section class="card"><div class="phase"><span class="pill">VERSION 7.4</span><strong>Equipment-aware</strong></div><h2>My Equipment</h2><p class="muted">The workout automatically removes or replaces exercises that require equipment switched off below.</p><div class="equipment-toggle-list">${items.map(([key,icon,title,note])=>`<label class="equipment-toggle"><span class="equipment-symbol">${icon}</span><span class="equipment-copy"><strong>${title}</strong><small>${note}</small></span><input type="checkbox" data-equipment="${key}" ${state.equipment[key]?"checked":""}><span class="toggle-ui"></span></label>`).join("")}</div></section>
+ <section class="card equipment-impact"><h3>Tonight’s workout</h3><div class="impact-row"><span>Available exercises</span><strong>${activeWorkout().length}</strong></div><div class="impact-row"><span>Automatic substitutions</span><strong>${substitutionCount()}</strong></div><div class="impact-row"><span>Bumper-plate exercises</span><strong>${state.equipment.bumperPlates?"Enabled":"Disabled"}</strong></div><p class="muted">Current substitution: Goblet Squat → Smith Machine Squat using the empty Smith bar.</p><button class="primary" id="equipmentWorkout">Start equipment-safe workout</button></section>`;
+ document.querySelectorAll("[data-equipment]").forEach(input=>input.onchange=()=>{
+   state.equipment[input.dataset.equipment]=input.checked;
+   state.step=0;
+   save();
+   equipment();
+ });
+ document.querySelector("#equipmentWorkout").onclick=()=>{state.step=0;setTab("workout")};
+}
 function progress(){app.innerHTML=`<section class="card"><h2>Progress check-in</h2><label>Weight (lb)<input id="w" value="${state.weight}"></label><br><label>Waist (in)<input id="wa" value="${state.waist}"></label><br><button class="primary" id="saveP">Save check-in</button></section><section class="card"><h3>Workout history</h3>${state.history.length?state.history.slice().reverse().map(h=>`<div class="library-row"><strong>${h.name}</strong><small class="muted">${h.date}</small></div>`).join(""):'<p class="muted">No completed sessions yet.</p>'}</section>`;document.querySelector("#saveP").onclick=()=>{state.weight=document.querySelector("#w").value;state.waist=document.querySelector("#wa").value;save();progress()}}
 render();

@@ -1,8 +1,8 @@
-# Road to 12% — Version 7.3
+# Road to 12% — Version 7.4
 
 Upload all files in this folder to the same GitHub repository folder.
 
-Version 7.3 adds:
+Version 7.4 adds:
 - Complete guided workout flow
 - Session briefing and muscle-group summary
 - Warm-up, dynamic mobility, strength work, cooldown and stretching
@@ -15,7 +15,7 @@ Version 7.3 adds:
 
 Existing Version 4.1 device data uses a different storage key, so it remains separate.
 
-## Version 7.3 fixes
+## Version 7.4 fixes
 - Restored tappable seven-day training schedule on Home
 - Added selected-day plan preview and routing
 - Corrected iPhone text autosizing and responsive typography
@@ -23,7 +23,7 @@ Existing Version 4.1 device data uses a different storage key, so it remains sep
 - Bumped service-worker cache so GitHub Pages loads the new CSS/JS
 
 
-## Version 7.3 changes
+## Version 7.4 changes
 - Removed the universal stick-figure animation
 - Added exercise-specific animated media:
   - treadmill belt, console, walking stride and posture guide
@@ -41,7 +41,7 @@ These are lightweight in-app animations and do not require external GIF or video
 The next media upgrade can replace any animation with an MP4 file without changing the workout flow.
 
 
-## Version 7.3 changes
+## Version 7.4 changes
 - Added Safari-specific animation reliability fixes
 - Replaced the treadmill egg-shaped CSS body with a refined SVG human figure
 - Added separate head, neck, torso, pelvis, upper/lower arms, thighs, shins and shoes
@@ -54,7 +54,7 @@ The next media upgrade can replace any animation with an MP4 file without changi
 - Added extra Safari-safe bottom spacing and dynamic viewport handling
 - Preserved all Version 5.2 schedule, logging, setup and guided-workout features
 
-## Version 7.3
+## Version 7.4
 - Interactive RitFit M1 setup coach using James' actual numbered rail photo
 - Exact pin positions for each cable exercise
 - Four stages: Pin Position, Attachment, Body Setup, Movement
@@ -64,7 +64,7 @@ The next media upgrade can replace any animation with an MP4 file without changi
 - Preserves schedule, Safari fixes, timers, logging and progress
 
 
-## Version 7.3
+## Version 7.4
 - Deploys the realistic Cable Chest Press instructional asset
 - Deploys the complete RitFit M1, cable, barbell and bumper-plate visual library
 - Adds full-screen zoom for detailed study on iPhone
@@ -76,7 +76,7 @@ The next media upgrade can replace any animation with an MP4 file without changi
 - Preserves the weekly plan, timers, logging, progress and Safari layout fixes
 
 
-## Version 7.3
+## Version 7.4
 - Shows only the current exercise asset inside guided workouts
 - Moves the complete exercise poster to the Library tab only
 - Adds separate Demo, Video, Setup and Steps tabs
@@ -88,7 +88,7 @@ The next media upgrade can replace any animation with an MP4 file without changi
 - Preserves timers, logging, schedule, progress and Safari fixes
 
 
-## Version 7.3
+## Version 7.4
 - Replaces the previous Full Body A images with the new consistent high-quality asset pack
 - Adds dedicated current-exercise panels for:
   - Lat Pulldown
@@ -108,10 +108,24 @@ The next media upgrade can replace any animation with an MP4 file without changi
 Note: YouTube controls which videos allow embedding. The fallback link is shown only for videos that publishers block from embedded playback.
 
 
-## Version 7.3
+## Version 7.4
 - Corrected rope pushdown asset
 - Why This Exercise cards
 - Beginner weight guidance
 - Optional spoken Coach Mode
 - Rest coaching messages
 - Expanded equipment dashboard
+
+
+## Version 7.4 — Equipment-Aware Workout
+- Adds a persistent My Equipment control panel.
+- Bumper plates, dumbbells and free-barbell work are disabled by default.
+- Replaces Goblet Squat with an empty-bar Smith Machine Squat when dumbbells are unavailable.
+- Shows substitutions before the workout and on the affected exercise page.
+- Keeps cable, treadmill, bench and Smith-machine exercises available.
+- Lets newly arrived equipment be enabled later without reinstalling the app.
+- Adds a one-tap Start Equipment-Safe Workout button.
+- Preserves Version 7.3 Coach Mode, videos, setup guides, timers and logging.
+
+### Tonight
+Leave Olympic bumper plates, dumbbells and free Olympic barbell switched off. The app will guide an equipment-safe Full Body A session using the RitFit M1, bench and treadmill.
