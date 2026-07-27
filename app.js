@@ -52,48 +52,123 @@ function mediaType(ex){
   return "mobility";
 }
 
+function humanSvg(){
+  return `<svg class="svg-human body-bob motion-part" viewBox="0 0 180 300" aria-label="Animated walking figure" role="img">
+    <g>
+      <circle class="skin" cx="92" cy="30" r="22"></circle>
+      <rect class="skin" x="85" y="49" width="14" height="16" rx="7"></rect>
+
+      <path class="shirt torso" d="M67 64 Q91 51 116 66 L121 140 Q94 155 64 139 Z"></path>
+      <path class="shorts" d="M65 137 Q92 148 121 139 L117 174 L91 176 L65 172 Z"></path>
+
+      <g class="upper-arm arm-back motion-part">
+        <rect class="skin" x="64" y="72" width="15" height="67" rx="8"></rect>
+        <g class="lower-arm forearm-back motion-part">
+          <rect class="skin" x="64" y="126" width="14" height="57" rx="7"></rect>
+          <circle class="joint" cx="71" cy="130" r="7"></circle>
+        </g>
+      </g>
+
+      <g class="upper-arm arm-front motion-part">
+        <rect class="skin" x="108" y="72" width="15" height="67" rx="8"></rect>
+        <g class="lower-arm forearm-front motion-part">
+          <rect class="skin" x="109" y="126" width="14" height="57" rx="7"></rect>
+          <circle class="joint" cx="116" cy="130" r="7"></circle>
+        </g>
+      </g>
+
+      <g class="thigh leg-back motion-part">
+        <rect class="shorts" x="71" y="163" width="21" height="75" rx="10"></rect>
+        <g class="shin shin-back motion-part">
+          <rect class="skin" x="73" y="224" width="17" height="64" rx="8"></rect>
+          <path class="shoe" d="M67 281 h39 q10 0 12 8 h-54 q0-6 3-8z"></path>
+          <circle class="joint" cx="82" cy="226" r="8"></circle>
+        </g>
+      </g>
+
+      <g class="thigh leg-front motion-part">
+        <rect class="shorts" x="95" y="163" width="21" height="75" rx="10"></rect>
+        <g class="shin shin-front motion-part">
+          <rect class="skin" x="97" y="224" width="17" height="64" rx="8"></rect>
+          <path class="shoe" d="M91 281 h39 q10 0 12 8 h-54 q0-6 3-8z"></path>
+          <circle class="joint" cx="106" cy="226" r="8"></circle>
+        </g>
+      </g>
+    </g>
+  </svg>`;
+}
+
 function mediaMarkup(ex){
   const type=mediaType(ex);
 
   if(type==="treadmill"){
-    return `<div class="exercise-media treadmill-scene">
-      <span class="media-chip">Exercise-specific demo</span>
+    return `<div class="media-heading"><strong>Exercise-specific demo</strong><span>Side view • natural stride</span></div>
+    <div class="exercise-media treadmill-scene is-playing" data-animation-root>
       <div class="wall-line"></div>
       <div class="treadmill">
-        <div class="deck"></div><div class="belt"></div><div class="upright"></div>
+        <div class="deck"></div><div class="belt motion-part"></div><div class="upright"></div>
         <div class="console"><div class="screen"></div></div>
       </div>
-      <div class="walker-crop">
-        <i class="torso-shape"></i><i class="hip"></i>
-        <i class="leg leg-a"><i class="shoe"></i></i>
-        <i class="leg leg-b"><i class="shoe"></i></i>
-        <i class="arm arm-a"></i><i class="arm arm-b"></i>
-      </div>
+      ${humanSvg()}
       <div class="posture-line"></div>
-      <span class="media-caption">Treadmill, moving belt, natural stride and upright posture</span>
+    </div>
+    <p class="media-note">Treadmill walk with upright posture, natural arm swing and heel-to-toe stride.</p>
+    <div class="animation-controls">
+      <button class="active" data-animation-play>Pause animation</button>
+      <button data-animation-restart>Restart animation</button>
     </div>`;
   }
 
   if(type.startsWith("cable-")){
     const level=type.split("-")[1];
-    return `<div class="exercise-media cable-scene ${level}">
-      <span class="media-chip">RitFit M1 setup</span>
+    return `<div class="media-heading"><strong>RitFit M1 demonstration</strong><span>${level} pulley position</span></div>
+    <div class="exercise-media cable-scene ${level} is-playing" data-animation-root>
       <div class="rack"></div><div class="crossbar"></div>
       <i class="pulley left"></i><i class="pulley right"></i>
-      <i class="cable left"></i><i class="cable right"></i>
-      <i class="handle left"></i><i class="handle right"></i>
-      <span class="motion-arrow">→</span>
-      <span class="media-caption">Animated pulley position, cable path and movement direction</span>
+      <i class="cable left motion-part"></i><i class="cable right motion-part"></i>
+      <i class="handle left motion-part"></i><i class="handle right motion-part"></i>
+      <span class="motion-arrow motion-part">→</span>
+    </div>
+    <p class="media-note">Pulley height, cable path and movement direction are shown without covering the visual.</p>
+    <div class="animation-controls">
+      <button class="active" data-animation-play>Pause animation</button>
+      <button data-animation-restart>Restart animation</button>
     </div>`;
   }
 
   const cls = type==="circles" ? "circles" : type==="squat" ? "squat" : type==="hinge" ? "hinge" : "";
-  return `<div class="exercise-media mobility-scene ${cls}">
-    <span class="media-chip">Movement pattern</span>
-    <div class="floor"></div><div class="body-block"></div>
-    ${type==="circles" ? '<div class="orbit"></div>' : ""}
-    <span class="media-caption">${type==="squat" ? "Controlled lowering and standing pattern" : type==="hinge" ? "Hips travel backward while the spine stays long" : type==="circles" ? "Shoulder-circle path and controlled range" : "Controlled mobility demonstration"}</span>
+  return `<div class="media-heading"><strong>Movement pattern</strong><span>Controlled demonstration</span></div>
+  <div class="exercise-media mobility-scene ${cls} is-playing" data-animation-root>
+    <div class="floor"></div><div class="body-block motion-part"></div>
+    ${type==="circles" ? '<div class="orbit motion-part"></div>' : ""}
+  </div>
+  <p class="media-note">${type==="squat" ? "Controlled lowering and standing pattern." : type==="hinge" ? "Hips move backward while the spine stays long." : type==="circles" ? "Shoulder-circle path with a controlled range." : "Controlled mobility demonstration."}</p>
+  <div class="animation-controls">
+    <button class="active" data-animation-play>Pause animation</button>
+    <button data-animation-restart>Restart animation</button>
   </div>`;
+}
+
+function bindAnimationControls(){
+  const root=document.querySelector("[data-animation-root]");
+  const play=document.querySelector("[data-animation-play]");
+  const restart=document.querySelector("[data-animation-restart]");
+  if(!root||!play)return;
+
+  play.onclick=()=>{
+    const paused=root.classList.toggle("is-paused");
+    root.classList.toggle("is-playing",!paused);
+    play.textContent=paused?"Play animation":"Pause animation";
+    play.classList.toggle("active",!paused);
+  };
+
+  if(restart){
+    restart.onclick=()=>{
+      const clone=root.cloneNode(true);
+      root.replaceWith(clone);
+      bindAnimationControls();
+    };
+  }
 }
 
 function quickSettings(ex){
@@ -167,14 +242,16 @@ function exercise(ex){
  </div>`;
 
  bindGuideTabs();
+ bindAnimationControls();
  document.querySelector("#back").onclick=()=>{state.step=Math.max(0,state.step-1);save();workout()};
  document.querySelector("#next").onclick=next;
  if(strength)bindSets(ex); else bindTimer(ex);
 }
-function sets(ex){return `<section class="card"><h3>${ex.sets} sets × ${ex.reps} reps</h3><p class="muted">Enter weight and reps, then tap the circle to complete each set.</p>${state.logs[ex.name].map((v,i)=>`<div class="set-row"><strong>${i+1}</strong><input data-w="${i}" inputmode="decimal" placeholder="lb" value="${v?.weight||""}"><input data-r="${i}" inputmode="numeric" value="${v?.reps||ex.reps}"><button data-d="${i}" class="${v?.done?"done":""}">${v?.done?"✓":"○"}</button></div>`).join("")}<div class="timer" id="timer">Rest ${String(Math.floor(ex.rest/60)).padStart(2,"0")}:${String(ex.rest%60).padStart(2,"0")}</div><button class="secondary" id="rest">Start rest timer</button></section>`}
-function timed(ex){return `<section class="card"><h3>${ex.duration}</h3><div class="timer" id="timer">${ex.duration.includes(":")?ex.duration:"Ready"}</div>${ex.duration.includes(":")?'<button class="secondary" id="rest">Start timer</button>':""}</section>`}
-function bindSets(ex){document.querySelectorAll("[data-d]").forEach(b=>b.onclick=()=>{let i=+b.dataset.d,w=document.querySelector(`[data-w="${i}"]`).value,r=document.querySelector(`[data-r="${i}"]`).value;state.logs[ex.name][i]={weight:w,reps:r,done:!state.logs[ex.name][i]?.done};save();exercise(ex)});document.querySelector("#rest").onclick=()=>startTimer(ex.rest)}
-function bindTimer(ex){let b=document.querySelector("#rest");if(b)b.onclick=()=>{let [m,s]=ex.duration.split(":").map(Number);startTimer(m*60+s)}}
+function sets(ex){return `<section class="card timer-card"><h3>${ex.sets} sets × ${ex.reps} reps</h3><p class="muted">Enter weight and reps, then tap the circle to complete each set.</p>${state.logs[ex.name].map((v,i)=>`<div class="set-row"><strong>${i+1}</strong><input data-w="${i}" inputmode="decimal" placeholder="lb" value="${v?.weight||""}"><input data-r="${i}" inputmode="numeric" value="${v?.reps||ex.reps}"><button data-d="${i}" class="${v?.done?"done":""}">${v?.done?"✓":"○"}</button></div>`).join("")}<div class="timer" id="timer">Rest ${String(Math.floor(ex.rest/60)).padStart(2,"0")}:${String(ex.rest%60).padStart(2,"0")}</div><div class="timer-controls"><button class="secondary" id="rest">Start rest timer</button><button class="secondary" id="stopTimer">Stop timer</button></div></section>`}
+function timed(ex){return `<section class="card timer-card"><h3>${ex.duration}</h3><div class="timer" id="timer">${ex.duration.includes(":")?ex.duration:"Ready"}</div>${ex.duration.includes(":")?'<div class="timer-controls"><button class="primary" id="rest">Start timer</button><button class="secondary" id="stopTimer">Stop timer</button></div>':""}</section>`}
+function bindSets(ex){document.querySelectorAll("[data-d]").forEach(b=>b.onclick=()=>{let i=+b.dataset.d,w=document.querySelector(`[data-w="${i}"]`).value,r=document.querySelector(`[data-r="${i}"]`).value;state.logs[ex.name][i]={weight:w,reps:r,done:!state.logs[ex.name][i]?.done};save();exercise(ex)});document.querySelector("#rest").onclick=()=>startTimer(ex.rest);const stop=document.querySelector("#stopTimer");if(stop)stop.onclick=stopTimer}
+function bindTimer(ex){let b=document.querySelector("#rest");if(b)b.onclick=()=>{let [m,s]=ex.duration.split(":").map(Number);startTimer(m*60+s)};const stop=document.querySelector("#stopTimer");if(stop)stop.onclick=stopTimer}
+function stopTimer(){clearInterval(timerId);timerId=null;}
 function startTimer(sec){remaining=sec;const el=document.querySelector("#timer");clearInterval(timerId);tick();timerId=setInterval(()=>{remaining--;tick();if(remaining<=0){clearInterval(timerId);navigator.vibrate?.([200,100,200])}},1000);function tick(){el.textContent=`${String(Math.floor(remaining/60)).padStart(2,"0")}:${String(remaining%60).padStart(2,"0")}`}}
 function next(){state.step++;save();workout()}
 function summary(){state.sessions++;state.history.push({date:new Date().toLocaleDateString(),name:"Full Body A"});state.step=0;save();app.innerHTML=`<section class="card complete"><div class="check">✓</div><h2>Full Body A complete</h2><p class="muted">You completed the full guided flow: briefing, warm-up, mobility, seven strength exercises and cooldown.</p><div class="brief-grid"><div><small>STRENGTH SETS</small><strong>18</strong></div><div><small>MUSCLE GROUPS</small><strong>Full body</strong></div><div><small>SESSION</small><strong>#${state.sessions}</strong></div><div><small>NEXT</small><strong>Recovery + hydration</strong></div></div></section><button class="primary" id="home">Return home</button>`;document.querySelector("#home").onclick=()=>setTab("home")}

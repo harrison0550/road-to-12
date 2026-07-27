@@ -860,9 +860,328 @@ body.workout-mode nav span {
   }
 }
 
+
+
+/* =========================================================
+   ROAD TO 12% — VERSION 5.3
+   Safari animation reliability + refined SVG body model
+   ========================================================= */
+
+.exercise-media,
+.exercise-media * {
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+.exercise-media.is-playing .motion-part {
+  animation-play-state: running !important;
+}
+
+.exercise-media.is-paused .motion-part {
+  animation-play-state: paused !important;
+}
+
+/* Keep animation layers on the GPU in Safari */
+.motion-part {
+  will-change: transform;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-transform-origin: center;
+  transform-origin: center;
+}
+
+/* Keep all labels outside the drawing area */
+.exercise-media {
+  overflow: hidden;
+}
+
+.media-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 4px 0 9px;
+}
+
+.media-heading strong {
+  font-size: 12px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.media-heading span {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.media-note {
+  margin: 9px 2px 0;
+  color: #cbd2db;
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.animation-controls {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.animation-controls button {
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  padding: 11px;
+  background: #161c23;
+  color: #dfe4ea;
+  font-weight: 850;
+}
+
+.animation-controls button.active {
+  color: white;
+  border-color: #ff5360;
+  background: rgba(239,57,71,.16);
+}
+
+/* Refined SVG human figure */
+.svg-human {
+  position: absolute;
+  left: 25%;
+  bottom: 22%;
+  width: 38%;
+  height: 69%;
+  overflow: visible;
+  z-index: 3;
+}
+
+.svg-human .skin {
+  fill: #d8dde4;
+}
+
+.svg-human .shirt {
+  fill: #aab5c1;
+}
+
+.svg-human .shorts {
+  fill: #707b88;
+}
+
+.svg-human .shoe {
+  fill: #f5f7f9;
+}
+
+.svg-human .joint {
+  fill: #c2cad3;
+}
+
+.svg-human .stroke {
+  stroke: #dfe4ea;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
+}
+
+.svg-human .torso {
+  transform-box: fill-box;
+  transform-origin: center bottom;
+}
+
+.svg-human .upper-arm,
+.svg-human .lower-arm,
+.svg-human .thigh,
+.svg-human .shin {
+  transform-box: fill-box;
+}
+
+.svg-human .upper-arm.arm-front {
+  transform-origin: 15% 12%;
+  animation: svgArmFront 1.05s ease-in-out infinite;
+}
+
+.svg-human .upper-arm.arm-back {
+  transform-origin: 15% 12%;
+  animation: svgArmBack 1.05s ease-in-out infinite;
+}
+
+.svg-human .lower-arm.forearm-front {
+  transform-origin: 18% 12%;
+  animation: svgForearmFront 1.05s ease-in-out infinite;
+}
+
+.svg-human .lower-arm.forearm-back {
+  transform-origin: 18% 12%;
+  animation: svgForearmBack 1.05s ease-in-out infinite;
+}
+
+.svg-human .thigh.leg-front {
+  transform-origin: 50% 8%;
+  animation: svgThighFront 1.05s ease-in-out infinite;
+}
+
+.svg-human .thigh.leg-back {
+  transform-origin: 50% 8%;
+  animation: svgThighBack 1.05s ease-in-out infinite;
+}
+
+.svg-human .shin.shin-front {
+  transform-origin: 50% 8%;
+  animation: svgShinFront 1.05s ease-in-out infinite;
+}
+
+.svg-human .shin.shin-back {
+  transform-origin: 50% 8%;
+  animation: svgShinBack 1.05s ease-in-out infinite;
+}
+
+.svg-human .body-bob {
+  animation: svgBodyBob 1.05s ease-in-out infinite;
+  transform-origin: center;
+}
+
+@keyframes svgArmFront {
+  0%,100% { transform: rotate(-24deg); }
+  50% { transform: rotate(24deg); }
+}
+@keyframes svgArmBack {
+  0%,100% { transform: rotate(24deg); }
+  50% { transform: rotate(-24deg); }
+}
+@keyframes svgForearmFront {
+  0%,100% { transform: rotate(8deg); }
+  50% { transform: rotate(-10deg); }
+}
+@keyframes svgForearmBack {
+  0%,100% { transform: rotate(-10deg); }
+  50% { transform: rotate(8deg); }
+}
+@keyframes svgThighFront {
+  0%,100% { transform: rotate(20deg); }
+  50% { transform: rotate(-19deg); }
+}
+@keyframes svgThighBack {
+  0%,100% { transform: rotate(-19deg); }
+  50% { transform: rotate(20deg); }
+}
+@keyframes svgShinFront {
+  0%,100% { transform: rotate(-10deg); }
+  50% { transform: rotate(15deg); }
+}
+@keyframes svgShinBack {
+  0%,100% { transform: rotate(15deg); }
+  50% { transform: rotate(-10deg); }
+}
+@keyframes svgBodyBob {
+  0%,100% { transform: translateY(0); }
+  50% { transform: translateY(2.5px); }
+}
+
+/* More realistic treadmill proportions */
+.treadmill-scene .svg-human {
+  left: 27%;
+  width: 35%;
+}
+
+.treadmill-scene .treadmill {
+  left: 7%;
+  right: 5%;
+  bottom: 13%;
+  height: 30%;
+}
+
+.treadmill-scene .posture-line {
+  left: 46%;
+  top: 12%;
+  height: 46%;
+}
+
+/* Safari-safe content flow: timer before action row */
+.workout-actions {
+  position: static;
+  bottom: auto;
+  margin-top: 12px;
+}
+
+.timer-card {
+  position: relative;
+  z-index: 2;
+}
+
+.timer {
+  font-size: clamp(42px, 13vw, 64px);
+  line-height: 1;
+  margin: 12px 0;
+}
+
+.timer-controls {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 9px;
+}
+
+.timer-controls .secondary,
+.timer-controls .primary {
+  padding: 14px 10px;
+}
+
+/* Ensure browser chrome never crowds the final controls */
+body.workout-mode .shell {
+  padding-bottom: calc(var(--workout-nav-height) + 44px);
+}
+
+body.workout-mode nav {
+  min-height: var(--workout-nav-height);
+}
+
+/* Compact media on iPhone Safari */
+@supports (-webkit-touch-callout: none) {
+  .exercise-media {
+    aspect-ratio: auto;
+    height: clamp(220px, 34vh, 300px);
+    min-height: 220px;
+  }
+
+  .svg-human {
+    height: 65%;
+    bottom: 23%;
+  }
+
+  .media-heading {
+    margin-top: 2px;
+  }
+
+  .workout-card {
+    overflow: hidden;
+  }
+}
+
+@media (max-width: 430px) {
+  .media-heading {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .animation-controls {
+    grid-template-columns: 1fr;
+  }
+
+  .quick-settings {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .quick-setting {
+    padding: 9px 8px;
+  }
+
+  .quick-setting strong {
+    font-size: 12px;
+  }
+}
+
+/* Reduced-motion users still get a slower visible demonstration */
 @media (prefers-reduced-motion: reduce) {
-  .exercise-media * {
-    animation-duration: .001ms !important;
-    animation-iteration-count: 1 !important;
+  .motion-part {
+    animation-duration: 2.4s !important;
+    animation-timing-function: ease-in-out !important;
   }
 }

@@ -1,8 +1,8 @@
-# Road to 12% — Version 5.2
+# Road to 12% — Version 5.3
 
 Upload all files in this folder to the same GitHub repository folder.
 
-Version 5.2 adds:
+Version 5.3 adds:
 - Complete guided workout flow
 - Session briefing and muscle-group summary
 - Warm-up, dynamic mobility, strength work, cooldown and stretching
@@ -15,7 +15,7 @@ Version 5.2 adds:
 
 Existing Version 4.1 device data uses a different storage key, so it remains separate.
 
-## Version 5.2 fixes
+## Version 5.3 fixes
 - Restored tappable seven-day training schedule on Home
 - Added selected-day plan preview and routing
 - Corrected iPhone text autosizing and responsive typography
@@ -23,7 +23,7 @@ Existing Version 4.1 device data uses a different storage key, so it remains sep
 - Bumped service-worker cache so GitHub Pages loads the new CSS/JS
 
 
-## Version 5.2 changes
+## Version 5.3 changes
 - Removed the universal stick-figure animation
 - Added exercise-specific animated media:
   - treadmill belt, console, walking stride and posture guide
@@ -39,3 +39,17 @@ Existing Version 4.1 device data uses a different storage key, so it remains sep
 
 These are lightweight in-app animations and do not require external GIF or video hosting.
 The next media upgrade can replace any animation with an MP4 file without changing the workout flow.
+
+
+## Version 5.3 changes
+- Added Safari-specific animation reliability fixes
+- Replaced the treadmill egg-shaped CSS body with a refined SVG human figure
+- Added separate head, neck, torso, pelvis, upper/lower arms, thighs, shins and shoes
+- Added joint-based walking movement with more natural arm and leg motion
+- Added visible Play/Pause and Restart animation controls
+- Prevented reduced-motion settings from freezing demonstrations completely
+- Moved all media labels and descriptions outside the drawing area
+- Removed sticky workout controls that covered the timer in Safari
+- Added Start/Stop timer controls
+- Added extra Safari-safe bottom spacing and dynamic viewport handling
+- Preserved all Version 5.2 schedule, logging, setup and guided-workout features
