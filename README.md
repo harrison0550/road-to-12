@@ -1,21 +1,16 @@
-# Road to 12% v4.1
+# Road to 12% — Version 5.0
 
-## New in v4.1
-- Clear schedule icon key
-- 💪 Strength
-- 🚶 / 🚴 Cardio
-- 🧘 Recovery
-- Red outline marks today
-- Every day card is tappable
-- Tapping a strength day opens Full Body A or B
-- Tapping a cardio day opens the cardio logger
-- Tapping a recovery day opens the recovery plan
-- New Today's Mission card
+Upload all files in this folder to the same GitHub repository folder.
 
-## Deploy
-Upload everything inside `road_to_12_v4_1` to the root of the existing `road-to-12` repository.
+Version 5.0 adds:
+- Complete guided workout flow
+- Session briefing and muscle-group summary
+- Warm-up, dynamic mobility, strength work, cooldown and stretching
+- Looping animated movement demonstrations
+- Step-by-step instructions and coaching cues
+- RitFit M1 pulley, attachment and bench setup
+- Set logging and rest/countdown timers
+- Exercise library
+- Workout-completion summary and saved progress
 
-After the green deployment check, open:
-https://harrison0550.github.io/road-to-12/?v=4.1
-
-The header should show VERSION 4.1.
+Existing Version 4.1 device data uses a different storage key, so it remains separate.
