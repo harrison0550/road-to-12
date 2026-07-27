@@ -1,22 +1,21 @@
-# Road to 12% v4.0
+# Road to 12% v4.1
 
-## New in v4
-- V4 Coach guidance card
-- Weekly training score
-- Monthly workout calendar
-- Three-way exercise visual guide:
-  - Your actual gym photo
-  - Machine setup diagram
-  - Muscle-focus illustration
-- Guided 40-second set timer
-- Personal-record board
-- Existing readiness, RPE, cardio, check-in and backup features
-- New cache-proof filenames
+## New in v4.1
+- Clear schedule icon key
+- 💪 Strength
+- 🚶 / 🚴 Cardio
+- 🧘 Recovery
+- Red outline marks today
+- Every day card is tappable
+- Tapping a strength day opens Full Body A or B
+- Tapping a cardio day opens the cardio logger
+- Tapping a recovery day opens the recovery plan
+- New Today's Mission card
 
 ## Deploy
-Upload everything inside `road_to_12_v4` to the root of the existing `road-to-12` repository and replace matching files.
+Upload everything inside `road_to_12_v4_1` to the root of the existing `road-to-12` repository.
 
 After the green deployment check, open:
-https://harrison0550.github.io/road-to-12/?v=4
+https://harrison0550.github.io/road-to-12/?v=4.1
 
-The header must show VERSION 4.0.
+The header should show VERSION 4.1.
