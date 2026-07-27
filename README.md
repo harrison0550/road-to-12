@@ -1,16 +1,19 @@
-# Road to 12% v3.1
+# Road to 12% v3.1.1 Cache Hotfix
 
-Version 3.1 fixes the JavaScript syntax error that caused Version 3.0 to show only the header and navigation.
+This build fixes the situation where the new HTML loaded but Safari continued using the old broken `app.js`.
 
-## Install over your current GitHub Pages version
+The JavaScript and stylesheet have unique filenames:
+- `app-3.1.1.js`
+- `styles-3.1.1.css`
 
-1. Unzip `Road-to-12-v3.1.zip`.
-2. Open the `road_to_12_v3_1` folder.
-3. Upload everything inside that folder to the root of your existing `road-to-12` repository.
-4. Replace the existing files and commit directly to `main`.
-5. Wait for the green deployment check.
-6. Open:
-   `https://harrison0550.github.io/road-to-12/?v=3.1`
-7. You should see `VERSION 3.1` directly beneath the Road to 12% heading.
+That forces Safari to download the working files rather than reuse Version 3.0's cached JavaScript.
 
-Version 3.1 retains the Version 3 features and migrates Version 2 local data when available.
+## Deployment
+1. Upload everything inside `road_to_12_v3_1_hotfix` to the repository root.
+2. Replace existing files and commit to `main`.
+3. Wait for the green deployment check.
+4. Open:
+   https://harrison0550.github.io/road-to-12/?v=3.1.1
+5. Confirm the header says `VERSION 3.1.1`.
+
+You may leave the older `app.js` and `styles.css` files in GitHub; Version 3.1.1 no longer references them.
