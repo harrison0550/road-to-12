@@ -1,5 +1,5 @@
 
-const APP_VERSION="3.0";
+const APP_VERSION="3.1";
 const PROFILE={name:"James",weight:221,bodyFat:31,height:"6'1\"",age:46,waist:43,targetLow:190,targetHigh:200};
 const WORKOUTS={
 A:[
@@ -48,7 +48,7 @@ function home(){
  const last=s.checkins.at(-1),w=last?.weight||PROFILE.weight,waist=last?.waist||PROFILE.waist; const plan=todayPlan(); const label=plan==="A"?"Full Body A":plan==="B"?"Full Body B":plan==="cardio"?"Treadmill Zone 2":"Recovery Day";
  app.innerHTML=`<section class="hero"><img src="assets/gym_wide.jpeg"><div class="hero-copy"><span class="pill">WEEK 1 • DAY ${s.programDay}</span><h2>${label}</h2><p>${plan==="recovery"?"Easy walk and mobility":"Guided session using your equipment"}</p><button class="btn primary wide" id="start">${plan==="recovery"?"Open recovery plan":"Start today's workout"}</button></div></section>
  <section class="grid3"><div class="stat"><span>WEIGHT</span><strong>${w} lb</strong></div><div class="stat"><span>WAIST</span><strong>${waist} in</strong></div><div class="stat"><span>SESSIONS</span><strong>${s.sessions.length}</strong></div></section>
- <section class="card"><div class="section-head"><div><span class="eyebrow">READINESS CHECK</span><h2>How do you feel?</h2></div><span class="version-badge">V3.0</span></div>
+ <section class="card"><div class="section-head"><div><span class="eyebrow">READINESS CHECK</span><h2>How do you feel?</h2></div><span class="version-badge">V3.1</span></div>
  ${readinessBlock("sleep","Sleep")}${readinessBlock("energy","Energy")}${readinessBlock("soreness","Soreness")}
  <div class="suggest" id="readinessAdvice">${readinessAdvice()}</div></section>
  <section class="card"><span class="eyebrow">QUICK START</span><div class="quick-grid">
@@ -119,7 +119,7 @@ function chartSvg(values){
 function progress(){
  const last=s.checkins.at(-1),current=Number(last?.weight||PROFILE.weight),lost=PROFILE.weight-current,goalPct=Math.max(0,Math.min(100,Math.round(Math.max(0,lost)/(PROFILE.weight-PROFILE.targetHigh)*100)));
  const vals=[PROFILE.weight,...s.checkins.map(c=>Number(c.weight)).filter(Boolean)];
- app.innerHTML=`<section class="card"><div class="section-head"><div><span class="eyebrow">PROFILE</span><h2>${PROFILE.name}' Road to 12%</h2></div><span class="version-badge">V3.0</span></div><p class="muted">${PROFILE.height} • age ${PROFILE.age} • target 190–200 lb</p><div class="bar"><span style="width:${goalPct}%"></span></div><p class="muted">${lost>=0?lost.toFixed(1)+" lb lost":Math.abs(lost).toFixed(1)+" lb above starting weight"}</p></section>
+ app.innerHTML=`<section class="card"><div class="section-head"><div><span class="eyebrow">PROFILE</span><h2>${PROFILE.name}' Road to 12%</h2></div><span class="version-badge">V3.1</span></div><p class="muted">${PROFILE.height} • age ${PROFILE.age} • target 190–200 lb</p><div class="bar"><span style="width:${goalPct}%"></span></div><p class="muted">${lost>=0?lost.toFixed(1)+" lb lost":Math.abs(lost).toFixed(1)+" lb above starting weight"}</p></section>
  <section class="card"><span class="eyebrow">WEIGHT TREND</span>${chartSvg(vals)}</section>
  <section class="card"><div class="metric-row"><div class="metric"><span>STRENGTH</span><strong>${s.sessions.length}</strong></div><div class="metric"><span>CARDIO</span><strong>${s.cardio.length}</strong></div><div class="metric"><span>CHECK-INS</span><strong>${s.checkins.length}</strong></div></div></section>
  <section class="card"><label>Body weight (lb)<input id="weight" inputmode="decimal" placeholder="${PROFILE.weight}"></label><label>Body fat (%)<input id="bf" inputmode="decimal" placeholder="${PROFILE.bodyFat}"></label><label>Waist at navel (in)<input id="waist" inputmode="decimal" placeholder="${PROFILE.waist}"></label><button class="btn primary wide" id="saveCheck">Save check-in</button></section>
@@ -129,12 +129,28 @@ function progress(){
  function showPane(type){document.querySelectorAll("[data-history]").forEach(b=>b.classList.toggle("active",b.dataset.history===type));const pane=document.getElementById("historyPane");pane.innerHTML="";
    const data=type==="strength"?s.sessions:type==="cardio"?s.cardio:s.checkins;
    if(!data.length){pane.innerHTML='<div class="empty">Nothing recorded yet.</div>';return}
-   data.slice().reverse().forEach(c=>pane.appendChild(elem("div","history",type==="strength"?`<div><strong>${c.name}</strong><div class="muted">${c.date}</div></div><span>✓</span>`:type==="cardio"?`<div><strong>${c.type} • ${c.minutes} min</strong><div class="muted">${c.date}${c.distance?" • "+c.distance:""}</div></div><span>▲</span>`:`<div><strong>${c.date}</strong><div class="muted">${c.waist?c.waist+" in waist":""}</div></div><div><strong>${c.weight?c.weight+" lb":"—"}</strong><div class="muted">${c.bf?c.bf+"% fat":""}</div></div>`))}
+   data.slice().reverse().forEach(c=>{
+     let html="";
+     if(type==="strength"){
+       html=`<div><strong>${c.name}</strong><div class="muted">${c.date}</div></div><span>✓</span>`;
+     }else if(type==="cardio"){
+       html=`<div><strong>${c.type} • ${c.minutes} min</strong><div class="muted">${c.date}${c.distance?" • "+c.distance:""}</div></div><span>▲</span>`;
+     }else{
+       html=`<div><strong>${c.date}</strong><div class="muted">${c.waist?c.waist+" in waist":""}</div></div><div><strong>${c.weight?c.weight+" lb":"—"}</strong><div class="muted">${c.bf?c.bf+"% fat":""}</div></div>`;
+     }
+     pane.appendChild(elem("div","history",html));
+   });}
  document.querySelectorAll("[data-history]").forEach(b=>b.onclick=()=>showPane(b.dataset.history));showPane("strength");
- document.getElementById("exportBtn").onclick=()=>{const blob=new Blob([JSON.stringify(s,null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="road-to-12-v3-backup.json";a.click();URL.revokeObjectURL(a.href)};
+ document.getElementById("exportBtn").onclick=()=>{const blob=new Blob([JSON.stringify(s,null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="road-to-12-v3.1-backup.json";a.click();URL.revokeObjectURL(a.href)};
  document.getElementById("importInput").onchange=e=>{const f=e.target.files[0];if(!f)return;const reader=new FileReader();reader.onload=()=>{try{const restored=JSON.parse(reader.result);if(!restored||typeof restored!=="object")throw new Error();if(confirm("Replace current app data with this backup?")){s=restored;save();toast("Backup restored");render()}}catch{alert("That file is not a valid Road to 12% backup.")}};reader.readAsText(f)}
 }
 document.querySelectorAll(".nav").forEach(b=>b.onclick=()=>{s.tab=b.dataset.tab;save();render()});
 document.getElementById("reset").onclick=()=>{if(confirm("Reset all app data on this device?")){localStorage.removeItem("road12v3");localStorage.removeItem("road12v2");location.reload()}};
+window.addEventListener("error",event=>{
+  const target=document.getElementById("app");
+  if(target && !target.innerHTML.trim()){
+    target.innerHTML=`<section class="card notice"><strong>Road to 12% could not finish loading.</strong><br>Please refresh Safari. Error: ${event.message||"Unknown error"}</section>`;
+  }
+});
 if("serviceWorker" in navigator)navigator.serviceWorker.register("./sw.js").catch(()=>{});
 render();

@@ -1,32 +1,16 @@
-# Road to 12% v3.0
+# Road to 12% v3.1
 
-## Replace the existing GitHub Pages version
+Version 3.1 fixes the JavaScript syntax error that caused Version 3.0 to show only the header and navigation.
 
-1. Download and unzip `Road-to-12-v3.0.zip`.
-2. Open the folder named `road_to_12_v3`.
-3. In GitHub, open your existing `road-to-12` repository.
-4. On the **Code** page, tap **Add file** → **Upload files**.
-5. Upload everything INSIDE `road_to_12_v3`, including the entire `assets` folder.
-6. Commit directly to the `main` branch with the message `Upgrade to version 3.0`.
-7. Wait approximately 1–3 minutes for GitHub Pages.
-8. Open the Pages URL in Safari and refresh.
-9. Close and reopen the Home Screen app.
+## Install over your current GitHub Pages version
 
-The new service worker deletes older app caches. Existing v2 data is automatically migrated to v3 when opened on the same device and browser.
+1. Unzip `Road-to-12-v3.1.zip`.
+2. Open the `road_to_12_v3_1` folder.
+3. Upload everything inside that folder to the root of your existing `road-to-12` repository.
+4. Replace the existing files and commit directly to `main`.
+5. Wait for the green deployment check.
+6. Open:
+   `https://harrison0550.github.io/road-to-12/?v=3.1`
+7. You should see `VERSION 3.1` directly beneath the Road to 12% heading.
 
-## New in version 3.0
-
-- Automatic migration of version 2 data
-- Readiness check for sleep, energy and soreness
-- Quick launch for Full Body A, Full Body B, cardio and check-ins
-- RPE logging for each exercise
-- Automatic rest timer when a set is marked complete
-- Smarter progression suggestions based on previous weight and RPE
-- Dedicated treadmill, bike and rowing log
-- Weight trend chart
-- Strength, cardio and measurement history tabs
-- Backup export and backup import
-- Improved update behavior and cache replacement
-- Recovery-day guidance
-
-All health and workout information remains stored locally in Safari unless you export a backup.
+Version 3.1 retains the Version 3 features and migrates Version 2 local data when available.
