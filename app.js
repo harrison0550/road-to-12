@@ -17,7 +17,7 @@ const save=()=>localStorage.setItem("road12v5",JSON.stringify(state));
 function setTab(t){state.tab=t;save();render()}
 nav.forEach(b=>b.onclick=()=>setTab(b.dataset.tab));
 document.querySelector("#reset").onclick=()=>{if(confirm("Reset Version 5 workout data?")){localStorage.removeItem("road12v5");location.reload()}};
-function render(){clearInterval(timerId);nav.forEach(b=>b.classList.toggle("active",b.dataset.tab===state.tab));({home:home,workout:workout,library:library,equipment:equipment,progress:progress}[state.tab]||home)()}
+function render(){clearInterval(timerId);document.body.classList.toggle("workout-mode",state.tab==="workout");nav.forEach(b=>b.classList.toggle("active",b.dataset.tab===state.tab));({home:home,workout:workout,library:library,equipment:equipment,progress:progress}[state.tab]||home)()}
 function home(){
  const day=weekPlan[state.selectedDay];
  app.innerHTML=`<section class="hero"><img src="${window.HERO_IMAGE}"><div class="shade"></div><div class="hero-copy"><span class="pill">WEEK 1 • FOUNDATION</span><h2>${day.title}</h2><p>${day.detail}</p><button class="primary" id="start">${day.action==="workout"?"Start today's guided workout":"Open selected day"}</button></div></section>
@@ -38,6 +38,89 @@ function showDayPlan(){
  document.querySelector("#backHome").onclick=()=>setTab("home");
 }
 
+
+function mediaType(ex){
+  const n=ex.name.toLowerCase();
+  if(n.includes("treadmill")) return "treadmill";
+  if(n.includes("arm circle")) return "circles";
+  if(n.includes("squat")) return "squat";
+  if(n.includes("hinge")) return "hinge";
+  if(n.includes("stretch")) return "stretch";
+  if(n.includes("lat pulldown") || n.includes("pushdown")) return "cable-high";
+  if(n.includes("row") || n.includes("curl")) return "cable-low";
+  if(n.includes("cable") || n.includes("chest press")) return "cable-mid";
+  return "mobility";
+}
+
+function mediaMarkup(ex){
+  const type=mediaType(ex);
+
+  if(type==="treadmill"){
+    return `<div class="exercise-media treadmill-scene">
+      <span class="media-chip">Exercise-specific demo</span>
+      <div class="wall-line"></div>
+      <div class="treadmill">
+        <div class="deck"></div><div class="belt"></div><div class="upright"></div>
+        <div class="console"><div class="screen"></div></div>
+      </div>
+      <div class="walker-crop">
+        <i class="torso-shape"></i><i class="hip"></i>
+        <i class="leg leg-a"><i class="shoe"></i></i>
+        <i class="leg leg-b"><i class="shoe"></i></i>
+        <i class="arm arm-a"></i><i class="arm arm-b"></i>
+      </div>
+      <div class="posture-line"></div>
+      <span class="media-caption">Treadmill, moving belt, natural stride and upright posture</span>
+    </div>`;
+  }
+
+  if(type.startsWith("cable-")){
+    const level=type.split("-")[1];
+    return `<div class="exercise-media cable-scene ${level}">
+      <span class="media-chip">RitFit M1 setup</span>
+      <div class="rack"></div><div class="crossbar"></div>
+      <i class="pulley left"></i><i class="pulley right"></i>
+      <i class="cable left"></i><i class="cable right"></i>
+      <i class="handle left"></i><i class="handle right"></i>
+      <span class="motion-arrow">→</span>
+      <span class="media-caption">Animated pulley position, cable path and movement direction</span>
+    </div>`;
+  }
+
+  const cls = type==="circles" ? "circles" : type==="squat" ? "squat" : type==="hinge" ? "hinge" : "";
+  return `<div class="exercise-media mobility-scene ${cls}">
+    <span class="media-chip">Movement pattern</span>
+    <div class="floor"></div><div class="body-block"></div>
+    ${type==="circles" ? '<div class="orbit"></div>' : ""}
+    <span class="media-caption">${type==="squat" ? "Controlled lowering and standing pattern" : type==="hinge" ? "Hips travel backward while the spine stays long" : type==="circles" ? "Shoulder-circle path and controlled range" : "Controlled mobility demonstration"}</span>
+  </div>`;
+}
+
+function quickSettings(ex){
+  const values = ex.type==="strength"
+    ? [
+        ["Target",`${ex.sets} × ${ex.reps}`],
+        ["Rest",`${ex.rest} sec`],
+        ["Focus","Controlled form"]
+      ]
+    : [
+        ["Duration",ex.duration],
+        ["Intensity",ex.name.includes("Treadmill")?"Easy pace":"Gentle"],
+        ["Goal",ex.type==="warmup"?"Warm up":"Mobility"]
+      ];
+  return `<div class="quick-settings">${values.map(v=>`<div class="quick-setting"><small>${v[0]}</small><strong>${v[1]}</strong></div>`).join("")}</div>`;
+}
+
+function bindGuideTabs(){
+  document.querySelectorAll("[data-guide-tab]").forEach(btn=>{
+    btn.onclick=()=>{
+      const target=btn.dataset.guideTab;
+      document.querySelectorAll("[data-guide-tab]").forEach(x=>x.classList.toggle("active",x===btn));
+      document.querySelectorAll("[data-guide-panel]").forEach(panel=>panel.classList.toggle("hidden",panel.dataset.guidePanel!==target));
+    };
+  });
+}
+
 function workout(){
  if(state.step===0)return briefing();
  if(state.step>data.length)return summary();
@@ -47,7 +130,43 @@ function briefing(){app.innerHTML=`<section class="card"><div class="phase"><spa
 function exercise(ex){
  const pct=Math.round(state.step/data.length*100), strength=ex.type==="strength";
  const key=ex.name; if(strength&&!state.logs[key])state.logs[key]=Array(ex.sets).fill(null);
- app.innerHTML=`<section class="card"><div class="phase"><span class="tag">${ex.type}</span><strong>${state.step}/${data.length}</strong></div><div class="progress"><i style="width:${pct}%"></i></div><h2>${ex.name}</h2><p class="muted">${ex.muscles}</p><div class="demo"><div class="person"><i class="head"></i><i class="torso"></i><i class="arm"></i><i class="arm left"></i><i class="leg"></i><i class="leg left"></i></div><span class="demo-label">Looping movement demonstration</span></div><div class="setup-grid">${ex.setup.map((x,i)=>`<div><small>${i===0?"SETUP":"CHECK"}</small><strong>${x}</strong></div>`).join("")}</div></section><section class="card"><h3>Step-by-step</h3><ol class="steps">${ex.steps.map(s=>`<li>${s}</li>`).join("")}</ol><div class="cue"><strong>Coach cues</strong><p>${ex.cues.join(" • ")}</p></div></section>${strength?sets(ex):timed(ex)}<div class="controls"><button class="secondary" id="back">Back</button><button class="primary" id="next">${state.step===data.length?"Finish session":"Complete & continue"}</button></div>`;
+
+ app.innerHTML=`<section class="card workout-card">
+   <div class="phase"><span class="tag">${ex.type}</span><strong>${state.step}/${data.length}</strong></div>
+   <div class="progress workout-progress"><i style="width:${pct}%"></i></div>
+   <h2>${ex.name}</h2>
+   <p class="muted workout-subtitle">${ex.muscles}</p>
+
+   <div class="media-tabs">
+     <button class="active" data-guide-tab="demo">Demo</button>
+     <button data-guide-tab="setup">Setup</button>
+     <button data-guide-tab="steps">Steps</button>
+   </div>
+
+   <div class="guide-panel" data-guide-panel="demo">
+     ${mediaMarkup(ex)}
+     ${quickSettings(ex)}
+   </div>
+
+   <div class="guide-panel hidden" data-guide-panel="setup">
+     <div class="setup-grid">${ex.setup.map((x,i)=>`<div><small>${i===0?"SETUP":"CHECK"}</small><strong>${x}</strong></div>`).join("")}</div>
+     <div class="cue"><strong>Before you begin</strong><p>Confirm the machine, attachment, cable path and working area are secure and clear.</p></div>
+   </div>
+
+   <div class="guide-panel hidden" data-guide-panel="steps">
+     <ol class="steps">${ex.steps.map(s=>`<li>${s}</li>`).join("")}</ol>
+     <div class="cue"><strong>Coach cues</strong><p>${ex.cues.join(" • ")}</p></div>
+   </div>
+ </section>
+
+ ${strength?sets(ex):timed(ex)}
+
+ <div class="workout-actions">
+   <button class="secondary" id="back">Back</button>
+   <button class="primary" id="next">${state.step===data.length?"Finish session":"Complete & continue"}</button>
+ </div>`;
+
+ bindGuideTabs();
  document.querySelector("#back").onclick=()=>{state.step=Math.max(0,state.step-1);save();workout()};
  document.querySelector("#next").onclick=next;
  if(strength)bindSets(ex); else bindTimer(ex);

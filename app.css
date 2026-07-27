@@ -6,7 +6,7 @@ header{display:flex;justify-content:space-between;align-items:center;margin-bott
 .card{background:linear-gradient(145deg,var(--card),#101419);border:1px solid var(--line);border-radius:26px;padding:20px;margin-bottom:14px}.hero{height:500px;position:relative;overflow:hidden;padding:0}.hero img{width:100%;height:100%;object-fit:cover}.shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.05),rgba(0,0,0,.2) 35%,rgba(3,5,8,.97))}.hero-copy{position:absolute;left:22px;right:22px;bottom:22px}.hero h2{font-size:52px;line-height:.95;margin:14px 0 10px}.pill{display:inline-block;border:1px solid rgba(239,57,71,.5);background:rgba(239,57,71,.17);color:#ff6974;border-radius:999px;padding:8px 13px;font-weight:900}.primary,.secondary{width:100%;border:0;border-radius:17px;padding:16px;font-weight:900}.primary{background:linear-gradient(135deg,#ff4050,#c91f30);color:white}.secondary{background:#202731;color:white;border:1px solid var(--line)}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.stats div{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:17px}.stats small,.muted{color:var(--muted)}.stats strong{display:block;font-size:23px;margin-top:8px}
 nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(520px,100%);display:grid;grid-template-columns:repeat(5,1fr);background:rgba(9,11,14,.95);backdrop-filter:blur(20px);border-top:1px solid var(--line);padding:9px 6px calc(9px + env(safe-area-inset-bottom));z-index:20}nav button{border:0;background:none;color:#7f8997;display:flex;flex-direction:column;gap:3px;align-items:center}nav b{font-size:23px}nav span{font-size:11px;font-weight:800}nav button.active{color:#ff5260}
 .brief-grid,.setup-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.brief-grid div,.setup-grid div{background:#1a2028;border:1px solid var(--line);border-radius:16px;padding:14px}.brief-grid small,.setup-grid small{display:block;color:var(--muted);margin-bottom:5px}.muscles{border-left:4px solid var(--red)}.phase{display:flex;justify-content:space-between;align-items:center}.progress{height:8px;background:#242b34;border-radius:999px;overflow:hidden;margin:12px 0 18px}.progress i{display:block;height:100%;background:var(--red)}
-.demo{height:255px;border-radius:22px;background:radial-gradient(circle at 50% 35%,#29323d,#11151a 70%);position:relative;overflow:hidden;margin:14px 0}.person{position:absolute;left:50%;top:50%;width:80px;height:160px;transform:translate(-50%,-50%)}.head{position:absolute;width:30px;height:30px;border-radius:50%;border:6px solid #f3f4f6;left:25px}.torso{position:absolute;width:10px;height:62px;background:#f3f4f6;left:35px;top:30px;border-radius:8px}.arm,.leg{position:absolute;height:9px;background:#f3f4f6;border-radius:9px;transform-origin:0 50%}.arm{width:58px;top:48px;left:38px;animation:press 1.4s ease-in-out infinite alternate}.arm.left{transform:scaleX(-1);animation:pressLeft 1.4s ease-in-out infinite alternate}.leg{width:65px;top:88px;left:39px;transform:rotate(65deg)}.leg.left{transform:rotate(115deg)}@keyframes press{from{transform:rotate(155deg)}to{transform:rotate(15deg)}}@keyframes pressLeft{from{transform:scaleX(-1) rotate(155deg)}to{transform:scaleX(-1) rotate(15deg)}}.demo-label{position:absolute;bottom:12px;left:12px;background:rgba(0,0,0,.65);padding:8px 11px;border-radius:12px;font-size:12px;font-weight:800}.controls{display:flex;gap:10px}.controls button{flex:1}.steps{counter-reset:s}.steps li{list-style:none;position:relative;padding:0 0 15px 44px;color:#dce1e8;line-height:1.45}.steps li:before{counter-increment:s;content:counter(s);position:absolute;left:0;top:-2px;width:30px;height:30px;border-radius:10px;background:#252d37;display:grid;place-items:center;font-weight:900}.cue{background:#20191c;border:1px solid #523038;border-radius:16px;padding:14px}.set-row{display:grid;grid-template-columns:38px 1fr 1fr 48px;gap:8px;align-items:center;margin:9px 0}.set-row input{width:100%;background:#0c1014;border:1px solid var(--line);color:white;border-radius:12px;padding:12px}.set-row button{height:44px;border-radius:12px;border:1px solid var(--line);background:#202730;color:white}.set-row button.done{background:#174c32;color:#65e7a4}.timer{font-size:42px;font-variant-numeric:tabular-nums;text-align:center;font-weight:900}.library-row{padding:15px 0;border-bottom:1px solid var(--line)}.library-row:last-child{border:0}.tag{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#ff7480}.complete{text-align:center;padding:30px 10px}.complete .check{font-size:72px}.hidden{display:none}
+to{transform:scaleX(-1) rotate(15deg)}}.demo-label{position:absolute;bottom:12px;left:12px;background:rgba(0,0,0,.65);padding:8px 11px;border-radius:12px;font-size:12px;font-weight:800}.controls{display:flex;gap:10px}.controls button{flex:1}.steps{counter-reset:s}.steps li{list-style:none;position:relative;padding:0 0 15px 44px;color:#dce1e8;line-height:1.45}.steps li:before{counter-increment:s;content:counter(s);position:absolute;left:0;top:-2px;width:30px;height:30px;border-radius:10px;background:#252d37;display:grid;place-items:center;font-weight:900}.cue{background:#20191c;border:1px solid #523038;border-radius:16px;padding:14px}.set-row{display:grid;grid-template-columns:38px 1fr 1fr 48px;gap:8px;align-items:center;margin:9px 0}.set-row input{width:100%;background:#0c1014;border:1px solid var(--line);color:white;border-radius:12px;padding:12px}.set-row button{height:44px;border-radius:12px;border:1px solid var(--line);background:#202730;color:white}.set-row button.done{background:#174c32;color:#65e7a4}.timer{font-size:42px;font-variant-numeric:tabular-nums;text-align:center;font-weight:900}.library-row{padding:15px 0;border-bottom:1px solid var(--line)}.library-row:last-child{border:0}.tag{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#ff7480}.complete{text-align:center;padding:30px 10px}.complete .check{font-size:72px}.hidden{display:none}
 
 
 /* Version 5.1 — iPhone layout correction */
@@ -187,4 +187,682 @@ nav span {
   h1 { font-size: 39px; }
   header button { min-width: 82px; padding: 14px 13px; }
   .week-strip { grid-template-columns: repeat(7, 45px); }
+}
+
+
+/* =========================================================
+   ROAD TO 12% — VERSION 5.2
+   Responsive guided-workout layout + exercise-specific media
+   ========================================================= */
+
+:root {
+  --workout-nav-height: calc(74px + env(safe-area-inset-bottom));
+}
+
+html, body {
+  min-height: 100%;
+  min-height: 100dvh;
+}
+
+body {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+.shell {
+  min-height: 100dvh;
+  padding-bottom: calc(var(--workout-nav-height) + 28px);
+}
+
+body.workout-mode .shell {
+  padding-top: calc(10px + env(safe-area-inset-top));
+}
+
+body.workout-mode header {
+  grid-template-columns: minmax(0, 1fr) auto;
+  margin-bottom: 12px;
+}
+
+body.workout-mode header p {
+  font-size: 11px;
+  letter-spacing: 2px;
+  margin-bottom: 5px;
+}
+
+body.workout-mode h1 {
+  font-size: clamp(29px, 8vw, 39px);
+  letter-spacing: -1.5px;
+  overflow: hidden;
+  text-overflow: clip;
+  white-space: nowrap;
+}
+
+body.workout-mode .version {
+  display: none;
+}
+
+body.workout-mode header button {
+  min-width: 76px;
+  padding: 12px 14px;
+  border-radius: 15px;
+  font-size: 15px;
+}
+
+.workout-card {
+  padding: clamp(15px, 4vw, 20px);
+}
+
+.workout-card h2 {
+  margin: 10px 0 7px;
+  font-size: clamp(31px, 8.4vw, 43px);
+  line-height: .98;
+  overflow-wrap: normal;
+}
+
+.workout-subtitle {
+  margin: 0 0 12px;
+  font-size: clamp(15px, 4vw, 18px);
+  line-height: 1.35;
+}
+
+.workout-progress {
+  margin: 8px 0 13px;
+}
+
+.exercise-media {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  min-height: 210px;
+  max-height: 330px;
+  border: 1px solid var(--line);
+  border-radius: 21px;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 50% 30%, rgba(76,89,104,.28), transparent 45%),
+    linear-gradient(160deg, #1a2129, #0d1116 70%);
+  margin: 13px 0;
+}
+
+.exercise-media::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  box-shadow: inset 0 -50px 70px rgba(0,0,0,.22);
+}
+
+.media-caption {
+  position: absolute;
+  z-index: 5;
+  left: 11px;
+  bottom: 11px;
+  max-width: calc(100% - 22px);
+  padding: 7px 10px;
+  border-radius: 11px;
+  background: rgba(5,8,11,.75);
+  backdrop-filter: blur(8px);
+  color: #eef1f5;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .2px;
+}
+
+.media-chip {
+  position: absolute;
+  z-index: 5;
+  right: 10px;
+  top: 10px;
+  border: 1px solid rgba(255,255,255,.14);
+  border-radius: 999px;
+  padding: 6px 9px;
+  background: rgba(8,11,15,.68);
+  color: #d7dde5;
+  font-size: 10px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: .7px;
+}
+
+/* Treadmill-specific animation */
+.treadmill-scene .wall-line {
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  bottom: 28%;
+  height: 2px;
+  background: rgba(255,255,255,.08);
+}
+
+.treadmill {
+  position: absolute;
+  left: 10%;
+  right: 7%;
+  bottom: 15%;
+  height: 28%;
+}
+
+.treadmill .deck {
+  position: absolute;
+  left: 7%;
+  right: 3%;
+  bottom: 0;
+  height: 31%;
+  border-radius: 12px 22px 18px 13px;
+  transform: skewX(-8deg);
+  background: linear-gradient(180deg, #59636f, #242b33);
+  border: 2px solid #717c89;
+}
+
+.treadmill .belt {
+  position: absolute;
+  left: 11%;
+  right: 8%;
+  bottom: 8%;
+  height: 13%;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #090c0f;
+}
+
+.treadmill .belt::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  width: 180%;
+  background: repeating-linear-gradient(
+    90deg,
+    #2e3741 0 12px,
+    #11161b 12px 25px
+  );
+  animation: beltMove .7s linear infinite;
+}
+
+.treadmill .upright {
+  position: absolute;
+  right: 11%;
+  bottom: 24%;
+  width: 5px;
+  height: 88%;
+  border-radius: 4px;
+  background: #727d89;
+  transform: rotate(-8deg);
+  transform-origin: bottom;
+}
+
+.treadmill .console {
+  position: absolute;
+  right: 2%;
+  top: -68%;
+  width: 30%;
+  height: 33%;
+  border: 2px solid #697482;
+  border-radius: 12px;
+  background: #202831;
+  transform: rotate(-4deg);
+}
+
+.treadmill .screen {
+  position: absolute;
+  inset: 20% 15%;
+  border-radius: 5px;
+  background: #0b2f28;
+  box-shadow: inset 0 0 0 2px #285e50;
+}
+
+.treadmill .screen::after {
+  content: "2.7  MPH";
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: #69e7a7;
+  font-size: clamp(8px, 2.5vw, 12px);
+  font-weight: 900;
+}
+
+.walker-crop {
+  position: absolute;
+  left: 27%;
+  bottom: 23%;
+  width: 38%;
+  height: 68%;
+  z-index: 2;
+}
+
+.walker-crop .torso-shape {
+  position: absolute;
+  left: 39%;
+  top: 1%;
+  width: 25%;
+  height: 45%;
+  border-radius: 50% 50% 35% 35%;
+  background: linear-gradient(180deg, #e8edf2, #a9b3bf);
+  transform: rotate(2deg);
+}
+
+.walker-crop .hip {
+  position: absolute;
+  left: 40%;
+  top: 42%;
+  width: 23%;
+  height: 13%;
+  border-radius: 45%;
+  background: #9ea9b5;
+}
+
+.walker-crop .leg {
+  position: absolute;
+  left: 48%;
+  top: 49%;
+  width: 12%;
+  height: 46%;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #adb7c2, #e6eaf0);
+  transform-origin: 50% 5%;
+}
+
+.walker-crop .leg-a {
+  animation: walkLegA 1.05s ease-in-out infinite;
+}
+
+.walker-crop .leg-b {
+  animation: walkLegB 1.05s ease-in-out infinite;
+}
+
+.walker-crop .shoe {
+  position: absolute;
+  left: -32%;
+  bottom: -5%;
+  width: 210%;
+  height: 17%;
+  border-radius: 80% 35% 30% 60%;
+  background: #f7f8fa;
+}
+
+.walker-crop .arm {
+  position: absolute;
+  left: 46%;
+  top: 24%;
+  width: 9%;
+  height: 38%;
+  border-radius: 999px;
+  background: #cbd2da;
+  transform-origin: 50% 5%;
+}
+
+.walker-crop .arm-a { animation: walkArmA 1.05s ease-in-out infinite; }
+.walker-crop .arm-b { animation: walkArmB 1.05s ease-in-out infinite; }
+
+.posture-line {
+  position: absolute;
+  left: 51%;
+  top: 6%;
+  height: 48%;
+  width: 2px;
+  border-left: 2px dashed rgba(85,223,152,.8);
+  z-index: 4;
+}
+
+@keyframes beltMove {
+  from { transform: translateX(0); }
+  to { transform: translateX(-25px); }
+}
+
+@keyframes walkLegA {
+  0%,100% { transform: rotate(19deg); }
+  50% { transform: rotate(-21deg); }
+}
+@keyframes walkLegB {
+  0%,100% { transform: rotate(-21deg); }
+  50% { transform: rotate(19deg); }
+}
+@keyframes walkArmA {
+  0%,100% { transform: rotate(-23deg); }
+  50% { transform: rotate(24deg); }
+}
+@keyframes walkArmB {
+  0%,100% { transform: rotate(24deg); }
+  50% { transform: rotate(-23deg); }
+}
+
+/* Cable-machine movement diagram */
+.cable-scene .rack {
+  position: absolute;
+  inset: 9% 12% 16%;
+  border: 5px solid #a62531;
+  border-radius: 8px;
+}
+
+.cable-scene .rack::before,
+.cable-scene .rack::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 7px;
+  background: repeating-linear-gradient(
+    180deg,
+    #c93340 0 10px,
+    #76151d 10px 17px
+  );
+}
+
+.cable-scene .rack::before { left: 7%; }
+.cable-scene .rack::after { right: 7%; }
+
+.cable-scene .crossbar {
+  position: absolute;
+  left: 17%;
+  right: 17%;
+  top: 18%;
+  height: 7px;
+  border-radius: 8px;
+  background: #c93340;
+}
+
+.cable-scene .pulley {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  border: 4px solid #e5e9ee;
+  border-radius: 50%;
+  background: #1a2027;
+  z-index: 3;
+}
+
+.cable-scene .pulley.left { left: 18%; }
+.cable-scene .pulley.right { right: 18%; }
+
+.cable-scene.mid .pulley { top: 44%; }
+.cable-scene.low .pulley { top: 70%; }
+.cable-scene.high .pulley { top: 21%; }
+
+.cable-scene .cable {
+  position: absolute;
+  height: 2px;
+  width: 26%;
+  top: 50%;
+  background: #e7ebf0;
+  transform-origin: 0 50%;
+  opacity: .9;
+}
+
+.cable-scene .cable.left {
+  left: 20%;
+  animation: cableLeft 1.4s ease-in-out infinite alternate;
+}
+
+.cable-scene .cable.right {
+  right: 20%;
+  transform-origin: 100% 50%;
+  animation: cableRight 1.4s ease-in-out infinite alternate;
+}
+
+.cable-scene.high .cable { top: 30%; }
+.cable-scene.low .cable { top: 72%; }
+
+.cable-scene .handle {
+  position: absolute;
+  top: calc(50% - 12px);
+  width: 12px;
+  height: 26px;
+  border-radius: 8px;
+  background: #f3f5f7;
+  z-index: 4;
+}
+
+.cable-scene .handle.left {
+  left: 44%;
+  animation: handleLeft 1.4s ease-in-out infinite alternate;
+}
+
+.cable-scene .handle.right {
+  right: 44%;
+  animation: handleRight 1.4s ease-in-out infinite alternate;
+}
+
+.cable-scene.high .handle { top: calc(30% - 12px); }
+.cable-scene.low .handle { top: calc(72% - 12px); }
+
+.cable-scene .motion-arrow {
+  position: absolute;
+  z-index: 4;
+  left: 43%;
+  top: 40%;
+  color: #ff5a67;
+  font-size: clamp(30px, 10vw, 54px);
+  animation: arrowPulse 1.4s ease-in-out infinite alternate;
+}
+
+.cable-scene.high .motion-arrow {
+  transform: rotate(90deg);
+  top: 38%;
+  left: 47%;
+}
+
+.cable-scene.low .motion-arrow {
+  top: 59%;
+}
+
+@keyframes cableLeft {
+  from { width: 25%; transform: rotate(0deg); }
+  to { width: 31%; transform: rotate(8deg); }
+}
+@keyframes cableRight {
+  from { width: 25%; transform: rotate(0deg); }
+  to { width: 31%; transform: rotate(-8deg); }
+}
+@keyframes handleLeft {
+  from { transform: translateX(-14px); }
+  to { transform: translateX(8px); }
+}
+@keyframes handleRight {
+  from { transform: translateX(14px); }
+  to { transform: translateX(-8px); }
+}
+@keyframes arrowPulse {
+  from { opacity: .35; transform: translateX(-8px); }
+  to { opacity: 1; transform: translateX(8px); }
+}
+
+/* Mobility and squat diagrams */
+.mobility-scene .floor {
+  position: absolute;
+  left: 10%;
+  right: 10%;
+  bottom: 19%;
+  height: 3px;
+  background: #697482;
+}
+
+.mobility-scene .body-block {
+  position: absolute;
+  left: 37%;
+  top: 17%;
+  width: 27%;
+  height: 61%;
+  border-radius: 45% 45% 28% 28%;
+  background: linear-gradient(180deg,#edf0f4,#8f9aa7);
+  transform-origin: 50% 90%;
+  animation: bodyMotion 1.6s ease-in-out infinite alternate;
+}
+
+.mobility-scene.squat .body-block {
+  animation-name: squatMotion;
+}
+
+.mobility-scene.hinge .body-block {
+  animation-name: hingeMotion;
+}
+
+.mobility-scene.circles .body-block {
+  animation: none;
+  height: 48%;
+}
+
+.mobility-scene .orbit {
+  position: absolute;
+  left: 19%;
+  top: 24%;
+  width: 62%;
+  height: 43%;
+  border: 3px dashed rgba(85,223,152,.75);
+  border-radius: 50%;
+  animation: orbitSpin 2s linear infinite;
+}
+
+@keyframes bodyMotion {
+  from { transform: translateY(0); }
+  to { transform: translateY(10px); }
+}
+@keyframes squatMotion {
+  from { transform: translateY(0) scaleY(1); }
+  to { transform: translateY(23%) scaleY(.72); }
+}
+@keyframes hingeMotion {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(38deg) translate(15px, 8px); }
+}
+@keyframes orbitSpin {
+  to { transform: rotate(360deg); }
+}
+
+/* Media mode tabs */
+.media-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 7px;
+  margin: 11px 0 13px;
+}
+
+.media-tabs button {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 10px 7px;
+  background: #151b22;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.media-tabs button.active {
+  color: white;
+  border-color: #ff5260;
+  background: rgba(239,57,71,.16);
+}
+
+.guide-panel.hidden {
+  display: none;
+}
+
+.quick-settings {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0,1fr));
+  gap: 7px;
+  margin-top: 11px;
+}
+
+.quick-setting {
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  background: #151b22;
+}
+
+.quick-setting small {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--muted);
+  font-size: 9px;
+  letter-spacing: .6px;
+  text-transform: uppercase;
+}
+
+.quick-setting strong {
+  display: block;
+  font-size: clamp(12px, 3.4vw, 15px);
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.workout-actions {
+  position: sticky;
+  z-index: 9;
+  bottom: calc(var(--workout-nav-height) + 8px);
+  display: grid;
+  grid-template-columns: 90px 1fr;
+  gap: 9px;
+  padding: 9px;
+  margin: 13px -4px 0;
+  border: 1px solid rgba(52,62,74,.9);
+  border-radius: 18px;
+  background: rgba(10,13,17,.92);
+  backdrop-filter: blur(18px);
+}
+
+.workout-actions .secondary,
+.workout-actions .primary {
+  padding: 14px 10px;
+}
+
+body.workout-mode nav {
+  padding-top: 6px;
+  padding-bottom: calc(7px + env(safe-area-inset-bottom));
+}
+
+body.workout-mode nav b {
+  font-size: 20px;
+}
+
+body.workout-mode nav span {
+  font-size: 9px;
+}
+
+@media (max-width: 430px) {
+  header p {
+    white-space: nowrap;
+    max-width: none;
+  }
+
+  h1 {
+    font-size: clamp(34px, 10.3vw, 45px);
+    line-height: .95;
+  }
+
+  header button {
+    min-width: 82px;
+    padding-inline: 13px;
+  }
+
+  .exercise-media {
+    min-height: 205px;
+  }
+}
+
+@media (max-height: 760px) {
+  .exercise-media {
+    aspect-ratio: 16 / 8.7;
+    min-height: 184px;
+  }
+
+  .workout-card h2 {
+    font-size: clamp(29px, 7.6vw, 38px);
+  }
+
+  .workout-subtitle {
+    margin-bottom: 8px;
+  }
+
+  .card {
+    margin-bottom: 10px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .exercise-media * {
+    animation-duration: .001ms !important;
+    animation-iteration-count: 1 !important;
+  }
 }
