@@ -1551,3 +1551,141 @@ body.workout-mode nav {
     padding-inline: 4px;
   }
 }
+
+
+/* =========================================================
+   ROAD TO 12% — VERSION 7.2
+   Quality-controlled assets + embedded YouTube players
+   ========================================================= */
+
+.verified-asset {
+  display: grid;
+  gap: 10px;
+}
+
+.verified-asset-frame {
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  overflow: hidden;
+  background: #090c10;
+}
+
+.verified-asset-frame img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.verified-asset-copy {
+  padding: 13px;
+}
+
+.verified-asset-copy h3 {
+  margin: 0 0 5px;
+}
+
+.verified-asset-copy p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.42;
+}
+
+.quality-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 9px;
+  padding: 7px 10px;
+  border: 1px solid rgba(88,228,157,.42);
+  border-radius: 999px;
+  background: rgba(88,228,157,.1);
+  color: #69e7a7;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .7px;
+  text-transform: uppercase;
+}
+
+.embed-video-shell {
+  display: grid;
+  gap: 11px;
+}
+
+.youtube-frame {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: #050709;
+}
+
+.youtube-frame iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.video-info-card {
+  padding: 13px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: #11171e;
+}
+
+.video-info-card h3 {
+  margin: 0 0 5px;
+}
+
+.video-info-card p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.42;
+}
+
+.video-fallback-link {
+  display: block;
+  width: 100%;
+  margin-top: 10px;
+  border: 1px solid #ff5360;
+  border-radius: 13px;
+  padding: 13px;
+  background: rgba(239,57,71,.14);
+  color: white;
+  text-align: center;
+  text-decoration: none;
+  font-weight: 900;
+}
+
+.beginner-warning {
+  padding: 12px;
+  border: 1px solid rgba(255,184,72,.35);
+  border-radius: 14px;
+  background: rgba(255,184,72,.08);
+  color: #e8d7b7;
+  font-size: 12px;
+  line-height: 1.42;
+}
+
+.asset-pack-library {
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  overflow: hidden;
+  background: #090c10;
+}
+
+.asset-pack-library img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+@media(max-width:430px){
+  .youtube-frame {
+    border-radius: 15px;
+  }
+}

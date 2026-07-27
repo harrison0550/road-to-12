@@ -112,13 +112,13 @@ function m1SetupCoach(ex){
 function bindSetupCoach(){document.querySelectorAll("[data-setup-stage]").forEach(btn=>{btn.onclick=()=>{const target=btn.dataset.setupStage;document.querySelectorAll("[data-setup-stage]").forEach(x=>x.classList.toggle("active",x===btn));document.querySelectorAll("[data-setup-panel]").forEach(p=>p.classList.toggle("active",p.dataset.setupPanel===target));bindAnimationControls()}})}
 
 function focusedDemoMarkup(ex){
-  return `<div class="focused-demo">
-    <div class="focused-demo-frame">
-      <img src="${ex.demoImage}" alt="${ex.name} form demonstration">
-      <div class="focused-demo-copy">
-        <span class="asset-badge">Current exercise only</span>
-        <h3>${ex.name} demonstration</h3>
-        <p>Start, movement and finish positions for the exercise you are performing now.</p>
+  return `<div class="verified-asset">
+    <div class="verified-asset-frame">
+      <img src="${ex.demoImage}" alt="${ex.name} start, movement and finish demonstration">
+      <div class="verified-asset-copy">
+        <span class="quality-badge">✓ Quality-controlled asset</span>
+        <h3>${ex.name}</h3>
+        <p>The same trainer, equipment orientation and camera logic are maintained through the start, working and finish positions.</p>
         <div class="guide-actions">
           <button class="primary-guide" data-open-asset="${ex.demoImage}">Open full-screen demo</button>
         </div>
@@ -127,36 +127,37 @@ function focusedDemoMarkup(ex){
   </div>`;
 }
 
+function youtubeEmbedUrl(query){
+  const encoded=encodeURIComponent(query||"beginner exercise proper form");
+  return `https://www.youtube-nocookie.com/embed?listType=search&list=${encoded}&playsinline=1&rel=0&modestbranding=1`;
+}
+
 function videoMarkup(ex){
-  const v=ex.videoResource;
-  if(!v){
-    return `<div class="video-resource">
-      <div class="video-resource-card">
-        <div class="video-resource-icon">▶</div>
-        <span class="video-source">Video resource pending</span>
-        <h3>${ex.name}</h3>
-        <p>A verified form video has not been assigned yet. Use the dedicated Demo, Setup and Steps tabs rather than a fake play button.</p>
-      </div>
-    </div>`;
+  if(!ex.youtubeQuery){
+    return `<div class="video-info-card"><h3>Embedded video pending</h3><p>A beginner-appropriate embedded form video has not yet been assigned. Use Demo, Setup and Steps for this movement.</p></div>`;
   }
-  return `<div class="video-resource">
-    <div class="video-resource-card">
-      <div class="video-resource-icon">▶</div>
-      <span class="video-source">${v.source}</span>
-      <h3>${v.title}</h3>
-      <p>${v.note}</p>
-      <button class="open-video-button" data-video-url="${v.url}">Open trusted video guide</button>
+  return `<div class="embed-video-shell">
+    <div class="youtube-frame">
+      <iframe
+        src="${youtubeEmbedUrl(ex.youtubeQuery)}"
+        title="${ex.name} embedded form videos"
+        loading="lazy"
+        allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; web-share"
+        referrerpolicy="strict-origin-when-cross-origin"
+        allowfullscreen>
+      </iframe>
     </div>
-    <div class="video-disclaimer">The linked video or exercise page opens from its original publisher. It is not copied into Road to 12%, and availability is controlled by that publisher.</div>
+    <div class="video-info-card">
+      <span class="quality-badge">Embedded YouTube</span>
+      <h3>${ex.name} form videos</h3>
+      <p>The player searches for beginner-focused proper-form demonstrations and plays inside Road to 12%. Select a video in the player before starting your set.</p>
+      <a class="video-fallback-link" href="${ex.youtubeSearchUrl||"#"}" target="_blank" rel="noopener noreferrer">Open YouTube results only if embedding fails</a>
+    </div>
+    <div class="beginner-warning"><strong>Beginner safety:</strong> compare the video with the Setup and Steps tabs. Stop if you feel sharp pain, joint pain, numbness or loss of control.</div>
   </div>`;
 }
 
-function bindVideoLinks(){
-  document.querySelectorAll("[data-video-url]").forEach(btn=>{
-    btn.onclick=()=>window.open(btn.dataset.videoUrl,"_blank","noopener,noreferrer");
-  });
-}
-
+function bindVideoLinks(){}
 function bindAssetViewer(){
   document.querySelectorAll("[data-open-asset]").forEach(btn=>{
     btn.onclick=()=>openAsset(btn.dataset.openAsset);
@@ -179,9 +180,7 @@ function openAsset(src){
   viewer.classList.add("open");
   viewer.querySelector("#closeAsset").onclick=()=>viewer.classList.remove("open");
 }
-function mediaMarkup(ex){
-  return focusedDemoMarkup(ex);
-}
+function mediaMarkup(ex){return focusedDemoMarkup(ex);}
 function bindAnimationControls(){
   const root=document.querySelector("[data-animation-root]");
   const play=document.querySelector("[data-animation-play]");
@@ -303,12 +302,12 @@ function library(){
    <p class="muted">Select an exercise to open its dedicated Demo, Video, Setup and Steps tabs.</p>
 
    <div class="library-master">
-     <img src="assets/exercise-library-v7-1.png" alt="Complete RitFit, barbell and cardio exercise library">
+     <img src="assets/exercise-asset-pack-v7-2.png" alt="Version 7.2 quality-controlled exercise asset pack">
      <div class="library-master-copy">
        <span class="asset-badge">Master reference</span>
-       <h3>Complete home-gym asset library</h3>
-       <p>The full poster stays here in the Library and no longer appears inside individual workouts.</p>
-       <div class="guide-actions"><button class="primary-guide" data-open-asset="assets/exercise-library-v7-1.png">Open master library</button></div>
+       <h3>Version 7.2 exercise asset pack</h3>
+       <p>The complete pack stays in Library. Guided workouts show only the current exercise panel.</p>
+       <div class="guide-actions"><button class="primary-guide" data-open-asset="assets/exercise-asset-pack-v7-2.png">Open master library</button></div>
      </div>
    </div>
 
