@@ -157,7 +157,7 @@ function migrateHistory(){
       item.exercises=Object.entries(state.logs||{}).map(([name,sets])=>({
         name,
         sets:deepCopy(sets||[]),
-        weightEntry:{mode:"legacy",label:"Saved weight",help:"Recovered from Version 11.3.1 local workout data."}
+        weightEntry:{mode:"legacy",label:"Saved weight",help:"Recovered from Version 11.3.2 local workout data."}
       }));
       item.recoveredFromV74=true;
       changed=true;
@@ -715,7 +715,7 @@ function equipment(){
   ["latBar","Lat pulldown bar","Used for lat pulldowns."],
   ["rowHandle","Close-grip row handle","Used for seated cable rows."]
  ];
- app.innerHTML=`<section class="card"><div class="phase"><span class="pill">VERSION 11.3.1</span><strong>Real-workout redesign</strong></div><h2>Profile</h2><label>What should the app call you?<input id="preferredName" value="${state.preferredName}" autocomplete="given-name"></label><button class="secondary profile-save" id="saveProfile">Save name</button></section><section class="card"><h2>My Equipment</h2><p class="muted">Workouts use only equipment switched on.</p><div class="equipment-toggle-list">${items.map(([key,icon,title,note])=>`<label class="equipment-toggle"><span class="equipment-symbol">${icon}</span><span class="equipment-copy"><strong>${title}</strong><small>${note}</small></span><input type="checkbox" data-equipment="${key}" ${state.equipment[key]?"checked":""}><span class="toggle-ui"></span></label>`).join("")}</div></section>
+ app.innerHTML=`<section class="card"><div class="phase"><span class="pill">VERSION 11.3.2</span><strong>Real-workout redesign</strong></div><h2>Profile</h2><label>What should the app call you?<input id="preferredName" value="${state.preferredName}" autocomplete="given-name"></label><button class="secondary profile-save" id="saveProfile">Save name</button></section><section class="card"><h2>My Equipment</h2><p class="muted">Workouts use only equipment switched on.</p><div class="equipment-toggle-list">${items.map(([key,icon,title,note])=>`<label class="equipment-toggle"><span class="equipment-symbol">${icon}</span><span class="equipment-copy"><strong>${title}</strong><small>${note}</small></span><input type="checkbox" data-equipment="${key}" ${state.equipment[key]?"checked":""}><span class="toggle-ui"></span></label>`).join("")}</div></section>
  <section class="card"><h2>Attachment Locker</h2><p class="muted">Add a close-up photo of each attachment from your actual gym. The correct photo will appear during every exercise with a bright “USE THIS ONE” label.</p><div class="attachment-locker">${attachments.map(([key,title,note])=>`<div class="locker-item">${state.attachmentPhotos[key]?`<img src="${state.attachmentPhotos[key]}" alt="${title}">`:`<div class="locker-placeholder">📷</div>`}<div class="locker-copy"><strong>${title}</strong><small>${note}</small><label class="photo-button">Choose photo<input type="file" accept="image/*" capture="environment" data-photo="${key}"></label>${state.attachmentPhotos[key]?`<button class="clear-photo" data-clear-photo="${key}">Remove</button>`:""}</div></div>`).join("")}</div></section>
  <section class="card equipment-impact"><h3>Current workout impact</h3><div class="impact-row"><span>Available exercises</span><strong>${activeWorkout().length}</strong></div><div class="impact-row"><span>Automatic substitutions</span><strong>${substitutionCount()}</strong></div><div class="impact-row"><span>Bumper-plate exercises</span><strong>${state.equipment.bumperPlates?"Enabled":"Disabled"}</strong></div><button class="primary" id="equipmentWorkout">Start equipment-safe workout</button></section>`;
  document.querySelector("#saveProfile").onclick=()=>{state.preferredName=document.querySelector("#preferredName").value.trim()||"Andy";save();equipment()};
@@ -754,7 +754,7 @@ function progress(){
 }
 function sessionDetail(session){
  const totals=sessionTotals(session);
- app.innerHTML=`<section class="card session-detail-header"><button class="secondary" id="historyBack">Back to history</button><div class="check small-check">✓</div><span class="pill">COMPLETED WORKOUT</span><h2>${session.name}</h2><p class="muted">${session.date} • ${formatDuration(session.durationMs)}</p><div class="brief-grid"><div><small>SETS</small><strong>${totals.completedSets}</strong></div><div><small>REPS</small><strong>${totals.totalReps}</strong></div><div><small>SELECTED VOLUME</small><strong>${Math.round(totals.selectedVolume).toLocaleString()} lb</strong></div><div><small>STATUS</small><strong>Saved</strong></div></div>${session.recoveredFromV74?`<div class="recovery-note">This session was recovered from Version 11.3.1. Any values still held in the old workout log are shown below.</div>`:""}</section>
+ app.innerHTML=`<section class="card session-detail-header"><button class="secondary" id="historyBack">Back to history</button><div class="check small-check">✓</div><span class="pill">COMPLETED WORKOUT</span><h2>${session.name}</h2><p class="muted">${session.date} • ${formatDuration(session.durationMs)}</p><div class="brief-grid"><div><small>SETS</small><strong>${totals.completedSets}</strong></div><div><small>REPS</small><strong>${totals.totalReps}</strong></div><div><small>SELECTED VOLUME</small><strong>${Math.round(totals.selectedVolume).toLocaleString()} lb</strong></div><div><small>STATUS</small><strong>Saved</strong></div></div>${session.recoveredFromV74?`<div class="recovery-note">This session was recovered from Version 11.3.2. Any values still held in the old workout log are shown below.</div>`:""}</section>
  <section class="card"><h2>Exercises completed</h2><div class="history-exercise-list">${(session.exercises||[]).length?(session.exercises||[]).map(ex=>`<details class="history-exercise" open><summary><span><strong>${ex.name}</strong>${ex.originalExercise?`<small>Substituted for ${ex.originalExercise}</small>`:""}</span><span>${(ex.sets||[]).filter(s=>s?.done).length} sets</span></summary><div class="history-set-head"><span>SET</span><span>${ex.weightEntry?.mode==="dual"?"LB / STACK":"WEIGHT"}</span><span>REPS</span><span>STATUS</span></div>${(ex.sets||[]).map((s,i)=>`<div class="history-set-row"><strong>${i+1}</strong><span>${s?.weight!==undefined&&s?.weight!==""?`${s.weight} lb`:"—"}${ex.weightEntry?.mode==="dual"&&s?.weight?`<small>${Number(s.weight)*2} lb combined selected</small>`:""}</span><span>${s?.reps||"—"}</span><span>${s?.done?"✓ Complete":"Not marked"}</span></div>`).join("")||'<p class="muted">No set details were stored.</p>'}<div class="history-weight-note"><strong>${ex.weightEntry?.label||"Weight used"}</strong><p>${ex.weightEntry?.help||""}</p></div></details>`).join(""):'<p class="muted">The older session record did not contain exercise details.</p>'}</div></section>
  <button class="secondary" id="repeatHistory">Repeat this workout</button>`;
  document.querySelector("#historyBack").onclick=()=>{state.historyView=null;save();progress()};
@@ -762,7 +762,7 @@ function sessionDetail(session){
 }
 
 /* =========================================================
-   ROAD TO 12% — VERSION 11.3.1 PRODUCT EXPERIENCE
+   ROAD TO 12% — VERSION 11.3.2 PRODUCT EXPERIENCE
    ========================================================= */
 state.dailyCheckins=state.dailyCheckins||{};
 state.workoutRatings=state.workoutRatings||{};
@@ -841,7 +841,7 @@ function exercisePreviewAsset(name){
 function home(){
  const done=todayCompleted(), completed=completedTodaySession(), check=todayCheckin(), tomorrow=tomorrowPlan();
  const totals=completed?sessionTotals(completed):null;
- app.innerHTML=`<section class="v11-dashboard-head"><span class="pill">VERSION 11.3.1</span><h2>${greeting()}, ${state.preferredName}</h2><p>${done?"Training complete. Now make recovery count.":"Your personalized home-gym plan is ready."}</p></section>
+ app.innerHTML=`<section class="v11-dashboard-head"><span class="pill">VERSION 11.3.2</span><h2>${greeting()}, ${state.preferredName}</h2><p>${done?"Training complete. Now make recovery count.":"Your personalized home-gym plan is ready."}</p></section>
  ${done?`<section class="card v11-status-card complete-status"><div class="dashboard-icon">🏆</div><div><small>TODAY’S STATUS</small><h3>Workout complete</h3><p>${completed.name} • ${formatDuration(completed.durationMs)} • ${totals.completedSets} sets saved</p></div><button class="secondary" id="viewToday">View</button></section>`:
  `<section class="card v11-status-card"><div class="dashboard-icon">▶</div><div><small>TODAY’S WORKOUT</small><h3>${weekPlan[state.selectedDay].title}</h3><p>${weekPlan[state.selectedDay].time} • ${weekPlan[state.selectedDay].focus}</p></div><button class="primary compact-primary" id="startToday">Start</button></section>`}
  <section class="card dashboard-section"><div class="section-title-row"><div><small>DAILY READINESS</small><h3>Recovery check-in</h3></div><span class="readiness-score">${[check.water,check.nutrition,!!check.sleep].filter(Boolean).length}/3</span></div>
@@ -925,7 +925,7 @@ function summary(){
    session=state.history.find(h=>h.id===state.currentSession.completedId);
  }else{
    const endedAt=new Date(),startedAt=state.currentSession?.startedAt?new Date(state.currentSession.startedAt):endedAt;
-   session={id:state.currentSession?.id||`session-${Date.now()}`,date:endedAt.toLocaleDateString(),dateKey:localDateKey(endedAt),completedAt:endedAt.toISOString(),startedAt:startedAt.toISOString(),durationMs:Math.max(0,endedAt-startedAt),name:"Full Body A",exercises:sessionExerciseSnapshot(),equipment:deepCopy(state.equipment)};
+   session={id:state.currentSession?.id||`session-${Date.now()}`,date:endedAt.toLocaleDateString(),dateKey:localDateKey(endedAt),completedAt:endedAt.toISOString(),startedAt:startedAt.toISOString(),durationMs:Math.max(0,endedAt-startedAt),name:state.currentSession?.name||weekPlan[currentPlanIndex()].title,exercises:sessionExerciseSnapshot(),equipment:deepCopy(state.equipment)};
    state.sessions++;state.history.push(session);state.currentSession={completedId:session.id};state.step=0;state.setupReady=false;save();
  }
  const totals=sessionTotals(session),rating=state.workoutRatings[session.id]||"";
@@ -984,7 +984,7 @@ function progress(){
 
 
 /* =========================================================
-   ROAD TO 12% — VERSION 11.3.1 SIMPLIFIED EXPERIENCE
+   ROAD TO 12% — VERSION 11.3.2 SIMPLIFIED EXPERIENCE
    ========================================================= */
 
 /* Restore the motivating Home experience while retaining
@@ -1263,7 +1263,7 @@ function workoutLanding(){
 
 
 /* =========================================================
-   ROAD TO 12% — VERSION 11.3.1 STABILITY REPAIR
+   ROAD TO 12% — VERSION 11.3.2 STABILITY REPAIR
    ========================================================= */
 
 const V1131_ANATOMICAL_ASSETS={
@@ -1435,6 +1435,7 @@ function importV1131Backup(file){
 }
 
 function home(){
+ syncSelectedDayToCalendar();
  const selected=weekPlan[state.selectedDay];
  const latest=latestV1131Session();
  const historyCount=state.history.length;
@@ -1525,7 +1526,7 @@ function home(){
    };
  });
  document.querySelector("#startWorkout")?.addEventListener("click",()=>{
-   if(!active)startNewSession();
+   if(!active)startNewSession(currentPlanIndex());
    state.tab="workout";
    save();
    workout();
@@ -1719,13 +1720,319 @@ setTab=function(tab){
  }
 };
 
+
+/* =========================================================
+   ROAD TO 12% — VERSION 11.3.2 CALENDAR-DRIVEN WORKOUTS
+   ========================================================= */
+
+function currentPlanIndex(date=new Date()){
+  /* JavaScript: Sunday=0. App schedule: Monday=0. */
+  return (date.getDay()+6)%7;
+}
+
+function syncSelectedDayToCalendar(){
+  const todayKey=localDateKey();
+  if(state.lastCalendarSync!==todayKey){
+    state.selectedDay=currentPlanIndex();
+    state.previewDay=state.selectedDay;
+    state.lastCalendarSync=todayKey;
+
+    /* A session created on a prior date must not make today's workout
+       appear resumable. Genuine prior work remains in history/log storage. */
+    if(state.currentSession && state.currentSession.dateKey!==todayKey){
+      state.currentSession=null;
+      state.step=0;
+      state.logs={};
+      state.setupReady=false;
+    }
+    save();
+  }
+}
+
+function cloneExerciseByName(name,overrides={}){
+  const source=[...data,...(window.EXTRA_LIBRARY_DATA||[])].find(ex=>ex.name===name);
+  if(!source)throw new Error(`Missing exercise template: ${name}`);
+  return Object.assign({},deepCopy(source),overrides);
+}
+
+function cardioMobilityWorkout(){
+  return [
+    cloneExerciseByName("Treadmill Walk",{
+      name:"Easy Treadmill Warm-Up",
+      duration:"5:00",
+      muscles:"Full-body temperature and heart-rate warm-up",
+      setup:["Speed: 2.5–3.0 mph","Incline: 0–2%","Use the rails only when needed"],
+      steps:[
+        "Begin at an easy walking pace.",
+        "Stand tall with relaxed shoulders.",
+        "Let your arms swing naturally.",
+        "Finish feeling warmer, not tired."
+      ],
+      cues:["Keep your eyes forward.","Use a smooth, comfortable stride."],
+      why:"Gradually prepares your joints, muscles and cardiovascular system.",
+      demoImage:"assets/phase3/treadmill-walking.jpg"
+    }),
+    cloneExerciseByName("Treadmill Walk",{
+      name:"Incline Treadmill Walk",
+      duration:"22:00",
+      muscles:"Glutes, hamstrings, calves and aerobic base",
+      setup:["Speed: 3.0–3.6 mph","Incline: 5–10%","Choose an incline that still allows conversation"],
+      steps:[
+        "Increase the incline gradually over the first two minutes.",
+        "Lean slightly from the ankles without bending at the waist.",
+        "Drive through each full step and avoid holding the rails.",
+        "Maintain a conversational pace for the working interval."
+      ],
+      cues:["Shorten your stride slightly on steeper inclines.","Reduce incline before holding the rails."],
+      why:"Builds aerobic fitness and supports recovery without another heavy lifting session.",
+      demoImage:"assets/phase3/treadmill-incline-walk.jpg"
+    }),
+    cloneExerciseByName("Post-Workout Stretch",{
+      name:"Hip Flexor Mobility",
+      duration:"2:00",
+      muscles:"Hip flexors and front of the thighs",
+      setup:["Use a half-kneeling position","Hold 30 seconds per side, twice"],
+      steps:[
+        "Kneel with one foot forward and the rear knee supported.",
+        "Tuck your pelvis slightly.",
+        "Shift forward until you feel a gentle stretch in the rear hip.",
+        "Repeat on the opposite side."
+      ],
+      cues:["Stay tall.","Do not arch your lower back."],
+      why:"Restores hip motion after incline walking.",
+      demoImage:"assets/phase3/hip-glute-mobility.jpg"
+    }),
+    cloneExerciseByName("Post-Workout Stretch",{
+      name:"Hamstring Mobility",
+      duration:"2:00",
+      muscles:"Hamstrings and calves",
+      setup:["Use a supported standing or seated position","Hold 30 seconds per side, twice"],
+      steps:[
+        "Extend one leg with the heel supported.",
+        "Keep your back long.",
+        "Hinge forward gently from the hips.",
+        "Repeat on the opposite side."
+      ],
+      cues:["Do not bounce.","Stop before the stretch becomes painful."],
+      why:"Reduces lower-body tightness after treadmill work.",
+      demoImage:"assets/phase3/hip-glute-mobility.jpg"
+    }),
+    cloneExerciseByName("Arm Circles",{
+      name:"Chest and Shoulder Mobility",
+      duration:"3:00",
+      muscles:"Chest, shoulders and upper back",
+      setup:["No equipment","Move slowly through a comfortable range"],
+      steps:[
+        "Perform controlled arm circles in both directions.",
+        "Open and close the arms across the chest.",
+        "Reach overhead without shrugging.",
+        "Finish with slow shoulder-blade squeezes."
+      ],
+      cues:["Keep your ribs down.","Never force the range."],
+      why:"Maintains upper-body mobility between strength sessions.",
+      demoImage:"assets/phase3/thoracic-shoulder-mobility.jpg"
+    }),
+    cloneExerciseByName("Easy Treadmill Cooldown",{
+      name:"Easy Cardio Cooldown",
+      duration:"5:00",
+      muscles:"Gradual heart-rate recovery",
+      demoImage:"assets/phase3/treadmill-walking.jpg"
+    })
+  ];
+}
+
+function coreRecoveryWorkout(){
+  return [
+    cloneExerciseByName("Treadmill Walk",{
+      name:"Easy Recovery Walk",
+      duration:"8:00",
+      muscles:"Light full-body movement",
+      setup:["Speed: comfortable","Incline: 0–2%"],
+      why:"Promotes circulation without adding significant fatigue.",
+      demoImage:"assets/phase3/treadmill-walking.jpg"
+    }),
+    cloneExerciseByName("Bodyweight Squat",{
+      name:"Core Activation Circuit",
+      duration:"8:00",
+      muscles:"Deep core, glutes and trunk stability",
+      setup:["Floor space","Move through dead bug, bird dog and plank positions"],
+      steps:[
+        "Perform 8 controlled dead bugs per side.",
+        "Perform 8 bird dogs per side.",
+        "Hold a plank for 20–40 seconds.",
+        "Repeat the circuit with perfect control."
+      ],
+      cues:["Keep your lower back controlled.","Stop before form breaks down."],
+      why:"Builds trunk stability while allowing the major lifting muscles to recover.",
+      demoImage:"assets/phase3/core-activation.jpg"
+    }),
+    cloneExerciseByName("Post-Workout Stretch",{
+      name:"Hip and Glute Mobility",
+      duration:"6:00",
+      muscles:"Hips, glutes and lower back",
+      demoImage:"assets/phase3/hip-glute-mobility.jpg"
+    }),
+    cloneExerciseByName("Arm Circles",{
+      name:"Thoracic and Shoulder Mobility",
+      duration:"5:00",
+      muscles:"Upper back and shoulders",
+      demoImage:"assets/phase3/thoracic-shoulder-mobility.jpg"
+    }),
+    cloneExerciseByName("Post-Workout Stretch",{
+      name:"Slow Breathing Cooldown",
+      duration:"4:00",
+      muscles:"Recovery and relaxation",
+      setup:["Lie down or sit comfortably","Breathe slowly through the nose"],
+      steps:[
+        "Inhale gently for four seconds.",
+        "Exhale slowly for six seconds.",
+        "Relax your shoulders and jaw.",
+        "Continue until breathing feels calm."
+      ],
+      cues:["Never strain or hold your breath.","Let the exhale remain easy."],
+      why:"Helps transition from training into recovery.",
+      demoImage:"assets/phase3/cool-down-recovery.jpg"
+    })
+  ];
+}
+
+function zone2CardioWorkout(){
+  return [
+    cloneExerciseByName("Treadmill Walk",{
+      name:"Zone 2 Warm-Up",
+      duration:"5:00",
+      muscles:"Aerobic preparation",
+      demoImage:"assets/phase3/treadmill-walking.jpg"
+    }),
+    cloneExerciseByName("Rower Technique",{
+      name:"Zone 2 Cardio",
+      duration:"30:00",
+      muscles:"Aerobic endurance and full-body conditioning",
+      setup:[
+        "Choose treadmill, rower or KICKR CORE",
+        "Use a pace where you can speak in complete sentences",
+        "Keep effort steady rather than hard"
+      ],
+      steps:[
+        "Build gradually into a comfortable steady pace.",
+        "Maintain controlled breathing.",
+        "Keep the effort consistent for the full interval.",
+        "Reduce intensity if conversation becomes difficult."
+      ],
+      cues:["Stay relaxed.","This is not an interval or sprint session."],
+      why:"Builds aerobic capacity while supporting fat loss and recovery.",
+      demoImage:"assets/phase3/kickr-core-endurance-ride.jpg"
+    }),
+    cloneExerciseByName("Easy Treadmill Cooldown",{
+      name:"Zone 2 Cooldown",
+      duration:"5:00",
+      demoImage:"assets/phase3/cool-down-recovery.jpg"
+    })
+  ];
+}
+
+function strengthWorkoutForDay(dayIndex){
+  /* Full Body B and C use the stable guided strength engine while their
+     dedicated exercise programming is refined. Session identity and schedule
+     still advance correctly instead of reverting to Monday. */
+  return data.map(resolveExercise).filter(ex=>!ex.unavailable).map((ex,index)=>({ex,index}))
+    .sort((a,b)=>setupGroup(a.ex)-setupGroup(b.ex)||a.index-b.index).map(x=>x.ex);
+}
+
+function workoutForDay(dayIndex=currentPlanIndex()){
+  if(dayIndex===1)return cardioMobilityWorkout();
+  if(dayIndex===3)return coreRecoveryWorkout();
+  if(dayIndex===5)return zone2CardioWorkout();
+  if(dayIndex===6)return [];
+  return strengthWorkoutForDay(dayIndex);
+}
+
+function activeWorkout(){
+  const sessionDay=Number.isInteger(state.currentSession?.planDay)
+    ?state.currentSession.planDay
+    :currentPlanIndex();
+  return workoutForDay(sessionDay);
+}
+
+function startNewSession(dayIndex=currentPlanIndex()){
+  const plan=weekPlan[dayIndex];
+  state.logs={};
+  state.currentSession={
+    id:`session-${Date.now()}`,
+    name:plan.title,
+    planDay:dayIndex,
+    startedAt:new Date().toISOString(),
+    dateKey:localDateKey(),
+    equipment:deepCopy(state.equipment)
+  };
+  state.step=0;
+  state.setupReady=false;
+  save();
+}
+
+function workoutLanding(){
+  syncSelectedDayToCalendar();
+  const dayIndex=currentPlanIndex();
+  const plan=weekPlan[dayIndex];
+  const workoutData=workoutForDay(dayIndex);
+  const hasActive=!!state.currentSession
+    &&state.currentSession.dateKey===localDateKey()
+    &&state.currentSession.planDay===dayIndex
+    &&state.step>0
+    &&state.step<=activeWorkout().length
+    &&hasActualWorkoutProgress();
+
+  if(plan.action==="progress"){
+    app.innerHTML=`<section class="card workout-launch-card">
+      <span class="pill">RECOVERY DAY</span>
+      <h2>${plan.title}</h2>
+      <p>${plan.detail}</p>
+      <button class="primary" id="openSundayProgress">Open Progress</button>
+    </section>`;
+    document.querySelector("#openSundayProgress").onclick=()=>setTab("progress");
+    return;
+  }
+
+  app.innerHTML=`<section class="card workout-launch-card">
+    <span class="pill">${hasActive?"WORKOUT IN PROGRESS":"TODAY’S WORKOUT"}</span>
+    <h2>${hasActive?`Resume ${plan.title}`:plan.title}</h2>
+    <p>${hasActive
+      ?`You are on step ${state.step} of ${activeWorkout().length}.`
+      :`${plan.detail}. Start when you are ready and move through it one step at a time.`}</p>
+    <div class="launch-summary">
+      <div><small>STEPS</small><strong>${workoutData.length}</strong></div>
+      <div><small>ESTIMATED TIME</small><strong>${plan.time}</strong></div>
+      <div><small>FOCUS</small><strong>${plan.focus}</strong></div>
+    </div>
+    <button class="primary" id="launchWorkout">${hasActive?"Resume workout":"Start workout"}</button>
+    ${hasActive?`<button class="secondary" id="restartWorkout">Restart today’s workout</button>`:""}
+  </section>`;
+
+  document.querySelector("#launchWorkout").onclick=()=>{
+    if(!hasActive)startNewSession(dayIndex);
+    state.tab="workout";
+    save();
+    workout();
+  };
+
+  document.querySelector("#restartWorkout")?.addEventListener("click",()=>{
+    if(confirm(`Restart ${plan.title} from the beginning?`)){
+      startNewSession(dayIndex);
+      state.tab="workout";
+      save();
+      workout();
+    }
+  });
+}
+
 migrateHistory();
 recoverV1131History();
 repairFalseActiveWorkout();
+syncSelectedDayToCalendar();
 save();
 
 /* =========================================================
-   ROAD TO 12% — VERSION 11.3.1 LAUNCH AND NAVIGATION REPAIR
+   ROAD TO 12% — VERSION 11.3.2 LAUNCH AND NAVIGATION REPAIR
    ========================================================= */
 (function repairV112LaunchState(){
  const migrationKey="road12-v11-2-launch-repaired";

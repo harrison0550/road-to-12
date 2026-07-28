@@ -1993,3 +1993,11 @@ header .reset,#reset,.reset-button{display:none!important}
 .import-label{display:grid;place-items:center;cursor:pointer}
 .import-label input{display:none}
 @media(max-width:520px){.backup-actions{grid-template-columns:1fr}}
+
+
+/* =========================================================
+   ROAD TO 12% — VERSION 11.3.2 CALENDAR WORKOUTS
+   ========================================================= */
+.launch-summary div strong{
+  overflow-wrap:anywhere;
+}
