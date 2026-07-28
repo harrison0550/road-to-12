@@ -1,8 +1,8 @@
-# Road to 12% — Version 7.4
+# Road to 12% — Version 7.5
 
 Upload all files in this folder to the same GitHub repository folder.
 
-Version 7.4 adds:
+Version 7.5 adds:
 - Complete guided workout flow
 - Session briefing and muscle-group summary
 - Warm-up, dynamic mobility, strength work, cooldown and stretching
@@ -15,7 +15,7 @@ Version 7.4 adds:
 
 Existing Version 4.1 device data uses a different storage key, so it remains separate.
 
-## Version 7.4 fixes
+## Version 7.5 fixes
 - Restored tappable seven-day training schedule on Home
 - Added selected-day plan preview and routing
 - Corrected iPhone text autosizing and responsive typography
@@ -23,7 +23,7 @@ Existing Version 4.1 device data uses a different storage key, so it remains sep
 - Bumped service-worker cache so GitHub Pages loads the new CSS/JS
 
 
-## Version 7.4 changes
+## Version 7.5 changes
 - Removed the universal stick-figure animation
 - Added exercise-specific animated media:
   - treadmill belt, console, walking stride and posture guide
@@ -41,7 +41,7 @@ These are lightweight in-app animations and do not require external GIF or video
 The next media upgrade can replace any animation with an MP4 file without changing the workout flow.
 
 
-## Version 7.4 changes
+## Version 7.5 changes
 - Added Safari-specific animation reliability fixes
 - Replaced the treadmill egg-shaped CSS body with a refined SVG human figure
 - Added separate head, neck, torso, pelvis, upper/lower arms, thighs, shins and shoes
@@ -54,7 +54,7 @@ The next media upgrade can replace any animation with an MP4 file without changi
 - Added extra Safari-safe bottom spacing and dynamic viewport handling
 - Preserved all Version 5.2 schedule, logging, setup and guided-workout features
 
-## Version 7.4
+## Version 7.5
 - Interactive RitFit M1 setup coach using James' actual numbered rail photo
 - Exact pin positions for each cable exercise
 - Four stages: Pin Position, Attachment, Body Setup, Movement
@@ -64,7 +64,7 @@ The next media upgrade can replace any animation with an MP4 file without changi
 - Preserves schedule, Safari fixes, timers, logging and progress
 
 
-## Version 7.4
+## Version 7.5
 - Deploys the realistic Cable Chest Press instructional asset
 - Deploys the complete RitFit M1, cable, barbell and bumper-plate visual library
 - Adds full-screen zoom for detailed study on iPhone
@@ -76,7 +76,7 @@ The next media upgrade can replace any animation with an MP4 file without changi
 - Preserves the weekly plan, timers, logging, progress and Safari layout fixes
 
 
-## Version 7.4
+## Version 7.5
 - Shows only the current exercise asset inside guided workouts
 - Moves the complete exercise poster to the Library tab only
 - Adds separate Demo, Video, Setup and Steps tabs
@@ -88,7 +88,7 @@ The next media upgrade can replace any animation with an MP4 file without changi
 - Preserves timers, logging, schedule, progress and Safari fixes
 
 
-## Version 7.4
+## Version 7.5
 - Replaces the previous Full Body A images with the new consistent high-quality asset pack
 - Adds dedicated current-exercise panels for:
   - Lat Pulldown
@@ -108,7 +108,7 @@ The next media upgrade can replace any animation with an MP4 file without changi
 Note: YouTube controls which videos allow embedding. The fallback link is shown only for videos that publishers block from embedded playback.
 
 
-## Version 7.4
+## Version 7.5
 - Corrected rope pushdown asset
 - Why This Exercise cards
 - Beginner weight guidance
@@ -117,7 +117,7 @@ Note: YouTube controls which videos allow embedding. The fallback link is shown 
 - Expanded equipment dashboard
 
 
-## Version 7.4 — Equipment-Aware Workout
+## Version 7.5 — Equipment-Aware Workout
 - Adds a persistent My Equipment control panel.
 - Bumper plates, dumbbells and free-barbell work are disabled by default.
 - Replaces Goblet Squat with an empty-bar Smith Machine Squat when dumbbells are unavailable.
@@ -129,3 +129,38 @@ Note: YouTube controls which videos allow embedding. The fallback link is shown 
 
 ### Tonight
 Leave Olympic bumper plates, dumbbells and free Olympic barbell switched off. The app will guide an equipment-safe Full Body A session using the RitFit M1, bench and treadmill.
+
+
+## Version 7.5 — First Workout Feedback Build
+
+This release preserves the same `road12v5` localStorage key so data from Version 7.4 can migrate forward on the same installed site.
+
+### Completed workout experience
+- Home changes to a celebration screen after today’s workout is complete.
+- Today receives a green completion check in the weekly tracker.
+- The main action becomes “View today’s completed workout.”
+- Repeating a completed workout requires a deliberate confirmation.
+
+### Detailed workout history
+- Completed sessions store date, start/end time, duration, equipment profile, exercises, substitutions, sets, weights, reps and completion state.
+- Workout History cards are tappable.
+- Every session opens into an interactive set-by-set detail screen.
+- Version 7.4 history entries are migrated and attempt to recover detailed values from the still-saved workout log.
+
+### Clear cable weight entry
+- Dual-stack exercises say “LB / STACK.”
+- Enter the selector setting on one stack; the app displays the combined selected stack weight.
+- Single-stack exercises explicitly say to enter the active stack’s selector setting.
+- Smith squats record added plate weight and accept 0 for the empty Smith bar.
+
+### Corrected exercise guidance
+- Cable Shoulder Press now states: two separate D-handles, face away throughout, and cables outside the arms.
+- The misleading bar-based shoulder-press sequence is no longer shown in the guided workout.
+- Cable Curl now states: face the machine throughout, short straight bar, and underhand grip from start to finish.
+- Both corrected exercises use a four-stage continuous setup/start/movement/return guide.
+
+### Your actual attachments
+- Equipment now includes an Attachment Locker.
+- The user can photograph each actual attachment from the phone.
+- Photos are resized and stored locally in the app.
+- During each matching exercise, the app displays the photo with a “USE THIS ONE” label.
