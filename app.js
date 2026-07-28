@@ -157,7 +157,7 @@ function migrateHistory(){
       item.exercises=Object.entries(state.logs||{}).map(([name,sets])=>({
         name,
         sets:deepCopy(sets||[]),
-        weightEntry:{mode:"legacy",label:"Saved weight",help:"Recovered from Version 11.3 local workout data."}
+        weightEntry:{mode:"legacy",label:"Saved weight",help:"Recovered from Version 11.3.1 local workout data."}
       }));
       item.recoveredFromV74=true;
       changed=true;
@@ -715,7 +715,7 @@ function equipment(){
   ["latBar","Lat pulldown bar","Used for lat pulldowns."],
   ["rowHandle","Close-grip row handle","Used for seated cable rows."]
  ];
- app.innerHTML=`<section class="card"><div class="phase"><span class="pill">VERSION 11.3</span><strong>Real-workout redesign</strong></div><h2>Profile</h2><label>What should the app call you?<input id="preferredName" value="${state.preferredName}" autocomplete="given-name"></label><button class="secondary profile-save" id="saveProfile">Save name</button></section><section class="card"><h2>My Equipment</h2><p class="muted">Workouts use only equipment switched on.</p><div class="equipment-toggle-list">${items.map(([key,icon,title,note])=>`<label class="equipment-toggle"><span class="equipment-symbol">${icon}</span><span class="equipment-copy"><strong>${title}</strong><small>${note}</small></span><input type="checkbox" data-equipment="${key}" ${state.equipment[key]?"checked":""}><span class="toggle-ui"></span></label>`).join("")}</div></section>
+ app.innerHTML=`<section class="card"><div class="phase"><span class="pill">VERSION 11.3.1</span><strong>Real-workout redesign</strong></div><h2>Profile</h2><label>What should the app call you?<input id="preferredName" value="${state.preferredName}" autocomplete="given-name"></label><button class="secondary profile-save" id="saveProfile">Save name</button></section><section class="card"><h2>My Equipment</h2><p class="muted">Workouts use only equipment switched on.</p><div class="equipment-toggle-list">${items.map(([key,icon,title,note])=>`<label class="equipment-toggle"><span class="equipment-symbol">${icon}</span><span class="equipment-copy"><strong>${title}</strong><small>${note}</small></span><input type="checkbox" data-equipment="${key}" ${state.equipment[key]?"checked":""}><span class="toggle-ui"></span></label>`).join("")}</div></section>
  <section class="card"><h2>Attachment Locker</h2><p class="muted">Add a close-up photo of each attachment from your actual gym. The correct photo will appear during every exercise with a bright “USE THIS ONE” label.</p><div class="attachment-locker">${attachments.map(([key,title,note])=>`<div class="locker-item">${state.attachmentPhotos[key]?`<img src="${state.attachmentPhotos[key]}" alt="${title}">`:`<div class="locker-placeholder">📷</div>`}<div class="locker-copy"><strong>${title}</strong><small>${note}</small><label class="photo-button">Choose photo<input type="file" accept="image/*" capture="environment" data-photo="${key}"></label>${state.attachmentPhotos[key]?`<button class="clear-photo" data-clear-photo="${key}">Remove</button>`:""}</div></div>`).join("")}</div></section>
  <section class="card equipment-impact"><h3>Current workout impact</h3><div class="impact-row"><span>Available exercises</span><strong>${activeWorkout().length}</strong></div><div class="impact-row"><span>Automatic substitutions</span><strong>${substitutionCount()}</strong></div><div class="impact-row"><span>Bumper-plate exercises</span><strong>${state.equipment.bumperPlates?"Enabled":"Disabled"}</strong></div><button class="primary" id="equipmentWorkout">Start equipment-safe workout</button></section>`;
  document.querySelector("#saveProfile").onclick=()=>{state.preferredName=document.querySelector("#preferredName").value.trim()||"Andy";save();equipment()};
@@ -754,7 +754,7 @@ function progress(){
 }
 function sessionDetail(session){
  const totals=sessionTotals(session);
- app.innerHTML=`<section class="card session-detail-header"><button class="secondary" id="historyBack">Back to history</button><div class="check small-check">✓</div><span class="pill">COMPLETED WORKOUT</span><h2>${session.name}</h2><p class="muted">${session.date} • ${formatDuration(session.durationMs)}</p><div class="brief-grid"><div><small>SETS</small><strong>${totals.completedSets}</strong></div><div><small>REPS</small><strong>${totals.totalReps}</strong></div><div><small>SELECTED VOLUME</small><strong>${Math.round(totals.selectedVolume).toLocaleString()} lb</strong></div><div><small>STATUS</small><strong>Saved</strong></div></div>${session.recoveredFromV74?`<div class="recovery-note">This session was recovered from Version 11.3. Any values still held in the old workout log are shown below.</div>`:""}</section>
+ app.innerHTML=`<section class="card session-detail-header"><button class="secondary" id="historyBack">Back to history</button><div class="check small-check">✓</div><span class="pill">COMPLETED WORKOUT</span><h2>${session.name}</h2><p class="muted">${session.date} • ${formatDuration(session.durationMs)}</p><div class="brief-grid"><div><small>SETS</small><strong>${totals.completedSets}</strong></div><div><small>REPS</small><strong>${totals.totalReps}</strong></div><div><small>SELECTED VOLUME</small><strong>${Math.round(totals.selectedVolume).toLocaleString()} lb</strong></div><div><small>STATUS</small><strong>Saved</strong></div></div>${session.recoveredFromV74?`<div class="recovery-note">This session was recovered from Version 11.3.1. Any values still held in the old workout log are shown below.</div>`:""}</section>
  <section class="card"><h2>Exercises completed</h2><div class="history-exercise-list">${(session.exercises||[]).length?(session.exercises||[]).map(ex=>`<details class="history-exercise" open><summary><span><strong>${ex.name}</strong>${ex.originalExercise?`<small>Substituted for ${ex.originalExercise}</small>`:""}</span><span>${(ex.sets||[]).filter(s=>s?.done).length} sets</span></summary><div class="history-set-head"><span>SET</span><span>${ex.weightEntry?.mode==="dual"?"LB / STACK":"WEIGHT"}</span><span>REPS</span><span>STATUS</span></div>${(ex.sets||[]).map((s,i)=>`<div class="history-set-row"><strong>${i+1}</strong><span>${s?.weight!==undefined&&s?.weight!==""?`${s.weight} lb`:"—"}${ex.weightEntry?.mode==="dual"&&s?.weight?`<small>${Number(s.weight)*2} lb combined selected</small>`:""}</span><span>${s?.reps||"—"}</span><span>${s?.done?"✓ Complete":"Not marked"}</span></div>`).join("")||'<p class="muted">No set details were stored.</p>'}<div class="history-weight-note"><strong>${ex.weightEntry?.label||"Weight used"}</strong><p>${ex.weightEntry?.help||""}</p></div></details>`).join(""):'<p class="muted">The older session record did not contain exercise details.</p>'}</div></section>
  <button class="secondary" id="repeatHistory">Repeat this workout</button>`;
  document.querySelector("#historyBack").onclick=()=>{state.historyView=null;save();progress()};
@@ -762,7 +762,7 @@ function sessionDetail(session){
 }
 
 /* =========================================================
-   ROAD TO 12% — VERSION 11.3 PRODUCT EXPERIENCE
+   ROAD TO 12% — VERSION 11.3.1 PRODUCT EXPERIENCE
    ========================================================= */
 state.dailyCheckins=state.dailyCheckins||{};
 state.workoutRatings=state.workoutRatings||{};
@@ -841,7 +841,7 @@ function exercisePreviewAsset(name){
 function home(){
  const done=todayCompleted(), completed=completedTodaySession(), check=todayCheckin(), tomorrow=tomorrowPlan();
  const totals=completed?sessionTotals(completed):null;
- app.innerHTML=`<section class="v11-dashboard-head"><span class="pill">VERSION 11.3</span><h2>${greeting()}, ${state.preferredName}</h2><p>${done?"Training complete. Now make recovery count.":"Your personalized home-gym plan is ready."}</p></section>
+ app.innerHTML=`<section class="v11-dashboard-head"><span class="pill">VERSION 11.3.1</span><h2>${greeting()}, ${state.preferredName}</h2><p>${done?"Training complete. Now make recovery count.":"Your personalized home-gym plan is ready."}</p></section>
  ${done?`<section class="card v11-status-card complete-status"><div class="dashboard-icon">🏆</div><div><small>TODAY’S STATUS</small><h3>Workout complete</h3><p>${completed.name} • ${formatDuration(completed.durationMs)} • ${totals.completedSets} sets saved</p></div><button class="secondary" id="viewToday">View</button></section>`:
  `<section class="card v11-status-card"><div class="dashboard-icon">▶</div><div><small>TODAY’S WORKOUT</small><h3>${weekPlan[state.selectedDay].title}</h3><p>${weekPlan[state.selectedDay].time} • ${weekPlan[state.selectedDay].focus}</p></div><button class="primary compact-primary" id="startToday">Start</button></section>`}
  <section class="card dashboard-section"><div class="section-title-row"><div><small>DAILY READINESS</small><h3>Recovery check-in</h3></div><span class="readiness-score">${[check.water,check.nutrition,!!check.sleep].filter(Boolean).length}/3</span></div>
@@ -984,7 +984,7 @@ function progress(){
 
 
 /* =========================================================
-   ROAD TO 12% — VERSION 11.3 SIMPLIFIED EXPERIENCE
+   ROAD TO 12% — VERSION 11.3.1 SIMPLIFIED EXPERIENCE
    ========================================================= */
 
 /* Restore the motivating Home experience while retaining
@@ -1263,10 +1263,10 @@ function workoutLanding(){
 
 
 /* =========================================================
-   ROAD TO 12% — VERSION 11.3 HISTORY RECOVERY + ASSET AUDIT
+   ROAD TO 12% — VERSION 11.3.1 STABILITY REPAIR
    ========================================================= */
 
-const V113_ANATOMICAL_ASSETS={
+const V1131_ANATOMICAL_ASSETS={
  "Treadmill Walk":"assets/phase3/treadmill-walking.jpg",
  "Easy Treadmill Cooldown":"assets/phase3/treadmill-walking.jpg",
  "Arm Circles":"assets/phase3/dynamic-warm-up.jpg",
@@ -1303,36 +1303,34 @@ const V113_ANATOMICAL_ASSETS={
  "KICKR CORE HIIT Ride":"assets/phase3/kickr-core-hiit-ride.jpg"
 };
 
-function applyAnatomicalAssets(){
+function applyV1131Assets(){
  [...data,...(window.EXTRA_LIBRARY_DATA||[])].forEach(ex=>{
-   if(V113_ANATOMICAL_ASSETS[ex.name])ex.demoImage=V113_ANATOMICAL_ASSETS[ex.name];
+   if(V1131_ANATOMICAL_ASSETS[ex.name])ex.demoImage=V1131_ANATOMICAL_ASSETS[ex.name];
  });
 }
-applyAnatomicalAssets();
+applyV1131Assets();
 
-function sessionIdentity(session){
+function v1131SessionIdentity(session){
  return session.id||[
    session.dateKey||session.date||"",
    session.name||"",
    session.completedAt||session.startedAt||""
  ].join("|");
 }
-
-function normalizeRecoveredHistory(history){
- const byId=new Map();
+function v1131NormalizeHistory(history){
+ const map=new Map();
  (Array.isArray(history)?history:[]).forEach(session=>{
    if(!session||typeof session!=="object")return;
-   const key=sessionIdentity(session);
-   if(!byId.has(key))byId.set(key,session);
+   const key=v1131SessionIdentity(session);
+   if(!map.has(key))map.set(key,session);
  });
- return [...byId.values()].sort((a,b)=>{
+ return [...map.values()].sort((a,b)=>{
    const da=new Date(a.completedAt||a.startedAt||a.date||0).getTime()||0;
    const db=new Date(b.completedAt||b.startedAt||b.date||0).getTime()||0;
    return da-db;
  });
 }
-
-function recoverSameOriginHistory(){
+function recoverV1131History(){
  const candidates=[...(state.history||[])];
  for(let i=0;i<localStorage.length;i++){
    const key=localStorage.key(i);
@@ -1344,35 +1342,46 @@ function recoverSameOriginHistory(){
      if(Array.isArray(parsed?.sessionsHistory))candidates.push(...parsed.sessionsHistory);
    }catch(_){}
  }
- const recovered=normalizeRecoveredHistory(candidates);
- const changed=recovered.length!==(state.history||[]).length;
- state.history=recovered;
- state.sessions=Math.max(Number(state.sessions)||0,recovered.length);
- if(changed)save();
- return recovered.length;
+ state.history=v1131NormalizeHistory(candidates);
+ state.sessions=Math.max(Number(state.sessions)||0,state.history.length);
 }
-recoverSameOriginHistory();
-
-function latestCompletedSession(){
- if(!state.history?.length)return null;
- return state.history.slice().sort((a,b)=>{
+function latestV1131Session(){
+ return (state.history||[]).slice().sort((a,b)=>{
    const da=new Date(a.completedAt||a.startedAt||a.date||0).getTime()||0;
    const db=new Date(b.completedAt||b.startedAt||b.date||0).getTime()||0;
    return db-da;
  })[0]||null;
 }
-
-function historicalDateLabel(session){
- const raw=session.completedAt||session.startedAt||session.date;
- const date=new Date(raw);
- if(Number.isNaN(date.getTime()))return session.date||"Saved workout";
- return date.toLocaleDateString(undefined,{weekday:"short",month:"short",day:"numeric",year:"numeric"});
+function v1131DateLabel(session){
+ const d=new Date(session.completedAt||session.startedAt||session.date);
+ return Number.isNaN(d.getTime())
+   ?(session.date||"Saved workout")
+   :d.toLocaleDateString(undefined,{weekday:"short",month:"short",day:"numeric",year:"numeric"});
 }
-
-function downloadHistoryBackup(){
+function hasActualWorkoutProgress(){
+ const anySet=Object.values(state.logs||{}).some(sets=>
+   Array.isArray(sets)&&sets.some(s=>s&&(
+     s.done||
+     Number(s.weight)>0||
+     Number(s.reps)>0
+   ))
+ );
+ return anySet;
+}
+function repairFalseActiveWorkout(){
+ const key="road12-v11-3-1-false-session-repair";
+ if(localStorage.getItem(key))return;
+ if(state.currentSession&&Number(state.step)<=1&&!hasActualWorkoutProgress()){
+   state.currentSession=null;
+   state.step=0;
+   state.setupReady=false;
+ }
+ localStorage.setItem(key,"1");
+}
+function exportV1131Backup(){
  const payload={
    app:"Road to 12%",
-   version:"11.3",
+   version:"11.3.1",
    exportedAt:new Date().toISOString(),
    state:{
      preferredName:state.preferredName,
@@ -1397,26 +1406,26 @@ function downloadHistoryBackup(){
  a.remove();
  setTimeout(()=>URL.revokeObjectURL(url),1000);
 }
-
-function importHistoryBackup(file){
+function importV1131Backup(file){
  const reader=new FileReader();
  reader.onload=()=>{
    try{
      const payload=JSON.parse(reader.result);
      const incoming=payload.state||payload;
-     if(!Array.isArray(incoming.history))throw new Error("No workout history was found in this backup.");
-     state.history=normalizeRecoveredHistory([...(state.history||[]),...incoming.history]);
+     if(!Array.isArray(incoming.history))throw new Error("No workout history found.");
+     state.history=v1131NormalizeHistory([...(state.history||[]),...incoming.history]);
      state.sessions=Math.max(Number(state.sessions)||0,Number(incoming.sessions)||0,state.history.length);
      state.workoutRatings=Object.assign({},incoming.workoutRatings||{},state.workoutRatings||{});
      state.dailyCheckins=Object.assign({},incoming.dailyCheckins||{},state.dailyCheckins||{});
      state.achievements=Object.assign({},incoming.achievements||{},state.achievements||{});
      state.equipment=Object.assign({},state.equipment||{},incoming.equipment||{});
-     state.attachmentPhotos=Object.assign({},incoming.attachmentPhotos||{},state.attachmentPhotos||{});
+     state.attachmentPhotos=Object.assign({},state.attachmentPhotos||{},incoming.attachmentPhotos||{});
      if(incoming.weight)state.weight=incoming.weight;
      if(incoming.waist)state.waist=incoming.waist;
      if(incoming.preferredName)state.preferredName=incoming.preferredName;
      save();
      alert(`Backup imported. ${state.history.length} workout${state.history.length===1?"":"s"} available.`);
+     state.historyView=null;
      progress();
    }catch(error){
      alert(`Could not import backup: ${error.message}`);
@@ -1425,41 +1434,43 @@ function importHistoryBackup(file){
  reader.readAsText(file);
 }
 
-/* Persistent achievement Home:
-   the latest completed workout remains visible after midnight. */
 function home(){
  const selected=weekPlan[state.selectedDay];
- const latest=latestCompletedSession();
+ const latest=latestV1131Session();
  const historyCount=state.history.length;
- const active=!!state.currentSession&&state.step>0&&state.step<=activeWorkout().length;
+ const workoutData=activeWorkout();
+ const active=!!state.currentSession&&state.step>0&&state.step<=workoutData.length&&hasActualWorkoutProgress();
 
- const achievement=latest?(()=>{
+ let top;
+ if(latest){
    const totals=sessionTotals(latest);
-   return `<section class="celebration-hero v113-achievement">
+   top=`<section class="celebration-hero v113-achievement">
      <div class="celebration-burst">🏆</div>
      <span class="pill">LATEST ACHIEVEMENT</span>
      <h2>You crushed it, ${state.preferredName}!</h2>
-     <p>${latest.name||"Workout"} was completed on ${historicalDateLabel(latest)}.</p>
+     <p>${latest.name||"Workout"} was completed on ${v1131DateLabel(latest)}.</p>
      <div class="celebration-stats">
        <div><small>WORKOUT</small><strong>${latest.name||"Completed workout"}</strong></div>
-       <div><small>TIME</small><strong>${formatDuration(latest.durationMs||0)}</strong></div>
+       <div><small>TIME</small><strong>${latest.durationMs?formatDuration(latest.durationMs):"Duration not captured"}</strong></div>
        <div><small>SETS SAVED</small><strong>${totals.completedSets}</strong></div>
      </div>
      <button class="primary" id="viewLatestAchievement">View completed workout</button>
-     <small class="recovery-message">${historyCount} workout${historyCount===1?"":"s"} safely listed in Progress.</small>
+     <small class="recovery-message">${historyCount} workout${historyCount===1?"":"s"} listed in Progress.</small>
    </section>`;
- })():`<section class="hero v111-hero">
-   <img src="${window.HERO_IMAGE}">
-   <div class="shade"></div>
-   <div class="hero-copy">
-     <span class="pill">WEEK 1 • FOUNDATION</span>
-     <h2>${selected.title}</h2>
-     <p>${selected.detail}</p>
-     <button class="primary" id="start">${active?"Resume guided workout":"Start today’s guided workout"}</button>
-   </div>
- </section>`;
+ }else{
+   top=`<section class="hero v111-hero">
+     <img src="${window.HERO_IMAGE}">
+     <div class="shade"></div>
+     <div class="hero-copy">
+       <span class="pill">WEEK 1 • FOUNDATION</span>
+       <h2>${selected.title}</h2>
+       <p>${selected.detail}</p>
+       <button class="primary" id="startWorkout">${active?"Resume guided workout":"Start today’s guided workout"}</button>
+     </div>
+   </section>`;
+ }
 
- app.innerHTML=`${achievement}
+ app.innerHTML=`${top}
  ${latest?`<section class="card next-workout-card">
    <div class="section-title-row">
      <div><small>${active?"WORKOUT IN PROGRESS":"NEXT WORKOUT"}</small><h2>${selected.title}</h2></div>
@@ -1467,10 +1478,9 @@ function home(){
    </div>
    <p>${selected.detail}</p>
    <div class="focus-chips">${selected.focus.split(",").map(x=>`<span>${x}</span>`).join("")}</div>
-   <button class="primary" id="start">${active?"Resume guided workout":"Start guided workout"}</button>
+   <button class="primary" id="startWorkout">${active?"Resume guided workout":"Start guided workout"}</button>
    <button class="secondary" id="previewSelected">Preview workout</button>
  </section>`:""}
-
  <section class="card week-card">
    <div class="section-title-row">
      <div><small>YOUR PLAN</small><h2>Training schedule</h2></div>
@@ -1487,7 +1497,6 @@ function home(){
      <div><h3>${selected.title}</h3><p class="muted">${selected.detail}</p></div>
    </div>
  </section>
-
  <section class="stats">
    <div><small>WEIGHT</small><strong>${state.weight} lb</strong></div>
    <div><small>WAIST</small><strong>${state.waist} in</strong></div>
@@ -1496,11 +1505,17 @@ function home(){
 
  document.querySelector("#viewLatestAchievement")?.addEventListener("click",()=>{
    state.historyView=latest.id;
-   setTab("progress");
+   state.tab="progress";
+   save();
+   progress();
  });
- document.querySelector("#openHistory").onclick=()=>setTab("progress");
+ document.querySelector("#openHistory").onclick=()=>{
+   state.historyView=null;
+   state.tab="progress";
+   save();
+   progress();
+ };
  document.querySelector("#previewSelected")?.addEventListener("click",()=>showDayPlan(state.selectedDay));
-
  document.querySelectorAll("[data-day]").forEach(button=>{
    button.onclick=()=>{
      state.selectedDay=Number(button.dataset.day);
@@ -1509,13 +1524,38 @@ function home(){
      showDayPlan(state.selectedDay);
    };
  });
+ document.querySelector("#startWorkout")?.addEventListener("click",()=>{
+   if(!active)startNewSession();
+   state.tab="workout";
+   save();
+   workout();
+ });
+}
 
- document.querySelector("#start")?.addEventListener("click",()=>{
-   if(active){
-     state.tab="workout";
-     save();
-     workout();
-   }else{
+function workoutLanding(){
+ const workoutData=activeWorkout();
+ const hasActive=!!state.currentSession&&state.step>0&&state.step<=workoutData.length&&hasActualWorkoutProgress();
+ app.innerHTML=`<section class="card workout-launch-card">
+   <span class="pill">${hasActive?"WORKOUT IN PROGRESS":"TODAY’S WORKOUT"}</span>
+   <h2>${hasActive?"Resume Full Body A":"Full Body A"}</h2>
+   <p>${hasActive?`You are on exercise ${state.step} of ${workoutData.length}.`:"Start the guided workout when you are ready. You will move through it one step at a time."}</p>
+   <div class="launch-summary">
+     <div><small>EXERCISES</small><strong>${workoutData.length}</strong></div>
+     <div><small>ESTIMATED TIME</small><strong>50–60 min</strong></div>
+     <div><small>FLOW</small><strong>Step by step</strong></div>
+   </div>
+   <button class="primary" id="launchWorkout">${hasActive?"Resume workout":"Start workout"}</button>
+   ${hasActive?`<button class="secondary" id="restartWorkout">Restart workout</button>`:""}
+ </section>`;
+
+ document.querySelector("#launchWorkout").onclick=()=>{
+   if(!hasActive)startNewSession();
+   state.tab="workout";
+   save();
+   workout();
+ };
+ document.querySelector("#restartWorkout")?.addEventListener("click",()=>{
+   if(confirm("Restart today’s workout from the beginning?")){
      startNewSession();
      state.tab="workout";
      save();
@@ -1524,46 +1564,168 @@ function home(){
  });
 }
 
-/* Progress keeps every prior feature and adds durable backup controls. */
-const progressV112=progress;
 function progress(){
- progressV112();
- if(state.historyView)return;
+ if(state.historyView){
+   const session=state.history.find(h=>h.id===state.historyView);
+   if(session)return sessionDetail(session);
+   state.historyView=null;
+ }
 
- const firstCard=app.querySelector(".card");
- if(firstCard){
-   const protection=document.createElement("section");
-   protection.className="card history-protection-card";
-   protection.innerHTML=`<div class="section-title-row">
+ const records=personalRecords().slice(0,6);
+ const muscles=recentMuscles();
+ const achievements=earnedAchievements();
+
+ app.innerHTML=`<section class="card">
+   <span class="pill">PROGRESS CENTER</span>
+   <h2>Your Road to 12%</h2>
+   <div class="brief-grid">
+     <div><small>SESSIONS</small><strong>${state.history.length}</strong></div>
+     <div><small>LIFETIME VOLUME</small><strong>${Math.round(totalLifetimeVolume()).toLocaleString()} lb</strong></div>
+     <div><small>WEIGHT</small><strong>${state.weight} lb</strong></div>
+     <div><small>WAIST</small><strong>${state.waist} in</strong></div>
+   </div>
+   <div class="measurement-row">
+     <input id="w" value="${state.weight}" inputmode="decimal">
+     <input id="wa" value="${state.waist}" inputmode="decimal">
+     <button class="secondary" id="saveP">Save check-in</button>
+   </div>
+ </section>
+
+ <section class="card history-protection-card">
+   <div class="section-title-row">
      <div><small>DATA PROTECTION</small><h2>Workout history backup</h2></div>
      <span class="history-total">${state.history.length} saved</span>
    </div>
-   <p>Your history is stored on this device and app address. Export a backup before changing repositories, domains or installed app locations.</p>
+   <p>Export a backup before changing repositories, domains or installed app locations.</p>
    <div class="backup-actions">
      <button class="secondary" id="exportHistory">Export backup</button>
      <label class="secondary import-label">Import backup<input id="importHistory" type="file" accept="application/json,.json"></label>
-   </div>`;
-   firstCard.insertAdjacentElement("afterend",protection);
-   document.querySelector("#exportHistory").onclick=downloadHistoryBackup;
-   document.querySelector("#importHistory").onchange=e=>{
-     const file=e.target.files?.[0];
-     if(file)importHistoryBackup(file);
+   </div>
+ </section>
+
+ <section class="card">
+   <h2>Muscle recovery map</h2>
+   <p class="muted">Red groups were trained recently. Green groups are ready or were not emphasized in the last three sessions.</p>
+   <div class="muscle-map">${muscles.map(m=>`<div class="${m.trained?"recovering":"ready"}"><span></span><strong>${m.label}</strong><small>${m.trained?"Recovering":"Ready"}</small></div>`).join("")}</div>
+ </section>
+
+ <section class="card">
+   <h2>Personal records</h2>
+   ${records.length?`<div class="pr-grid">${records.map(r=>`<div><small>${r.name}</small><strong>${r.bestWeight} lb</strong><span>Best volume ${Math.round(r.bestVolume).toLocaleString()} lb</span></div>`).join("")}</div>`:'<p class="muted">Complete strength workouts to establish your first records.</p>'}
+ </section>
+
+ <section class="card">
+   <h2>Achievements</h2>
+   <div class="achievement-grid">${achievements.length?achievements.map(([a,d])=>`<div><span>✓</span><strong>${a}</strong><small>${d}</small></div>`).join(""):'<p class="muted">Your first achievement unlocks after one completed workout.</p>'}</div>
+ </section>
+
+ <section class="card">
+   <h2>Workout history</h2>
+   ${state.history.length?state.history.slice().reverse().map(h=>{
+     const t=sessionTotals(h),rating=state.workoutRatings[h.id]||"";
+     return `<button class="history-card" data-history="${h.id}">
+       <span class="history-check">✓</span>
+       <span><strong>${h.name}</strong><small>${h.date} • ${h.durationMs?formatDuration(h.durationMs):"Duration not captured"} • ${t.completedSets} sets${rating?` • ${rating}`:""}</small></span>
+       <span class="history-arrow">›</span>
+     </button>`;
+   }).join(""):'<p class="muted">No completed sessions yet.</p>'}
+ </section>`;
+
+ document.querySelector("#saveP").onclick=()=>{
+   state.weight=document.querySelector("#w").value;
+   state.waist=document.querySelector("#wa").value;
+   save();
+   progress();
+ };
+ document.querySelector("#exportHistory").onclick=exportV1131Backup;
+ document.querySelector("#importHistory").onchange=e=>{
+   const file=e.target.files?.[0];
+   if(file)importV1131Backup(file);
+ };
+ document.querySelectorAll("[data-history]").forEach(button=>{
+   button.onclick=()=>{
+     state.historyView=button.dataset.history;
+     save();
+     progress();
    };
- }
+ });
 }
 
-/* Final exercise render guard: never display an old realistic asset
-   when an anatomical replacement exists. */
-const exerciseV112=exercise;
 function exercise(ex,workoutData=activeWorkout()){
- if(V113_ANATOMICAL_ASSETS[ex.name])ex.demoImage=V113_ANATOMICAL_ASSETS[ex.name];
- exerciseV112(ex,workoutData);
+ if(V1131_ANATOMICAL_ASSETS[ex.name])ex.demoImage=V1131_ANATOMICAL_ASSETS[ex.name];
+ if(ex&&PHASE2_ASSET_MAP[ex.name])ex.demoImage=PHASE2_ASSET_MAP[ex.name];
+ if(ex&&PHASE3_ASSET_MAP[ex.name])ex.demoImage=PHASE3_ASSET_MAP[ex.name];
+ if(V1131_ANATOMICAL_ASSETS[ex.name])ex.demoImage=V1131_ANATOMICAL_ASSETS[ex.name];
+
+ const pct=Math.round(state.step/workoutData.length*100);
+ const strength=ex.type==="strength";
+ if(strength&&!state.logs[ex.name])state.logs[ex.name]=Array(ex.sets).fill(null);
+
+ const currentBlock=setupBlockLabel(ex);
+ const previous=workoutData[state.step-2];
+ const blockChanged=!previous||setupBlockLabel(previous)!==currentBlock;
+
+ app.innerHTML=`<section class="card workout-card v111-workout-card">
+   <div class="phase"><span class="tag">${ex.type}</span><strong>${state.step}/${workoutData.length}</strong></div>
+   <div class="progress workout-progress"><i style="width:${pct}%"></i></div>
+   ${blockChanged?`<div class="setup-block-banner compact-block-banner">
+     <small>SETUP FOR THIS SECTION</small><strong>${currentBlock}</strong>
+     ${ex.m1?`<span>Complete the exercises in this pulley zone before adjusting it again.</span>`:""}
+   </div>`:""}
+   <h2>${ex.name}</h2>
+   <p class="muted workout-subtitle">${ex.muscles}</p>
+   <div class="why-card"><h3>Why this exercise?</h3><p>${ex.why||"Builds strength, control and confidence."}</p></div>
+   ${attachmentPhotoMarkup(ex)}
+   ${ex.m1?m1SetupCoach(ex):`<div class="simple-setup-flow"><section class="setup-section"><div class="section-number">1</div><div><small>SETUP</small><h3>Get ready</h3>${ex.setup.map(x=>`<p>${x}</p>`).join("")}</div></section></div>`}
+   <section class="exercise-visual-section">
+     <div class="section-heading"><span>▶</span><div><small>VISUAL GUIDE</small><h3>Start, move and finish</h3></div></div>
+     <button class="exercise-asset-button" id="openAsset"><img class="exercise-asset-image" src="${ex.demoImage}" alt="${ex.name} visual guide"><span>Tap to enlarge</span></button>
+   </section>
+   <section class="movement-instructions">
+     <div class="section-heading"><span>✓</span><div><small>PERFORM THE MOVEMENT</small><h3>Step by step</h3></div></div>
+     <ol class="steps">${ex.steps.map(s=>`<li>${s}</li>`).join("")}</ol>
+     <div class="cue"><strong>Key cues</strong><p>${ex.cues.join(" • ")}</p></div>
+   </section>
+   ${smithPlateCalculator(ex)}
+   ${quickSettings(ex)}
+   ${strength?`<div class="weight-coach-card"><h3>Weight recommendation</h3><p>${ex.weightRecommendation}</p></div>`:""}
+ </section>
+ ${strength?sets(ex):timed(ex)}
+ <div class="workout-actions"><button class="secondary" id="back">Back</button><button class="primary" id="next">${state.step===workoutData.length?"Finish session":"Complete & continue"}</button></div>`;
+
+ document.querySelector("#back").onclick=()=>{
+   state.step=Math.max(1,state.step-1);
+   save();
+   workout();
+ };
+ document.querySelector("#next").onclick=next;
+ document.querySelector("#openAsset").onclick=()=>openExerciseAsset(ex);
+ const plate=document.querySelector("#plateTotal");
+ if(plate)plate.oninput=()=>document.querySelector("#plateResult").textContent=calculatePlates(plate.value);
+ if(strength)bindSets(ex);else bindTimer(ex);
 }
+
+/* Direct tab routing. No wrapper recursion. */
+setTab=function(tab){
+ state.tab=tab;
+ save();
+ if(tab==="workout"){
+   workoutLanding();
+ }else if(tab==="progress"){
+   state.historyView=null;
+   progress();
+ }else{
+   render();
+ }
+};
 
 migrateHistory();
+recoverV1131History();
+repairFalseActiveWorkout();
+save();
 
 /* =========================================================
-   ROAD TO 12% — VERSION 11.3 LAUNCH AND NAVIGATION REPAIR
+   ROAD TO 12% — VERSION 11.3.1 LAUNCH AND NAVIGATION REPAIR
    ========================================================= */
 (function repairV112LaunchState(){
  const migrationKey="road12-v11-2-launch-repaired";
@@ -1582,11 +1744,3 @@ migrateHistory();
 })();
 
 render();
-
-const originalSetTabV112=setTab;
-setTab=function(tab){
- state.tab=tab;
- save();
- if(tab==="workout"){workoutLanding();return;}
- originalSetTabV112(tab);
-};
