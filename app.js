@@ -157,7 +157,7 @@ function migrateHistory(){
       item.exercises=Object.entries(state.logs||{}).map(([name,sets])=>({
         name,
         sets:deepCopy(sets||[]),
-        weightEntry:{mode:"legacy",label:"Saved weight",help:"Recovered from Version 10.0 local workout data."}
+        weightEntry:{mode:"legacy",label:"Saved weight",help:"Recovered from Version 11.0 local workout data."}
       }));
       item.recoveredFromV74=true;
       changed=true;
@@ -176,6 +176,7 @@ function startNewSession(){
     equipment:deepCopy(state.equipment)
   };
   state.step=0;
+  state.setupReady=false;
   save();
 }
 function attachmentFor(ex){
@@ -261,7 +262,7 @@ function ensurePhase1Button(){
 function render(){
  const brand=document.querySelector("#gymBrand");
  if(brand)brand.textContent=`${state.preferredName.toUpperCase()}'S HOME GYM`;
- ensurePhase1Button();clearInterval(timerId);document.body.classList.toggle("workout-mode",state.tab==="workout");nav.forEach(b=>b.classList.toggle("active",b.dataset.tab===state.tab));({home:home,workout:workout,library:library,equipment:equipment,progress:progress}[state.tab]||home)()}
+ document.querySelector('#phase1LibraryButton')?.remove();clearInterval(timerId);document.body.classList.toggle("workout-mode",state.tab==="workout");nav.forEach(b=>b.classList.toggle("active",b.dataset.tab===state.tab));({home:home,workout:workout,library:library,equipment:equipment,progress:progress}[state.tab]||home)()}
 function home(){
  const day=weekPlan[state.selectedDay];
  const done=todayCompleted();
@@ -714,7 +715,7 @@ function equipment(){
   ["latBar","Lat pulldown bar","Used for lat pulldowns."],
   ["rowHandle","Close-grip row handle","Used for seated cable rows."]
  ];
- app.innerHTML=`<section class="card"><div class="phase"><span class="pill">VERSION 10.0</span><strong>Real-workout redesign</strong></div><h2>Profile</h2><label>What should the app call you?<input id="preferredName" value="${state.preferredName}" autocomplete="given-name"></label><button class="secondary profile-save" id="saveProfile">Save name</button></section><section class="card"><h2>My Equipment</h2><p class="muted">Workouts use only equipment switched on.</p><div class="equipment-toggle-list">${items.map(([key,icon,title,note])=>`<label class="equipment-toggle"><span class="equipment-symbol">${icon}</span><span class="equipment-copy"><strong>${title}</strong><small>${note}</small></span><input type="checkbox" data-equipment="${key}" ${state.equipment[key]?"checked":""}><span class="toggle-ui"></span></label>`).join("")}</div></section>
+ app.innerHTML=`<section class="card"><div class="phase"><span class="pill">VERSION 11.0</span><strong>Real-workout redesign</strong></div><h2>Profile</h2><label>What should the app call you?<input id="preferredName" value="${state.preferredName}" autocomplete="given-name"></label><button class="secondary profile-save" id="saveProfile">Save name</button></section><section class="card"><h2>My Equipment</h2><p class="muted">Workouts use only equipment switched on.</p><div class="equipment-toggle-list">${items.map(([key,icon,title,note])=>`<label class="equipment-toggle"><span class="equipment-symbol">${icon}</span><span class="equipment-copy"><strong>${title}</strong><small>${note}</small></span><input type="checkbox" data-equipment="${key}" ${state.equipment[key]?"checked":""}><span class="toggle-ui"></span></label>`).join("")}</div></section>
  <section class="card"><h2>Attachment Locker</h2><p class="muted">Add a close-up photo of each attachment from your actual gym. The correct photo will appear during every exercise with a bright “USE THIS ONE” label.</p><div class="attachment-locker">${attachments.map(([key,title,note])=>`<div class="locker-item">${state.attachmentPhotos[key]?`<img src="${state.attachmentPhotos[key]}" alt="${title}">`:`<div class="locker-placeholder">📷</div>`}<div class="locker-copy"><strong>${title}</strong><small>${note}</small><label class="photo-button">Choose photo<input type="file" accept="image/*" capture="environment" data-photo="${key}"></label>${state.attachmentPhotos[key]?`<button class="clear-photo" data-clear-photo="${key}">Remove</button>`:""}</div></div>`).join("")}</div></section>
  <section class="card equipment-impact"><h3>Current workout impact</h3><div class="impact-row"><span>Available exercises</span><strong>${activeWorkout().length}</strong></div><div class="impact-row"><span>Automatic substitutions</span><strong>${substitutionCount()}</strong></div><div class="impact-row"><span>Bumper-plate exercises</span><strong>${state.equipment.bumperPlates?"Enabled":"Disabled"}</strong></div><button class="primary" id="equipmentWorkout">Start equipment-safe workout</button></section>`;
  document.querySelector("#saveProfile").onclick=()=>{state.preferredName=document.querySelector("#preferredName").value.trim()||"Andy";save();equipment()};
@@ -753,11 +754,233 @@ function progress(){
 }
 function sessionDetail(session){
  const totals=sessionTotals(session);
- app.innerHTML=`<section class="card session-detail-header"><button class="secondary" id="historyBack">Back to history</button><div class="check small-check">✓</div><span class="pill">COMPLETED WORKOUT</span><h2>${session.name}</h2><p class="muted">${session.date} • ${formatDuration(session.durationMs)}</p><div class="brief-grid"><div><small>SETS</small><strong>${totals.completedSets}</strong></div><div><small>REPS</small><strong>${totals.totalReps}</strong></div><div><small>SELECTED VOLUME</small><strong>${Math.round(totals.selectedVolume).toLocaleString()} lb</strong></div><div><small>STATUS</small><strong>Saved</strong></div></div>${session.recoveredFromV74?`<div class="recovery-note">This session was recovered from Version 10.0. Any values still held in the old workout log are shown below.</div>`:""}</section>
+ app.innerHTML=`<section class="card session-detail-header"><button class="secondary" id="historyBack">Back to history</button><div class="check small-check">✓</div><span class="pill">COMPLETED WORKOUT</span><h2>${session.name}</h2><p class="muted">${session.date} • ${formatDuration(session.durationMs)}</p><div class="brief-grid"><div><small>SETS</small><strong>${totals.completedSets}</strong></div><div><small>REPS</small><strong>${totals.totalReps}</strong></div><div><small>SELECTED VOLUME</small><strong>${Math.round(totals.selectedVolume).toLocaleString()} lb</strong></div><div><small>STATUS</small><strong>Saved</strong></div></div>${session.recoveredFromV74?`<div class="recovery-note">This session was recovered from Version 11.0. Any values still held in the old workout log are shown below.</div>`:""}</section>
  <section class="card"><h2>Exercises completed</h2><div class="history-exercise-list">${(session.exercises||[]).length?(session.exercises||[]).map(ex=>`<details class="history-exercise" open><summary><span><strong>${ex.name}</strong>${ex.originalExercise?`<small>Substituted for ${ex.originalExercise}</small>`:""}</span><span>${(ex.sets||[]).filter(s=>s?.done).length} sets</span></summary><div class="history-set-head"><span>SET</span><span>${ex.weightEntry?.mode==="dual"?"LB / STACK":"WEIGHT"}</span><span>REPS</span><span>STATUS</span></div>${(ex.sets||[]).map((s,i)=>`<div class="history-set-row"><strong>${i+1}</strong><span>${s?.weight!==undefined&&s?.weight!==""?`${s.weight} lb`:"—"}${ex.weightEntry?.mode==="dual"&&s?.weight?`<small>${Number(s.weight)*2} lb combined selected</small>`:""}</span><span>${s?.reps||"—"}</span><span>${s?.done?"✓ Complete":"Not marked"}</span></div>`).join("")||'<p class="muted">No set details were stored.</p>'}<div class="history-weight-note"><strong>${ex.weightEntry?.label||"Weight used"}</strong><p>${ex.weightEntry?.help||""}</p></div></details>`).join(""):'<p class="muted">The older session record did not contain exercise details.</p>'}</div></section>
  <button class="secondary" id="repeatHistory">Repeat this workout</button>`;
  document.querySelector("#historyBack").onclick=()=>{state.historyView=null;save();progress()};
  document.querySelector("#repeatHistory").onclick=()=>{if(confirm("Start a new Full Body A workout? This saved session will not be changed.")){state.historyView=null;startNewSession();setTab("workout")}};
 }
+
+/* =========================================================
+   ROAD TO 12% — VERSION 11.0 PRODUCT EXPERIENCE
+   ========================================================= */
+state.dailyCheckins=state.dailyCheckins||{};
+state.workoutRatings=state.workoutRatings||{};
+state.achievements=state.achievements||{};
+state.setupReady=state.setupReady||false;
+state.libraryCategory=state.libraryCategory||"strength";
+
+const V11_LIBRARY_CATEGORIES=[
+ {key:"strength",icon:"🏋️",title:"Strength Exercises",description:"Cable, Smith machine and resistance-training guides."},
+ {key:"cardio",icon:"❤️",title:"Cardio",description:"Treadmill, rower and KICKR CORE technique and workouts."},
+ {key:"mobility",icon:"🧘",title:"Warm-Up & Mobility",description:"Dynamic preparation, mobility, core activation and cooldown."},
+ {key:"setup",icon:"🛠️",title:"Equipment Setup",description:"M1 attachments, pulley positions, Smith safety and bike setup."},
+ {key:"recovery",icon:"🌙",title:"Recovery",description:"Check-ins, muscle recovery and post-workout guidance."}
+];
+
+function greeting(){
+ const h=new Date().getHours();
+ return h<12?"Good morning":h<18?"Good afternoon":"Good evening";
+}
+function tomorrowPlan(){
+ const today=new Date().getDay();
+ const mondayIndex=(today+6)%7;
+ return weekPlan[(mondayIndex+1)%7];
+}
+function todayCheckin(){
+ const key=localDateKey();
+ state.dailyCheckins[key]=state.dailyCheckins[key]||{sleep:"",water:false,nutrition:false,recovery:"Good"};
+ return state.dailyCheckins[key];
+}
+function allSessionExercises(){
+ return state.history.flatMap(h=>(h.exercises||[]).map(ex=>({session:h,exercise:ex})));
+}
+function personalRecords(){
+ const map={};
+ allSessionExercises().forEach(({session,exercise})=>{
+   const done=(exercise.sets||[]).filter(s=>s?.done);
+   if(!done.length)return;
+   const best=Math.max(...done.map(s=>Number(s.weight)||0));
+   const volume=done.reduce((sum,s)=>sum+(Number(s.weight)||0)*(Number(s.reps)||0)*(exercise.weightEntry?.mode==="dual"?2:1),0);
+   const rec=map[exercise.name]||{name:exercise.name,bestWeight:0,bestVolume:0,lastWeight:0,date:""};
+   rec.bestWeight=Math.max(rec.bestWeight,best);
+   rec.bestVolume=Math.max(rec.bestVolume,volume);
+   rec.lastWeight=best;
+   rec.date=session.date;
+   map[exercise.name]=rec;
+ });
+ return Object.values(map).sort((a,b)=>b.bestVolume-a.bestVolume);
+}
+function totalLifetimeVolume(){
+ return state.history.reduce((sum,h)=>sum+sessionTotals(h).selectedVolume,0);
+}
+function earnedAchievements(){
+ const count=state.history.length, volume=totalLifetimeVolume(), achievements=[];
+ if(count>=1)achievements.push(["First Workout","Completed your first Road to 12% session."]);
+ if(count>=5)achievements.push(["Five Sessions","Five workouts permanently logged."]);
+ if(count>=10)achievements.push(["Ten Sessions","Consistency is becoming a habit."]);
+ if(volume>=10000)achievements.push(["10,000 lb Club","Logged more than 10,000 lb of selected training volume."]);
+ if(volume>=100000)achievements.push(["100,000 lb Club","Logged more than 100,000 lb of selected training volume."]);
+ if(personalRecords().some(r=>r.bestWeight>0))achievements.push(["First Personal Record","Established a strength baseline."]);
+ return achievements;
+}
+function recentMuscles(){
+ const last=state.history.slice(-3);
+ const text=last.flatMap(h=>(h.exercises||[]).map(x=>x.muscles||"")).join(" ").toLowerCase();
+ const groups=[
+  ["Chest","chest"],["Shoulders","shoulder"],["Back","back"],["Biceps","biceps"],
+  ["Triceps","triceps"],["Quads","quad"],["Glutes","glute"],["Hamstrings","hamstring"],["Core","core"]
+ ];
+ return groups.map(([label,key])=>({label,trained:text.includes(key)}));
+}
+function exercisePreviewAsset(name){
+ const all=[...data,...(window.EXTRA_LIBRARY_DATA||[])];
+ const ex=all.find(x=>x.name===name||name.toLowerCase().includes(x.name.toLowerCase())||x.name.toLowerCase().includes(name.toLowerCase()));
+ return ex?.demoImage||"";
+}
+function home(){
+ const done=todayCompleted(), completed=completedTodaySession(), check=todayCheckin(), tomorrow=tomorrowPlan();
+ const totals=completed?sessionTotals(completed):null;
+ app.innerHTML=`<section class="v11-dashboard-head"><span class="pill">VERSION 11.0</span><h2>${greeting()}, ${state.preferredName}</h2><p>${done?"Training complete. Now make recovery count.":"Your personalized home-gym plan is ready."}</p></section>
+ ${done?`<section class="card v11-status-card complete-status"><div class="dashboard-icon">🏆</div><div><small>TODAY’S STATUS</small><h3>Workout complete</h3><p>${completed.name} • ${formatDuration(completed.durationMs)} • ${totals.completedSets} sets saved</p></div><button class="secondary" id="viewToday">View</button></section>`:
+ `<section class="card v11-status-card"><div class="dashboard-icon">▶</div><div><small>TODAY’S WORKOUT</small><h3>${weekPlan[state.selectedDay].title}</h3><p>${weekPlan[state.selectedDay].time} • ${weekPlan[state.selectedDay].focus}</p></div><button class="primary compact-primary" id="startToday">Start</button></section>`}
+ <section class="card dashboard-section"><div class="section-title-row"><div><small>DAILY READINESS</small><h3>Recovery check-in</h3></div><span class="readiness-score">${[check.water,check.nutrition,!!check.sleep].filter(Boolean).length}/3</span></div>
+ <div class="checkin-grid">
+  <label><span>Sleep</span><select id="sleepCheck"><option value="">Select</option><option ${check.sleep==="Great"?"selected":""}>Great</option><option ${check.sleep==="Good"?"selected":""}>Good</option><option ${check.sleep==="Poor"?"selected":""}>Poor</option></select></label>
+  <button class="checkin-toggle ${check.water?"checked":""}" id="waterCheck"><span>${check.water?"✓":"○"}</span> Water</button>
+  <button class="checkin-toggle ${check.nutrition?"checked":""}" id="nutritionCheck"><span>${check.nutrition?"✓":"○"}</span> Nutrition</button>
+ </div></section>
+ <section class="card tomorrow-card"><div class="section-title-row"><div><small>NEXT UP</small><h3>${tomorrow.title}</h3></div><span>${tomorrow.time}</span></div><p>${tomorrow.detail}</p><div class="focus-chips">${tomorrow.focus.split(",").map(x=>`<span>${x}</span>`).join("")}</div><button class="secondary" id="previewTomorrow">Preview tomorrow</button></section>
+ <section class="card week-card"><h3>This week</h3><div class="week-strip">${weekPlan.map((d,i)=>`<button class="day-button ${i===state.selectedDay?"selected":""} ${i===0&&done?"completed-day":""}" data-day="${i}"><span class="day-icon">${i===0&&done?"✅":d.icon}</span><strong>${d.short}</strong></button>`).join("")}</div></section>
+ <section class="stats"><div><small>WEIGHT</small><strong>${state.weight} lb</strong></div><div><small>WAIST</small><strong>${state.waist} in</strong></div><div><small>SESSIONS</small><strong>${state.sessions}</strong></div></section>`;
+ document.querySelector("#viewToday")?.addEventListener("click",()=>{state.historyView=completed.id;setTab("progress")});
+ document.querySelector("#startToday")?.addEventListener("click",()=>{startNewSession();setTab("workout")});
+ document.querySelector("#previewTomorrow").onclick=()=>showDayPlan((state.selectedDay+1)%7);
+ document.querySelector("#sleepCheck").onchange=e=>{check.sleep=e.target.value;save();home()};
+ document.querySelector("#waterCheck").onclick=()=>{check.water=!check.water;save();home()};
+ document.querySelector("#nutritionCheck").onclick=()=>{check.nutrition=!check.nutrition;save();home()};
+ document.querySelectorAll("[data-day]").forEach(b=>b.onclick=()=>{state.selectedDay=+b.dataset.day;save();showDayPlan(state.selectedDay)});
+}
+
+function briefing(){
+ const workoutData=activeWorkout(),blocks=setupPlanSummary(workoutData);
+ const setupCards=blocks.map((b,i)=>{
+   const first=workoutData.find(ex=>setupBlockLabel(ex)===b.label);
+   return `<div class="setup-check-card"><span>${i+1}</span><div><strong>${b.label}</strong><small>${b.pin||"No pulley pin"} • ${b.count} movement${b.count===1?"":"s"}</small>${first?.m1?`<p>${first.m1.attachment} • ${first.m1.bench}</p>`:""}</div><button class="setup-check">✓</button></div>`;
+ }).join("");
+ app.innerHTML=`<section class="card gym-mode-intro"><span class="pill">GYM MODE</span><h2>Today’s setup</h2><p>Prepare each station now so your workout flows without surprises.</p><div class="setup-estimate"><strong>Estimated setup</strong><span>2–4 minutes</span></div></section>
+ <section class="card"><div class="setup-route-v11">${setupCards}</div></section>
+ <section class="card"><h3>Training target</h3><div class="brief-grid"><div><small>TIME</small><strong>50–60 min</strong></div><div><small>EFFORT</small><strong>2–3 reps in reserve</strong></div><div><small>BLOCKS</small><strong>${blocks.length}</strong></div><div><small>MODE</small><strong>Distraction free</strong></div></div></section>
+ <button class="primary" id="go">${state.setupReady?"Continue workout":"Setup complete — begin"}</button>`;
+ document.querySelectorAll(".setup-check").forEach(b=>b.onclick=()=>b.closest(".setup-check-card").classList.toggle("checked"));
+ document.querySelector("#go").onclick=()=>{state.setupReady=true;save();next()};
+}
+
+function blockProgressMarkup(workoutData,ex){
+ const groups=[...new Set(workoutData.map(setupBlockLabel))];
+ const current=groups.indexOf(setupBlockLabel(ex));
+ return `<div class="block-progress">${groups.map((g,i)=>`<div class="${i<current?"complete":i===current?"active":""}"><span>${i<current?"✓":i+1}</span><small>${g.replace(" block","")}</small></div>`).join("")}</div>`;
+}
+function smithPlateCalculator(ex){
+ if(!ex.name.toLowerCase().includes("smith"))return "";
+ return `<section class="plate-calculator"><div><small>SMART PLATE CALCULATOR</small><h3>Added weight per side</h3></div><label>Total added weight<input id="plateTotal" type="number" inputmode="decimal" placeholder="0"></label><div class="plate-result" id="plateResult">Enter the total plate weight.</div></section>`;
+}
+function calculatePlates(total){
+ let side=Math.max(0,Number(total)||0)/2;
+ const plates=[45,35,25,10,5,2.5], result=[];
+ plates.forEach(p=>{const n=Math.floor((side+.001)/p);if(n){result.push(`${n} × ${p}`);side-=n*p}});
+ return result.length?`Each side: ${result.join(" + ")} lb`:"Empty Smith bar";
+}
+function exercise(ex,workoutData=activeWorkout()){
+ if(ex&&PHASE2_ASSET_MAP[ex.name])ex.demoImage=PHASE2_ASSET_MAP[ex.name];
+ if(ex&&PHASE3_ASSET_MAP[ex.name])ex.demoImage=PHASE3_ASSET_MAP[ex.name];
+ const pct=Math.round(state.step/workoutData.length*100),strength=ex.type==="strength";
+ if(strength&&!state.logs[ex.name])state.logs[ex.name]=Array(ex.sets).fill(null);
+ const currentBlock=setupBlockLabel(ex),previous=workoutData[state.step-2],blockChanged=!previous||setupBlockLabel(previous)!==currentBlock;
+ app.innerHTML=`<section class="card workout-card gym-mode-card"><div class="phase"><span class="tag">${ex.type}</span><strong>${state.step}/${workoutData.length}</strong></div>
+ ${blockProgressMarkup(workoutData,ex)}
+ ${blockChanged?`<div class="setup-block-banner"><small>NOW ENTERING</small><strong>${currentBlock}</strong><span>${ex.m1?"Keep this pulley setup until this block ends.":"Complete this section before moving on."}</span></div>`:""}
+ <h2>${ex.name}</h2><p class="muted workout-subtitle">${ex.muscles}</p>
+ <div class="why-card"><h3>Why this exercise?</h3><p>${ex.why||"Builds strength, control and confidence."}</p></div>
+ ${attachmentPhotoMarkup(ex)}
+ ${ex.m1?m1SetupCoach(ex):`<div class="simple-setup-flow"><section class="setup-section"><div class="section-number">1</div><div><small>SETUP</small><h3>Get ready</h3>${ex.setup.map(x=>`<p>${x}</p>`).join("")}</div></section></div>`}
+ <section class="exercise-visual-section"><div class="section-heading"><span>▶</span><div><small>VISUAL GUIDE</small><h3>Start, move and finish</h3></div></div><button class="exercise-asset-button" id="openAsset"><img class="exercise-asset-image" src="${ex.demoImage}" alt="${ex.name} visual guide"><span>Tap to enlarge</span></button></section>
+ <section class="movement-instructions"><div class="section-heading"><span>✓</span><div><small>COACHING</small><h3>Step by step</h3></div></div><ol class="steps">${ex.steps.map(s=>`<li>${s}</li>`).join("")}</ol><div class="cue"><strong>Key cues</strong><p>${ex.cues.join(" • ")}</p></div></section>
+ ${smithPlateCalculator(ex)}
+ ${quickSettings(ex)}
+ ${strength?`<div class="weight-coach-card"><h3>Load guidance</h3><p>${ex.weightRecommendation}</p></div>`:""}</section>
+ ${strength?sets(ex):timed(ex)}
+ <div class="workout-actions"><button class="secondary" id="back">Back</button><button class="primary" id="next">${state.step===workoutData.length?"Finish session":"Complete & continue"}</button></div>`;
+ document.querySelector("#back").onclick=()=>{state.step=Math.max(0,state.step-1);save();workout()};
+ document.querySelector("#next").onclick=next;
+ document.querySelector("#openAsset").onclick=()=>openExerciseAsset(ex);
+ const plate=document.querySelector("#plateTotal");
+ if(plate)plate.oninput=()=>document.querySelector("#plateResult").textContent=calculatePlates(plate.value);
+ if(strength)bindSets(ex);else bindTimer(ex);
+}
+
+function summary(){
+ let session;
+ if(state.currentSession?.completedId){
+   session=state.history.find(h=>h.id===state.currentSession.completedId);
+ }else{
+   const endedAt=new Date(),startedAt=state.currentSession?.startedAt?new Date(state.currentSession.startedAt):endedAt;
+   session={id:state.currentSession?.id||`session-${Date.now()}`,date:endedAt.toLocaleDateString(),dateKey:localDateKey(endedAt),completedAt:endedAt.toISOString(),startedAt:startedAt.toISOString(),durationMs:Math.max(0,endedAt-startedAt),name:"Full Body A",exercises:sessionExerciseSnapshot(),equipment:deepCopy(state.equipment)};
+   state.sessions++;state.history.push(session);state.currentSession={completedId:session.id};state.step=0;state.setupReady=false;save();
+ }
+ const totals=sessionTotals(session),rating=state.workoutRatings[session.id]||"";
+ app.innerHTML=`<section class="card complete upgraded-complete"><div class="check">✓</div><span class="pill">SESSION ${state.sessions} COMPLETE</span><h2>You crushed it!</h2><p>${formatDuration(session.durationMs)} • ${totals.completedSets} sets • ${totals.totalReps} reps</p></section>
+ <section class="card workout-rating"><h3>How did it feel?</h3><p>Your answer helps guide future load increases.</p><div class="rating-grid">${["Easy","Good","Tough","Exhausting"].map((x,i)=>`<button data-rating="${x}" class="${rating===x?"selected":""}"><span>${["😀","🙂","😐","😫"][i]}</span>${x}</button>`).join("")}</div><label>Workout notes<textarea id="workoutNote" placeholder="Energy, discomfort, equipment changes or wins...">${session.note||""}</textarea></label></section>
+ <button class="primary" id="saveFinish">Save feedback and view workout</button><button class="secondary" id="home">Return home</button>`;
+ document.querySelectorAll("[data-rating]").forEach(b=>b.onclick=()=>{state.workoutRatings[session.id]=b.dataset.rating;save();summary()});
+ document.querySelector("#saveFinish").onclick=()=>{session.note=document.querySelector("#workoutNote").value.trim();save();state.historyView=session.id;setTab("progress")};
+ document.querySelector("#home").onclick=()=>{session.note=document.querySelector("#workoutNote").value.trim();save();setTab("home")};
+}
+
+function library(){
+ const extras=window.EXTRA_LIBRARY_DATA||[],all=[...data,...extras];
+ const category=state.libraryCategory;
+ let content="";
+ if(category==="strength"){
+   const strength=all.filter(x=>x.type==="strength");
+   content=`<div class="exercise-library-grid">${strength.map((x,i)=>`<button class="exercise-library-tile" data-lib-name="${x.name}"><img src="${x.demoImage}" alt=""><span class="tag">${x.type}</span><strong>${x.name}</strong><small>${x.muscles||"Strength"}</small></button>`).join("")}</div>`;
+ }else if(category==="cardio"){
+   const cards=[
+    ["Treadmill Walking","assets/phase3/treadmill-walking.jpg"],["Treadmill Incline Walk","assets/phase3/treadmill-incline-walk.jpg"],["Treadmill HIIT Intervals","assets/phase3/treadmill-hiit-intervals.jpg"],["Rower Technique","assets/phase3/rower-technique.jpg"],["KICKR CORE Endurance Ride","assets/phase3/kickr-core-endurance-ride.jpg"],["KICKR CORE HIIT Ride","assets/phase3/kickr-core-hiit-ride.jpg"]
+   ];
+   content=`<div class="visual-guide-grid">${cards.map(([n,img])=>`<button data-guide-image="${img}" data-guide-title="${n}"><img src="${img}"><strong>${n}</strong></button>`).join("")}</div>`;
+ }else if(category==="mobility"){
+   const cards=[["Dynamic Warm-Up","assets/phase3/dynamic-warm-up.jpg"],["Hip & Glute Mobility","assets/phase3/hip-glute-mobility.jpg"],["Thoracic & Shoulder Mobility","assets/phase3/thoracic-shoulder-mobility.jpg"],["Core Activation","assets/phase3/core-activation.jpg"],["Cool Down & Recovery","assets/phase3/cool-down-recovery.jpg"]];
+   content=`<div class="visual-guide-grid">${cards.map(([n,img])=>`<button data-guide-image="${img}" data-guide-title="${n}"><img src="${img}"><strong>${n}</strong></button>`).join("")}</div>`;
+ }else if(category==="setup"){
+   const cards=[["M1 Attachment Reference","assets/phase1/m1-attachment-reference.jpg"],["M1 Setup Guide","assets/phase1/m1-setup-guide.jpg"],["Smith Machine Setup","assets/phase1/smith-machine-setup-guide.jpg"],["KICKR CORE Bike Setup","assets/phase3/kickr-core-bike-setup.jpg"]];
+   content=`<div class="visual-guide-grid">${cards.map(([n,img])=>`<button data-guide-image="${img}" data-guide-title="${n}"><img src="${img}"><strong>${n}</strong></button>`).join("")}</div>`;
+ }else{
+   content=`<div class="recovery-library"><img src="assets/phase3/cool-down-recovery.jpg"><h3>Recovery dashboard</h3><p>Use the Progress tab to review trained muscles, workout feedback and recovery readiness.</p><button class="primary" id="openRecovery">Open Progress</button></div>`;
+ }
+ app.innerHTML=`<section class="card"><span class="pill">VISUAL GUIDES</span><h2>Library</h2><p>Organized by purpose—not by development phase.</p><div class="library-category-grid">${V11_LIBRARY_CATEGORIES.map(c=>`<button data-category="${c.key}" class="${c.key===category?"active":""}"><span>${c.icon}</span><strong>${c.title}</strong><small>${c.description}</small></button>`).join("")}</div></section><section class="card">${content}</section>`;
+ document.querySelectorAll("[data-category]").forEach(b=>b.onclick=()=>{state.libraryCategory=b.dataset.category;save();library()});
+ document.querySelectorAll("[data-lib-name]").forEach(b=>{b.onclick=()=>{const ex=all.find(x=>x.name===b.dataset.libName);showLibraryExercise(ex)}});
+ document.querySelectorAll("[data-guide-image]").forEach(b=>b.onclick=()=>openStandaloneGuide(b.dataset.guideTitle,b.dataset.guideImage));
+ document.querySelector("#openRecovery")?.addEventListener("click",()=>setTab("progress"));
+}
+function openStandaloneGuide(title,image){
+ const overlay=document.createElement("div");overlay.className="asset-overlay";
+ overlay.innerHTML=`<div class="asset-overlay-panel"><button class="asset-close">Close</button><h2>${title}</h2><img src="${image}" alt="${title}"></div>`;
+ document.body.appendChild(overlay);const close=()=>overlay.remove();overlay.querySelector(".asset-close").onclick=close;overlay.onclick=e=>{if(e.target===overlay)close()};
+}
+
+function progress(){
+ if(state.historyView){const session=state.history.find(h=>h.id===state.historyView);if(session)return sessionDetail(session);state.historyView=null}
+ const records=personalRecords().slice(0,6),muscles=recentMuscles(),achievements=earnedAchievements();
+ app.innerHTML=`<section class="card"><span class="pill">PROGRESS CENTER</span><h2>Your Road to 12%</h2><div class="brief-grid"><div><small>SESSIONS</small><strong>${state.history.length}</strong></div><div><small>LIFETIME VOLUME</small><strong>${Math.round(totalLifetimeVolume()).toLocaleString()} lb</strong></div><div><small>WEIGHT</small><strong>${state.weight} lb</strong></div><div><small>WAIST</small><strong>${state.waist} in</strong></div></div><div class="measurement-row"><input id="w" value="${state.weight}" inputmode="decimal"><input id="wa" value="${state.waist}" inputmode="decimal"><button class="secondary" id="saveP">Save check-in</button></div></section>
+ <section class="card"><h2>Muscle recovery map</h2><p class="muted">Red muscles were trained recently. Green groups are ready or were not emphasized in the last three sessions.</p><div class="muscle-map">${muscles.map(m=>`<div class="${m.trained?"recovering":"ready"}"><span></span><strong>${m.label}</strong><small>${m.trained?"Recovering":"Ready"}</small></div>`).join("")}</div></section>
+ <section class="card"><h2>Personal records</h2>${records.length?`<div class="pr-grid">${records.map(r=>`<div><small>${r.name}</small><strong>${r.bestWeight} lb</strong><span>Best volume ${Math.round(r.bestVolume).toLocaleString()} lb</span></div>`).join("")}</div>`:'<p class="muted">Complete strength workouts to establish your first records.</p>'}</section>
+ <section class="card"><h2>Achievements</h2><div class="achievement-grid">${achievements.length?achievements.map(([a,d])=>`<div><span>✓</span><strong>${a}</strong><small>${d}</small></div>`).join(""):'<p class="muted">Your first achievement unlocks after one completed workout.</p>'}</div></section>
+ <section class="card"><h2>Workout history</h2>${state.history.length?state.history.slice().reverse().map(h=>{const t=sessionTotals(h),rating=state.workoutRatings[h.id]||"";return `<button class="history-card" data-history="${h.id}"><span class="history-check">✓</span><span><strong>${h.name}</strong><small>${h.date} • ${formatDuration(h.durationMs)} • ${t.completedSets} sets${rating?` • ${rating}`:""}</small></span><span class="history-arrow">›</span></button>`}).join(""):'<p class="muted">No completed sessions yet.</p>'}</section>`;
+ document.querySelector("#saveP").onclick=()=>{state.weight=document.querySelector("#w").value;state.waist=document.querySelector("#wa").value;save();progress()};
+ document.querySelectorAll("[data-history]").forEach(btn=>btn.onclick=()=>{state.historyView=btn.dataset.history;save();progress()});
+}
+
 migrateHistory();
 render();

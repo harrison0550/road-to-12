@@ -1,8 +1,8 @@
-# Road to 12% — Version 10.0
+# Road to 12% — Version 11.0
 
 Upload all files in this folder to the same GitHub repository folder.
 
-Version 10.0 adds:
+Version 11.0 adds:
 - Complete guided workout flow
 - Session briefing and muscle-group summary
 - Warm-up, dynamic mobility, strength work, cooldown and stretching
@@ -15,7 +15,7 @@ Version 10.0 adds:
 
 Existing Version 4.1 device data uses a different storage key, so it remains separate.
 
-## Version 10.0 fixes
+## Version 11.0 fixes
 - Restored tappable seven-day training schedule on Home
 - Added selected-day plan preview and routing
 - Corrected iPhone text autosizing and responsive typography
@@ -23,7 +23,7 @@ Existing Version 4.1 device data uses a different storage key, so it remains sep
 - Bumped service-worker cache so GitHub Pages loads the new CSS/JS
 
 
-## Version 10.0 changes
+## Version 11.0 changes
 - Removed the universal stick-figure animation
 - Added exercise-specific animated media:
   - treadmill belt, console, walking stride and posture guide
@@ -41,7 +41,7 @@ These are lightweight in-app animations and do not require external GIF or video
 The next media upgrade can replace any animation with an MP4 file without changing the workout flow.
 
 
-## Version 10.0 changes
+## Version 11.0 changes
 - Added Safari-specific animation reliability fixes
 - Replaced the treadmill egg-shaped CSS body with a refined SVG human figure
 - Added separate head, neck, torso, pelvis, upper/lower arms, thighs, shins and shoes
@@ -54,7 +54,7 @@ The next media upgrade can replace any animation with an MP4 file without changi
 - Added extra Safari-safe bottom spacing and dynamic viewport handling
 - Preserved all Version 5.2 schedule, logging, setup and guided-workout features
 
-## Version 10.0
+## Version 11.0
 - Interactive RitFit M1 setup coach using James' actual numbered rail photo
 - Exact pin positions for each cable exercise
 - Four stages: Pin Position, Attachment, Body Setup, Movement
@@ -64,7 +64,7 @@ The next media upgrade can replace any animation with an MP4 file without changi
 - Preserves schedule, Safari fixes, timers, logging and progress
 
 
-## Version 10.0
+## Version 11.0
 - Deploys the realistic Cable Chest Press instructional asset
 - Deploys the complete RitFit M1, cable, barbell and bumper-plate visual library
 - Adds full-screen zoom for detailed study on iPhone
@@ -76,7 +76,7 @@ The next media upgrade can replace any animation with an MP4 file without changi
 - Preserves the weekly plan, timers, logging, progress and Safari layout fixes
 
 
-## Version 10.0
+## Version 11.0
 - Shows only the current exercise asset inside guided workouts
 - Moves the complete exercise poster to the Library tab only
 - Adds separate Demo, Video, Setup and Steps tabs
@@ -88,7 +88,7 @@ The next media upgrade can replace any animation with an MP4 file without changi
 - Preserves timers, logging, schedule, progress and Safari fixes
 
 
-## Version 10.0
+## Version 11.0
 - Replaces the previous Full Body A images with the new consistent high-quality asset pack
 - Adds dedicated current-exercise panels for:
   - Lat Pulldown
@@ -108,7 +108,7 @@ The next media upgrade can replace any animation with an MP4 file without changi
 Note: YouTube controls which videos allow embedding. The fallback link is shown only for videos that publishers block from embedded playback.
 
 
-## Version 10.0
+## Version 11.0
 - Corrected rope pushdown asset
 - Why This Exercise cards
 - Beginner weight guidance
@@ -117,7 +117,7 @@ Note: YouTube controls which videos allow embedding. The fallback link is shown 
 - Expanded equipment dashboard
 
 
-## Version 10.0 — Equipment-Aware Workout
+## Version 11.0 — Equipment-Aware Workout
 - Adds a persistent My Equipment control panel.
 - Bumper plates, dumbbells and free-barbell work are disabled by default.
 - Replaces Goblet Squat with an empty-bar Smith Machine Squat when dumbbells are unavailable.
@@ -131,7 +131,7 @@ Note: YouTube controls which videos allow embedding. The fallback link is shown 
 Leave Olympic bumper plates, dumbbells and free Olympic barbell switched off. The app will guide an equipment-safe Full Body A session using the RitFit M1, bench and treadmill.
 
 
-## Version 10.0 — First Workout Feedback Build
+## Version 11.0 — First Workout Feedback Build
 
 This release preserves the same `road12v5` localStorage key so data from Version 7.4 can migrate forward on the same installed site.
 
@@ -166,7 +166,7 @@ This release preserves the same `road12v5` localStorage key so data from Version
 - During each matching exercise, the app displays the photo with a “USE THIS ONE” label.
 
 
-## Version 10.0 — Real-Workout Redesign
+## Version 11.0 — Real-Workout Redesign
 - Defaults the preferred name to Andy and adds an editable Profile field.
 - Makes every weekly schedule day tappable with a full workout preview.
 - Reorders Full Body A by M1 setup zone to reduce repeated pulley changes.
@@ -178,7 +178,7 @@ This release preserves the same `road12v5` localStorage key so data from Version
 - Preserves Version 7.5 workout history, completion state and attachment photos.
 
 
-## Version 10.0 — Visual Asset Restoration
+## Version 11.0 — Visual Asset Restoration
 - Restores exercise image assets to the single-page workout flow.
 - Places each visual after setup and before movement steps.
 - Makes standard visuals tappable for a full-screen view.
@@ -188,7 +188,7 @@ This release preserves the same `road12v5` localStorage key so data from Version
 - Preserves Version 7.6 local history, settings, equipment and attachment photos.
 
 
-## Version 10.0 — Phase 1 Visual Library
+## Version 11.0 — Phase 1 Visual Library
 - Adds a unified red, white and charcoal anatomical illustration system.
 - Adds individual visual guides for Cable Chest Press, Cable Shoulder Press, Cable Curl,
   Seated Cable Row, Lat Pulldown, Rope Triceps Pushdown and Smith Machine Squat.
@@ -198,7 +198,7 @@ This release preserves the same `road12v5` localStorage key so data from Version
 - Preserves Version 7.7 workout history, settings, equipment profile and attachment photos.
 
 
-## Version 10.0 — Phase 2 Visual Library
+## Version 11.0 — Phase 2 Visual Library
 - Adds twelve new red-and-white anatomical exercise assets for the Full Body B and C expansion.
 - Includes Incline Cable Press, Single-Arm Cable Row, Rear-Delt Cable Fly,
   Cable Lateral Raise, Cable Hammer Curl, High-to-Low Cable Chop,
@@ -209,7 +209,7 @@ This release preserves the same `road12v5` localStorage key so data from Version
 - Preserves Version 8.0 local workout history, profile, equipment and uploaded attachment photos.
 
 
-## Version 10.0 — Phase 3 Visual Library
+## Version 11.0 — Phase 3 Visual Library
 - Adds treadmill walking, incline walking and HIIT interval guides.
 - Adds complete rowing technique with catch, drive, finish and recovery.
 - Adds KICKR CORE bike setup, endurance ride and HIIT ride guides.
@@ -218,3 +218,17 @@ This release preserves the same `road12v5` localStorage key so data from Version
 - Expands the in-app Visual Libraries viewer to Phase 1, Phase 2 and Phase 3.
 - Automatically maps matching cardio, mobility and recovery entries to the new assets.
 - Preserves Version 9.0 workout history, profile, equipment and attachment photos.
+
+
+## Version 11.0 — Gym Mode and Progress Intelligence
+- Removes the floating Visual Libraries banner from every screen.
+- Rebuilds Home as a useful daily dashboard with readiness, recovery and tomorrow preview.
+- Adds a distraction-free Gym Mode with pre-workout equipment setup cards.
+- Adds workout block progress for warm-up, Smith and cable zones.
+- Adds a Smith-machine plate calculator showing plates per side.
+- Adds post-workout effort ratings and free-text workout notes.
+- Reorganizes Library by Strength, Cardio, Warm-Up & Mobility, Equipment Setup and Recovery.
+- Adds a muscle recovery map based on recently trained muscle groups.
+- Adds personal records, lifetime selected volume and achievement tracking.
+- Keeps all Phase 1–3 anatomical assets and automatically displays them in guided workouts.
+- Preserves Version 10.0 workout history, profile, equipment and attachment photos.
