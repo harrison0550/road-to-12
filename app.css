@@ -1805,3 +1805,30 @@ body.workout-mode nav {
 @media(max-width:520px){
  .phase1-library-button{bottom:76px}
 }
+
+
+/* ROAD TO 12% — VERSION 9.0 PHASE 2 */
+.visual-library-tabs{
+  display:flex;
+  gap:10px;
+  margin:16px 0 12px;
+}
+.visual-library-tab{
+  flex:1;
+  padding:12px;
+  border:1px solid #46515d;
+  border-radius:13px;
+  background:#202832;
+  color:#fff;
+  font-weight:900;
+}
+.visual-library-tab.active{
+  border-color:#ff4a43;
+  background:#371719;
+  color:#ff6962;
+}
+.visual-library-summary{
+  margin-bottom:14px;
+  color:#c4ccd5;
+  line-height:1.45;
+}

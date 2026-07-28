@@ -1,4 +1,23 @@
 
+const PHASE2_ASSET_MAP={
+ "Incline Cable Press":"assets/phase2/incline-cable-press.jpg",
+ "Single Arm Cable Row":"assets/phase2/single-arm-cable-row.jpg",
+ "Rear Delt Cable Fly":"assets/phase2/rear-delt-cable-fly.jpg",
+ "Cable Lateral Raise":"assets/phase2/cable-lateral-raise.jpg",
+ "Cable Hammer Curl":"assets/phase2/cable-hammer-curl.jpg",
+ "Rope Hammer Curl":"assets/phase2/cable-hammer-curl.jpg",
+ "High to Low Cable Chop":"assets/phase2/high-to-low-cable-chop.jpg",
+ "Cable Face Pull":"assets/phase2/cable-face-pull.jpg",
+ "Smith Machine RDL":"assets/phase2/smith-machine-rdl.jpg",
+ "Smith Romanian Deadlift":"assets/phase2/smith-machine-rdl.jpg",
+ "Bulgarian Split Squat":"assets/phase2/smith-bulgarian-split-squat.jpg",
+ "Smith Bulgarian Split Squat":"assets/phase2/smith-bulgarian-split-squat.jpg",
+ "Smith Machine Calf Raise":"assets/phase2/smith-machine-calf-raise.jpg",
+ "Cable Crunch":"assets/phase2/cable-crunch.jpg",
+ "Cable Straight Arm Pushdown":"assets/phase2/cable-straight-arm-pushdown.jpg"
+};
+
+
 const data=window.WORKOUT_DATA;
 const state=JSON.parse(localStorage.getItem("road12v5")||"{}");
 Object.assign(state,{tab:state.tab||"home",step:state.step||0,logs:state.logs||{},sessions:state.sessions||0,weight:state.weight||221,waist:state.waist||43,history:state.history||[],selectedDay:Number.isInteger(state.selectedDay)?state.selectedDay:0,coachMode:state.coachMode!==false});
@@ -114,7 +133,7 @@ function migrateHistory(){
       item.exercises=Object.entries(state.logs||{}).map(([name,sets])=>({
         name,
         sets:deepCopy(sets||[]),
-        weightEntry:{mode:"legacy",label:"Saved weight",help:"Recovered from Version 8.0 local workout data."}
+        weightEntry:{mode:"legacy",label:"Saved weight",help:"Recovered from Version 9.0 local workout data."}
       }));
       item.recoveredFromV74=true;
       changed=true;
@@ -210,8 +229,8 @@ function ensurePhase1Button(){
    button=document.createElement("button");
    button.id="phase1LibraryButton";
    button.className="phase1-library-button";
-   button.innerHTML="<strong>PHASE 1 VISUAL LIBRARY</strong><span>M1 attachments, setup guides and Full Body A exercise figures</span>";
-   button.onclick=openPhase1Library;
+   button.innerHTML="<strong>VISUAL LIBRARIES</strong><span>Phase 1 and Phase 2 anatomical exercise guides</span>";
+   button.onclick=openVisualLibraries;
    document.body.appendChild(button);
  }
 }
@@ -504,16 +523,38 @@ function exercise(ex,workoutData=activeWorkout()){
 }
 
 
-function openPhase1Library(){
+function openVisualLibraries(){
  const overlay=document.createElement("div");
  overlay.className="asset-overlay phase1-library-overlay";
  overlay.innerHTML=`<div class="asset-overlay-panel phase1-library-panel">
    <button class="asset-close">Close</button>
-   <h2>Phase 1 Visual Library</h2>
-   <p>Full Body A strength exercises, M1 attachment reference, M1 setup and Smith machine setup.</p>
-   <img src="assets/phase1/phase1-complete-library.jpg" alt="Road to 12 percent Phase 1 visual library">
+   <h2>Road to 12% Visual Libraries</h2>
+   <p>Choose a phase to review the complete anatomical exercise and equipment guides.</p>
+   <div class="visual-library-tabs">
+     <button class="visual-library-tab active" data-phase="1">Phase 1</button>
+     <button class="visual-library-tab" data-phase="2">Phase 2</button>
+   </div>
+   <div class="visual-library-summary" id="visualLibrarySummary">Full Body A, M1 attachment reference, M1 setup and Smith machine setup.</div>
+   <img id="visualLibraryImage" src="assets/phase1/phase1-complete-library.jpg" alt="Road to 12 percent Phase 1 visual library">
  </div>`;
  document.body.appendChild(overlay);
+ const image=overlay.querySelector("#visualLibraryImage");
+ const summary=overlay.querySelector("#visualLibrarySummary");
+ overlay.querySelectorAll(".visual-library-tab").forEach(button=>{
+   button.onclick=()=>{
+     overlay.querySelectorAll(".visual-library-tab").forEach(x=>x.classList.remove("active"));
+     button.classList.add("active");
+     if(button.dataset.phase==="2"){
+       image.src="assets/phase2/phase2-complete-library.jpg";
+       image.alt="Road to 12 percent Phase 2 visual library";
+       summary.textContent="Full Body B and Full Body C expansion exercises using the same red-and-white anatomical design system.";
+     }else{
+       image.src="assets/phase1/phase1-complete-library.jpg";
+       image.alt="Road to 12 percent Phase 1 visual library";
+       summary.textContent="Full Body A, M1 attachment reference, M1 setup and Smith machine setup.";
+     }
+   };
+ });
  const close=()=>overlay.remove();
  overlay.querySelector(".asset-close").onclick=close;
  overlay.onclick=e=>{if(e.target===overlay)close()};
@@ -644,7 +685,7 @@ function equipment(){
   ["latBar","Lat pulldown bar","Used for lat pulldowns."],
   ["rowHandle","Close-grip row handle","Used for seated cable rows."]
  ];
- app.innerHTML=`<section class="card"><div class="phase"><span class="pill">VERSION 8.0</span><strong>Real-workout redesign</strong></div><h2>Profile</h2><label>What should the app call you?<input id="preferredName" value="${state.preferredName}" autocomplete="given-name"></label><button class="secondary profile-save" id="saveProfile">Save name</button></section><section class="card"><h2>My Equipment</h2><p class="muted">Workouts use only equipment switched on.</p><div class="equipment-toggle-list">${items.map(([key,icon,title,note])=>`<label class="equipment-toggle"><span class="equipment-symbol">${icon}</span><span class="equipment-copy"><strong>${title}</strong><small>${note}</small></span><input type="checkbox" data-equipment="${key}" ${state.equipment[key]?"checked":""}><span class="toggle-ui"></span></label>`).join("")}</div></section>
+ app.innerHTML=`<section class="card"><div class="phase"><span class="pill">VERSION 9.0</span><strong>Real-workout redesign</strong></div><h2>Profile</h2><label>What should the app call you?<input id="preferredName" value="${state.preferredName}" autocomplete="given-name"></label><button class="secondary profile-save" id="saveProfile">Save name</button></section><section class="card"><h2>My Equipment</h2><p class="muted">Workouts use only equipment switched on.</p><div class="equipment-toggle-list">${items.map(([key,icon,title,note])=>`<label class="equipment-toggle"><span class="equipment-symbol">${icon}</span><span class="equipment-copy"><strong>${title}</strong><small>${note}</small></span><input type="checkbox" data-equipment="${key}" ${state.equipment[key]?"checked":""}><span class="toggle-ui"></span></label>`).join("")}</div></section>
  <section class="card"><h2>Attachment Locker</h2><p class="muted">Add a close-up photo of each attachment from your actual gym. The correct photo will appear during every exercise with a bright “USE THIS ONE” label.</p><div class="attachment-locker">${attachments.map(([key,title,note])=>`<div class="locker-item">${state.attachmentPhotos[key]?`<img src="${state.attachmentPhotos[key]}" alt="${title}">`:`<div class="locker-placeholder">📷</div>`}<div class="locker-copy"><strong>${title}</strong><small>${note}</small><label class="photo-button">Choose photo<input type="file" accept="image/*" capture="environment" data-photo="${key}"></label>${state.attachmentPhotos[key]?`<button class="clear-photo" data-clear-photo="${key}">Remove</button>`:""}</div></div>`).join("")}</div></section>
  <section class="card equipment-impact"><h3>Current workout impact</h3><div class="impact-row"><span>Available exercises</span><strong>${activeWorkout().length}</strong></div><div class="impact-row"><span>Automatic substitutions</span><strong>${substitutionCount()}</strong></div><div class="impact-row"><span>Bumper-plate exercises</span><strong>${state.equipment.bumperPlates?"Enabled":"Disabled"}</strong></div><button class="primary" id="equipmentWorkout">Start equipment-safe workout</button></section>`;
  document.querySelector("#saveProfile").onclick=()=>{state.preferredName=document.querySelector("#preferredName").value.trim()||"Andy";save();equipment()};
@@ -683,7 +724,7 @@ function progress(){
 }
 function sessionDetail(session){
  const totals=sessionTotals(session);
- app.innerHTML=`<section class="card session-detail-header"><button class="secondary" id="historyBack">Back to history</button><div class="check small-check">✓</div><span class="pill">COMPLETED WORKOUT</span><h2>${session.name}</h2><p class="muted">${session.date} • ${formatDuration(session.durationMs)}</p><div class="brief-grid"><div><small>SETS</small><strong>${totals.completedSets}</strong></div><div><small>REPS</small><strong>${totals.totalReps}</strong></div><div><small>SELECTED VOLUME</small><strong>${Math.round(totals.selectedVolume).toLocaleString()} lb</strong></div><div><small>STATUS</small><strong>Saved</strong></div></div>${session.recoveredFromV74?`<div class="recovery-note">This session was recovered from Version 8.0. Any values still held in the old workout log are shown below.</div>`:""}</section>
+ app.innerHTML=`<section class="card session-detail-header"><button class="secondary" id="historyBack">Back to history</button><div class="check small-check">✓</div><span class="pill">COMPLETED WORKOUT</span><h2>${session.name}</h2><p class="muted">${session.date} • ${formatDuration(session.durationMs)}</p><div class="brief-grid"><div><small>SETS</small><strong>${totals.completedSets}</strong></div><div><small>REPS</small><strong>${totals.totalReps}</strong></div><div><small>SELECTED VOLUME</small><strong>${Math.round(totals.selectedVolume).toLocaleString()} lb</strong></div><div><small>STATUS</small><strong>Saved</strong></div></div>${session.recoveredFromV74?`<div class="recovery-note">This session was recovered from Version 9.0. Any values still held in the old workout log are shown below.</div>`:""}</section>
  <section class="card"><h2>Exercises completed</h2><div class="history-exercise-list">${(session.exercises||[]).length?(session.exercises||[]).map(ex=>`<details class="history-exercise" open><summary><span><strong>${ex.name}</strong>${ex.originalExercise?`<small>Substituted for ${ex.originalExercise}</small>`:""}</span><span>${(ex.sets||[]).filter(s=>s?.done).length} sets</span></summary><div class="history-set-head"><span>SET</span><span>${ex.weightEntry?.mode==="dual"?"LB / STACK":"WEIGHT"}</span><span>REPS</span><span>STATUS</span></div>${(ex.sets||[]).map((s,i)=>`<div class="history-set-row"><strong>${i+1}</strong><span>${s?.weight!==undefined&&s?.weight!==""?`${s.weight} lb`:"—"}${ex.weightEntry?.mode==="dual"&&s?.weight?`<small>${Number(s.weight)*2} lb combined selected</small>`:""}</span><span>${s?.reps||"—"}</span><span>${s?.done?"✓ Complete":"Not marked"}</span></div>`).join("")||'<p class="muted">No set details were stored.</p>'}<div class="history-weight-note"><strong>${ex.weightEntry?.label||"Weight used"}</strong><p>${ex.weightEntry?.help||""}</p></div></details>`).join(""):'<p class="muted">The older session record did not contain exercise details.</p>'}</div></section>
  <button class="secondary" id="repeatHistory">Repeat this workout</button>`;
  document.querySelector("#historyBack").onclick=()=>{state.historyView=null;save();progress()};
