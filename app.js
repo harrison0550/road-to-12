@@ -5,6 +5,8 @@ Object.assign(state,{tab:state.tab||"home",step:state.step||0,logs:state.logs||{
 state.attachmentPhotos=state.attachmentPhotos||{};
 state.currentSession=state.currentSession||null;
 state.historyView=state.historyView||null;
+state.preferredName=state.preferredName||"Andy";
+state.previewDay=Number.isInteger(state.previewDay)?state.previewDay:null;
 state.equipment=Object.assign({
   ritfitM1:true,
   bench:true,
@@ -16,13 +18,13 @@ state.equipment=Object.assign({
   olympicBarbell:false
 },state.equipment||{});
 const weekPlan=[
- {short:"MON",icon:"🏋️",title:"Full Body A",detail:"Guided strength • chest, back, quads and shoulders",action:"workout"},
- {short:"TUE",icon:"🚶",title:"Cardio + Mobility",detail:"Incline treadmill and mobility recovery",action:"cardio"},
- {short:"WED",icon:"💪",title:"Full Body B",detail:"Guided strength • alternate full-body session",action:"upcoming"},
- {short:"THU",icon:"🧘",title:"Core + Recovery",detail:"Core training, stretching and easy movement",action:"recovery"},
- {short:"FRI",icon:"🏋️",title:"Full Body C",detail:"Guided strength • third weekly full-body session",action:"upcoming"},
- {short:"SAT",icon:"❤️",title:"Zone 2 Cardio",detail:"Longer easy bike, rower or treadmill session",action:"cardio"},
- {short:"SUN",icon:"📏",title:"Recovery + Check-in",detail:"Rest, waist measurement, photos and weekly review",action:"progress"}
+ {short:"MON",icon:"🏋️",title:"Full Body A",detail:"Guided strength • chest, back, quads and shoulders",action:"workout",time:"50–60 min",focus:"Full-body strength",items:["Treadmill warm-up","Mobility","Smith Machine Squat","Cable Shoulder Press","Cable Curl","Cable Chest Press","Seated Cable Row","Lat Pulldown","Rope Triceps Pushdown","Treadmill cooldown"],setup:"Low pulleys → mid pulleys → high pulleys"},
+ {short:"TUE",icon:"🚶",title:"Cardio + Mobility",detail:"Incline treadmill and mobility recovery",action:"cardio",time:"30–40 min",focus:"Recovery and aerobic base",items:["5-minute easy treadmill warm-up","20–25 minute incline walk at conversational pace","Hip flexor stretch","Hamstring stretch","Chest and shoulder mobility","Easy cooldown"],setup:"Treadmill only; no M1 adjustments"},
+ {short:"WED",icon:"💪",title:"Full Body B",detail:"Alternate guided full-body strength session",action:"upcoming",time:"50–60 min",focus:"Back, legs, chest and arms",items:["Treadmill warm-up","Smith Romanian Deadlift","Low Cable Row","Cable Lateral Raise","Cable Fly","Lat Pulldown","Rope Hammer Curl","Triceps Pushdown","Cooldown"],setup:"Smith station → low pulleys → mid pulleys → high pulleys"},
+ {short:"THU",icon:"🧘",title:"Core + Recovery",detail:"Core training, stretching and easy movement",action:"recovery",time:"25–35 min",focus:"Core control and mobility",items:["Easy walk or row","Dead bug","Bird dog","Side plank from knees","Hip mobility","Upper-back mobility","Slow breathing cooldown"],setup:"Floor space; optional treadmill or rower"},
+ {short:"FRI",icon:"🏋️",title:"Full Body C",detail:"Third weekly guided full-body strength session",action:"upcoming",time:"50–60 min",focus:"Legs, pushing, pulling and arms",items:["Treadmill warm-up","Smith Squat","Cable Curl","Cable Shoulder Press","Cable Chest Press","Seated Cable Row","Straight-arm Pulldown","Rope Triceps Pushdown","Cooldown"],setup:"Smith station → low pulleys → mid pulleys → high pulleys"},
+ {short:"SAT",icon:"❤️",title:"Zone 2 Cardio",detail:"Longer easy bike, rower or treadmill session",action:"cardio",time:"35–50 min",focus:"Fat-loss supporting aerobic work",items:["5-minute easy warm-up","25–40 minutes at a pace where you can speak in sentences","5-minute cooldown","Light stretching"],setup:"Choose treadmill, rower or KICKR CORE"},
+ {short:"SUN",icon:"📏",title:"Recovery + Check-in",detail:"Rest, measurements and weekly review",action:"progress",time:"10–20 min",focus:"Recovery and progress review",items:["Morning body weight","Waist measurement","Optional progress photos","Review completed workouts","Plan the coming week","Full rest or gentle walk"],setup:"No gym setup required"}
 ];
 const app=document.querySelector("#app"), nav=[...document.querySelectorAll("nav button")];
 let timerId=null, remaining=0;
@@ -54,8 +56,33 @@ function resolveExercise(ex){
   }
   return Object.assign({},ex,{unavailable:true});
 }
+function setupGroup(ex){
+  if(ex.type==="warmup"||ex.type==="mobility")return 0;
+  if(ex.name.includes("Smith"))return 1;
+  if(!ex.m1)return 2;
+  const pin=Number(ex.m1.pinLeft)||7;
+  if(pin<=4)return 3;
+  if(pin<=9)return 4;
+  return 5;
+}
 function activeWorkout(){
-  return data.map(resolveExercise).filter(ex=>!ex.unavailable);
+  return data.map(resolveExercise).filter(ex=>!ex.unavailable).map((ex,index)=>({ex,index}))
+    .sort((a,b)=>setupGroup(a.ex)-setupGroup(b.ex)||a.index-b.index).map(x=>x.ex);
+}
+function setupBlockLabel(ex){
+  return ({0:"Warm-up / mobility",1:"Smith station",2:"No pulley adjustment",3:"Low pulley block",4:"Mid pulley block",5:"High pulley block"})[setupGroup(ex)]||"Workout block";
+}
+function setupPlanSummary(workoutData=activeWorkout()){
+  const blocks=[];
+  workoutData.forEach(ex=>{
+    const label=setupBlockLabel(ex);
+    const pin=ex.m1?`Pin ${ex.m1.pinLeft}${ex.m1.pinRight?` / ${ex.m1.pinRight}`:""}`:"";
+    const key=`${label}|${pin}`;
+    let block=blocks.find(b=>b.key===key);
+    if(!block){block={key,label,pin,count:0};blocks.push(block)}
+    block.count++;
+  });
+  return blocks;
 }
 function substitutionCount(){
   return activeWorkout().filter(ex=>ex.originalExercise).length;
@@ -87,7 +114,7 @@ function migrateHistory(){
       item.exercises=Object.entries(state.logs||{}).map(([name,sets])=>({
         name,
         sets:deepCopy(sets||[]),
-        weightEntry:{mode:"legacy",label:"Saved weight",help:"Recovered from Version 7.5 local workout data."}
+        weightEntry:{mode:"legacy",label:"Saved weight",help:"Recovered from Version 7.6 local workout data."}
       }));
       item.recoveredFromV74=true;
       changed=true;
@@ -184,19 +211,19 @@ function home(){
  const completed=completedTodaySession();
  if(done){
    const totals=sessionTotals(completed);
-   app.innerHTML=`<section class="celebration-hero"><div class="celebration-burst">🏆</div><span class="pill">TODAY COMPLETE</span><h2>You crushed it, James!</h2><p>Workout #${state.sessions||state.history.length} on the Road to 12% is officially complete.</p><div class="celebration-stats"><div><small>WORKOUT</small><strong>${completed.name}</strong></div><div><small>TIME</small><strong>${formatDuration(completed.durationMs)}</strong></div><div><small>SETS SAVED</small><strong>${totals.completedSets}</strong></div></div><button class="primary" id="viewCompleted">View today’s completed workout</button><button class="secondary repeat-button" id="repeatWorkout">Repeat workout intentionally</button><small class="recovery-message">Hydrate, eat well, and recover. See you for the next session.</small></section>
+   app.innerHTML=`<section class="celebration-hero"><div class="celebration-burst">🏆</div><span class="pill">TODAY COMPLETE</span><h2>You crushed it, ${state.preferredName}!</h2><p>Workout #${state.sessions||state.history.length} on the Road to 12% is officially complete.</p><div class="celebration-stats"><div><small>WORKOUT</small><strong>${completed.name}</strong></div><div><small>TIME</small><strong>${formatDuration(completed.durationMs)}</strong></div><div><small>SETS SAVED</small><strong>${totals.completedSets}</strong></div></div><button class="primary" id="viewCompleted">View today’s completed workout</button><button class="secondary repeat-button" id="repeatWorkout">Repeat workout intentionally</button><small class="recovery-message">Hydrate, eat well, and recover. See you for the next session.</small></section>
    <section class="card week-card"><h2>Training schedule</h2><div class="week-strip">${weekPlan.map((d,i)=>`<button class="day-button ${i===state.selectedDay?"selected":""} ${i===0?"completed-day":""}" data-day="${i}"><span class="day-icon">${i===0?"✅":d.icon}</span><strong>${d.short}</strong><small>${i===0?"Complete":i===state.selectedDay?"Selected":""}</small></button>`).join("")}</div><div class="selected-plan"><div class="large-icon">✅</div><div><h3>Today is logged</h3><p class="muted">Your weights, reps and completed sets are stored in Workout History.</p></div></div></section>
    <section class="stats"><div><small>WEIGHT</small><strong>${state.weight} lb</strong></div><div><small>WAIST</small><strong>${state.waist} in</strong></div><div><small>SESSIONS</small><strong>${state.sessions}</strong></div></section>`;
    document.querySelector("#viewCompleted").onclick=()=>{state.historyView=completed.id;setTab("progress")};
    document.querySelector("#repeatWorkout").onclick=()=>{if(confirm("Start another Full Body A workout today? Your completed session will remain saved.")){startNewSession();setTab("workout")}};
-   document.querySelectorAll("[data-day]").forEach(b=>b.onclick=()=>{state.selectedDay=+b.dataset.day;save();home()});
+   document.querySelectorAll("[data-day]").forEach(b=>b.onclick=()=>{state.selectedDay=+b.dataset.day;state.previewDay=state.selectedDay;save();showDayPlan(state.selectedDay)});
    return;
  }
  app.innerHTML=`<section class="hero"><img src="${window.HERO_IMAGE}"><div class="shade"></div><div class="hero-copy"><span class="pill">WEEK 1 • FOUNDATION</span><h2>${day.title}</h2><p>${day.detail}</p><button class="primary" id="start">${day.action==="workout"?"Start today's guided workout":"Open selected day"}</button></div></section>
  <section class="card week-card"><h2>Training schedule</h2><p class="muted">Tap any day to view its plan.</p><div class="week-strip">${weekPlan.map((d,i)=>`<button class="day-button ${i===state.selectedDay?"selected":""}" data-day="${i}"><span class="day-icon">${d.icon}</span><strong>${d.short}</strong><small>${i===state.selectedDay?"Selected":""}</small></button>`).join("")}</div><div class="selected-plan"><div class="large-icon">${day.icon}</div><div><h3>${day.title}</h3><p class="muted">${day.detail}</p></div></div></section>
  <section class="card equipment-ready-card"><div><span class="ready-icon">✓</span><div><strong>Workout is equipment-ready</strong><p class="muted">${state.equipment.bumperPlates?"Bumper plates are enabled.":"Bumper plates are off. Plate-dependent barbell work is excluded."} ${substitutionCount()} automatic substitution${substitutionCount()===1?"":"s"} active.</p></div></div><button class="secondary" id="editEquipment">My equipment</button></section>
  <section class="stats"><div><small>WEIGHT</small><strong>${state.weight} lb</strong></div><div><small>WAIST</small><strong>${state.waist} in</strong></div><div><small>SESSIONS</small><strong>${state.sessions}</strong></div></section>`;
- document.querySelectorAll("[data-day]").forEach(b=>b.onclick=()=>{state.selectedDay=+b.dataset.day;save();home()});
+ document.querySelectorAll("[data-day]").forEach(b=>b.onclick=()=>{state.selectedDay=+b.dataset.day;state.previewDay=state.selectedDay;save();showDayPlan(state.selectedDay)});
  document.querySelector("#editEquipment").onclick=()=>setTab("equipment");
  document.querySelector("#start").onclick=()=>{
    const action=weekPlan[state.selectedDay].action;
@@ -206,10 +233,21 @@ function home(){
  };
 }
 
-function showDayPlan(){
- const d=weekPlan[state.selectedDay];
- app.innerHTML=`<section class="card"><div class="phase"><span class="pill">${d.short} PLAN</span><strong>${d.icon}</strong></div><h2>${d.title}</h2><p class="muted">${d.detail}</p>${d.action==="cardio"?`<div class="selected-plan"><div class="large-icon">⏱️</div><div><h3>Recommended session</h3><p class="muted">5-minute warm-up, 25–40 minutes at conversational intensity, then a 5-minute cooldown.</p></div></div>`:`<div class="selected-plan"><div class="large-icon">✓</div><div><h3>Recovery focus</h3><p class="muted">Easy movement, hydration, mobility and no hard strength work.</p></div></div>`}</section><button class="primary" id="backHome">Back to schedule</button>`;
- document.querySelector("#backHome").onclick=()=>setTab("home");
+function showDayPlan(dayIndex=state.selectedDay){
+ const day=weekPlan[dayIndex],isToday=dayIndex===0;
+ app.innerHTML=`<section class="card day-preview-card"><button class="secondary" id="previewBack">Back to schedule</button><div class="preview-title"><span class="large-icon">${day.icon}</span><div><span class="pill">${day.short} PREVIEW</span><h2>${day.title}</h2><p class="muted">${day.detail}</p></div></div><div class="brief-grid"><div><small>TIME</small><strong>${day.time}</strong></div><div><small>FOCUS</small><strong>${day.focus}</strong></div><div><small>STATUS</small><strong>${isToday&&todayCompleted()?"Completed":isToday?"Today":"Preview"}</strong></div><div><small>SETUP FLOW</small><strong>${day.setup}</strong></div></div></section>
+ <section class="card"><h2>Workout preview</h2><p class="muted">Previewing does not start or change your active workout.</p><ol class="preview-exercise-list">${day.items.map((item,i)=>`<li><span>${i+1}</span><strong>${item}</strong></li>`).join("")}</ol></section>
+ ${day.action==="workout"||day.action==="upcoming"?`<section class="card setup-efficiency-card"><h3>M1 setup efficiency</h3><p>The sequence is grouped so you finish one pulley zone before moving to the next.</p><div class="setup-flow">${day.setup.split(" → ").map(x=>`<span>${x}</span>`).join("")}</div></section>`:""}
+ <button class="primary" id="previewAction">${isToday?"Start today’s workout":"Start this workout early"}</button>`;
+ document.querySelector("#previewBack").onclick=()=>{state.previewDay=null;save();home()};
+ document.querySelector("#previewAction").onclick=()=>{
+   if(day.action==="progress")return setTab("progress");
+   if(day.action==="workout"||day.action==="upcoming"){
+     if(!isToday&&!confirm(`Start ${day.title} early?`))return;
+     startNewSession();setTab("workout");return;
+   }
+   alert(`${day.title} is available as a preview. Its guided timer flow will be added as the program expands.`);
+ };
 }
 
 
@@ -276,12 +314,13 @@ function humanSvg(){
 function pinRailMarkup(pin){return `<div class="pin-rail">${Array.from({length:13},(_,i)=>13-i).map(n=>`<div class="pin-hole ${n===pin?"selected":""}"><span class="pin-number">${n%2===1?n:""}</span></div>`).join("")}</div>`}
 function m1PinClass(pin){if(pin>=10)return"pin-13";if(pin<=2)return"pin-1";return"pin-5"}
 function m1SetupCoach(ex){
- const m=ex.m1,rightText=m.pinRight?`Right pulley: position ${m.pinRight}`:"Use one pulley only";
- return `<div class="setup-coach"><div class="setup-stage-nav"><button class="active" data-setup-stage="pin">1. Pin position</button><button data-setup-stage="attachment">2. Attachment</button><button data-setup-stage="body">3. Body setup</button><button data-setup-stage="movement">4. Movement</button></div>
- <section class="setup-stage-panel active" data-setup-panel="pin"><div class="pin-guide">${pinRailMarkup(m.pinLeft)}<div class="pin-copy"><h3>Set position ${m.pinLeft}</h3><p>${m.pinNote}</p><span class="pin-chip">Left: ${m.pinLeft}</span><span class="pin-chip">${rightText}</span><p class="muted">Pull the pop pin, slide the carriage until the selected hole aligns, release it, and tug the carriage to confirm it is locked.</p></div></div><div class="m1-photo-card"><img src="assets/ritfit-m1-pin-rail.jpeg" alt="James' actual RitFit M1 numbered pulley rail"><div class="m1-photo-caption">Your actual M1 rail: position 1 is at the bottom and position 13 is at the top. Odd numbers are printed; even positions are the holes between them.</div></div></section>
- <section class="setup-stage-panel" data-setup-panel="attachment"><div class="attachment-board"><div class="attachment-card"><div class="attachment-icon">🔗</div><div><h4>${m.attachment}</h4><p>Open the carabiner, install the attachment, and confirm the gate closes completely.</p></div></div><div class="attachment-card"><div class="attachment-icon">✓</div><div><h4>Cable safety check</h4><p>Confirm the cable is seated in the pulley and the working area is clear.</p></div></div><div class="attachment-card"><div class="attachment-icon">⚖️</div><div><h4>Select a light starting weight</h4><p>Use the first set to confirm the resistance and movement path.</p></div></div></div></section>
- <section class="setup-stage-panel" data-setup-panel="body"><div class="body-setup-board"><div class="position-card"><div class="position-icon">🪑</div><div><h4>${m.bench}</h4><p>Place or remove the bench before handling the cables.</p></div></div><div class="position-card"><div class="position-icon">↔️</div><div><h4>${m.facing}</h4><p>${m.stance}</p></div></div><div class="position-card"><div class="position-icon">🎯</div><div><h4>Starting posture</h4><p>${m.start}</p></div></div></div><div class="m1-stage ${m1PinClass(m.pinLeft)}"><div class="rack-left"></div><div class="rack-right"></div><div class="rack-top"></div><i class="pulley-dot left"></i><i class="pulley-dot right"></i><i class="cable-line left"></i><i class="cable-line right"></i><div class="human-demo"><i class="head"></i><i class="torso"></i><i class="pelvis"></i><i class="arm left"></i><i class="arm right"></i><i class="leg left"></i><i class="leg right"></i></div><i class="footprint one"></i><i class="footprint two"></i></div></section>
- <section class="setup-stage-panel" data-setup-panel="movement"><div class="performance-board"><div class="performance-step"><div class="performance-index">1</div><div><h4>Start position</h4><p>${m.start}</p></div></div><div class="performance-step"><div class="performance-index">2</div><div><h4>Working motion</h4><p>${m.finish}</p></div></div><div class="performance-step"><div class="performance-index">3</div><div><h4>Best viewing angle</h4><p>${m.view}</p></div></div></div><div class="m1-stage ${m1PinClass(m.pinLeft)} is-playing" data-animation-root><div class="rack-left"></div><div class="rack-right"></div><div class="rack-top"></div><i class="pulley-dot left"></i><i class="pulley-dot right"></i><i class="cable-line left motion-part"></i><i class="cable-line right motion-part"></i><div class="human-demo"><i class="head"></i><i class="torso"></i><i class="pelvis"></i><i class="arm left motion-part"></i><i class="arm right motion-part"></i><i class="leg left"></i><i class="leg right"></i></div><i class="footprint one"></i><i class="footprint two"></i></div><div class="animation-controls"><button class="active" data-animation-play>Pause animation</button><button data-animation-restart>Restart animation</button></div><div class="setup-complete"><strong>Setup complete.</strong> Confirm both pins are locked, attachment gates are closed, and the selected weight is appropriate.</div></section></div>`;
+ const m=ex.m1,rightText=m.pinRight?`Right: ${m.pinRight}`:"One pulley only";
+ return `<div class="simple-setup-flow">
+   <section class="setup-section pin-only-section"><div class="section-number">1</div><div><small>SET THE M1</small><h3>Pin position</h3></div><div class="pin-guide simplified">${pinRailMarkup(m.pinLeft)}<div class="pin-copy"><h3>Position ${m.pinLeft}</h3><div class="pin-values"><span>Left: ${m.pinLeft}</span><span>${rightText}</span></div><p>Pull the pop pin, slide to the selected hole, release it, and tug the carriage to verify it locked.</p></div></div></section>
+   <section class="setup-section"><div class="section-number">2</div><div><small>ATTACHMENT</small><h3>${m.attachment}</h3><p>Confirm every carabiner gate is fully closed.</p></div></section>
+   <section class="setup-section"><div class="section-number">3</div><div><small>BODY POSITION</small><h3>${m.facing}</h3><p><strong>Bench:</strong> ${m.bench}</p><p><strong>Stance:</strong> ${m.stance}</p><p><strong>Start:</strong> ${m.start}</p></div></section>
+   <section class="setup-section"><div class="section-number">4</div><div><small>MOVEMENT</small><h3>${m.finish}</h3><p><strong>Best view:</strong> ${m.view}</p></div></section>
+ </div>`;
 }
 function bindSetupCoach(){document.querySelectorAll("[data-setup-stage]").forEach(btn=>{btn.onclick=()=>{const target=btn.dataset.setupStage;document.querySelectorAll("[data-setup-stage]").forEach(x=>x.classList.toggle("active",x===btn));document.querySelectorAll("[data-setup-panel]").forEach(p=>p.classList.toggle("active",p.dataset.setupPanel===target));bindAnimationControls()}})}
 
@@ -413,73 +452,35 @@ function workout(){
  const ex=workoutData[state.step-1]; exercise(ex,workoutData);
 }
 function briefing(){
- const workoutData=activeWorkout();
- const swaps=workoutData.filter(ex=>ex.originalExercise);
- const swapMarkup=swaps.map(ex=>`<div class="swap-row"><div><small>REPLACED</small><strong>${ex.originalExercise}</strong></div><span>→</span><div><small>TONIGHT</small><strong>${ex.name}</strong></div></div>`).join("");
- app.innerHTML=`<section class="card"><div class="phase"><span class="pill">EQUIPMENT-SAFE SESSION</span><strong>50–60 min</strong></div><h2>Full Body A</h2><p class="muted">Tonight’s session uses only equipment currently marked available. Bumper plates and free-barbell loading are disabled.</p><div class="brief-grid"><div><small>PRIMARY</small><strong>Chest, back, quads, shoulders</strong></div><div><small>AVAILABLE</small><strong>RitFit M1, bench, treadmill</strong></div><div><small>PLATES</small><strong>${state.equipment.bumperPlates?"Available":"Not installed"}</strong></div><div><small>INTENSITY</small><strong>Leave 2–3 reps in reserve</strong></div></div></section>
- ${swaps.length?`<section class="card substitution-summary"><h3>Automatic substitutions</h3>${swapMarkup}<p class="muted">Use the empty Smith bar tonight. No bumper plates are needed.</p></section>`:""}
- <section class="card muscles"><h3>Today's muscle-group summary</h3><p>Push: chest, shoulders and triceps. Pull: lats, mid-back and biceps. Lower body: quads, glutes and hamstrings. Your core stabilizes every movement.</p></section><button class="primary" id="go">Begin warm-up</button>`;
+ const workoutData=activeWorkout(),swaps=workoutData.filter(ex=>ex.originalExercise),blocks=setupPlanSummary(workoutData);
+ const swapMarkup=swaps.map(ex=>`<div class="swap-row"><div><small>REPLACED</small><strong>${ex.originalExercise}</strong></div><span>→</span><div><small>TODAY</small><strong>${ex.name}</strong></div></div>`).join("");
+ app.innerHTML=`<section class="card"><div class="phase"><span class="pill">SETUP-EFFICIENT SESSION</span><strong>50–60 min</strong></div><h2>Full Body A</h2><p class="muted">Exercises are grouped by M1 setup zone to reduce repeated pulley adjustments.</p><div class="brief-grid"><div><small>PRIMARY</small><strong>Full body</strong></div><div><small>PLATES</small><strong>${state.equipment.bumperPlates?"Available":"Not installed"}</strong></div><div><small>INTENSITY</small><strong>Leave 2–3 reps in reserve</strong></div><div><small>SETUP BLOCKS</small><strong>${blocks.length}</strong></div></div></section>
+ <section class="card"><h3>Today’s setup route</h3><div class="setup-route">${blocks.map((b,i)=>`<div><span>${i+1}</span><strong>${b.label}</strong><small>${b.pin||"No M1 pin"} • ${b.count} exercise${b.count===1?"":"s"}</small></div>`).join("")}</div><p class="muted">Finish each block before moving the pulley carriages again.</p></section>
+ ${swaps.length?`<section class="card substitution-summary"><h3>Automatic substitutions</h3>${swapMarkup}</section>`:""}
+ <section class="card muscles"><h3>Today’s muscle groups</h3><p>Chest, shoulders, triceps, back, biceps, quads, glutes, hamstrings and core.</p></section><button class="primary" id="go">Begin warm-up</button>`;
  document.querySelector("#go").onclick=next
 }
 
-function speakCoach(text){if(!state.coachMode||!("speechSynthesis"in window))return;window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.rate=.92;window.speechSynthesis.speak(u)}
-function coachScript(ex){const setup=ex.m1?`Set the pulleys as shown in Setup. Attach ${ex.m1.attachment}. ${ex.m1.facing}.`:`Review setup and clear the area.`;return `${ex.name}. ${ex.why} ${setup} ${ex.steps[0]||""}`}
-function bindCoachMode(ex){const t=document.querySelector("#coachToggle"),r=document.querySelector("#coachReplay");if(t){t.classList.toggle("active",state.coachMode);t.textContent=state.coachMode?"Coach voice on":"Coach voice off";t.onclick=()=>{state.coachMode=!state.coachMode;save();if(state.coachMode)speakCoach(coachScript(ex));else speechSynthesis?.cancel();exercise(ex)}}if(r)r.onclick=()=>speakCoach(coachScript(ex))}
 function restCoachText(n){if(n<=10)return"Get ready and set your posture.";if(n<=20)return"Review the next setup and take two slow breaths.";if(n<=40)return"Drink water if needed and relax your grip.";return"Recover and prepare for the next set."}
 function exercise(ex,workoutData=activeWorkout()){
- const pct=Math.round(state.step/workoutData.length*100), strength=ex.type==="strength";
- const key=ex.name; if(strength&&!state.logs[key])state.logs[key]=Array(ex.sets).fill(null);
-
- app.innerHTML=`<section class="card workout-card">
-   <div class="phase"><span class="tag">${ex.type}</span><strong>${state.step}/${workoutData.length}</strong></div>
-   <div class="progress workout-progress"><i style="width:${pct}%"></i></div>
-   <h2>${ex.name}</h2>
-   <p class="muted workout-subtitle">${ex.muscles}</p>${ex.originalExercise?`<div class="substitution-alert"><strong>Equipment substitution</strong><p>${ex.originalExercise} was replaced with ${ex.name} because the required equipment is not available.</p></div>`:""}<div class="why-card"><h3>Why this exercise?</h3><p>${ex.why}</p></div><div class="coach-mode-card"><div class="coach-mode-icon">🔊</div><div><h3>Coach Mode</h3><p>Hear the purpose, setup and first cue.</p><div class="coach-controls"><button id="coachToggle">Coach voice on</button><button id="coachReplay">Replay instructions</button></div></div></div>
-
-   <div class="media-tabs">
-     <button class="active" data-guide-tab="demo">Demo</button>
-     <button data-guide-tab="video">Video</button>
-     <button data-guide-tab="setup">Setup</button>
-     <button data-guide-tab="steps">Steps</button>
-   </div>
-
-   <div class="guide-panel" data-guide-panel="demo">
-     ${correctedDemoMarkup(ex)}
-     ${attachmentPhotoMarkup(ex)}
-     ${quickSettings(ex)}
-   </div>
-
-   <div class="guide-panel hidden" data-guide-panel="video">
-     ${videoMarkup(ex)}
-   </div>
-
-   <div class="guide-panel hidden" data-guide-panel="setup">
-     ${ex.m1 ? m1SetupCoach(ex) : `<div class="setup-grid">${ex.setup.map((x,i)=>`<div><small>${i===0?"SETUP":"CHECK"}</small><strong>${x}</strong></div>`).join("")}</div><div class="cue"><strong>Before you begin</strong><p>Confirm the equipment and working area are secure and clear.</p></div>`}
-   </div>
-
-   <div class="guide-panel hidden" data-guide-panel="steps">
-     <ol class="steps">${ex.steps.map(s=>`<li>${s}</li>`).join("")}</ol>
-     <div class="cue"><strong>Coach cues</strong><p>${ex.cues.join(" • ")}</p></div>
-   </div>
-   ${strength?`<div class="weight-coach-card"><h3>Beginner weight recommendation</h3><p>${ex.weightRecommendation}</p></div>`:""}
- </section>
-
+ const pct=Math.round(state.step/workoutData.length*100),strength=ex.type==="strength";
+ if(strength&&!state.logs[ex.name])state.logs[ex.name]=Array(ex.sets).fill(null);
+ const currentBlock=setupBlockLabel(ex),previous=workoutData[state.step-2],blockChanged=!previous||setupBlockLabel(previous)!==currentBlock;
+ app.innerHTML=`<section class="card workout-card"><div class="phase"><span class="tag">${ex.type}</span><strong>${state.step}/${workoutData.length}</strong></div><div class="progress workout-progress"><i style="width:${pct}%"></i></div>
+ ${blockChanged?`<div class="setup-block-banner"><small>NOW ENTERING</small><strong>${currentBlock}</strong>${ex.m1?`<span>Keep this pulley zone until the block is complete.</span>`:""}</div>`:""}
+ <h2>${ex.name}</h2><p class="muted workout-subtitle">${ex.muscles}</p>
+ ${ex.originalExercise?`<div class="substitution-alert"><strong>Equipment substitution</strong><p>${ex.originalExercise} was replaced with ${ex.name} because required equipment is unavailable.</p></div>`:""}
+ <div class="why-card"><h3>Why this exercise?</h3><p>${ex.why}</p></div>
+ ${attachmentPhotoMarkup(ex)}
+ ${ex.m1?m1SetupCoach(ex):`<div class="simple-setup-flow"><section class="setup-section"><div class="section-number">1</div><div><small>SETUP</small><h3>Get ready</h3>${ex.setup.map(x=>`<p>${x}</p>`).join("")}</div></section></div>`}
+ ${ex.correctedGuide?correctedDemoMarkup(ex):`<section class="movement-instructions"><div class="section-heading"><span>5</span><div><small>PERFORM THE MOVEMENT</small><h3>Step by step</h3></div></div><ol class="steps">${ex.steps.map(s=>`<li>${s}</li>`).join("")}</ol><div class="cue"><strong>Key cues</strong><p>${ex.cues.join(" • ")}</p></div></section>`}
+ ${quickSettings(ex)}
+ ${strength?`<div class="weight-coach-card"><h3>Beginner weight recommendation</h3><p>${ex.weightRecommendation}</p></div>`:""}</section>
  ${strength?sets(ex):timed(ex)}
-
- <div class="workout-actions">
-   <button class="secondary" id="back">Back</button>
-   <button class="primary" id="next">${state.step===workoutData.length?"Finish session":"Complete & continue"}</button>
- </div>`;
-
- bindGuideTabs();
- bindSetupCoach();
- bindAssetViewer();
- bindVideoLinks();
- bindCoachMode(ex);
- bindAnimationControls();
+ <div class="workout-actions"><button class="secondary" id="back">Back</button><button class="primary" id="next">${state.step===workoutData.length?"Finish session":"Complete & continue"}</button></div>`;
  document.querySelector("#back").onclick=()=>{state.step=Math.max(0,state.step-1);save();workout()};
  document.querySelector("#next").onclick=next;
- if(strength)bindSets(ex); else bindTimer(ex);
+ if(strength)bindSets(ex);else bindTimer(ex);
 }
 function sets(ex){
  const entry=ex.weightEntry||{mode:"total",label:"Weight used",help:"Enter the weight used for this set."};
@@ -547,7 +548,7 @@ function library(){
  const all=[...data,...extras];
  app.innerHTML=`<section class="card">
    <h2>Exercise Library</h2>
-   <p class="muted">Select an exercise to open its dedicated Demo, Video, Setup and Steps tabs.</p>
+   <p class="muted">Select an exercise to review its attachment, setup and movement instructions.</p>
 
    <div class="library-master">
      <img src="assets/exercise-asset-pack-v7-2.png" alt="Version 7.2 quality-controlled exercise asset pack">
@@ -566,7 +567,7 @@ function library(){
 
    <h3 class="library-section-title">Other equipment</h3>
    <div class="exercise-library-grid">
-     ${extras.map((x,i)=>`<button class="exercise-library-tile" data-extra-i="${i}"><span class="tag">${x.type}</span><strong>${x.name}</strong><small>Demo and trusted video resource</small></button>`).join("")}
+     ${extras.map((x,i)=>`<button class="exercise-library-tile" data-extra-i="${i}"><span class="tag">${x.type}</span><strong>${x.name}</strong><small>Setup, attachment and movement guide</small></button>`).join("")}
    </div>
  </section>`;
  bindAssetViewer();
@@ -575,23 +576,8 @@ function library(){
 }
 
 function showLibraryExercise(ex){
- app.innerHTML=`<section class="card workout-card">
-   <button class="secondary" id="libraryBack">Back to Library</button>
-   <h2>${ex.name}</h2>
-   <p class="muted workout-subtitle">${ex.muscles}</p>
-   <div class="media-tabs">
-     <button class="active" data-guide-tab="demo">Demo</button>
-     <button data-guide-tab="video">Video</button>
-     <button data-guide-tab="setup">Setup</button>
-     <button data-guide-tab="steps">Steps</button>
-   </div>
-   <div class="guide-panel" data-guide-panel="demo">${focusedDemoMarkup(ex)}</div>
-   <div class="guide-panel hidden" data-guide-panel="video">${videoMarkup(ex)}</div>
-   <div class="guide-panel hidden" data-guide-panel="setup"><div class="setup-grid">${ex.setup.map((x,i)=>`<div><small>${i===0?"SETUP":"CHECK"}</small><strong>${x}</strong></div>`).join("")}</div></div>
-   <div class="guide-panel hidden" data-guide-panel="steps"><ol class="steps">${ex.steps.map(s=>`<li>${s}</li>`).join("")}</ol><div class="cue"><strong>Coach cues</strong><p>${ex.cues.join(" • ")}</p></div></div>
- </section>`;
+ app.innerHTML=`<section class="card workout-card"><button class="secondary" id="libraryBack">Back to Library</button><h2>${ex.name}</h2><p class="muted workout-subtitle">${ex.muscles}</p><div class="why-card"><h3>Why this exercise?</h3><p>${ex.why||"Builds strength and movement control."}</p></div>${attachmentPhotoMarkup(ex)}${ex.m1?m1SetupCoach(ex):`<div class="setup-grid">${ex.setup.map(x=>`<div><strong>${x}</strong></div>`).join("")}</div>`}<section class="movement-instructions"><ol class="steps">${ex.steps.map(s=>`<li>${s}</li>`).join("")}</ol><div class="cue"><strong>Key cues</strong><p>${ex.cues.join(" • ")}</p></div></section></section>`;
  document.querySelector("#libraryBack").onclick=library;
- bindGuideTabs();bindAssetViewer();bindVideoLinks();
 }
 function equipment(){
  const items=[
@@ -611,9 +597,10 @@ function equipment(){
   ["latBar","Lat pulldown bar","Used for lat pulldowns."],
   ["rowHandle","Close-grip row handle","Used for seated cable rows."]
  ];
- app.innerHTML=`<section class="card"><div class="phase"><span class="pill">VERSION 7.5</span><strong>Workout memory + clarity</strong></div><h2>My Equipment</h2><p class="muted">Workouts use only equipment switched on.</p><div class="equipment-toggle-list">${items.map(([key,icon,title,note])=>`<label class="equipment-toggle"><span class="equipment-symbol">${icon}</span><span class="equipment-copy"><strong>${title}</strong><small>${note}</small></span><input type="checkbox" data-equipment="${key}" ${state.equipment[key]?"checked":""}><span class="toggle-ui"></span></label>`).join("")}</div></section>
+ app.innerHTML=`<section class="card"><div class="phase"><span class="pill">VERSION 7.6</span><strong>Real-workout redesign</strong></div><h2>Profile</h2><label>What should the app call you?<input id="preferredName" value="${state.preferredName}" autocomplete="given-name"></label><button class="secondary profile-save" id="saveProfile">Save name</button></section><section class="card"><h2>My Equipment</h2><p class="muted">Workouts use only equipment switched on.</p><div class="equipment-toggle-list">${items.map(([key,icon,title,note])=>`<label class="equipment-toggle"><span class="equipment-symbol">${icon}</span><span class="equipment-copy"><strong>${title}</strong><small>${note}</small></span><input type="checkbox" data-equipment="${key}" ${state.equipment[key]?"checked":""}><span class="toggle-ui"></span></label>`).join("")}</div></section>
  <section class="card"><h2>Attachment Locker</h2><p class="muted">Add a close-up photo of each attachment from your actual gym. The correct photo will appear during every exercise with a bright “USE THIS ONE” label.</p><div class="attachment-locker">${attachments.map(([key,title,note])=>`<div class="locker-item">${state.attachmentPhotos[key]?`<img src="${state.attachmentPhotos[key]}" alt="${title}">`:`<div class="locker-placeholder">📷</div>`}<div class="locker-copy"><strong>${title}</strong><small>${note}</small><label class="photo-button">Choose photo<input type="file" accept="image/*" capture="environment" data-photo="${key}"></label>${state.attachmentPhotos[key]?`<button class="clear-photo" data-clear-photo="${key}">Remove</button>`:""}</div></div>`).join("")}</div></section>
  <section class="card equipment-impact"><h3>Current workout impact</h3><div class="impact-row"><span>Available exercises</span><strong>${activeWorkout().length}</strong></div><div class="impact-row"><span>Automatic substitutions</span><strong>${substitutionCount()}</strong></div><div class="impact-row"><span>Bumper-plate exercises</span><strong>${state.equipment.bumperPlates?"Enabled":"Disabled"}</strong></div><button class="primary" id="equipmentWorkout">Start equipment-safe workout</button></section>`;
+ document.querySelector("#saveProfile").onclick=()=>{state.preferredName=document.querySelector("#preferredName").value.trim()||"Andy";save();equipment()};
  document.querySelectorAll("[data-equipment]").forEach(input=>input.onchange=()=>{state.equipment[input.dataset.equipment]=input.checked;state.step=0;save();equipment()});
  document.querySelectorAll("[data-photo]").forEach(input=>input.onchange=e=>saveAttachmentPhoto(input.dataset.photo,e.target.files?.[0]));
  document.querySelectorAll("[data-clear-photo]").forEach(btn=>btn.onclick=()=>{delete state.attachmentPhotos[btn.dataset.clearPhoto];save();equipment()});
@@ -649,7 +636,7 @@ function progress(){
 }
 function sessionDetail(session){
  const totals=sessionTotals(session);
- app.innerHTML=`<section class="card session-detail-header"><button class="secondary" id="historyBack">Back to history</button><div class="check small-check">✓</div><span class="pill">COMPLETED WORKOUT</span><h2>${session.name}</h2><p class="muted">${session.date} • ${formatDuration(session.durationMs)}</p><div class="brief-grid"><div><small>SETS</small><strong>${totals.completedSets}</strong></div><div><small>REPS</small><strong>${totals.totalReps}</strong></div><div><small>SELECTED VOLUME</small><strong>${Math.round(totals.selectedVolume).toLocaleString()} lb</strong></div><div><small>STATUS</small><strong>Saved</strong></div></div>${session.recoveredFromV74?`<div class="recovery-note">This session was recovered from Version 7.5. Any values still held in the old workout log are shown below.</div>`:""}</section>
+ app.innerHTML=`<section class="card session-detail-header"><button class="secondary" id="historyBack">Back to history</button><div class="check small-check">✓</div><span class="pill">COMPLETED WORKOUT</span><h2>${session.name}</h2><p class="muted">${session.date} • ${formatDuration(session.durationMs)}</p><div class="brief-grid"><div><small>SETS</small><strong>${totals.completedSets}</strong></div><div><small>REPS</small><strong>${totals.totalReps}</strong></div><div><small>SELECTED VOLUME</small><strong>${Math.round(totals.selectedVolume).toLocaleString()} lb</strong></div><div><small>STATUS</small><strong>Saved</strong></div></div>${session.recoveredFromV74?`<div class="recovery-note">This session was recovered from Version 7.6. Any values still held in the old workout log are shown below.</div>`:""}</section>
  <section class="card"><h2>Exercises completed</h2><div class="history-exercise-list">${(session.exercises||[]).length?(session.exercises||[]).map(ex=>`<details class="history-exercise" open><summary><span><strong>${ex.name}</strong>${ex.originalExercise?`<small>Substituted for ${ex.originalExercise}</small>`:""}</span><span>${(ex.sets||[]).filter(s=>s?.done).length} sets</span></summary><div class="history-set-head"><span>SET</span><span>${ex.weightEntry?.mode==="dual"?"LB / STACK":"WEIGHT"}</span><span>REPS</span><span>STATUS</span></div>${(ex.sets||[]).map((s,i)=>`<div class="history-set-row"><strong>${i+1}</strong><span>${s?.weight!==undefined&&s?.weight!==""?`${s.weight} lb`:"—"}${ex.weightEntry?.mode==="dual"&&s?.weight?`<small>${Number(s.weight)*2} lb combined selected</small>`:""}</span><span>${s?.reps||"—"}</span><span>${s?.done?"✓ Complete":"Not marked"}</span></div>`).join("")||'<p class="muted">No set details were stored.</p>'}<div class="history-weight-note"><strong>${ex.weightEntry?.label||"Weight used"}</strong><p>${ex.weightEntry?.help||""}</p></div></details>`).join(""):'<p class="muted">The older session record did not contain exercise details.</p>'}</div></section>
  <button class="secondary" id="repeatHistory">Repeat this workout</button>`;
  document.querySelector("#historyBack").onclick=()=>{state.historyView=null;save();progress()};
