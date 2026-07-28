@@ -1832,3 +1832,12 @@ body.workout-mode nav {
   color:#c4ccd5;
   line-height:1.45;
 }
+
+
+/* ROAD TO 12% — VERSION 10.0 PHASE 3 */
+.visual-library-tabs{
+  flex-wrap:wrap;
+}
+.visual-library-tab{
+  min-width:90px;
+}
