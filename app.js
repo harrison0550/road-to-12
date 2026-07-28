@@ -157,7 +157,7 @@ function migrateHistory(){
       item.exercises=Object.entries(state.logs||{}).map(([name,sets])=>({
         name,
         sets:deepCopy(sets||[]),
-        weightEntry:{mode:"legacy",label:"Saved weight",help:"Recovered from Version 11.1 local workout data."}
+        weightEntry:{mode:"legacy",label:"Saved weight",help:"Recovered from Version 11.2 local workout data."}
       }));
       item.recoveredFromV74=true;
       changed=true;
@@ -715,7 +715,7 @@ function equipment(){
   ["latBar","Lat pulldown bar","Used for lat pulldowns."],
   ["rowHandle","Close-grip row handle","Used for seated cable rows."]
  ];
- app.innerHTML=`<section class="card"><div class="phase"><span class="pill">VERSION 11.1</span><strong>Real-workout redesign</strong></div><h2>Profile</h2><label>What should the app call you?<input id="preferredName" value="${state.preferredName}" autocomplete="given-name"></label><button class="secondary profile-save" id="saveProfile">Save name</button></section><section class="card"><h2>My Equipment</h2><p class="muted">Workouts use only equipment switched on.</p><div class="equipment-toggle-list">${items.map(([key,icon,title,note])=>`<label class="equipment-toggle"><span class="equipment-symbol">${icon}</span><span class="equipment-copy"><strong>${title}</strong><small>${note}</small></span><input type="checkbox" data-equipment="${key}" ${state.equipment[key]?"checked":""}><span class="toggle-ui"></span></label>`).join("")}</div></section>
+ app.innerHTML=`<section class="card"><div class="phase"><span class="pill">VERSION 11.2</span><strong>Real-workout redesign</strong></div><h2>Profile</h2><label>What should the app call you?<input id="preferredName" value="${state.preferredName}" autocomplete="given-name"></label><button class="secondary profile-save" id="saveProfile">Save name</button></section><section class="card"><h2>My Equipment</h2><p class="muted">Workouts use only equipment switched on.</p><div class="equipment-toggle-list">${items.map(([key,icon,title,note])=>`<label class="equipment-toggle"><span class="equipment-symbol">${icon}</span><span class="equipment-copy"><strong>${title}</strong><small>${note}</small></span><input type="checkbox" data-equipment="${key}" ${state.equipment[key]?"checked":""}><span class="toggle-ui"></span></label>`).join("")}</div></section>
  <section class="card"><h2>Attachment Locker</h2><p class="muted">Add a close-up photo of each attachment from your actual gym. The correct photo will appear during every exercise with a bright “USE THIS ONE” label.</p><div class="attachment-locker">${attachments.map(([key,title,note])=>`<div class="locker-item">${state.attachmentPhotos[key]?`<img src="${state.attachmentPhotos[key]}" alt="${title}">`:`<div class="locker-placeholder">📷</div>`}<div class="locker-copy"><strong>${title}</strong><small>${note}</small><label class="photo-button">Choose photo<input type="file" accept="image/*" capture="environment" data-photo="${key}"></label>${state.attachmentPhotos[key]?`<button class="clear-photo" data-clear-photo="${key}">Remove</button>`:""}</div></div>`).join("")}</div></section>
  <section class="card equipment-impact"><h3>Current workout impact</h3><div class="impact-row"><span>Available exercises</span><strong>${activeWorkout().length}</strong></div><div class="impact-row"><span>Automatic substitutions</span><strong>${substitutionCount()}</strong></div><div class="impact-row"><span>Bumper-plate exercises</span><strong>${state.equipment.bumperPlates?"Enabled":"Disabled"}</strong></div><button class="primary" id="equipmentWorkout">Start equipment-safe workout</button></section>`;
  document.querySelector("#saveProfile").onclick=()=>{state.preferredName=document.querySelector("#preferredName").value.trim()||"Andy";save();equipment()};
@@ -754,7 +754,7 @@ function progress(){
 }
 function sessionDetail(session){
  const totals=sessionTotals(session);
- app.innerHTML=`<section class="card session-detail-header"><button class="secondary" id="historyBack">Back to history</button><div class="check small-check">✓</div><span class="pill">COMPLETED WORKOUT</span><h2>${session.name}</h2><p class="muted">${session.date} • ${formatDuration(session.durationMs)}</p><div class="brief-grid"><div><small>SETS</small><strong>${totals.completedSets}</strong></div><div><small>REPS</small><strong>${totals.totalReps}</strong></div><div><small>SELECTED VOLUME</small><strong>${Math.round(totals.selectedVolume).toLocaleString()} lb</strong></div><div><small>STATUS</small><strong>Saved</strong></div></div>${session.recoveredFromV74?`<div class="recovery-note">This session was recovered from Version 11.1. Any values still held in the old workout log are shown below.</div>`:""}</section>
+ app.innerHTML=`<section class="card session-detail-header"><button class="secondary" id="historyBack">Back to history</button><div class="check small-check">✓</div><span class="pill">COMPLETED WORKOUT</span><h2>${session.name}</h2><p class="muted">${session.date} • ${formatDuration(session.durationMs)}</p><div class="brief-grid"><div><small>SETS</small><strong>${totals.completedSets}</strong></div><div><small>REPS</small><strong>${totals.totalReps}</strong></div><div><small>SELECTED VOLUME</small><strong>${Math.round(totals.selectedVolume).toLocaleString()} lb</strong></div><div><small>STATUS</small><strong>Saved</strong></div></div>${session.recoveredFromV74?`<div class="recovery-note">This session was recovered from Version 11.2. Any values still held in the old workout log are shown below.</div>`:""}</section>
  <section class="card"><h2>Exercises completed</h2><div class="history-exercise-list">${(session.exercises||[]).length?(session.exercises||[]).map(ex=>`<details class="history-exercise" open><summary><span><strong>${ex.name}</strong>${ex.originalExercise?`<small>Substituted for ${ex.originalExercise}</small>`:""}</span><span>${(ex.sets||[]).filter(s=>s?.done).length} sets</span></summary><div class="history-set-head"><span>SET</span><span>${ex.weightEntry?.mode==="dual"?"LB / STACK":"WEIGHT"}</span><span>REPS</span><span>STATUS</span></div>${(ex.sets||[]).map((s,i)=>`<div class="history-set-row"><strong>${i+1}</strong><span>${s?.weight!==undefined&&s?.weight!==""?`${s.weight} lb`:"—"}${ex.weightEntry?.mode==="dual"&&s?.weight?`<small>${Number(s.weight)*2} lb combined selected</small>`:""}</span><span>${s?.reps||"—"}</span><span>${s?.done?"✓ Complete":"Not marked"}</span></div>`).join("")||'<p class="muted">No set details were stored.</p>'}<div class="history-weight-note"><strong>${ex.weightEntry?.label||"Weight used"}</strong><p>${ex.weightEntry?.help||""}</p></div></details>`).join(""):'<p class="muted">The older session record did not contain exercise details.</p>'}</div></section>
  <button class="secondary" id="repeatHistory">Repeat this workout</button>`;
  document.querySelector("#historyBack").onclick=()=>{state.historyView=null;save();progress()};
@@ -762,7 +762,7 @@ function sessionDetail(session){
 }
 
 /* =========================================================
-   ROAD TO 12% — VERSION 11.1 PRODUCT EXPERIENCE
+   ROAD TO 12% — VERSION 11.2 PRODUCT EXPERIENCE
    ========================================================= */
 state.dailyCheckins=state.dailyCheckins||{};
 state.workoutRatings=state.workoutRatings||{};
@@ -841,7 +841,7 @@ function exercisePreviewAsset(name){
 function home(){
  const done=todayCompleted(), completed=completedTodaySession(), check=todayCheckin(), tomorrow=tomorrowPlan();
  const totals=completed?sessionTotals(completed):null;
- app.innerHTML=`<section class="v11-dashboard-head"><span class="pill">VERSION 11.1</span><h2>${greeting()}, ${state.preferredName}</h2><p>${done?"Training complete. Now make recovery count.":"Your personalized home-gym plan is ready."}</p></section>
+ app.innerHTML=`<section class="v11-dashboard-head"><span class="pill">VERSION 11.2</span><h2>${greeting()}, ${state.preferredName}</h2><p>${done?"Training complete. Now make recovery count.":"Your personalized home-gym plan is ready."}</p></section>
  ${done?`<section class="card v11-status-card complete-status"><div class="dashboard-icon">🏆</div><div><small>TODAY’S STATUS</small><h3>Workout complete</h3><p>${completed.name} • ${formatDuration(completed.durationMs)} • ${totals.completedSets} sets saved</p></div><button class="secondary" id="viewToday">View</button></section>`:
  `<section class="card v11-status-card"><div class="dashboard-icon">▶</div><div><small>TODAY’S WORKOUT</small><h3>${weekPlan[state.selectedDay].title}</h3><p>${weekPlan[state.selectedDay].time} • ${weekPlan[state.selectedDay].focus}</p></div><button class="primary compact-primary" id="startToday">Start</button></section>`}
  <section class="card dashboard-section"><div class="section-title-row"><div><small>DAILY READINESS</small><h3>Recovery check-in</h3></div><span class="readiness-score">${[check.water,check.nutrition,!!check.sleep].filter(Boolean).length}/3</span></div>
@@ -984,7 +984,7 @@ function progress(){
 
 
 /* =========================================================
-   ROAD TO 12% — VERSION 11.1 SIMPLIFIED EXPERIENCE
+   ROAD TO 12% — VERSION 11.2 SIMPLIFIED EXPERIENCE
    ========================================================= */
 
 /* Restore the motivating Home experience while retaining
@@ -1090,7 +1090,9 @@ function home(){
    const action=weekPlan[state.selectedDay].action;
    if(action==="workout"){
      startNewSession();
-     setTab("workout");
+     state.tab="workout";
+     save();
+     workout();
    }else if(action==="progress"){
      setTab("progress");
    }else{
@@ -1226,5 +1228,66 @@ function exercise(ex,workoutData=activeWorkout()){
  else bindTimer(ex);
 }
 
+
+function workoutLanding(){
+ const workoutData=activeWorkout();
+ const hasActive=!!state.currentSession && state.step>0 && state.step<=workoutData.length;
+ app.innerHTML=`<section class="card workout-launch-card">
+   <span class="pill">${hasActive?"WORKOUT IN PROGRESS":"TODAY’S WORKOUT"}</span>
+   <h2>${hasActive?"Resume Full Body A":"Full Body A"}</h2>
+   <p>${hasActive?`You are on exercise ${state.step} of ${workoutData.length}.`:"Start the guided workout when you are ready. You will move through it one step at a time."}</p>
+   <div class="launch-summary">
+     <div><small>EXERCISES</small><strong>${workoutData.length}</strong></div>
+     <div><small>ESTIMATED TIME</small><strong>50–60 min</strong></div>
+     <div><small>FLOW</small><strong>Step by step</strong></div>
+   </div>
+   <button class="primary" id="launchWorkout">${hasActive?"Resume workout":"Start workout"}</button>
+   ${hasActive?`<button class="secondary" id="restartWorkout">Restart workout</button>`:""}
+ </section>`;
+ document.querySelector("#launchWorkout").onclick=()=>{
+   if(!hasActive)startNewSession();
+   state.tab="workout";
+   save();
+   workout();
+ };
+ document.querySelector("#restartWorkout")?.addEventListener("click",()=>{
+   if(confirm("Restart today’s workout from the beginning?")){
+     startNewSession();
+     state.tab="workout";
+     save();
+     workout();
+   }
+ });
+}
+
+
 migrateHistory();
+
+/* =========================================================
+   ROAD TO 12% — VERSION 11.2 LAUNCH AND NAVIGATION REPAIR
+   ========================================================= */
+(function repairV112LaunchState(){
+ const migrationKey="road12-v11-2-launch-repaired";
+ if(!localStorage.getItem(migrationKey)){
+   state.tab="home";
+   state.setupReady=false;
+   state.previewDay=null;
+   localStorage.setItem(migrationKey,"1");
+   save();
+ }else{
+   /* Every fresh app launch should begin at Home.
+      An active workout remains saved and can be resumed from Workout. */
+   state.tab="home";
+   save();
+ }
+})();
+
 render();
+
+const originalSetTabV112=setTab;
+setTab=function(tab){
+ state.tab=tab;
+ save();
+ if(tab==="workout"){workoutLanding();return;}
+ originalSetTabV112(tab);
+};

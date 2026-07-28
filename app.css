@@ -1917,3 +1917,59 @@ body.workout-mode nav{display:none}body.workout-mode main{padding-bottom:28px}
     align-items:center;
   }
 }
+
+
+/* =========================================================
+   ROAD TO 12% — VERSION 11.2 LAUNCH REPAIR
+   ========================================================= */
+
+/* Undo Version 11 Gym Mode navigation hiding. */
+body.workout-mode nav{
+  display:flex!important;
+}
+body.workout-mode main{
+  padding-bottom:120px!important;
+}
+
+/* The Workout tab now has a calm launch/resume screen. */
+.workout-launch-card{
+  margin-top:10px;
+  padding:24px;
+}
+.workout-launch-card h2{
+  margin:14px 0 8px;
+  font-size:clamp(2rem,8vw,3.2rem);
+}
+.workout-launch-card>p{
+  color:var(--muted);
+  line-height:1.55;
+}
+.launch-summary{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+  margin:20px 0;
+}
+.launch-summary div{
+  padding:14px 10px;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:#11171e;
+}
+.launch-summary small,
+.launch-summary strong{
+  display:block;
+}
+.launch-summary small{
+  color:var(--muted);
+  font-size:.7rem;
+}
+.launch-summary strong{
+  margin-top:6px;
+}
+
+@media(max-width:520px){
+  .launch-summary{
+    grid-template-columns:1fr;
+  }
+}
