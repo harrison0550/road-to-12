@@ -157,7 +157,7 @@ function migrateHistory(){
       item.exercises=Object.entries(state.logs||{}).map(([name,sets])=>({
         name,
         sets:deepCopy(sets||[]),
-        weightEntry:{mode:"legacy",label:"Saved weight",help:"Recovered from Version 11.2 local workout data."}
+        weightEntry:{mode:"legacy",label:"Saved weight",help:"Recovered from Version 11.3 local workout data."}
       }));
       item.recoveredFromV74=true;
       changed=true;
@@ -715,7 +715,7 @@ function equipment(){
   ["latBar","Lat pulldown bar","Used for lat pulldowns."],
   ["rowHandle","Close-grip row handle","Used for seated cable rows."]
  ];
- app.innerHTML=`<section class="card"><div class="phase"><span class="pill">VERSION 11.2</span><strong>Real-workout redesign</strong></div><h2>Profile</h2><label>What should the app call you?<input id="preferredName" value="${state.preferredName}" autocomplete="given-name"></label><button class="secondary profile-save" id="saveProfile">Save name</button></section><section class="card"><h2>My Equipment</h2><p class="muted">Workouts use only equipment switched on.</p><div class="equipment-toggle-list">${items.map(([key,icon,title,note])=>`<label class="equipment-toggle"><span class="equipment-symbol">${icon}</span><span class="equipment-copy"><strong>${title}</strong><small>${note}</small></span><input type="checkbox" data-equipment="${key}" ${state.equipment[key]?"checked":""}><span class="toggle-ui"></span></label>`).join("")}</div></section>
+ app.innerHTML=`<section class="card"><div class="phase"><span class="pill">VERSION 11.3</span><strong>Real-workout redesign</strong></div><h2>Profile</h2><label>What should the app call you?<input id="preferredName" value="${state.preferredName}" autocomplete="given-name"></label><button class="secondary profile-save" id="saveProfile">Save name</button></section><section class="card"><h2>My Equipment</h2><p class="muted">Workouts use only equipment switched on.</p><div class="equipment-toggle-list">${items.map(([key,icon,title,note])=>`<label class="equipment-toggle"><span class="equipment-symbol">${icon}</span><span class="equipment-copy"><strong>${title}</strong><small>${note}</small></span><input type="checkbox" data-equipment="${key}" ${state.equipment[key]?"checked":""}><span class="toggle-ui"></span></label>`).join("")}</div></section>
  <section class="card"><h2>Attachment Locker</h2><p class="muted">Add a close-up photo of each attachment from your actual gym. The correct photo will appear during every exercise with a bright “USE THIS ONE” label.</p><div class="attachment-locker">${attachments.map(([key,title,note])=>`<div class="locker-item">${state.attachmentPhotos[key]?`<img src="${state.attachmentPhotos[key]}" alt="${title}">`:`<div class="locker-placeholder">📷</div>`}<div class="locker-copy"><strong>${title}</strong><small>${note}</small><label class="photo-button">Choose photo<input type="file" accept="image/*" capture="environment" data-photo="${key}"></label>${state.attachmentPhotos[key]?`<button class="clear-photo" data-clear-photo="${key}">Remove</button>`:""}</div></div>`).join("")}</div></section>
  <section class="card equipment-impact"><h3>Current workout impact</h3><div class="impact-row"><span>Available exercises</span><strong>${activeWorkout().length}</strong></div><div class="impact-row"><span>Automatic substitutions</span><strong>${substitutionCount()}</strong></div><div class="impact-row"><span>Bumper-plate exercises</span><strong>${state.equipment.bumperPlates?"Enabled":"Disabled"}</strong></div><button class="primary" id="equipmentWorkout">Start equipment-safe workout</button></section>`;
  document.querySelector("#saveProfile").onclick=()=>{state.preferredName=document.querySelector("#preferredName").value.trim()||"Andy";save();equipment()};
@@ -754,7 +754,7 @@ function progress(){
 }
 function sessionDetail(session){
  const totals=sessionTotals(session);
- app.innerHTML=`<section class="card session-detail-header"><button class="secondary" id="historyBack">Back to history</button><div class="check small-check">✓</div><span class="pill">COMPLETED WORKOUT</span><h2>${session.name}</h2><p class="muted">${session.date} • ${formatDuration(session.durationMs)}</p><div class="brief-grid"><div><small>SETS</small><strong>${totals.completedSets}</strong></div><div><small>REPS</small><strong>${totals.totalReps}</strong></div><div><small>SELECTED VOLUME</small><strong>${Math.round(totals.selectedVolume).toLocaleString()} lb</strong></div><div><small>STATUS</small><strong>Saved</strong></div></div>${session.recoveredFromV74?`<div class="recovery-note">This session was recovered from Version 11.2. Any values still held in the old workout log are shown below.</div>`:""}</section>
+ app.innerHTML=`<section class="card session-detail-header"><button class="secondary" id="historyBack">Back to history</button><div class="check small-check">✓</div><span class="pill">COMPLETED WORKOUT</span><h2>${session.name}</h2><p class="muted">${session.date} • ${formatDuration(session.durationMs)}</p><div class="brief-grid"><div><small>SETS</small><strong>${totals.completedSets}</strong></div><div><small>REPS</small><strong>${totals.totalReps}</strong></div><div><small>SELECTED VOLUME</small><strong>${Math.round(totals.selectedVolume).toLocaleString()} lb</strong></div><div><small>STATUS</small><strong>Saved</strong></div></div>${session.recoveredFromV74?`<div class="recovery-note">This session was recovered from Version 11.3. Any values still held in the old workout log are shown below.</div>`:""}</section>
  <section class="card"><h2>Exercises completed</h2><div class="history-exercise-list">${(session.exercises||[]).length?(session.exercises||[]).map(ex=>`<details class="history-exercise" open><summary><span><strong>${ex.name}</strong>${ex.originalExercise?`<small>Substituted for ${ex.originalExercise}</small>`:""}</span><span>${(ex.sets||[]).filter(s=>s?.done).length} sets</span></summary><div class="history-set-head"><span>SET</span><span>${ex.weightEntry?.mode==="dual"?"LB / STACK":"WEIGHT"}</span><span>REPS</span><span>STATUS</span></div>${(ex.sets||[]).map((s,i)=>`<div class="history-set-row"><strong>${i+1}</strong><span>${s?.weight!==undefined&&s?.weight!==""?`${s.weight} lb`:"—"}${ex.weightEntry?.mode==="dual"&&s?.weight?`<small>${Number(s.weight)*2} lb combined selected</small>`:""}</span><span>${s?.reps||"—"}</span><span>${s?.done?"✓ Complete":"Not marked"}</span></div>`).join("")||'<p class="muted">No set details were stored.</p>'}<div class="history-weight-note"><strong>${ex.weightEntry?.label||"Weight used"}</strong><p>${ex.weightEntry?.help||""}</p></div></details>`).join(""):'<p class="muted">The older session record did not contain exercise details.</p>'}</div></section>
  <button class="secondary" id="repeatHistory">Repeat this workout</button>`;
  document.querySelector("#historyBack").onclick=()=>{state.historyView=null;save();progress()};
@@ -762,7 +762,7 @@ function sessionDetail(session){
 }
 
 /* =========================================================
-   ROAD TO 12% — VERSION 11.2 PRODUCT EXPERIENCE
+   ROAD TO 12% — VERSION 11.3 PRODUCT EXPERIENCE
    ========================================================= */
 state.dailyCheckins=state.dailyCheckins||{};
 state.workoutRatings=state.workoutRatings||{};
@@ -841,7 +841,7 @@ function exercisePreviewAsset(name){
 function home(){
  const done=todayCompleted(), completed=completedTodaySession(), check=todayCheckin(), tomorrow=tomorrowPlan();
  const totals=completed?sessionTotals(completed):null;
- app.innerHTML=`<section class="v11-dashboard-head"><span class="pill">VERSION 11.2</span><h2>${greeting()}, ${state.preferredName}</h2><p>${done?"Training complete. Now make recovery count.":"Your personalized home-gym plan is ready."}</p></section>
+ app.innerHTML=`<section class="v11-dashboard-head"><span class="pill">VERSION 11.3</span><h2>${greeting()}, ${state.preferredName}</h2><p>${done?"Training complete. Now make recovery count.":"Your personalized home-gym plan is ready."}</p></section>
  ${done?`<section class="card v11-status-card complete-status"><div class="dashboard-icon">🏆</div><div><small>TODAY’S STATUS</small><h3>Workout complete</h3><p>${completed.name} • ${formatDuration(completed.durationMs)} • ${totals.completedSets} sets saved</p></div><button class="secondary" id="viewToday">View</button></section>`:
  `<section class="card v11-status-card"><div class="dashboard-icon">▶</div><div><small>TODAY’S WORKOUT</small><h3>${weekPlan[state.selectedDay].title}</h3><p>${weekPlan[state.selectedDay].time} • ${weekPlan[state.selectedDay].focus}</p></div><button class="primary compact-primary" id="startToday">Start</button></section>`}
  <section class="card dashboard-section"><div class="section-title-row"><div><small>DAILY READINESS</small><h3>Recovery check-in</h3></div><span class="readiness-score">${[check.water,check.nutrition,!!check.sleep].filter(Boolean).length}/3</span></div>
@@ -984,7 +984,7 @@ function progress(){
 
 
 /* =========================================================
-   ROAD TO 12% — VERSION 11.2 SIMPLIFIED EXPERIENCE
+   ROAD TO 12% — VERSION 11.3 SIMPLIFIED EXPERIENCE
    ========================================================= */
 
 /* Restore the motivating Home experience while retaining
@@ -1261,10 +1261,309 @@ function workoutLanding(){
 }
 
 
+
+/* =========================================================
+   ROAD TO 12% — VERSION 11.3 HISTORY RECOVERY + ASSET AUDIT
+   ========================================================= */
+
+const V113_ANATOMICAL_ASSETS={
+ "Treadmill Walk":"assets/phase3/treadmill-walking.jpg",
+ "Easy Treadmill Cooldown":"assets/phase3/treadmill-walking.jpg",
+ "Arm Circles":"assets/phase3/dynamic-warm-up.jpg",
+ "Bodyweight Squat":"assets/phase3/dynamic-warm-up.jpg",
+ "Hip Hinge":"assets/phase3/hip-glute-mobility.jpg",
+ "Post-Workout Stretch":"assets/phase3/cool-down-recovery.jpg",
+ "Goblet Squat":"assets/phase3/dynamic-warm-up.jpg",
+ "Cable Chest Press":"assets/phase1/cable-chest-press.jpg",
+ "Seated Cable Row":"assets/phase1/seated-cable-row.jpg",
+ "Lat Pulldown":"assets/phase1/lat-pulldown.jpg",
+ "Cable Shoulder Press":"assets/phase1/cable-shoulder-press.jpg",
+ "Rope Triceps Pushdown":"assets/phase1/rope-triceps-pushdown.jpg",
+ "Cable Curl":"assets/phase1/cable-curl.jpg",
+ "Smith Machine Squat":"assets/phase1/smith-machine-squat.jpg",
+ "Incline Cable Press":"assets/phase2/incline-cable-press.jpg",
+ "Single Arm Cable Row":"assets/phase2/single-arm-cable-row.jpg",
+ "Rear Delt Cable Fly":"assets/phase2/rear-delt-cable-fly.jpg",
+ "Cable Lateral Raise":"assets/phase2/cable-lateral-raise.jpg",
+ "Cable Hammer Curl":"assets/phase2/cable-hammer-curl.jpg",
+ "Rope Hammer Curl":"assets/phase2/cable-hammer-curl.jpg",
+ "High to Low Cable Chop":"assets/phase2/high-to-low-cable-chop.jpg",
+ "Cable Face Pull":"assets/phase2/cable-face-pull.jpg",
+ "Smith Machine RDL":"assets/phase2/smith-machine-rdl.jpg",
+ "Smith Romanian Deadlift":"assets/phase2/smith-machine-rdl.jpg",
+ "Bulgarian Split Squat":"assets/phase2/smith-bulgarian-split-squat.jpg",
+ "Smith Bulgarian Split Squat":"assets/phase2/smith-bulgarian-split-squat.jpg",
+ "Smith Machine Calf Raise":"assets/phase2/smith-machine-calf-raise.jpg",
+ "Cable Crunch":"assets/phase2/cable-crunch.jpg",
+ "Cable Straight Arm Pushdown":"assets/phase2/cable-straight-arm-pushdown.jpg",
+ "Rower Technique":"assets/phase3/rower-technique.jpg",
+ "Stationary Bike Setup":"assets/phase3/kickr-core-bike-setup.jpg",
+ "KICKR CORE Setup":"assets/phase3/kickr-core-bike-setup.jpg",
+ "KICKR CORE Endurance Ride":"assets/phase3/kickr-core-endurance-ride.jpg",
+ "KICKR CORE HIIT Ride":"assets/phase3/kickr-core-hiit-ride.jpg"
+};
+
+function applyAnatomicalAssets(){
+ [...data,...(window.EXTRA_LIBRARY_DATA||[])].forEach(ex=>{
+   if(V113_ANATOMICAL_ASSETS[ex.name])ex.demoImage=V113_ANATOMICAL_ASSETS[ex.name];
+ });
+}
+applyAnatomicalAssets();
+
+function sessionIdentity(session){
+ return session.id||[
+   session.dateKey||session.date||"",
+   session.name||"",
+   session.completedAt||session.startedAt||""
+ ].join("|");
+}
+
+function normalizeRecoveredHistory(history){
+ const byId=new Map();
+ (Array.isArray(history)?history:[]).forEach(session=>{
+   if(!session||typeof session!=="object")return;
+   const key=sessionIdentity(session);
+   if(!byId.has(key))byId.set(key,session);
+ });
+ return [...byId.values()].sort((a,b)=>{
+   const da=new Date(a.completedAt||a.startedAt||a.date||0).getTime()||0;
+   const db=new Date(b.completedAt||b.startedAt||b.date||0).getTime()||0;
+   return da-db;
+ });
+}
+
+function recoverSameOriginHistory(){
+ const candidates=[...(state.history||[])];
+ for(let i=0;i<localStorage.length;i++){
+   const key=localStorage.key(i);
+   if(!key||!key.toLowerCase().includes("road12"))continue;
+   try{
+     const parsed=JSON.parse(localStorage.getItem(key));
+     if(Array.isArray(parsed?.history))candidates.push(...parsed.history);
+     if(Array.isArray(parsed?.workoutHistory))candidates.push(...parsed.workoutHistory);
+     if(Array.isArray(parsed?.sessionsHistory))candidates.push(...parsed.sessionsHistory);
+   }catch(_){}
+ }
+ const recovered=normalizeRecoveredHistory(candidates);
+ const changed=recovered.length!==(state.history||[]).length;
+ state.history=recovered;
+ state.sessions=Math.max(Number(state.sessions)||0,recovered.length);
+ if(changed)save();
+ return recovered.length;
+}
+recoverSameOriginHistory();
+
+function latestCompletedSession(){
+ if(!state.history?.length)return null;
+ return state.history.slice().sort((a,b)=>{
+   const da=new Date(a.completedAt||a.startedAt||a.date||0).getTime()||0;
+   const db=new Date(b.completedAt||b.startedAt||b.date||0).getTime()||0;
+   return db-da;
+ })[0]||null;
+}
+
+function historicalDateLabel(session){
+ const raw=session.completedAt||session.startedAt||session.date;
+ const date=new Date(raw);
+ if(Number.isNaN(date.getTime()))return session.date||"Saved workout";
+ return date.toLocaleDateString(undefined,{weekday:"short",month:"short",day:"numeric",year:"numeric"});
+}
+
+function downloadHistoryBackup(){
+ const payload={
+   app:"Road to 12%",
+   version:"11.3",
+   exportedAt:new Date().toISOString(),
+   state:{
+     preferredName:state.preferredName,
+     weight:state.weight,
+     waist:state.waist,
+     sessions:state.sessions,
+     history:state.history,
+     workoutRatings:state.workoutRatings||{},
+     dailyCheckins:state.dailyCheckins||{},
+     achievements:state.achievements||{},
+     equipment:state.equipment,
+     attachmentPhotos:state.attachmentPhotos||{}
+   }
+ };
+ const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});
+ const url=URL.createObjectURL(blob);
+ const a=document.createElement("a");
+ a.href=url;
+ a.download=`road-to-12-backup-${localDateKey()}.json`;
+ document.body.appendChild(a);
+ a.click();
+ a.remove();
+ setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+
+function importHistoryBackup(file){
+ const reader=new FileReader();
+ reader.onload=()=>{
+   try{
+     const payload=JSON.parse(reader.result);
+     const incoming=payload.state||payload;
+     if(!Array.isArray(incoming.history))throw new Error("No workout history was found in this backup.");
+     state.history=normalizeRecoveredHistory([...(state.history||[]),...incoming.history]);
+     state.sessions=Math.max(Number(state.sessions)||0,Number(incoming.sessions)||0,state.history.length);
+     state.workoutRatings=Object.assign({},incoming.workoutRatings||{},state.workoutRatings||{});
+     state.dailyCheckins=Object.assign({},incoming.dailyCheckins||{},state.dailyCheckins||{});
+     state.achievements=Object.assign({},incoming.achievements||{},state.achievements||{});
+     state.equipment=Object.assign({},state.equipment||{},incoming.equipment||{});
+     state.attachmentPhotos=Object.assign({},incoming.attachmentPhotos||{},state.attachmentPhotos||{});
+     if(incoming.weight)state.weight=incoming.weight;
+     if(incoming.waist)state.waist=incoming.waist;
+     if(incoming.preferredName)state.preferredName=incoming.preferredName;
+     save();
+     alert(`Backup imported. ${state.history.length} workout${state.history.length===1?"":"s"} available.`);
+     progress();
+   }catch(error){
+     alert(`Could not import backup: ${error.message}`);
+   }
+ };
+ reader.readAsText(file);
+}
+
+/* Persistent achievement Home:
+   the latest completed workout remains visible after midnight. */
+function home(){
+ const selected=weekPlan[state.selectedDay];
+ const latest=latestCompletedSession();
+ const historyCount=state.history.length;
+ const active=!!state.currentSession&&state.step>0&&state.step<=activeWorkout().length;
+
+ const achievement=latest?(()=>{
+   const totals=sessionTotals(latest);
+   return `<section class="celebration-hero v113-achievement">
+     <div class="celebration-burst">🏆</div>
+     <span class="pill">LATEST ACHIEVEMENT</span>
+     <h2>You crushed it, ${state.preferredName}!</h2>
+     <p>${latest.name||"Workout"} was completed on ${historicalDateLabel(latest)}.</p>
+     <div class="celebration-stats">
+       <div><small>WORKOUT</small><strong>${latest.name||"Completed workout"}</strong></div>
+       <div><small>TIME</small><strong>${formatDuration(latest.durationMs||0)}</strong></div>
+       <div><small>SETS SAVED</small><strong>${totals.completedSets}</strong></div>
+     </div>
+     <button class="primary" id="viewLatestAchievement">View completed workout</button>
+     <small class="recovery-message">${historyCount} workout${historyCount===1?"":"s"} safely listed in Progress.</small>
+   </section>`;
+ })():`<section class="hero v111-hero">
+   <img src="${window.HERO_IMAGE}">
+   <div class="shade"></div>
+   <div class="hero-copy">
+     <span class="pill">WEEK 1 • FOUNDATION</span>
+     <h2>${selected.title}</h2>
+     <p>${selected.detail}</p>
+     <button class="primary" id="start">${active?"Resume guided workout":"Start today’s guided workout"}</button>
+   </div>
+ </section>`;
+
+ app.innerHTML=`${achievement}
+ ${latest?`<section class="card next-workout-card">
+   <div class="section-title-row">
+     <div><small>${active?"WORKOUT IN PROGRESS":"NEXT WORKOUT"}</small><h2>${selected.title}</h2></div>
+     <span class="tomorrow-time">${selected.time}</span>
+   </div>
+   <p>${selected.detail}</p>
+   <div class="focus-chips">${selected.focus.split(",").map(x=>`<span>${x}</span>`).join("")}</div>
+   <button class="primary" id="start">${active?"Resume guided workout":"Start guided workout"}</button>
+   <button class="secondary" id="previewSelected">Preview workout</button>
+ </section>`:""}
+
+ <section class="card week-card">
+   <div class="section-title-row">
+     <div><small>YOUR PLAN</small><h2>Training schedule</h2></div>
+     <button class="history-count-button" id="openHistory">${historyCount} saved</button>
+   </div>
+   <p class="muted">Tap any day to view its workout, time, focus and exercises.</p>
+   <div class="week-strip">${weekPlan.map((d,i)=>`<button class="day-button ${i===state.selectedDay?"selected":""}" data-day="${i}">
+     <span class="day-icon">${d.icon}</span>
+     <strong>${d.short}</strong>
+     <small>${i===state.selectedDay?"Selected":""}</small>
+   </button>`).join("")}</div>
+   <div class="selected-plan">
+     <div class="large-icon">${selected.icon}</div>
+     <div><h3>${selected.title}</h3><p class="muted">${selected.detail}</p></div>
+   </div>
+ </section>
+
+ <section class="stats">
+   <div><small>WEIGHT</small><strong>${state.weight} lb</strong></div>
+   <div><small>WAIST</small><strong>${state.waist} in</strong></div>
+   <div><small>HISTORY</small><strong>${historyCount}</strong></div>
+ </section>`;
+
+ document.querySelector("#viewLatestAchievement")?.addEventListener("click",()=>{
+   state.historyView=latest.id;
+   setTab("progress");
+ });
+ document.querySelector("#openHistory").onclick=()=>setTab("progress");
+ document.querySelector("#previewSelected")?.addEventListener("click",()=>showDayPlan(state.selectedDay));
+
+ document.querySelectorAll("[data-day]").forEach(button=>{
+   button.onclick=()=>{
+     state.selectedDay=Number(button.dataset.day);
+     state.previewDay=state.selectedDay;
+     save();
+     showDayPlan(state.selectedDay);
+   };
+ });
+
+ document.querySelector("#start")?.addEventListener("click",()=>{
+   if(active){
+     state.tab="workout";
+     save();
+     workout();
+   }else{
+     startNewSession();
+     state.tab="workout";
+     save();
+     workout();
+   }
+ });
+}
+
+/* Progress keeps every prior feature and adds durable backup controls. */
+const progressV112=progress;
+function progress(){
+ progressV112();
+ if(state.historyView)return;
+
+ const firstCard=app.querySelector(".card");
+ if(firstCard){
+   const protection=document.createElement("section");
+   protection.className="card history-protection-card";
+   protection.innerHTML=`<div class="section-title-row">
+     <div><small>DATA PROTECTION</small><h2>Workout history backup</h2></div>
+     <span class="history-total">${state.history.length} saved</span>
+   </div>
+   <p>Your history is stored on this device and app address. Export a backup before changing repositories, domains or installed app locations.</p>
+   <div class="backup-actions">
+     <button class="secondary" id="exportHistory">Export backup</button>
+     <label class="secondary import-label">Import backup<input id="importHistory" type="file" accept="application/json,.json"></label>
+   </div>`;
+   firstCard.insertAdjacentElement("afterend",protection);
+   document.querySelector("#exportHistory").onclick=downloadHistoryBackup;
+   document.querySelector("#importHistory").onchange=e=>{
+     const file=e.target.files?.[0];
+     if(file)importHistoryBackup(file);
+   };
+ }
+}
+
+/* Final exercise render guard: never display an old realistic asset
+   when an anatomical replacement exists. */
+const exerciseV112=exercise;
+function exercise(ex,workoutData=activeWorkout()){
+ if(V113_ANATOMICAL_ASSETS[ex.name])ex.demoImage=V113_ANATOMICAL_ASSETS[ex.name];
+ exerciseV112(ex,workoutData);
+}
+
 migrateHistory();
 
 /* =========================================================
-   ROAD TO 12% — VERSION 11.2 LAUNCH AND NAVIGATION REPAIR
+   ROAD TO 12% — VERSION 11.3 LAUNCH AND NAVIGATION REPAIR
    ========================================================= */
 (function repairV112LaunchState(){
  const migrationKey="road12-v11-2-launch-repaired";

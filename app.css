@@ -1973,3 +1973,65 @@ body.workout-mode main{
     grid-template-columns:1fr;
   }
 }
+
+
+/* =========================================================
+   ROAD TO 12% — VERSION 11.3
+   ========================================================= */
+header .reset,
+#reset,
+.reset-button{
+  display:none!important;
+}
+
+.v113-achievement{
+  margin-top:8px;
+}
+
+.next-workout-card{
+  margin-top:16px;
+}
+
+.history-count-button,
+.history-total{
+  padding:8px 11px;
+  border:1px solid #3a4652;
+  border-radius:999px;
+  background:#141b22;
+  color:#dce3e9;
+  font-weight:900;
+  white-space:nowrap;
+}
+
+.history-protection-card{
+  border-color:#375a4a;
+  background:linear-gradient(135deg,#11251d,#11171e);
+}
+
+.history-protection-card>p{
+  color:var(--muted);
+  line-height:1.5;
+}
+
+.backup-actions{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-top:14px;
+}
+
+.import-label{
+  display:grid;
+  place-items:center;
+  cursor:pointer;
+}
+
+.import-label input{
+  display:none;
+}
+
+@media(max-width:520px){
+  .backup-actions{
+    grid-template-columns:1fr;
+  }
+}
