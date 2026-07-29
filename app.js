@@ -559,10 +559,12 @@ function openExerciseAsset(ex){
 
 function sets(ex){
  const entry=ex.weightEntry||{mode:"total",label:"Weight used",help:"Enter the weight used for this set."};
+ const isSmithAddedWeight=ex.name.includes("Smith")&&entry.mode==="total";
+ const displayedLabel=isSmithAddedWeight?"Added Plate Weight":entry.label;
  return `<section class="card timer-card"><h3>${ex.sets} sets × ${ex.reps} reps</h3>
- <div class="weight-entry-explainer"><span>${entry.mode==="dual"?"↔️":entry.mode==="single"?"1️⃣":"🏋️"}</span><div><strong>${entry.label}</strong><p>${entry.help}</p>${entry.mode==="dual"?`<small>Example: left 20 lb + right 20 lb → enter <b>20</b>; combined selected stack weight is 40 lb.</small>`:""}</div></div>
- <div class="set-table-head"><span>SET</span><span>${entry.mode==="dual"?"LB / STACK":"WEIGHT LB"}</span><span>REPS</span><span>DONE</span></div>
- ${state.logs[ex.name].map((v,i)=>`<div class="set-row"><strong>${i+1}</strong><input data-w="${i}" inputmode="decimal" placeholder="${entry.mode==="dual"?"per stack":"lb"}" value="${v?.weight||""}"><input data-r="${i}" inputmode="numeric" value="${v?.reps||ex.reps}"><button data-d="${i}" class="${v?.done?"done":""}">${v?.done?"✓":"○"}</button>${entry.mode==="dual"&&v?.weight?`<small class="combined-weight">Combined selected: ${Number(v.weight)*2} lb</small>`:""}</div>`).join("")}
+ <div class="weight-entry-explainer"><span>${entry.mode==="dual"?"↔️":entry.mode==="single"?"1️⃣":"🏋️"}</span><div><strong>${displayedLabel}</strong><p>${entry.help}</p>${entry.mode==="dual"?`<small>Example: left 20 lb + right 20 lb → enter <b>20</b>; combined selected stack weight is 40 lb.</small>`:""}</div></div>
+ <div class="set-table-head"><span>SET</span><span>${entry.mode==="dual"?"LB / STACK":isSmithAddedWeight?"ADDED PLATE LB":"WEIGHT LB"}</span><span>REPS</span><span>DONE</span></div>
+ ${state.logs[ex.name].map((v,i)=>`<div class="set-row"><strong>${i+1}</strong><input data-w="${i}" inputmode="decimal" placeholder="${entry.mode==="dual"?"per stack":isSmithAddedWeight?"0 lb":"lb"}" aria-label="${displayedLabel}, set ${i+1}" value="${v?.weight||""}"><input data-r="${i}" inputmode="numeric" value="${v?.reps||ex.reps}"><button data-d="${i}" class="${v?.done?"done":""}" aria-label="${v?.done?"Mark set incomplete":"Mark set complete"}">${v?.done?"✓":"○"}</button>${entry.mode==="dual"&&v?.weight?`<small class="combined-weight">Combined selected: ${Number(v.weight)*2} lb</small>`:""}</div>`).join("")}
  <div class="timer" id="timer">Rest ${String(Math.floor(ex.rest/60)).padStart(2,"0")}:${String(ex.rest%60).padStart(2,"0")}</div><div class="rest-coach-message" id="restCoach">Recover and prepare for your next set.</div><div class="timer-controls"><button class="secondary" id="rest">Start rest timer</button><button class="secondary" id="stopTimer">Stop timer</button></div></section>`}
 function timed(ex){return `<section class="card timer-card"><h3>${ex.duration}</h3><div class="timer" id="timer">${ex.duration.includes(":")?ex.duration:"Ready"}</div>${ex.duration.includes(":")?'<div class="timer-controls"><button class="primary" id="rest">Start timer</button><button class="secondary" id="stopTimer">Stop timer</button></div>':""}</section>`}
 function bindSets(ex){
@@ -576,11 +578,19 @@ function bindSets(ex){
    save();
  });
  document.querySelectorAll("[data-d]").forEach(b=>b.onclick=()=>{
+   const scrollX=window.scrollX;
+   const scrollY=window.scrollY;
    const i=+b.dataset.d;
    const w=document.querySelector(`[data-w="${i}"]`).value;
    const r=document.querySelector(`[data-r="${i}"]`).value;
-   state.logs[ex.name][i]={weight:w,reps:r,done:!state.logs[ex.name][i]?.done};
-   save();exercise(ex);
+   const done=!state.logs[ex.name][i]?.done;
+   state.logs[ex.name][i]={weight:w,reps:r,done};
+   save();
+   b.classList.toggle("done",done);
+   b.textContent=done?"✓":"○";
+   b.setAttribute("aria-label",done?"Mark set incomplete":"Mark set complete");
+   if(done)startTimer(ex.rest);
+   requestAnimationFrame(()=>window.scrollTo(scrollX,scrollY));
  });
  document.querySelector("#rest").onclick=()=>startTimer(ex.rest);
  const stop=document.querySelector("#stopTimer");if(stop)stop.onclick=stopTimer
@@ -1356,7 +1366,7 @@ function cardioMobilityWorkout(){
       ],
       cues:["Stay tall.","Do not arch your lower back."],
       why:"Restores hip motion after incline walking.",
-      demoImage:"assets/phase3/hip-glute-mobility.jpg"
+      demoImage:"assets/placeholders/hip-flexor-mobility.svg"
     }),
     cloneExerciseByName("Post-Workout Stretch",{
       name:"Hamstring Mobility",
@@ -1371,7 +1381,7 @@ function cardioMobilityWorkout(){
       ],
       cues:["Do not bounce.","Stop before the stretch becomes painful."],
       why:"Reduces lower-body tightness after treadmill work.",
-      demoImage:"assets/phase3/hip-glute-mobility.jpg"
+      demoImage:"assets/placeholders/hamstring-mobility.svg"
     }),
     cloneExerciseByName("Arm Circles",{
       name:"Chest and Shoulder Mobility",
@@ -1420,13 +1430,13 @@ function coreRecoveryWorkout(){
       ],
       cues:["Keep your lower back controlled.","Stop before form breaks down."],
       why:"Builds trunk stability while allowing the major lifting muscles to recover.",
-      demoImage:"assets/phase3/core-activation.jpg"
+      demoImage:"assets/placeholders/core-activation.svg"
     }),
     cloneExerciseByName("Post-Workout Stretch",{
       name:"Hip and Glute Mobility",
       duration:"6:00",
       muscles:"Hips, glutes and lower back",
-      demoImage:"assets/phase3/hip-glute-mobility.jpg"
+      demoImage:"assets/placeholders/hip-glute-mobility.svg"
     }),
     cloneExerciseByName("Arm Circles",{
       name:"Thoracic and Shoulder Mobility",
@@ -1490,7 +1500,7 @@ function zone2CardioWorkout(){
 function fullBodyBWorkout(){
   const smithWeightEntry={
     mode:"total",
-    label:"Added plate weight",
+    label:"Added Plate Weight",
     help:"Enter only the plates added to the Smith bar. Enter 0 when using the empty Smith bar."
   };
   return [
