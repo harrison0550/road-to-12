@@ -109,7 +109,7 @@ state.equipment=Object.assign({
 const weekPlan=[
  {short:"MON",icon:"🏋️",title:"Full Body A",detail:"Guided strength • chest, back, quads and shoulders",action:"workout",time:"50–60 min",focus:"Full-body strength",items:["Treadmill warm-up","Mobility","Smith Machine Squat","Cable Shoulder Press","Cable Curl","Cable Chest Press","Seated Cable Row","Lat Pulldown","Rope Triceps Pushdown","Treadmill cooldown"],setup:"Low pulleys → mid pulleys → high pulleys"},
  {short:"TUE",icon:"🚶",title:"Cardio + Mobility",detail:"Incline treadmill and mobility recovery",action:"cardio",time:"30–40 min",focus:"Recovery and aerobic base",items:["5-minute easy treadmill warm-up","20–25 minute incline walk at conversational pace","Hip flexor stretch","Hamstring stretch","Chest and shoulder mobility","Easy cooldown"],setup:"Treadmill only; no M1 adjustments"},
- {short:"WED",icon:"💪",title:"Full Body B",detail:"Alternate guided full-body strength session",action:"upcoming",time:"50–60 min",focus:"Back, legs, chest and arms",items:["Treadmill warm-up","Smith Romanian Deadlift","Low Cable Row","Cable Lateral Raise","Cable Fly","Lat Pulldown","Rope Hammer Curl","Triceps Pushdown","Cooldown"],setup:"Smith station → low pulleys → mid pulleys → high pulleys"},
+ {short:"WED",icon:"💪",title:"Full Body B",detail:"Alternate guided full-body strength session",action:"upcoming",time:"50–60 min",focus:"Back, legs, chest and arms",items:["Treadmill warm-up","Hip hinge mobility","Smith Machine RDL","Smith Bulgarian Split Squat","Smith Machine Calf Raise","Incline Cable Press","Single Arm Cable Row","Lat Pulldown","Cable Lateral Raise","Cable Crunch","Cable Hammer Curl","Cooldown"],setup:"Smith station → low pulleys → mid pulleys → high pulleys"},
  {short:"THU",icon:"🧘",title:"Core + Recovery",detail:"Core training, stretching and easy movement",action:"recovery",time:"25–35 min",focus:"Core control and mobility",items:["Easy walk or row","Dead bug","Bird dog","Side plank from knees","Hip mobility","Upper-back mobility","Slow breathing cooldown"],setup:"Floor space; optional treadmill or rower"},
  {short:"FRI",icon:"🏋️",title:"Full Body C",detail:"Third weekly guided full-body strength session",action:"upcoming",time:"50–60 min",focus:"Legs, pushing, pulling and arms",items:["Treadmill warm-up","Smith Squat","Cable Curl","Cable Shoulder Press","Cable Chest Press","Seated Cable Row","Straight-arm Pulldown","Rope Triceps Pushdown","Cooldown"],setup:"Smith station → low pulleys → mid pulleys → high pulleys"},
  {short:"SAT",icon:"❤️",title:"Zone 2 Cardio",detail:"Longer easy bike, rower or treadmill session",action:"cardio",time:"35–50 min",focus:"Fat-loss supporting aerobic work",items:["5-minute easy warm-up","25–40 minutes at a pace where you can speak in sentences","5-minute cooldown","Light stretching"],setup:"Choose treadmill, rower or KICKR CORE"},
@@ -1487,12 +1487,118 @@ function zone2CardioWorkout(){
   ];
 }
 
+function fullBodyBWorkout(){
+  const smithWeightEntry={
+    mode:"total",
+    label:"Added plate weight",
+    help:"Enter only the plates added to the Smith bar. Enter 0 when using the empty Smith bar."
+  };
+  return [
+    cloneExerciseByName("Treadmill Walk"),
+    cloneExerciseByName("Hip Hinge"),
+    cloneExerciseByName("Goblet Squat",{
+      name:"Smith Machine RDL",sets:3,reps:10,
+      muscles:"Hamstrings, glutes, upper back and core",
+      setup:["Set the Smith bar around mid-thigh height","Set safety stops below the lowest controlled position","Stand with feet hip width and the bar close to your thighs"],
+      steps:["Unlock the bar and stand tall with soft knees.","Brace your core and push your hips backward.","Lower the bar close to your legs until your hamstrings are loaded.","Drive your hips forward to stand without leaning back.","Re-rack the bar securely after the set."],
+      cues:["Move from the hips, not the waist.","Keep the bar close.","Stop before your back rounds."],
+      rest:90,
+      why:"Adds the week’s primary loaded hinge to train the hamstrings and glutes without repeating Monday’s squat emphasis.",
+      weightRecommendation:"Begin with the empty Smith bar and add weight only when every rep stays controlled.",
+      requires:["ritfitM1"],substituteId:null,
+      demoImage:"assets/phase2/smith-machine-rdl.jpg",weightEntry:smithWeightEntry
+    }),
+    cloneExerciseByName("Goblet Squat",{
+      name:"Smith Bulgarian Split Squat",sets:2,reps:10,
+      muscles:"Quads, glutes, hamstrings and core",
+      setup:["Place the bench behind you","Set the Smith bar around upper-chest height","Place one foot forward and rest the other foot on the bench","Set the safety stops for a comfortable bottom position"],
+      steps:["Unrack the bar with your front foot fully planted.","Lower straight down under control.","Keep the front knee tracking with the toes.","Drive through the front foot to stand.","Complete both sides before resting."],
+      cues:["Use a short, stable range first.","Keep most of the load on the front leg.","Hold the rack while positioning if needed."],
+      rest:90,
+      why:"Provides unilateral squat work to balance the bilateral Smith squat used in Full Body A.",
+      weightRecommendation:"Practice body position with the empty Smith bar before adding plates.",
+      requires:["ritfitM1","bench"],substituteId:null,
+      demoImage:"assets/phase2/smith-bulgarian-split-squat.jpg",weightEntry:smithWeightEntry
+    }),
+    cloneExerciseByName("Goblet Squat",{
+      name:"Smith Machine Calf Raise",sets:2,reps:15,
+      muscles:"Calves and ankle stability",
+      setup:["Set the Smith bar around shoulder height","Stand with the balls of both feet planted securely","Keep knees soft and torso tall"],
+      steps:["Unrack the bar and brace your trunk.","Rise onto the balls of your feet.","Pause briefly at the top.","Lower your heels slowly through a comfortable range.","Re-rack securely after the set."],
+      cues:["Move straight up and down.","Do not bounce.","Keep pressure even across both feet."],
+      rest:60,
+      why:"Adds direct calf training that is not emphasized in Full Body A.",
+      weightRecommendation:"Use the empty Smith bar until balance and range are consistent.",
+      requires:["ritfitM1"],substituteId:null,
+      demoImage:"assets/phase2/smith-machine-calf-raise.jpg",weightEntry:smithWeightEntry
+    }),
+    cloneExerciseByName("Cable Chest Press",{
+      name:"Incline Cable Press",sets:3,reps:10,
+      muscles:"Upper chest, front shoulders and triceps",
+      setup:["Set both pulleys to a low position","Use two D-handles","Set the bench to a low incline and center it between the cables","Sit facing away from the M1"],
+      steps:["Bring one handle beside each side of your upper chest.","Brace against the inclined bench.","Press upward and slightly inward.","Stop before locking the elbows.","Lower slowly to the starting position."],
+      cues:["Keep shoulders down against the bench.","Use equal weight on both stacks.","Do not overarch your lower back."],
+      m1:{pinLeft:2,pinRight:2,attachment:"Two single D-handles",bench:"Bench at a low incline between the cables",facing:"Face away from the M1",stance:"Sit with feet planted",start:"Handles beside the upper chest",finish:"Press upward and slightly inward",view:"45° side view",pinNote:"Set both adjustable pulleys to position 2."},
+      why:"Changes Monday’s horizontal press to an incline angle for balanced chest development.",
+      requires:["ritfitM1","bench"],
+      demoImage:"assets/phase2/incline-cable-press.jpg"
+    }),
+    cloneExerciseByName("Seated Cable Row",{
+      name:"Single Arm Cable Row",sets:3,reps:10,
+      muscles:"Lats, mid-back, rear shoulder, biceps and core",
+      setup:["Set one pulley to the lowest position","Attach one D-handle","Use a staggered or half-kneeling stance facing the M1"],
+      steps:["Begin with the working arm long and shoulder down.","Brace your torso against rotation.","Pull the handle toward the lower ribs.","Pause without leaning backward.","Return slowly, then complete the opposite side."],
+      cues:["Keep hips and shoulders square.","Lead with the elbow.","Use the same weight on both sides."],
+      m1:{pinLeft:1,pinRight:null,attachment:"One D-handle",bench:"No bench required",facing:"Face the M1",stance:"Staggered or half-kneeling stance",start:"Working arm long with torso square",finish:"Handle beside the lower ribs",view:"Front-side view",pinNote:"Use one pulley at position 1."},
+      why:"Adds unilateral horizontal pulling to expose and reduce side-to-side strength differences.",
+      requires:["ritfitM1"],attachmentCard:{key:"dHandles",name:"One D-handle",qty:1},
+      weightEntry:{mode:"single",label:"Weight selected on the active stack",help:"Enter the selector setting on the single stack used for this exercise."},
+      demoImage:"assets/phase2/single-arm-cable-row.jpg"
+    }),
+    cloneExerciseByName("Lat Pulldown"),
+    cloneExerciseByName("Cable Shoulder Press",{
+      name:"Cable Lateral Raise",sets:2,reps:12,
+      muscles:"Side shoulders and upper-body stability",
+      setup:["Set one pulley to the lowest position","Attach one D-handle","Stand side-on to the M1 with the working arm away from the stack"],
+      steps:["Begin with the handle in front of the opposite hip.","Keep a soft bend in the elbow.","Raise the arm out to the side to about shoulder height.","Pause without shrugging.","Lower slowly and repeat on the other side."],
+      cues:["Lead with the elbow.","Keep the shoulder away from the ear.","Use a light weight."],
+      m1:{pinLeft:1,pinRight:null,attachment:"One D-handle",bench:"No bench",facing:"Stand side-on to the M1",stance:"Tall stance with ribs stacked",start:"Handle near the opposite hip",finish:"Arm raised to about shoulder height",view:"Front view",pinNote:"Use one pulley at position 1."},
+      why:"Complements Monday’s vertical press with direct side-shoulder work and less triceps fatigue.",
+      requires:["ritfitM1"],attachmentCard:{key:"dHandles",name:"One D-handle",qty:1},
+      weightEntry:{mode:"single",label:"Weight selected on the active stack",help:"Enter the selector setting on the single stack used for this exercise."},
+      correctedGuide:null,demoImage:"assets/phase2/cable-lateral-raise.jpg"
+    }),
+    cloneExerciseByName("Rope Triceps Pushdown",{
+      name:"Cable Crunch",sets:2,reps:12,
+      muscles:"Abdominals and deep core",
+      setup:["Set one pulley to the highest position","Attach the rope","Kneel facing the M1 with the rope beside your head"],
+      steps:["Brace before beginning the repetition.","Curl your ribs toward your pelvis.","Keep your hips mostly still.","Pause when the abdominals are shortened.","Return slowly without letting the stack pull you upright."],
+      cues:["Move through the trunk, not the arms.","Do not sit back toward your heels.","Use a controlled range."],
+      m1:{pinLeft:13,pinRight:null,attachment:"Rope on one high cable",bench:"No bench",facing:"Kneel facing the M1",stance:"Kneeling with hips stable",start:"Rope beside the head and torso tall",finish:"Ribs curled toward the pelvis",view:"Side view",pinNote:"Use one pulley at position 13."},
+      why:"Adds direct trunk flexion and bracing work that supports every major lift.",
+      weightRecommendation:"Use a light load that allows the abdominals—not the arms—to control every repetition.",
+      demoImage:"assets/phase2/cable-crunch.jpg"
+    }),
+    cloneExerciseByName("Cable Curl",{
+      name:"Cable Hammer Curl",sets:2,reps:12,
+      muscles:"Biceps, brachialis and forearms",
+      setup:["Set one pulley to the lowest position","Attach the rope","Face the M1 and hold the rope with palms facing each other"],
+      steps:["Stand tall with elbows beside your ribs.","Curl the rope toward the shoulders without changing grip.","Pause while keeping wrists neutral.","Lower slowly until the arms are nearly straight."],
+      cues:["Keep a neutral grip throughout.","Do not swing.","Keep elbows pinned."],
+      m1:{pinLeft:1,pinRight:null,attachment:"Rope on one low cable",bench:"No bench",facing:"Face the M1",stance:"Tall stance with elbows close",start:"Neutral grip with arms nearly straight",finish:"Rope ends near the shoulders",view:"Front-side view",pinNote:"Use one pulley at position 1."},
+      why:"Uses a neutral grip to complement Monday’s underhand cable curl and add forearm work.",
+      attachmentCard:{key:"rope",name:"Triceps rope",qty:1},
+      correctedGuide:null,demoImage:"assets/phase2/cable-hammer-curl.jpg"
+    }),
+    cloneExerciseByName("Easy Treadmill Cooldown")
+  ];
+}
+
 function strengthWorkoutForDay(dayIndex){
-  /* Full Body B and C use the stable guided strength engine while their
-     dedicated exercise programming is refined. Session identity and schedule
-     still advance correctly instead of reverting to Monday. */
-  return data.map(resolveExercise).filter(ex=>!ex.unavailable).map((ex,index)=>({ex,index}))
-    .sort((a,b)=>setupGroup(a.ex)-setupGroup(b.ex)||a.index-b.index).map(x=>x.ex);
+  const workoutData=dayIndex===2?fullBodyBWorkout():data;
+  const group=ex=>dayIndex===2&&ex.type==="cooldown"?6:setupGroup(ex);
+  return workoutData.map(resolveExercise).filter(ex=>!ex.unavailable).map((ex,index)=>({ex,index}))
+    .sort((a,b)=>group(a.ex)-group(b.ex)||a.index-b.index).map(x=>x.ex);
 }
 
 function workoutForDay(dayIndex=currentPlanIndex()){
