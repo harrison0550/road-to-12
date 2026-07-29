@@ -1606,4 +1606,16 @@ save();
  }
 })();
 
+if("serviceWorker" in navigator){
+ window.addEventListener("load",async()=>{
+   try{
+     const registration=await navigator.serviceWorker.getRegistration("./");
+     if(registration)await registration.update();
+     else await navigator.serviceWorker.register("./sw.js",{scope:"./"});
+   }catch(error){
+     console.warn("Road to 12% service worker was not available.",error);
+   }
+ });
+}
+
 render();
