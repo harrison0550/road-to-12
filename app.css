@@ -2001,3 +2001,14 @@ header .reset,#reset,.reset-button{display:none!important}
 .launch-summary div strong{
   overflow-wrap:anywhere;
 }
+
+/* Version 12.2 UI polish */
+.about-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:14px}
+.about-grid>div{padding:13px;border:1px solid var(--line);border-radius:14px;background:#0c1117}
+.about-grid small,.about-grid strong{display:block}
+.about-grid small{color:var(--muted);font-size:10px;letter-spacing:.08em}
+.about-grid strong{margin-top:5px;overflow-wrap:anywhere}
+.about-grid>div:last-child{grid-column:1/-1}
+.visual-withheld{border-color:#614b25;background:#201b12}
+.visual-withheld p{margin-bottom:0;color:#d6c7a9}
+.set-row button{touch-action:manipulation}

@@ -22,6 +22,7 @@ function requireFile(relativePath, source) {
 }
 
 for (const file of [
+  "app-meta.js",
   "data.js",
   "app.js",
   "sw.js",
@@ -46,6 +47,7 @@ for (const reference of htmlReferences) {
 const expectedEntryPoints = [
   "manifest.webmanifest",
   "app.css",
+  "app-meta.js",
   "data.js",
   "app.js",
 ];

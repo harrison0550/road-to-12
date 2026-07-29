@@ -14,12 +14,12 @@ const PHASE3_ASSET_MAP={
  "KICKR CORE Endurance Ride":"assets/phase3/kickr-core-endurance-ride.jpg",
  "Bike HIIT":"assets/phase3/kickr-core-hiit-ride.jpg",
  "KICKR CORE HIIT Ride":"assets/phase3/kickr-core-hiit-ride.jpg",
- "Dynamic Warm-Up":"assets/phase3/dynamic-warm-up.jpg",
- "Hip & Glute Mobility":"assets/phase3/hip-glute-mobility.jpg",
- "Thoracic & Shoulder Mobility":"assets/phase3/thoracic-shoulder-mobility.jpg",
- "Core Activation":"assets/phase3/core-activation.jpg",
- "Cool Down & Recovery":"assets/phase3/cool-down-recovery.jpg",
- "Cooldown":"assets/phase3/cool-down-recovery.jpg"
+ "Dynamic Warm-Up":"assets/placeholders/dynamic-warm-up.svg",
+ "Hip & Glute Mobility":"assets/placeholders/hip-glute-mobility.svg",
+ "Thoracic & Shoulder Mobility":"assets/placeholders/thoracic-shoulder-mobility.svg",
+ "Core Activation":"assets/placeholders/core-activation.svg",
+ "Cool Down & Recovery":"assets/placeholders/cooldown-recovery.svg",
+ "Cooldown":"assets/placeholders/cooldown-recovery.svg"
 };
 
 
@@ -40,6 +40,36 @@ const PHASE2_ASSET_MAP={
  "Cable Crunch":"assets/phase2/cable-crunch.jpg",
  "Cable Straight Arm Pushdown":"assets/phase2/cable-straight-arm-pushdown.jpg"
 };
+
+const APP_META=window.ROAD12_META||{
+ version:"Unknown",
+ build:"Unknown",
+ lastUpdated:"Unknown",
+ gitCommit:null,
+ serviceWorkerCache:"Unknown"
+};
+const SAFE_EXERCISE_ASSET_OVERRIDES={
+ "Arm Circles":"assets/placeholders/dynamic-warm-up.svg",
+ "Dynamic Warm-Up":"assets/placeholders/dynamic-warm-up.svg",
+ "Bodyweight Squat":"assets/placeholders/bodyweight-squat.svg",
+ "Goblet Squat":"assets/placeholders/bodyweight-squat.svg",
+ "Hip Hinge":"assets/placeholders/hip-hinge.svg",
+ "Hip Flexor Mobility":"assets/placeholders/hip-flexor-mobility.svg",
+ "Hamstring Mobility":"assets/placeholders/hamstring-mobility.svg",
+ "Hip and Glute Mobility":"assets/placeholders/hip-glute-mobility.svg",
+ "Hip & Glute Mobility":"assets/placeholders/hip-glute-mobility.svg",
+ "Core Activation Circuit":"assets/placeholders/core-activation.svg",
+ "Core Activation":"assets/placeholders/core-activation.svg",
+ "Chest and Shoulder Mobility":"assets/placeholders/thoracic-shoulder-mobility.svg",
+ "Thoracic and Shoulder Mobility":"assets/placeholders/thoracic-shoulder-mobility.svg",
+ "Thoracic & Shoulder Mobility":"assets/placeholders/thoracic-shoulder-mobility.svg",
+ "Post-Workout Stretch":"assets/placeholders/cooldown-recovery.svg",
+ "Cool Down & Recovery":"assets/placeholders/cooldown-recovery.svg",
+ "Cooldown":"assets/placeholders/cooldown-recovery.svg"
+};
+function exerciseAsset(ex){
+ return SAFE_EXERCISE_ASSET_OVERRIDES[ex?.name]||ex?.demoImage||null;
+}
 
 
 const data=window.WORKOUT_DATA;
@@ -548,9 +578,11 @@ function openVisualLibraries(){
 }
 
 function openExerciseAsset(ex){
+ const image=exerciseAsset(ex);
+ if(!image)return;
  const overlay=document.createElement("div");
  overlay.className="asset-overlay";
- overlay.innerHTML=`<div class="asset-overlay-panel"><button class="asset-close">Close</button><h2>${ex.name}</h2><img src="${ex.demoImage}" alt="${ex.name} visual guide"><p>Use this visual together with the setup and movement instructions.</p></div>`;
+ overlay.innerHTML=`<div class="asset-overlay-panel"><button class="asset-close">Close</button><h2>${ex.name}</h2><img src="${image}" alt="${ex.name} visual guide"><p>Use this visual together with the setup and movement instructions.</p></div>`;
  document.body.appendChild(overlay);
  const close=()=>overlay.remove();
  overlay.querySelector(".asset-close").onclick=close;
@@ -578,8 +610,7 @@ function bindSets(ex){
    save();
  });
  document.querySelectorAll("[data-d]").forEach(b=>b.onclick=()=>{
-   const scrollX=window.scrollX;
-   const scrollY=window.scrollY;
+   const anchorTop=b.getBoundingClientRect().top;
    const i=+b.dataset.d;
    const w=document.querySelector(`[data-w="${i}"]`).value;
    const r=document.querySelector(`[data-r="${i}"]`).value;
@@ -590,10 +621,19 @@ function bindSets(ex){
    b.textContent=done?"✓":"○";
    b.setAttribute("aria-label",done?"Mark set incomplete":"Mark set complete");
    if(done)startTimer(ex.rest);
-   requestAnimationFrame(()=>window.scrollTo(scrollX,scrollY));
+   preserveViewportAnchor(b,anchorTop);
  });
  document.querySelector("#rest").onclick=()=>startTimer(ex.rest);
  const stop=document.querySelector("#stopTimer");if(stop)stop.onclick=stopTimer
+}
+function preserveViewportAnchor(element,top){
+ const restore=()=>{
+   if(!element.isConnected)return;
+   const delta=element.getBoundingClientRect().top-top;
+   if(Math.abs(delta)>1)window.scrollBy(0,delta);
+ };
+ requestAnimationFrame(()=>requestAnimationFrame(restore));
+ setTimeout(restore,180);
 }
 function bindTimer(ex){let b=document.querySelector("#rest");if(b)b.onclick=()=>{let [m,s]=ex.duration.split(":").map(Number);startTimer(m*60+s)};const stop=document.querySelector("#stopTimer");if(stop)stop.onclick=stopTimer}
 function stopTimer(){clearInterval(timerId);timerId=null;}
@@ -622,9 +662,10 @@ function equipment(){
   ["latBar","Lat pulldown bar","Used for lat pulldowns."],
   ["rowHandle","Close-grip row handle","Used for seated cable rows."]
  ];
- app.innerHTML=`<section class="card"><div class="phase"><span class="pill">VERSION 11.3.2</span><strong>Real-workout redesign</strong></div><h2>Profile</h2><label>What should the app call you?<input id="preferredName" value="${state.preferredName}" autocomplete="given-name"></label><button class="secondary profile-save" id="saveProfile">Save name</button></section><section class="card"><h2>My Equipment</h2><p class="muted">Workouts use only equipment switched on.</p><div class="equipment-toggle-list">${items.map(([key,icon,title,note])=>`<label class="equipment-toggle"><span class="equipment-symbol">${icon}</span><span class="equipment-copy"><strong>${title}</strong><small>${note}</small></span><input type="checkbox" data-equipment="${key}" ${state.equipment[key]?"checked":""}><span class="toggle-ui"></span></label>`).join("")}</div></section>
+ app.innerHTML=`<section class="card"><h2>Profile</h2><label>What should the app call you?<input id="preferredName" value="${state.preferredName}" autocomplete="given-name"></label><button class="secondary profile-save" id="saveProfile">Save name</button></section><section class="card"><h2>My Equipment</h2><p class="muted">Workouts use only equipment switched on.</p><div class="equipment-toggle-list">${items.map(([key,icon,title,note])=>`<label class="equipment-toggle"><span class="equipment-symbol">${icon}</span><span class="equipment-copy"><strong>${title}</strong><small>${note}</small></span><input type="checkbox" data-equipment="${key}" ${state.equipment[key]?"checked":""}><span class="toggle-ui"></span></label>`).join("")}</div></section>
  <section class="card"><h2>Attachment Locker</h2><p class="muted">Add a close-up photo of each attachment from your actual gym. The correct photo will appear during every exercise with a bright “USE THIS ONE” label.</p><div class="attachment-locker">${attachments.map(([key,title,note])=>`<div class="locker-item">${state.attachmentPhotos[key]?`<img src="${state.attachmentPhotos[key]}" alt="${title}">`:`<div class="locker-placeholder">📷</div>`}<div class="locker-copy"><strong>${title}</strong><small>${note}</small><label class="photo-button">Choose photo<input type="file" accept="image/*" capture="environment" data-photo="${key}"></label>${state.attachmentPhotos[key]?`<button class="clear-photo" data-clear-photo="${key}">Remove</button>`:""}</div></div>`).join("")}</div></section>
- <section class="card equipment-impact"><h3>Current workout impact</h3><div class="impact-row"><span>Available exercises</span><strong>${activeWorkout().length}</strong></div><div class="impact-row"><span>Automatic substitutions</span><strong>${substitutionCount()}</strong></div><div class="impact-row"><span>Bumper-plate exercises</span><strong>${state.equipment.bumperPlates?"Enabled":"Disabled"}</strong></div><button class="primary" id="equipmentWorkout">Start equipment-safe workout</button></section>`;
+ <section class="card equipment-impact"><h3>Current workout impact</h3><div class="impact-row"><span>Available exercises</span><strong>${activeWorkout().length}</strong></div><div class="impact-row"><span>Automatic substitutions</span><strong>${substitutionCount()}</strong></div><div class="impact-row"><span>Bumper-plate exercises</span><strong>${state.equipment.bumperPlates?"Enabled":"Disabled"}</strong></div><button class="primary" id="equipmentWorkout">Start equipment-safe workout</button></section>
+ <section class="card about-card"><span class="pill">ABOUT</span><h2>Road to 12%</h2><div class="about-grid"><div><small>VERSION</small><strong>${APP_META.version}</strong></div><div><small>BUILD</small><strong>${APP_META.build}</strong></div><div><small>LAST UPDATED</small><strong>${APP_META.lastUpdated}</strong></div><div><small>GIT COMMIT</small><strong>${APP_META.gitCommit||"Not embedded"}</strong></div><div><small>SERVICE WORKER</small><strong>${APP_META.serviceWorkerCache}</strong></div></div></section>`;
  document.querySelector("#saveProfile").onclick=()=>{state.preferredName=document.querySelector("#preferredName").value.trim()||"Andy";save();equipment()};
  document.querySelectorAll("[data-equipment]").forEach(input=>input.onchange=()=>{state.equipment[input.dataset.equipment]=input.checked;state.step=0;save();equipment()});
  document.querySelectorAll("[data-photo]").forEach(input=>input.onchange=e=>saveAttachmentPhoto(input.dataset.photo,e.target.files?.[0]));
@@ -789,20 +830,20 @@ function library(){
  let content="";
  if(category==="strength"){
    const strength=all.filter(x=>x.type==="strength");
-   content=`<div class="exercise-library-grid">${strength.map((x,i)=>`<button class="exercise-library-tile" data-lib-name="${x.name}"><img src="${x.demoImage}" alt=""><span class="tag">${x.type}</span><strong>${x.name}</strong><small>${x.muscles||"Strength"}</small></button>`).join("")}</div>`;
+    content=`<div class="exercise-library-grid">${strength.map((x,i)=>`<button class="exercise-library-tile" data-lib-name="${x.name}">${exerciseAsset(x)?`<img src="${exerciseAsset(x)}" alt="">`:""}<span class="tag">${x.type}</span><strong>${x.name}</strong><small>${x.muscles||"Strength"}</small></button>`).join("")}</div>`;
  }else if(category==="cardio"){
    const cards=[
     ["Treadmill Walking","assets/phase3/treadmill-walking.jpg"],["Treadmill Incline Walk","assets/phase3/treadmill-incline-walk.jpg"],["Treadmill HIIT Intervals","assets/phase3/treadmill-hiit-intervals.jpg"],["Rower Technique","assets/phase3/rower-technique.jpg"],["KICKR CORE Endurance Ride","assets/phase3/kickr-core-endurance-ride.jpg"],["KICKR CORE HIIT Ride","assets/phase3/kickr-core-hiit-ride.jpg"]
    ];
    content=`<div class="visual-guide-grid">${cards.map(([n,img])=>`<button data-guide-image="${img}" data-guide-title="${n}"><img src="${img}"><strong>${n}</strong></button>`).join("")}</div>`;
  }else if(category==="mobility"){
-   const cards=[["Dynamic Warm-Up","assets/phase3/dynamic-warm-up.jpg"],["Hip & Glute Mobility","assets/phase3/hip-glute-mobility.jpg"],["Thoracic & Shoulder Mobility","assets/phase3/thoracic-shoulder-mobility.jpg"],["Core Activation","assets/phase3/core-activation.jpg"],["Cool Down & Recovery","assets/phase3/cool-down-recovery.jpg"]];
+    const cards=[["Dynamic Warm-Up","assets/placeholders/dynamic-warm-up.svg"],["Hip & Glute Mobility","assets/placeholders/hip-glute-mobility.svg"],["Thoracic & Shoulder Mobility","assets/placeholders/thoracic-shoulder-mobility.svg"],["Core Activation","assets/placeholders/core-activation.svg"],["Cool Down & Recovery","assets/placeholders/cooldown-recovery.svg"]];
    content=`<div class="visual-guide-grid">${cards.map(([n,img])=>`<button data-guide-image="${img}" data-guide-title="${n}"><img src="${img}"><strong>${n}</strong></button>`).join("")}</div>`;
  }else if(category==="setup"){
    const cards=[["M1 Attachment Reference","assets/phase1/m1-attachment-reference.jpg"],["M1 Setup Guide","assets/phase1/m1-setup-guide.jpg"],["Smith Machine Setup","assets/phase1/smith-machine-setup-guide.jpg"],["KICKR CORE Bike Setup","assets/phase3/kickr-core-bike-setup.jpg"]];
    content=`<div class="visual-guide-grid">${cards.map(([n,img])=>`<button data-guide-image="${img}" data-guide-title="${n}"><img src="${img}"><strong>${n}</strong></button>`).join("")}</div>`;
  }else{
-   content=`<div class="recovery-library"><img src="assets/phase3/cool-down-recovery.jpg"><h3>Recovery dashboard</h3><p>Use the Progress tab to review trained muscles, workout feedback and recovery readiness.</p><button class="primary" id="openRecovery">Open Progress</button></div>`;
+   content=`<div class="recovery-library"><img src="assets/placeholders/cooldown-recovery.svg"><h3>Recovery dashboard</h3><p>Use the Progress tab to review trained muscles, workout feedback and recovery readiness.</p><button class="primary" id="openRecovery">Open Progress</button></div>`;
  }
  app.innerHTML=`<section class="card"><span class="pill">VISUAL GUIDES</span><h2>Library</h2><p>Organized by purpose—not by development phase.</p><div class="library-category-grid">${V11_LIBRARY_CATEGORIES.map(c=>`<button data-category="${c.key}" class="${c.key===category?"active":""}"><span>${c.icon}</span><strong>${c.title}</strong><small>${c.description}</small></button>`).join("")}</div></section><section class="card">${content}</section>`;
  document.querySelectorAll("[data-category]").forEach(b=>b.onclick=()=>{state.libraryCategory=b.dataset.category;save();library()});
@@ -866,11 +907,11 @@ function workout(){
 const V1131_ANATOMICAL_ASSETS={
  "Treadmill Walk":"assets/phase3/treadmill-walking.jpg",
  "Easy Treadmill Cooldown":"assets/phase3/treadmill-walking.jpg",
- "Arm Circles":"assets/phase3/dynamic-warm-up.jpg",
- "Bodyweight Squat":"assets/phase3/dynamic-warm-up.jpg",
- "Hip Hinge":"assets/phase3/hip-glute-mobility.jpg",
- "Post-Workout Stretch":"assets/phase3/cool-down-recovery.jpg",
- "Goblet Squat":"assets/phase3/dynamic-warm-up.jpg",
+ "Arm Circles":"assets/placeholders/dynamic-warm-up.svg",
+ "Bodyweight Squat":"assets/placeholders/bodyweight-squat.svg",
+ "Hip Hinge":"assets/placeholders/hip-hinge.svg",
+ "Post-Workout Stretch":"assets/placeholders/cooldown-recovery.svg",
+ "Goblet Squat":"assets/placeholders/bodyweight-squat.svg",
  "Cable Chest Press":"assets/phase1/cable-chest-press.jpg",
  "Seated Cable Row":"assets/phase1/seated-cable-row.jpg",
  "Lat Pulldown":"assets/phase1/lat-pulldown.jpg",
@@ -1244,10 +1285,10 @@ function exercise(ex,workoutData=activeWorkout()){
    <div class="why-card"><h3>Why this exercise?</h3><p>${ex.why||"Builds strength, control and confidence."}</p></div>
    ${attachmentPhotoMarkup(ex)}
    ${ex.m1?m1SetupCoach(ex):`<div class="simple-setup-flow"><section class="setup-section"><div class="section-number">1</div><div><small>SETUP</small><h3>Get ready</h3>${ex.setup.map(x=>`<p>${x}</p>`).join("")}</div></section></div>`}
-   <section class="exercise-visual-section">
-     <div class="section-heading"><span>▶</span><div><small>VISUAL GUIDE</small><h3>Start, move and finish</h3></div></div>
-     <button class="exercise-asset-button" id="openAsset"><img class="exercise-asset-image" src="${ex.demoImage}" alt="${ex.name} visual guide"><span>Tap to enlarge</span></button>
-   </section>
+    ${exerciseAsset(ex)?`<section class="exercise-visual-section">
+      <div class="section-heading"><span>▶</span><div><small>VISUAL GUIDE</small><h3>Start, move and finish</h3></div></div>
+      <button class="exercise-asset-button" id="openAsset"><img class="exercise-asset-image" src="${exerciseAsset(ex)}" alt="${ex.name} visual guide"><span>Tap to enlarge</span></button>
+    </section>`:`<section class="card visual-withheld"><strong>Visual temporarily removed</strong><p>Use the verified setup and written steps while a trustworthy replacement is prepared.</p></section>`}
    <section class="movement-instructions">
      <div class="section-heading"><span>✓</span><div><small>PERFORM THE MOVEMENT</small><h3>Step by step</h3></div></div>
      <ol class="steps">${ex.steps.map(s=>`<li>${s}</li>`).join("")}</ol>
@@ -1266,7 +1307,7 @@ function exercise(ex,workoutData=activeWorkout()){
    workout();
  };
  document.querySelector("#next").onclick=next;
- document.querySelector("#openAsset").onclick=()=>openExerciseAsset(ex);
+  document.querySelector("#openAsset")?.addEventListener("click",()=>openExerciseAsset(ex));
  const plate=document.querySelector("#plateTotal");
  if(plate)plate.oninput=()=>document.querySelector("#plateResult").textContent=calculatePlates(plate.value);
  if(strength)bindSets(ex);else bindTimer(ex);
@@ -1396,7 +1437,7 @@ function cardioMobilityWorkout(){
       ],
       cues:["Keep your ribs down.","Never force the range."],
       why:"Maintains upper-body mobility between strength sessions.",
-      demoImage:"assets/phase3/thoracic-shoulder-mobility.jpg"
+      demoImage:"assets/placeholders/thoracic-shoulder-mobility.svg"
     }),
     cloneExerciseByName("Easy Treadmill Cooldown",{
       name:"Easy Cardio Cooldown",
@@ -1442,7 +1483,7 @@ function coreRecoveryWorkout(){
       name:"Thoracic and Shoulder Mobility",
       duration:"5:00",
       muscles:"Upper back and shoulders",
-      demoImage:"assets/phase3/thoracic-shoulder-mobility.jpg"
+      demoImage:"assets/placeholders/thoracic-shoulder-mobility.svg"
     }),
     cloneExerciseByName("Post-Workout Stretch",{
       name:"Slow Breathing Cooldown",
@@ -1457,7 +1498,7 @@ function coreRecoveryWorkout(){
       ],
       cues:["Never strain or hold your breath.","Let the exhale remain easy."],
       why:"Helps transition from training into recovery.",
-      demoImage:"assets/phase3/cool-down-recovery.jpg"
+      demoImage:"assets/placeholders/cooldown-recovery.svg"
     })
   ];
 }
@@ -1492,7 +1533,7 @@ function zone2CardioWorkout(){
     cloneExerciseByName("Easy Treadmill Cooldown",{
       name:"Zone 2 Cooldown",
       duration:"5:00",
-      demoImage:"assets/phase3/cool-down-recovery.jpg"
+      demoImage:"assets/placeholders/cooldown-recovery.svg"
     })
   ];
 }
