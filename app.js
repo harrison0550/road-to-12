@@ -43,7 +43,53 @@ const PHASE2_ASSET_MAP={
 
 
 const data=window.WORKOUT_DATA;
-const state=JSON.parse(localStorage.getItem("road12v5")||"{}");
+/* Versioned storage boundary. Migrations must remain ordered and idempotent. */
+const ROAD12_STORAGE_KEY="road12v5";
+const ROAD12_SCHEMA_VERSION=1;
+const ROAD12_MIGRATIONS=[
+  {
+    version:1,
+    up(value){
+      if(!Object.prototype.hasOwnProperty.call(value,"schemaVersion")){
+        value.schemaVersion=1;
+      }
+      return value;
+    }
+  }
+];
+const road12Storage=(()=>{
+  let writable=true;
+  function migrate(value){
+    const version=Number.isInteger(value.schemaVersion)?value.schemaVersion:0;
+    return ROAD12_MIGRATIONS
+      .filter(migration=>migration.version>version&&migration.version<=ROAD12_SCHEMA_VERSION)
+      .reduce((current,migration)=>migration.up(current),value);
+  }
+  function load(){
+    const raw=localStorage.getItem(ROAD12_STORAGE_KEY);
+    if(raw===null)return migrate({});
+    try{
+      const parsed=JSON.parse(raw);
+      if(!parsed||typeof parsed!=="object"||Array.isArray(parsed))throw new Error("Stored value is not an object.");
+      return migrate(parsed);
+    }catch(error){
+      writable=false;
+      console.warn("Road to 12% could not read saved data; the original road12v5 value was preserved.",error);
+      return migrate({});
+    }
+  }
+  function write(value){
+    if(!writable)return false;
+    localStorage.setItem(ROAD12_STORAGE_KEY,JSON.stringify(value));
+    return true;
+  }
+  function remove(){
+    localStorage.removeItem(ROAD12_STORAGE_KEY);
+    writable=true;
+  }
+  return {load,write,remove};
+})();
+const state=road12Storage.load();
 Object.assign(state,{tab:state.tab||"home",step:state.step||0,logs:state.logs||{},sessions:state.sessions||0,weight:state.weight||221,waist:state.waist||43,history:state.history||[],selectedDay:Number.isInteger(state.selectedDay)?state.selectedDay:0,coachMode:state.coachMode!==false});
 state.attachmentPhotos=state.attachmentPhotos||{};
 state.currentSession=state.currentSession||null;
@@ -71,7 +117,7 @@ const weekPlan=[
 ];
 const app=document.querySelector("#app"), nav=[...document.querySelectorAll("nav button")];
 let timerId=null, remaining=0;
-const save=()=>localStorage.setItem("road12v5",JSON.stringify(state));
+const save=()=>road12Storage.write(state);
 const equipmentLabels={
   ritfitM1:"RitFit M1 Pro",
   bench:"Adjustable bench",
@@ -230,7 +276,7 @@ function sessionTotals(session){
 
 function setTab(t){state.tab=t;save();render()}
 nav.forEach(b=>b.onclick=()=>setTab(b.dataset.tab));
-document.querySelector("#reset").onclick=()=>{if(confirm("Reset Road to 12% workout data?")){localStorage.removeItem("road12v5");location.reload()}};
+document.querySelector("#reset").onclick=()=>{if(confirm("Reset Road to 12% workout data?")){road12Storage.remove();location.reload()}};
 function ensurePhase1Button(){
  let button=document.querySelector("#phase1LibraryButton");
  if(!button){
