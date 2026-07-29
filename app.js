@@ -43,7 +43,53 @@ const PHASE2_ASSET_MAP={
 
 
 const data=window.WORKOUT_DATA;
-const state=JSON.parse(localStorage.getItem("road12v5")||"{}");
+/* Versioned storage boundary. Migrations must remain ordered and idempotent. */
+const ROAD12_STORAGE_KEY="road12v5";
+const ROAD12_SCHEMA_VERSION=1;
+const ROAD12_MIGRATIONS=[
+  {
+    version:1,
+    up(value){
+      if(!Object.prototype.hasOwnProperty.call(value,"schemaVersion")){
+        value.schemaVersion=1;
+      }
+      return value;
+    }
+  }
+];
+const road12Storage=(()=>{
+  let writable=true;
+  function migrate(value){
+    const version=Number.isInteger(value.schemaVersion)?value.schemaVersion:0;
+    return ROAD12_MIGRATIONS
+      .filter(migration=>migration.version>version&&migration.version<=ROAD12_SCHEMA_VERSION)
+      .reduce((current,migration)=>migration.up(current),value);
+  }
+  function load(){
+    const raw=localStorage.getItem(ROAD12_STORAGE_KEY);
+    if(raw===null)return migrate({});
+    try{
+      const parsed=JSON.parse(raw);
+      if(!parsed||typeof parsed!=="object"||Array.isArray(parsed))throw new Error("Stored value is not an object.");
+      return migrate(parsed);
+    }catch(error){
+      writable=false;
+      console.warn("Road to 12% could not read saved data; the original road12v5 value was preserved.",error);
+      return migrate({});
+    }
+  }
+  function write(value){
+    if(!writable)return false;
+    localStorage.setItem(ROAD12_STORAGE_KEY,JSON.stringify(value));
+    return true;
+  }
+  function remove(){
+    localStorage.removeItem(ROAD12_STORAGE_KEY);
+    writable=true;
+  }
+  return {load,write,remove};
+})();
+const state=road12Storage.load();
 Object.assign(state,{tab:state.tab||"home",step:state.step||0,logs:state.logs||{},sessions:state.sessions||0,weight:state.weight||221,waist:state.waist||43,history:state.history||[],selectedDay:Number.isInteger(state.selectedDay)?state.selectedDay:0,coachMode:state.coachMode!==false});
 state.attachmentPhotos=state.attachmentPhotos||{};
 state.currentSession=state.currentSession||null;
@@ -63,15 +109,15 @@ state.equipment=Object.assign({
 const weekPlan=[
  {short:"MON",icon:"🏋️",title:"Full Body A",detail:"Guided strength • chest, back, quads and shoulders",action:"workout",time:"50–60 min",focus:"Full-body strength",items:["Treadmill warm-up","Mobility","Smith Machine Squat","Cable Shoulder Press","Cable Curl","Cable Chest Press","Seated Cable Row","Lat Pulldown","Rope Triceps Pushdown","Treadmill cooldown"],setup:"Low pulleys → mid pulleys → high pulleys"},
  {short:"TUE",icon:"🚶",title:"Cardio + Mobility",detail:"Incline treadmill and mobility recovery",action:"cardio",time:"30–40 min",focus:"Recovery and aerobic base",items:["5-minute easy treadmill warm-up","20–25 minute incline walk at conversational pace","Hip flexor stretch","Hamstring stretch","Chest and shoulder mobility","Easy cooldown"],setup:"Treadmill only; no M1 adjustments"},
- {short:"WED",icon:"💪",title:"Full Body B",detail:"Alternate guided full-body strength session",action:"upcoming",time:"50–60 min",focus:"Back, legs, chest and arms",items:["Treadmill warm-up","Smith Romanian Deadlift","Low Cable Row","Cable Lateral Raise","Cable Fly","Lat Pulldown","Rope Hammer Curl","Triceps Pushdown","Cooldown"],setup:"Smith station → low pulleys → mid pulleys → high pulleys"},
+ {short:"WED",icon:"💪",title:"Full Body B",detail:"Alternate guided full-body strength session",action:"upcoming",time:"50–60 min",focus:"Back, legs, chest and arms",items:["Treadmill warm-up","Hip hinge mobility","Smith Machine RDL","Smith Bulgarian Split Squat","Smith Machine Calf Raise","Incline Cable Press","Single Arm Cable Row","Lat Pulldown","Cable Lateral Raise","Cable Crunch","Cable Hammer Curl","Cooldown"],setup:"Smith station → low pulleys → mid pulleys → high pulleys"},
  {short:"THU",icon:"🧘",title:"Core + Recovery",detail:"Core training, stretching and easy movement",action:"recovery",time:"25–35 min",focus:"Core control and mobility",items:["Easy walk or row","Dead bug","Bird dog","Side plank from knees","Hip mobility","Upper-back mobility","Slow breathing cooldown"],setup:"Floor space; optional treadmill or rower"},
- {short:"FRI",icon:"🏋️",title:"Full Body C",detail:"Third weekly guided full-body strength session",action:"upcoming",time:"50–60 min",focus:"Legs, pushing, pulling and arms",items:["Treadmill warm-up","Smith Squat","Cable Curl","Cable Shoulder Press","Cable Chest Press","Seated Cable Row","Straight-arm Pulldown","Rope Triceps Pushdown","Cooldown"],setup:"Smith station → low pulleys → mid pulleys → high pulleys"},
+ {short:"FRI",icon:"🏋️",title:"Full Body C",detail:"Third weekly guided full-body strength session",action:"upcoming",time:"50–60 min",focus:"Legs, pushing, pulling and arms",items:["Treadmill warm-up","Hip hinge mobility","Smith Machine Squat","Cable Shoulder Press","Rear Delt Cable Fly","Cable Face Pull","Cable Straight Arm Pushdown","Rope Triceps Pushdown","High to Low Cable Chop","Treadmill HIIT Intervals","Cooldown"],setup:"Smith station → low pulleys → mid pulleys → high pulleys → treadmill"},
  {short:"SAT",icon:"❤️",title:"Zone 2 Cardio",detail:"Longer easy bike, rower or treadmill session",action:"cardio",time:"35–50 min",focus:"Fat-loss supporting aerobic work",items:["5-minute easy warm-up","25–40 minutes at a pace where you can speak in sentences","5-minute cooldown","Light stretching"],setup:"Choose treadmill, rower or KICKR CORE"},
  {short:"SUN",icon:"📏",title:"Recovery + Check-in",detail:"Rest, measurements and weekly review",action:"progress",time:"10–20 min",focus:"Recovery and progress review",items:["Morning body weight","Waist measurement","Optional progress photos","Review completed workouts","Plan the coming week","Full rest or gentle walk"],setup:"No gym setup required"}
 ];
 const app=document.querySelector("#app"), nav=[...document.querySelectorAll("nav button")];
 let timerId=null, remaining=0;
-const save=()=>localStorage.setItem("road12v5",JSON.stringify(state));
+const save=()=>road12Storage.write(state);
 const equipmentLabels={
   ritfitM1:"RitFit M1 Pro",
   bench:"Adjustable bench",
@@ -107,10 +153,6 @@ function setupGroup(ex){
   if(pin<=4)return 3;
   if(pin<=9)return 4;
   return 5;
-}
-function activeWorkout(){
-  return data.map(resolveExercise).filter(ex=>!ex.unavailable).map((ex,index)=>({ex,index}))
-    .sort((a,b)=>setupGroup(a.ex)-setupGroup(b.ex)||a.index-b.index).map(x=>x.ex);
 }
 function setupBlockLabel(ex){
   return ({0:"Warm-up / mobility",1:"Smith station",2:"No pulley adjustment",3:"Low pulley block",4:"Mid pulley block",5:"High pulley block"})[setupGroup(ex)]||"Workout block";
@@ -165,19 +207,6 @@ function migrateHistory(){
     return item;
   });
   if(changed)save();
-}
-function startNewSession(){
-  state.logs={};
-  state.currentSession={
-    id:`session-${Date.now()}`,
-    name:"Full Body A",
-    startedAt:new Date().toISOString(),
-    dateKey:localDateKey(),
-    equipment:deepCopy(state.equipment)
-  };
-  state.step=0;
-  state.setupReady=false;
-  save();
 }
 function attachmentFor(ex){
   return ex.attachmentCard||null;
@@ -247,7 +276,7 @@ function sessionTotals(session){
 
 function setTab(t){state.tab=t;save();render()}
 nav.forEach(b=>b.onclick=()=>setTab(b.dataset.tab));
-document.querySelector("#reset").onclick=()=>{if(confirm("Reset Road to 12% workout data?")){localStorage.removeItem("road12v5");location.reload()}};
+document.querySelector("#reset").onclick=()=>{if(confirm("Reset Road to 12% workout data?")){road12Storage.remove();location.reload()}};
 function ensurePhase1Button(){
  let button=document.querySelector("#phase1LibraryButton");
  if(!button){
@@ -263,33 +292,6 @@ function render(){
  const brand=document.querySelector("#gymBrand");
  if(brand)brand.textContent=`${state.preferredName.toUpperCase()}'S HOME GYM`;
  document.querySelector('#phase1LibraryButton')?.remove();clearInterval(timerId);document.body.classList.toggle("workout-mode",state.tab==="workout");nav.forEach(b=>b.classList.toggle("active",b.dataset.tab===state.tab));({home:home,workout:workout,library:library,equipment:equipment,progress:progress}[state.tab]||home)()}
-function home(){
- const day=weekPlan[state.selectedDay];
- const done=todayCompleted();
- const completed=completedTodaySession();
- if(done){
-   const totals=sessionTotals(completed);
-   app.innerHTML=`<section class="celebration-hero"><div class="celebration-burst">🏆</div><span class="pill">TODAY COMPLETE</span><h2>You crushed it, ${state.preferredName}!</h2><p>Workout #${state.sessions||state.history.length} on the Road to 12% is officially complete.</p><div class="celebration-stats"><div><small>WORKOUT</small><strong>${completed.name}</strong></div><div><small>TIME</small><strong>${formatDuration(completed.durationMs)}</strong></div><div><small>SETS SAVED</small><strong>${totals.completedSets}</strong></div></div><button class="primary" id="viewCompleted">View today’s completed workout</button><button class="secondary repeat-button" id="repeatWorkout">Repeat workout intentionally</button><small class="recovery-message">Hydrate, eat well, and recover. See you for the next session.</small></section>
-   <section class="card week-card"><h2>Training schedule</h2><div class="week-strip">${weekPlan.map((d,i)=>`<button class="day-button ${i===state.selectedDay?"selected":""} ${i===0?"completed-day":""}" data-day="${i}"><span class="day-icon">${i===0?"✅":d.icon}</span><strong>${d.short}</strong><small>${i===0?"Complete":i===state.selectedDay?"Selected":""}</small></button>`).join("")}</div><div class="selected-plan"><div class="large-icon">✅</div><div><h3>Today is logged</h3><p class="muted">Your weights, reps and completed sets are stored in Workout History.</p></div></div></section>
-   <section class="stats"><div><small>WEIGHT</small><strong>${state.weight} lb</strong></div><div><small>WAIST</small><strong>${state.waist} in</strong></div><div><small>SESSIONS</small><strong>${state.sessions}</strong></div></section>`;
-   document.querySelector("#viewCompleted").onclick=()=>{state.historyView=completed.id;setTab("progress")};
-   document.querySelector("#repeatWorkout").onclick=()=>{if(confirm("Start another Full Body A workout today? Your completed session will remain saved.")){startNewSession();setTab("workout")}};
-   document.querySelectorAll("[data-day]").forEach(b=>b.onclick=()=>{state.selectedDay=+b.dataset.day;state.previewDay=state.selectedDay;save();showDayPlan(state.selectedDay)});
-   return;
- }
- app.innerHTML=`<section class="hero"><img src="${window.HERO_IMAGE}"><div class="shade"></div><div class="hero-copy"><span class="pill">WEEK 1 • FOUNDATION</span><h2>${day.title}</h2><p>${day.detail}</p><button class="primary" id="start">${day.action==="workout"?"Start today's guided workout":"Open selected day"}</button></div></section>
- <section class="card week-card"><h2>Training schedule</h2><p class="muted">Tap any day to view its plan.</p><div class="week-strip">${weekPlan.map((d,i)=>`<button class="day-button ${i===state.selectedDay?"selected":""}" data-day="${i}"><span class="day-icon">${d.icon}</span><strong>${d.short}</strong><small>${i===state.selectedDay?"Selected":""}</small></button>`).join("")}</div><div class="selected-plan"><div class="large-icon">${day.icon}</div><div><h3>${day.title}</h3><p class="muted">${day.detail}</p></div></div></section>
- <section class="card equipment-ready-card"><div><span class="ready-icon">✓</span><div><strong>Workout is equipment-ready</strong><p class="muted">${state.equipment.bumperPlates?"Bumper plates are enabled.":"Bumper plates are off. Plate-dependent barbell work is excluded."} ${substitutionCount()} automatic substitution${substitutionCount()===1?"":"s"} active.</p></div></div><button class="secondary" id="editEquipment">My equipment</button></section>
- <section class="stats"><div><small>WEIGHT</small><strong>${state.weight} lb</strong></div><div><small>WAIST</small><strong>${state.waist} in</strong></div><div><small>SESSIONS</small><strong>${state.sessions}</strong></div></section>`;
- document.querySelectorAll("[data-day]").forEach(b=>b.onclick=()=>{state.selectedDay=+b.dataset.day;state.previewDay=state.selectedDay;save();showDayPlan(state.selectedDay)});
- document.querySelector("#editEquipment").onclick=()=>setTab("equipment");
- document.querySelector("#start").onclick=()=>{
-   const action=weekPlan[state.selectedDay].action;
-   if(action==="workout"){startNewSession();setTab("workout")}
-   else if(action==="progress")setTab("progress");
-   else showDayPlan();
- };
-}
 
 function showDayPlan(dayIndex=state.selectedDay){
  const day=weekPlan[dayIndex],isToday=dayIndex===0;
@@ -499,53 +501,8 @@ function bindGuideTabs(){
   });
 }
 
-function workout(){
- if(!state.currentSession && state.step===0){
-   state.currentSession={id:`session-${Date.now()}`,name:"Full Body A",startedAt:new Date().toISOString(),dateKey:localDateKey(),equipment:deepCopy(state.equipment)};
-   save();
- }
- const workoutData=activeWorkout();
- if(state.step===0)return briefing();
- if(state.step>workoutData.length)return summary();
- const ex=workoutData[state.step-1]; exercise(ex,workoutData);
-}
-function briefing(){
- const workoutData=activeWorkout(),swaps=workoutData.filter(ex=>ex.originalExercise),blocks=setupPlanSummary(workoutData);
- const swapMarkup=swaps.map(ex=>`<div class="swap-row"><div><small>REPLACED</small><strong>${ex.originalExercise}</strong></div><span>→</span><div><small>TODAY</small><strong>${ex.name}</strong></div></div>`).join("");
- app.innerHTML=`<section class="card"><div class="phase"><span class="pill">SETUP-EFFICIENT SESSION</span><strong>50–60 min</strong></div><h2>Full Body A</h2><p class="muted">Exercises are grouped by M1 setup zone to reduce repeated pulley adjustments.</p><div class="brief-grid"><div><small>PRIMARY</small><strong>Full body</strong></div><div><small>PLATES</small><strong>${state.equipment.bumperPlates?"Available":"Not installed"}</strong></div><div><small>INTENSITY</small><strong>Leave 2–3 reps in reserve</strong></div><div><small>SETUP BLOCKS</small><strong>${blocks.length}</strong></div></div></section>
- <section class="card"><h3>Today’s setup route</h3><div class="setup-route">${blocks.map((b,i)=>`<div><span>${i+1}</span><strong>${b.label}</strong><small>${b.pin||"No M1 pin"} • ${b.count} exercise${b.count===1?"":"s"}</small></div>`).join("")}</div><p class="muted">Finish each block before moving the pulley carriages again.</p></section>
- ${swaps.length?`<section class="card substitution-summary"><h3>Automatic substitutions</h3>${swapMarkup}</section>`:""}
- <section class="card muscles"><h3>Today’s muscle groups</h3><p>Chest, shoulders, triceps, back, biceps, quads, glutes, hamstrings and core.</p></section><button class="primary" id="go">Begin warm-up</button>`;
- document.querySelector("#go").onclick=next
-}
 
 function restCoachText(n){if(n<=10)return"Get ready and set your posture.";if(n<=20)return"Review the next setup and take two slow breaths.";if(n<=40)return"Drink water if needed and relax your grip.";return"Recover and prepare for the next set."}
-function exercise(ex,workoutData=activeWorkout()){
- const pct=Math.round(state.step/workoutData.length*100),strength=ex.type==="strength";
- if(strength&&!state.logs[ex.name])state.logs[ex.name]=Array(ex.sets).fill(null);
- const currentBlock=setupBlockLabel(ex),previous=workoutData[state.step-2],blockChanged=!previous||setupBlockLabel(previous)!==currentBlock;
- app.innerHTML=`<section class="card workout-card"><div class="phase"><span class="tag">${ex.type}</span><strong>${state.step}/${workoutData.length}</strong></div><div class="progress workout-progress"><i style="width:${pct}%"></i></div>
- ${blockChanged?`<div class="setup-block-banner"><small>NOW ENTERING</small><strong>${currentBlock}</strong>${ex.m1?`<span>Keep this pulley zone until the block is complete.</span>`:""}</div>`:""}
- <h2>${ex.name}</h2><p class="muted workout-subtitle">${ex.muscles}</p>
- ${ex.originalExercise?`<div class="substitution-alert"><strong>Equipment substitution</strong><p>${ex.originalExercise} was replaced with ${ex.name} because required equipment is unavailable.</p></div>`:""}
- <div class="why-card"><h3>Why this exercise?</h3><p>${ex.why}</p></div>
- ${attachmentPhotoMarkup(ex)}
- ${ex.m1?m1SetupCoach(ex):`<div class="simple-setup-flow"><section class="setup-section"><div class="section-number">1</div><div><small>SETUP</small><h3>Get ready</h3>${ex.setup.map(x=>`<p>${x}</p>`).join("")}</div></section></div>`}
- <section class="exercise-visual-section">
-   <div class="section-heading"><span>${ex.m1?5:2}</span><div><small>VISUAL GUIDE</small><h3>Use this movement reference</h3></div></div>
-   ${ex.correctedGuide?correctedDemoMarkup(ex):`<button class="exercise-asset-button" id="openAsset"><img class="exercise-asset-image" src="${ex.demoImage}" alt="${ex.name} visual guide"><span>Tap to enlarge</span></button>`}
- </section>
- <section class="movement-instructions"><div class="section-heading"><span>${ex.m1?6:3}</span><div><small>PERFORM THE MOVEMENT</small><h3>Step by step</h3></div></div><ol class="steps">${ex.steps.map(s=>`<li>${s}</li>`).join("")}</ol><div class="cue"><strong>Key cues</strong><p>${ex.cues.join(" • ")}</p></div></section>
- ${quickSettings(ex)}
- ${strength?`<div class="weight-coach-card"><h3>Beginner weight recommendation</h3><p>${ex.weightRecommendation}</p></div>`:""}</section>
- ${strength?sets(ex):timed(ex)}
- <div class="workout-actions"><button class="secondary" id="back">Back</button><button class="primary" id="next">${state.step===workoutData.length?"Finish session":"Complete & continue"}</button></div>`;
- document.querySelector("#back").onclick=()=>{state.step=Math.max(0,state.step-1);save();workout()};
- document.querySelector("#next").onclick=next;
- const assetButton=document.querySelector("#openAsset");
- if(assetButton)assetButton.onclick=()=>openExerciseAsset(ex);
- if(strength)bindSets(ex);else bindTimer(ex);
-}
 
 
 function openVisualLibraries(){
@@ -632,66 +589,6 @@ function bindTimer(ex){let b=document.querySelector("#rest");if(b)b.onclick=()=>
 function stopTimer(){clearInterval(timerId);timerId=null;}
 function startTimer(sec){remaining=sec;const el=document.querySelector("#timer");clearInterval(timerId);tick();timerId=setInterval(()=>{remaining--;tick();if(remaining<=0){clearInterval(timerId);navigator.vibrate?.([200,100,200])}},1000);function tick(){el.textContent=`${String(Math.floor(remaining/60)).padStart(2,"0")}:${String(remaining%60).padStart(2,"0")}`;const c=document.querySelector("#restCoach");if(c)c.textContent=restCoachText(remaining)}}
 function next(){state.step++;save();workout()}
-function summary(){
- let session;
- if(state.currentSession?.completedId){
-   session=state.history.find(h=>h.id===state.currentSession.completedId);
- }else{
-   const endedAt=new Date();
-   const startedAt=state.currentSession?.startedAt?new Date(state.currentSession.startedAt):endedAt;
-   session={
-     id:state.currentSession?.id||`session-${Date.now()}`,
-     date:endedAt.toLocaleDateString(),
-     dateKey:localDateKey(endedAt),
-     completedAt:endedAt.toISOString(),
-     startedAt:startedAt.toISOString(),
-     durationMs:Math.max(0,endedAt-startedAt),
-     name:"Full Body A",
-     exercises:sessionExerciseSnapshot(),
-     equipment:deepCopy(state.equipment)
-   };
-   state.sessions++;
-   state.history.push(session);
-   state.currentSession={completedId:session.id};
-   state.step=0;
-   save();
- }
- const totals=sessionTotals(session);
- app.innerHTML=`<section class="card complete upgraded-complete"><div class="check">✓</div><span class="pill">ROAD TO 12% • SESSION ${state.sessions}</span><h2>You crushed it!</h2><p class="muted">Full Body A is permanently saved. Your completed sets, reps and selected weights are now available in Workout History.</p><div class="brief-grid"><div><small>TIME</small><strong>${formatDuration(session.durationMs)}</strong></div><div><small>SETS SAVED</small><strong>${totals.completedSets}</strong></div><div><small>REPS</small><strong>${totals.totalReps}</strong></div><div><small>NEXT</small><strong>Recover + hydrate</strong></div></div></section><button class="primary" id="viewSession">View completed workout</button><button class="secondary" id="home">Return to celebration home</button>`;
- document.querySelector("#viewSession").onclick=()=>{state.historyView=session.id;setTab("progress")};
- document.querySelector("#home").onclick=()=>setTab("home")
-}
-function library(){
- const extras=window.EXTRA_LIBRARY_DATA||[];
- const all=[...data,...extras];
- app.innerHTML=`<section class="card">
-   <h2>Exercise Library</h2>
-   <p class="muted">Select an exercise to review its attachment, setup and movement instructions.</p>
-
-   <div class="library-master">
-     <img src="assets/exercise-asset-pack-v7-2.png" alt="Version 7.2 quality-controlled exercise asset pack">
-     <div class="library-master-copy">
-       <span class="asset-badge">Master reference</span>
-       <h3>Version 7.2 exercise asset pack</h3>
-       <p>The complete pack stays in Library. Guided workouts show only the current exercise panel.</p>
-       <div class="guide-actions"><button class="primary-guide" data-open-asset="assets/exercise-asset-pack-v7-2.png">Open master library</button></div>
-     </div>
-   </div>
-
-   <h3 class="library-section-title">Today's guided exercises</h3>
-   <div class="exercise-library-grid">
-     ${data.map((x,i)=>`<button class="exercise-library-tile" data-workout-i="${i}"><span class="tag">${x.type}</span><strong>${x.name}</strong><small>Dedicated exercise asset</small></button>`).join("")}
-   </div>
-
-   <h3 class="library-section-title">Other equipment</h3>
-   <div class="exercise-library-grid">
-     ${extras.map((x,i)=>`<button class="exercise-library-tile" data-extra-i="${i}"><span class="tag">${x.type}</span><strong>${x.name}</strong><small>Setup, attachment and movement guide</small></button>`).join("")}
-   </div>
- </section>`;
- bindAssetViewer();
- document.querySelectorAll("[data-workout-i]").forEach(x=>x.onclick=()=>{state.step=+x.dataset.workoutI+1;setTab("workout")});
- document.querySelectorAll("[data-extra-i]").forEach(x=>x.onclick=()=>showLibraryExercise(extras[+x.dataset.extraI]));
-}
 
 function showLibraryExercise(ex){
  app.innerHTML=`<section class="card workout-card"><button class="secondary" id="libraryBack">Back to Library</button><h2>${ex.name}</h2><p class="muted workout-subtitle">${ex.muscles}</p><div class="why-card"><h3>Why this exercise?</h3><p>${ex.why||"Builds strength and movement control."}</p></div>${attachmentPhotoMarkup(ex)}${ex.m1?m1SetupCoach(ex):`<div class="setup-grid">${ex.setup.map(x=>`<div><strong>${x}</strong></div>`).join("")}</div>`}<section class="movement-instructions"><ol class="steps">${ex.steps.map(s=>`<li>${s}</li>`).join("")}</ol><div class="cue"><strong>Key cues</strong><p>${ex.cues.join(" • ")}</p></div></section></section>`;
@@ -740,17 +637,6 @@ function saveAttachmentPhoto(key,file){
    img.src=reader.result;
  };
  reader.readAsDataURL(file);
-}
-function progress(){
- if(state.historyView){
-   const session=state.history.find(h=>h.id===state.historyView);
-   if(session)return sessionDetail(session);
-   state.historyView=null;
- }
- app.innerHTML=`<section class="card"><h2>Progress check-in</h2><label>Weight (lb)<input id="w" value="${state.weight}"></label><br><label>Waist (in)<input id="wa" value="${state.waist}"></label><br><button class="primary" id="saveP">Save check-in</button></section>
- <section class="card"><h2>Workout history</h2><p class="muted">Tap a workout to reopen every saved exercise, set, weight and rep.</p>${state.history.length?state.history.slice().reverse().map(h=>{const t=sessionTotals(h);return `<button class="history-card" data-history="${h.id}"><span class="history-check">✓</span><span><strong>${h.name}</strong><small>${h.date} • ${formatDuration(h.durationMs)} • ${t.completedSets} sets saved${h.recoveredFromV74?" • Recovered from 7.4":""}</small></span><span class="history-arrow">›</span></button>`}).join(""):'<p class="muted">No completed sessions yet.</p>'}</section>`;
- document.querySelector("#saveP").onclick=()=>{state.weight=document.querySelector("#w").value;state.waist=document.querySelector("#wa").value;save();progress()};
- document.querySelectorAll("[data-history]").forEach(btn=>btn.onclick=()=>{state.historyView=btn.dataset.history;save();progress()});
 }
 function sessionDetail(session){
  const totals=sessionTotals(session);
@@ -838,29 +724,6 @@ function exercisePreviewAsset(name){
  const ex=all.find(x=>x.name===name||name.toLowerCase().includes(x.name.toLowerCase())||x.name.toLowerCase().includes(name.toLowerCase()));
  return ex?.demoImage||"";
 }
-function home(){
- const done=todayCompleted(), completed=completedTodaySession(), check=todayCheckin(), tomorrow=tomorrowPlan();
- const totals=completed?sessionTotals(completed):null;
- app.innerHTML=`<section class="v11-dashboard-head"><span class="pill">VERSION 11.3.2</span><h2>${greeting()}, ${state.preferredName}</h2><p>${done?"Training complete. Now make recovery count.":"Your personalized home-gym plan is ready."}</p></section>
- ${done?`<section class="card v11-status-card complete-status"><div class="dashboard-icon">🏆</div><div><small>TODAY’S STATUS</small><h3>Workout complete</h3><p>${completed.name} • ${formatDuration(completed.durationMs)} • ${totals.completedSets} sets saved</p></div><button class="secondary" id="viewToday">View</button></section>`:
- `<section class="card v11-status-card"><div class="dashboard-icon">▶</div><div><small>TODAY’S WORKOUT</small><h3>${weekPlan[state.selectedDay].title}</h3><p>${weekPlan[state.selectedDay].time} • ${weekPlan[state.selectedDay].focus}</p></div><button class="primary compact-primary" id="startToday">Start</button></section>`}
- <section class="card dashboard-section"><div class="section-title-row"><div><small>DAILY READINESS</small><h3>Recovery check-in</h3></div><span class="readiness-score">${[check.water,check.nutrition,!!check.sleep].filter(Boolean).length}/3</span></div>
- <div class="checkin-grid">
-  <label><span>Sleep</span><select id="sleepCheck"><option value="">Select</option><option ${check.sleep==="Great"?"selected":""}>Great</option><option ${check.sleep==="Good"?"selected":""}>Good</option><option ${check.sleep==="Poor"?"selected":""}>Poor</option></select></label>
-  <button class="checkin-toggle ${check.water?"checked":""}" id="waterCheck"><span>${check.water?"✓":"○"}</span> Water</button>
-  <button class="checkin-toggle ${check.nutrition?"checked":""}" id="nutritionCheck"><span>${check.nutrition?"✓":"○"}</span> Nutrition</button>
- </div></section>
- <section class="card tomorrow-card"><div class="section-title-row"><div><small>NEXT UP</small><h3>${tomorrow.title}</h3></div><span>${tomorrow.time}</span></div><p>${tomorrow.detail}</p><div class="focus-chips">${tomorrow.focus.split(",").map(x=>`<span>${x}</span>`).join("")}</div><button class="secondary" id="previewTomorrow">Preview tomorrow</button></section>
- <section class="card week-card"><h3>This week</h3><div class="week-strip">${weekPlan.map((d,i)=>`<button class="day-button ${i===state.selectedDay?"selected":""} ${i===0&&done?"completed-day":""}" data-day="${i}"><span class="day-icon">${i===0&&done?"✅":d.icon}</span><strong>${d.short}</strong></button>`).join("")}</div></section>
- <section class="stats"><div><small>WEIGHT</small><strong>${state.weight} lb</strong></div><div><small>WAIST</small><strong>${state.waist} in</strong></div><div><small>SESSIONS</small><strong>${state.sessions}</strong></div></section>`;
- document.querySelector("#viewToday")?.addEventListener("click",()=>{state.historyView=completed.id;setTab("progress")});
- document.querySelector("#startToday")?.addEventListener("click",()=>{startNewSession();setTab("workout")});
- document.querySelector("#previewTomorrow").onclick=()=>showDayPlan((state.selectedDay+1)%7);
- document.querySelector("#sleepCheck").onchange=e=>{check.sleep=e.target.value;save();home()};
- document.querySelector("#waterCheck").onclick=()=>{check.water=!check.water;save();home()};
- document.querySelector("#nutritionCheck").onclick=()=>{check.nutrition=!check.nutrition;save();home()};
- document.querySelectorAll("[data-day]").forEach(b=>b.onclick=()=>{state.selectedDay=+b.dataset.day;save();showDayPlan(state.selectedDay)});
-}
 
 function briefing(){
  const workoutData=activeWorkout(),blocks=setupPlanSummary(workoutData);
@@ -890,33 +753,6 @@ function calculatePlates(total){
  const plates=[45,35,25,10,5,2.5], result=[];
  plates.forEach(p=>{const n=Math.floor((side+.001)/p);if(n){result.push(`${n} × ${p}`);side-=n*p}});
  return result.length?`Each side: ${result.join(" + ")} lb`:"Empty Smith bar";
-}
-function exercise(ex,workoutData=activeWorkout()){
- if(ex&&PHASE2_ASSET_MAP[ex.name])ex.demoImage=PHASE2_ASSET_MAP[ex.name];
- if(ex&&PHASE3_ASSET_MAP[ex.name])ex.demoImage=PHASE3_ASSET_MAP[ex.name];
- const pct=Math.round(state.step/workoutData.length*100),strength=ex.type==="strength";
- if(strength&&!state.logs[ex.name])state.logs[ex.name]=Array(ex.sets).fill(null);
- const currentBlock=setupBlockLabel(ex),previous=workoutData[state.step-2],blockChanged=!previous||setupBlockLabel(previous)!==currentBlock;
- app.innerHTML=`<section class="card workout-card gym-mode-card"><div class="phase"><span class="tag">${ex.type}</span><strong>${state.step}/${workoutData.length}</strong></div>
- ${blockProgressMarkup(workoutData,ex)}
- ${blockChanged?`<div class="setup-block-banner"><small>NOW ENTERING</small><strong>${currentBlock}</strong><span>${ex.m1?"Keep this pulley setup until this block ends.":"Complete this section before moving on."}</span></div>`:""}
- <h2>${ex.name}</h2><p class="muted workout-subtitle">${ex.muscles}</p>
- <div class="why-card"><h3>Why this exercise?</h3><p>${ex.why||"Builds strength, control and confidence."}</p></div>
- ${attachmentPhotoMarkup(ex)}
- ${ex.m1?m1SetupCoach(ex):`<div class="simple-setup-flow"><section class="setup-section"><div class="section-number">1</div><div><small>SETUP</small><h3>Get ready</h3>${ex.setup.map(x=>`<p>${x}</p>`).join("")}</div></section></div>`}
- <section class="exercise-visual-section"><div class="section-heading"><span>▶</span><div><small>VISUAL GUIDE</small><h3>Start, move and finish</h3></div></div><button class="exercise-asset-button" id="openAsset"><img class="exercise-asset-image" src="${ex.demoImage}" alt="${ex.name} visual guide"><span>Tap to enlarge</span></button></section>
- <section class="movement-instructions"><div class="section-heading"><span>✓</span><div><small>COACHING</small><h3>Step by step</h3></div></div><ol class="steps">${ex.steps.map(s=>`<li>${s}</li>`).join("")}</ol><div class="cue"><strong>Key cues</strong><p>${ex.cues.join(" • ")}</p></div></section>
- ${smithPlateCalculator(ex)}
- ${quickSettings(ex)}
- ${strength?`<div class="weight-coach-card"><h3>Load guidance</h3><p>${ex.weightRecommendation}</p></div>`:""}</section>
- ${strength?sets(ex):timed(ex)}
- <div class="workout-actions"><button class="secondary" id="back">Back</button><button class="primary" id="next">${state.step===workoutData.length?"Finish session":"Complete & continue"}</button></div>`;
- document.querySelector("#back").onclick=()=>{state.step=Math.max(0,state.step-1);save();workout()};
- document.querySelector("#next").onclick=next;
- document.querySelector("#openAsset").onclick=()=>openExerciseAsset(ex);
- const plate=document.querySelector("#plateTotal");
- if(plate)plate.oninput=()=>document.querySelector("#plateResult").textContent=calculatePlates(plate.value);
- if(strength)bindSets(ex);else bindTimer(ex);
 }
 
 function summary(){
@@ -970,17 +806,6 @@ function openStandaloneGuide(title,image){
  document.body.appendChild(overlay);const close=()=>overlay.remove();overlay.querySelector(".asset-close").onclick=close;overlay.onclick=e=>{if(e.target===overlay)close()};
 }
 
-function progress(){
- if(state.historyView){const session=state.history.find(h=>h.id===state.historyView);if(session)return sessionDetail(session);state.historyView=null}
- const records=personalRecords().slice(0,6),muscles=recentMuscles(),achievements=earnedAchievements();
- app.innerHTML=`<section class="card"><span class="pill">PROGRESS CENTER</span><h2>Your Road to 12%</h2><div class="brief-grid"><div><small>SESSIONS</small><strong>${state.history.length}</strong></div><div><small>LIFETIME VOLUME</small><strong>${Math.round(totalLifetimeVolume()).toLocaleString()} lb</strong></div><div><small>WEIGHT</small><strong>${state.weight} lb</strong></div><div><small>WAIST</small><strong>${state.waist} in</strong></div></div><div class="measurement-row"><input id="w" value="${state.weight}" inputmode="decimal"><input id="wa" value="${state.waist}" inputmode="decimal"><button class="secondary" id="saveP">Save check-in</button></div></section>
- <section class="card"><h2>Muscle recovery map</h2><p class="muted">Red muscles were trained recently. Green groups are ready or were not emphasized in the last three sessions.</p><div class="muscle-map">${muscles.map(m=>`<div class="${m.trained?"recovering":"ready"}"><span></span><strong>${m.label}</strong><small>${m.trained?"Recovering":"Ready"}</small></div>`).join("")}</div></section>
- <section class="card"><h2>Personal records</h2>${records.length?`<div class="pr-grid">${records.map(r=>`<div><small>${r.name}</small><strong>${r.bestWeight} lb</strong><span>Best volume ${Math.round(r.bestVolume).toLocaleString()} lb</span></div>`).join("")}</div>`:'<p class="muted">Complete strength workouts to establish your first records.</p>'}</section>
- <section class="card"><h2>Achievements</h2><div class="achievement-grid">${achievements.length?achievements.map(([a,d])=>`<div><span>✓</span><strong>${a}</strong><small>${d}</small></div>`).join(""):'<p class="muted">Your first achievement unlocks after one completed workout.</p>'}</div></section>
- <section class="card"><h2>Workout history</h2>${state.history.length?state.history.slice().reverse().map(h=>{const t=sessionTotals(h),rating=state.workoutRatings[h.id]||"";return `<button class="history-card" data-history="${h.id}"><span class="history-check">✓</span><span><strong>${h.name}</strong><small>${h.date} • ${formatDuration(h.durationMs)} • ${t.completedSets} sets${rating?` • ${rating}`:""}</small></span><span class="history-arrow">›</span></button>`}).join(""):'<p class="muted">No completed sessions yet.</p>'}</section>`;
- document.querySelector("#saveP").onclick=()=>{state.weight=document.querySelector("#w").value;state.waist=document.querySelector("#wa").value;save();progress()};
- document.querySelectorAll("[data-history]").forEach(btn=>btn.onclick=()=>{state.historyView=btn.dataset.history;save();progress()});
-}
 
 
 /* =========================================================
@@ -989,117 +814,6 @@ function progress(){
 
 /* Restore the motivating Home experience while retaining
    Version 11 intelligence inside Library and Progress. */
-function home(){
- const day=weekPlan[state.selectedDay];
- const done=todayCompleted();
- const completed=completedTodaySession();
-
- if(done){
-   const totals=sessionTotals(completed);
-   const tomorrow=weekPlan[(state.selectedDay+1)%weekPlan.length];
-   app.innerHTML=`<section class="celebration-hero v111-celebration">
-     <div class="celebration-burst">🏆</div>
-     <span class="pill">TODAY COMPLETE</span>
-     <h2>You crushed it, ${state.preferredName}!</h2>
-     <p>Workout #${state.sessions||state.history.length} on the Road to 12% is officially complete.</p>
-     <div class="celebration-stats">
-       <div><small>WORKOUT</small><strong>${completed.name}</strong></div>
-       <div><small>TIME</small><strong>${formatDuration(completed.durationMs)}</strong></div>
-       <div><small>SETS SAVED</small><strong>${totals.completedSets}</strong></div>
-     </div>
-     <button class="primary" id="viewCompleted">View today’s completed workout</button>
-     <small class="recovery-message">Hydrate, eat well, and recover. See you tomorrow.</small>
-   </section>
-
-   <section class="card tomorrow-simple">
-     <div class="section-title-row">
-       <div><small>NEXT UP</small><h2>${tomorrow.title}</h2></div>
-       <span class="tomorrow-time">${tomorrow.time}</span>
-     </div>
-     <p>${tomorrow.detail}</p>
-     <div class="focus-chips">${tomorrow.focus.split(",").map(x=>`<span>${x}</span>`).join("")}</div>
-     <button class="secondary" id="previewTomorrow">Preview tomorrow</button>
-   </section>
-
-   <section class="card week-card">
-     <h2>Training schedule</h2>
-     <p class="muted">Tap any day to preview its plan.</p>
-     <div class="week-strip">${weekPlan.map((d,i)=>`<button class="day-button ${i===state.selectedDay?"selected":""} ${i===0?"completed-day":""}" data-day="${i}">
-       <span class="day-icon">${i===0?"✅":d.icon}</span>
-       <strong>${d.short}</strong>
-       <small>${i===0?"Complete":i===state.selectedDay?"Selected":""}</small>
-     </button>`).join("")}</div>
-   </section>
-
-   <section class="stats">
-     <div><small>WEIGHT</small><strong>${state.weight} lb</strong></div>
-     <div><small>WAIST</small><strong>${state.waist} in</strong></div>
-     <div><small>SESSIONS</small><strong>${state.sessions}</strong></div>
-   </section>`;
-
-   document.querySelector("#viewCompleted").onclick=()=>{state.historyView=completed.id;setTab("progress")};
-   document.querySelector("#previewTomorrow").onclick=()=>showDayPlan((state.selectedDay+1)%weekPlan.length);
-   document.querySelectorAll("[data-day]").forEach(b=>b.onclick=()=>{
-     state.selectedDay=+b.dataset.day;
-     state.previewDay=state.selectedDay;
-     save();
-     showDayPlan(state.selectedDay);
-   });
-   return;
- }
-
- app.innerHTML=`<section class="hero v111-hero">
-   <img src="${window.HERO_IMAGE}">
-   <div class="shade"></div>
-   <div class="hero-copy">
-     <span class="pill">WEEK 1 • FOUNDATION</span>
-     <h2>${day.title}</h2>
-     <p>${day.detail}</p>
-     <button class="primary" id="start">${day.action==="workout"?"Start today’s guided workout":"Open selected day"}</button>
-   </div>
- </section>
-
- <section class="card week-card">
-   <h2>Training schedule</h2>
-   <p class="muted">Tap any day to view its workout, time, focus and exercises.</p>
-   <div class="week-strip">${weekPlan.map((d,i)=>`<button class="day-button ${i===state.selectedDay?"selected":""}" data-day="${i}">
-     <span class="day-icon">${d.icon}</span>
-     <strong>${d.short}</strong>
-     <small>${i===state.selectedDay?"Selected":""}</small>
-   </button>`).join("")}</div>
-   <div class="selected-plan">
-     <div class="large-icon">${day.icon}</div>
-     <div><h3>${day.title}</h3><p class="muted">${day.detail}</p></div>
-   </div>
- </section>
-
- <section class="stats">
-   <div><small>WEIGHT</small><strong>${state.weight} lb</strong></div>
-   <div><small>WAIST</small><strong>${state.waist} in</strong></div>
-   <div><small>SESSIONS</small><strong>${state.sessions}</strong></div>
- </section>`;
-
- document.querySelectorAll("[data-day]").forEach(b=>b.onclick=()=>{
-   state.selectedDay=+b.dataset.day;
-   state.previewDay=state.selectedDay;
-   save();
-   showDayPlan(state.selectedDay);
- });
-
- document.querySelector("#start").onclick=()=>{
-   const action=weekPlan[state.selectedDay].action;
-   if(action==="workout"){
-     startNewSession();
-     state.tab="workout";
-     save();
-     workout();
-   }else if(action==="progress"){
-     setTab("progress");
-   }else{
-     showDayPlan();
-   }
- };
-}
 
 /* Remove Gym Mode and the pre-workout checklist.
    Starting a workout now opens the first guided movement immediately. */
@@ -1130,135 +844,8 @@ function workout(){
 
 /* Restore the simpler step-by-step exercise experience.
    Advanced features remain available where useful, without a checklist-heavy shell. */
-function exercise(ex,workoutData=activeWorkout()){
- if(ex&&PHASE2_ASSET_MAP[ex.name])ex.demoImage=PHASE2_ASSET_MAP[ex.name];
- if(ex&&PHASE3_ASSET_MAP[ex.name])ex.demoImage=PHASE3_ASSET_MAP[ex.name];
-
- const pct=Math.round(state.step/workoutData.length*100);
- const strength=ex.type==="strength";
-
- if(strength&&!state.logs[ex.name]){
-   state.logs[ex.name]=Array(ex.sets).fill(null);
- }
-
- const currentBlock=setupBlockLabel(ex);
- const previous=workoutData[state.step-2];
- const blockChanged=!previous||setupBlockLabel(previous)!==currentBlock;
-
- app.innerHTML=`<section class="card workout-card v111-workout-card">
-   <div class="phase">
-     <span class="tag">${ex.type}</span>
-     <strong>${state.step}/${workoutData.length}</strong>
-   </div>
-   <div class="progress workout-progress"><i style="width:${pct}%"></i></div>
-
-   ${blockChanged?`<div class="setup-block-banner compact-block-banner">
-     <small>SETUP FOR THIS SECTION</small>
-     <strong>${currentBlock}</strong>
-     ${ex.m1?`<span>Complete the exercises in this pulley zone before adjusting it again.</span>`:""}
-   </div>`:""}
-
-   <h2>${ex.name}</h2>
-   <p class="muted workout-subtitle">${ex.muscles}</p>
-
-   <div class="why-card">
-     <h3>Why this exercise?</h3>
-     <p>${ex.why||"Builds strength, control and confidence."}</p>
-   </div>
-
-   ${attachmentPhotoMarkup(ex)}
-
-   ${ex.m1
-     ?m1SetupCoach(ex)
-     :`<div class="simple-setup-flow"><section class="setup-section">
-        <div class="section-number">1</div>
-        <div><small>SETUP</small><h3>Get ready</h3>${ex.setup.map(x=>`<p>${x}</p>`).join("")}</div>
-      </section></div>`}
-
-   <section class="exercise-visual-section">
-     <div class="section-heading">
-       <span>▶</span>
-       <div><small>VISUAL GUIDE</small><h3>Start, move and finish</h3></div>
-     </div>
-     <button class="exercise-asset-button" id="openAsset">
-       <img class="exercise-asset-image" src="${ex.demoImage}" alt="${ex.name} visual guide">
-       <span>Tap to enlarge</span>
-     </button>
-   </section>
-
-   <section class="movement-instructions">
-     <div class="section-heading">
-       <span>✓</span>
-       <div><small>PERFORM THE MOVEMENT</small><h3>Step by step</h3></div>
-     </div>
-     <ol class="steps">${ex.steps.map(s=>`<li>${s}</li>`).join("")}</ol>
-     <div class="cue"><strong>Key cues</strong><p>${ex.cues.join(" • ")}</p></div>
-   </section>
-
-   ${smithPlateCalculator(ex)}
-   ${quickSettings(ex)}
-
-   ${strength?`<div class="weight-coach-card">
-     <h3>Weight recommendation</h3>
-     <p>${ex.weightRecommendation}</p>
-   </div>`:""}
- </section>
-
- ${strength?sets(ex):timed(ex)}
-
- <div class="workout-actions">
-   <button class="secondary" id="back">Back</button>
-   <button class="primary" id="next">${state.step===workoutData.length?"Finish session":"Complete & continue"}</button>
- </div>`;
-
- document.querySelector("#back").onclick=()=>{
-   state.step=Math.max(1,state.step-1);
-   save();
-   workout();
- };
- document.querySelector("#next").onclick=next;
- document.querySelector("#openAsset").onclick=()=>openExerciseAsset(ex);
-
- const plate=document.querySelector("#plateTotal");
- if(plate){
-   plate.oninput=()=>document.querySelector("#plateResult").textContent=calculatePlates(plate.value);
- }
-
- if(strength)bindSets(ex);
- else bindTimer(ex);
-}
 
 
-function workoutLanding(){
- const workoutData=activeWorkout();
- const hasActive=!!state.currentSession && state.step>0 && state.step<=workoutData.length;
- app.innerHTML=`<section class="card workout-launch-card">
-   <span class="pill">${hasActive?"WORKOUT IN PROGRESS":"TODAY’S WORKOUT"}</span>
-   <h2>${hasActive?"Resume Full Body A":"Full Body A"}</h2>
-   <p>${hasActive?`You are on exercise ${state.step} of ${workoutData.length}.`:"Start the guided workout when you are ready. You will move through it one step at a time."}</p>
-   <div class="launch-summary">
-     <div><small>EXERCISES</small><strong>${workoutData.length}</strong></div>
-     <div><small>ESTIMATED TIME</small><strong>50–60 min</strong></div>
-     <div><small>FLOW</small><strong>Step by step</strong></div>
-   </div>
-   <button class="primary" id="launchWorkout">${hasActive?"Resume workout":"Start workout"}</button>
-   ${hasActive?`<button class="secondary" id="restartWorkout">Restart workout</button>`:""}
- </section>`;
- document.querySelector("#launchWorkout").onclick=()=>{
-   if(!hasActive)startNewSession();
-   state.tab="workout";
-   save();
-   workout();
- };
- document.querySelector("#restartWorkout")?.addEventListener("click",()=>{
-   if(confirm("Restart today’s workout from the beginning?")){
-     startNewSession();
-     state.tab="workout";
-     save();
-     workout();
-   }
- });
-}
 
 
 
@@ -1533,37 +1120,6 @@ function home(){
  });
 }
 
-function workoutLanding(){
- const workoutData=activeWorkout();
- const hasActive=!!state.currentSession&&state.step>0&&state.step<=workoutData.length&&hasActualWorkoutProgress();
- app.innerHTML=`<section class="card workout-launch-card">
-   <span class="pill">${hasActive?"WORKOUT IN PROGRESS":"TODAY’S WORKOUT"}</span>
-   <h2>${hasActive?"Resume Full Body A":"Full Body A"}</h2>
-   <p>${hasActive?`You are on exercise ${state.step} of ${workoutData.length}.`:"Start the guided workout when you are ready. You will move through it one step at a time."}</p>
-   <div class="launch-summary">
-     <div><small>EXERCISES</small><strong>${workoutData.length}</strong></div>
-     <div><small>ESTIMATED TIME</small><strong>50–60 min</strong></div>
-     <div><small>FLOW</small><strong>Step by step</strong></div>
-   </div>
-   <button class="primary" id="launchWorkout">${hasActive?"Resume workout":"Start workout"}</button>
-   ${hasActive?`<button class="secondary" id="restartWorkout">Restart workout</button>`:""}
- </section>`;
-
- document.querySelector("#launchWorkout").onclick=()=>{
-   if(!hasActive)startNewSession();
-   state.tab="workout";
-   save();
-   workout();
- };
- document.querySelector("#restartWorkout")?.addEventListener("click",()=>{
-   if(confirm("Restart today’s workout from the beginning?")){
-     startNewSession();
-     state.tab="workout";
-     save();
-     workout();
-   }
- });
-}
 
 function progress(){
  if(state.historyView){
@@ -1931,12 +1487,197 @@ function zone2CardioWorkout(){
   ];
 }
 
+function fullBodyBWorkout(){
+  const smithWeightEntry={
+    mode:"total",
+    label:"Added plate weight",
+    help:"Enter only the plates added to the Smith bar. Enter 0 when using the empty Smith bar."
+  };
+  return [
+    cloneExerciseByName("Treadmill Walk"),
+    cloneExerciseByName("Hip Hinge"),
+    cloneExerciseByName("Goblet Squat",{
+      name:"Smith Machine RDL",sets:3,reps:10,
+      muscles:"Hamstrings, glutes, upper back and core",
+      setup:["Set the Smith bar around mid-thigh height","Set safety stops below the lowest controlled position","Stand with feet hip width and the bar close to your thighs"],
+      steps:["Unlock the bar and stand tall with soft knees.","Brace your core and push your hips backward.","Lower the bar close to your legs until your hamstrings are loaded.","Drive your hips forward to stand without leaning back.","Re-rack the bar securely after the set."],
+      cues:["Move from the hips, not the waist.","Keep the bar close.","Stop before your back rounds."],
+      rest:90,
+      why:"Adds the week’s primary loaded hinge to train the hamstrings and glutes without repeating Monday’s squat emphasis.",
+      weightRecommendation:"Begin with the empty Smith bar and add weight only when every rep stays controlled.",
+      requires:["ritfitM1"],substituteId:null,
+      demoImage:"assets/phase2/smith-machine-rdl.jpg",weightEntry:smithWeightEntry
+    }),
+    cloneExerciseByName("Goblet Squat",{
+      name:"Smith Bulgarian Split Squat",sets:2,reps:10,
+      muscles:"Quads, glutes, hamstrings and core",
+      setup:["Place the bench behind you","Set the Smith bar around upper-chest height","Place one foot forward and rest the other foot on the bench","Set the safety stops for a comfortable bottom position"],
+      steps:["Unrack the bar with your front foot fully planted.","Lower straight down under control.","Keep the front knee tracking with the toes.","Drive through the front foot to stand.","Complete both sides before resting."],
+      cues:["Use a short, stable range first.","Keep most of the load on the front leg.","Hold the rack while positioning if needed."],
+      rest:90,
+      why:"Provides unilateral squat work to balance the bilateral Smith squat used in Full Body A.",
+      weightRecommendation:"Practice body position with the empty Smith bar before adding plates.",
+      requires:["ritfitM1","bench"],substituteId:null,
+      demoImage:"assets/phase2/smith-bulgarian-split-squat.jpg",weightEntry:smithWeightEntry
+    }),
+    cloneExerciseByName("Goblet Squat",{
+      name:"Smith Machine Calf Raise",sets:2,reps:15,
+      muscles:"Calves and ankle stability",
+      setup:["Set the Smith bar around shoulder height","Stand with the balls of both feet planted securely","Keep knees soft and torso tall"],
+      steps:["Unrack the bar and brace your trunk.","Rise onto the balls of your feet.","Pause briefly at the top.","Lower your heels slowly through a comfortable range.","Re-rack securely after the set."],
+      cues:["Move straight up and down.","Do not bounce.","Keep pressure even across both feet."],
+      rest:60,
+      why:"Adds direct calf training that is not emphasized in Full Body A.",
+      weightRecommendation:"Use the empty Smith bar until balance and range are consistent.",
+      requires:["ritfitM1"],substituteId:null,
+      demoImage:"assets/phase2/smith-machine-calf-raise.jpg",weightEntry:smithWeightEntry
+    }),
+    cloneExerciseByName("Cable Chest Press",{
+      name:"Incline Cable Press",sets:3,reps:10,
+      muscles:"Upper chest, front shoulders and triceps",
+      setup:["Set both pulleys to a low position","Use two D-handles","Set the bench to a low incline and center it between the cables","Sit facing away from the M1"],
+      steps:["Bring one handle beside each side of your upper chest.","Brace against the inclined bench.","Press upward and slightly inward.","Stop before locking the elbows.","Lower slowly to the starting position."],
+      cues:["Keep shoulders down against the bench.","Use equal weight on both stacks.","Do not overarch your lower back."],
+      m1:{pinLeft:2,pinRight:2,attachment:"Two single D-handles",bench:"Bench at a low incline between the cables",facing:"Face away from the M1",stance:"Sit with feet planted",start:"Handles beside the upper chest",finish:"Press upward and slightly inward",view:"45° side view",pinNote:"Set both adjustable pulleys to position 2."},
+      why:"Changes Monday’s horizontal press to an incline angle for balanced chest development.",
+      requires:["ritfitM1","bench"],
+      demoImage:"assets/phase2/incline-cable-press.jpg"
+    }),
+    cloneExerciseByName("Seated Cable Row",{
+      name:"Single Arm Cable Row",sets:3,reps:10,
+      muscles:"Lats, mid-back, rear shoulder, biceps and core",
+      setup:["Set one pulley to the lowest position","Attach one D-handle","Use a staggered or half-kneeling stance facing the M1"],
+      steps:["Begin with the working arm long and shoulder down.","Brace your torso against rotation.","Pull the handle toward the lower ribs.","Pause without leaning backward.","Return slowly, then complete the opposite side."],
+      cues:["Keep hips and shoulders square.","Lead with the elbow.","Use the same weight on both sides."],
+      m1:{pinLeft:1,pinRight:null,attachment:"One D-handle",bench:"No bench required",facing:"Face the M1",stance:"Staggered or half-kneeling stance",start:"Working arm long with torso square",finish:"Handle beside the lower ribs",view:"Front-side view",pinNote:"Use one pulley at position 1."},
+      why:"Adds unilateral horizontal pulling to expose and reduce side-to-side strength differences.",
+      requires:["ritfitM1"],attachmentCard:{key:"dHandles",name:"One D-handle",qty:1},
+      weightEntry:{mode:"single",label:"Weight selected on the active stack",help:"Enter the selector setting on the single stack used for this exercise."},
+      demoImage:"assets/phase2/single-arm-cable-row.jpg"
+    }),
+    cloneExerciseByName("Lat Pulldown"),
+    cloneExerciseByName("Cable Shoulder Press",{
+      name:"Cable Lateral Raise",sets:2,reps:12,
+      muscles:"Side shoulders and upper-body stability",
+      setup:["Set one pulley to the lowest position","Attach one D-handle","Stand side-on to the M1 with the working arm away from the stack"],
+      steps:["Begin with the handle in front of the opposite hip.","Keep a soft bend in the elbow.","Raise the arm out to the side to about shoulder height.","Pause without shrugging.","Lower slowly and repeat on the other side."],
+      cues:["Lead with the elbow.","Keep the shoulder away from the ear.","Use a light weight."],
+      m1:{pinLeft:1,pinRight:null,attachment:"One D-handle",bench:"No bench",facing:"Stand side-on to the M1",stance:"Tall stance with ribs stacked",start:"Handle near the opposite hip",finish:"Arm raised to about shoulder height",view:"Front view",pinNote:"Use one pulley at position 1."},
+      why:"Complements Monday’s vertical press with direct side-shoulder work and less triceps fatigue.",
+      requires:["ritfitM1"],attachmentCard:{key:"dHandles",name:"One D-handle",qty:1},
+      weightEntry:{mode:"single",label:"Weight selected on the active stack",help:"Enter the selector setting on the single stack used for this exercise."},
+      correctedGuide:null,demoImage:"assets/phase2/cable-lateral-raise.jpg"
+    }),
+    cloneExerciseByName("Rope Triceps Pushdown",{
+      name:"Cable Crunch",sets:2,reps:12,
+      muscles:"Abdominals and deep core",
+      setup:["Set one pulley to the highest position","Attach the rope","Kneel facing the M1 with the rope beside your head"],
+      steps:["Brace before beginning the repetition.","Curl your ribs toward your pelvis.","Keep your hips mostly still.","Pause when the abdominals are shortened.","Return slowly without letting the stack pull you upright."],
+      cues:["Move through the trunk, not the arms.","Do not sit back toward your heels.","Use a controlled range."],
+      m1:{pinLeft:13,pinRight:null,attachment:"Rope on one high cable",bench:"No bench",facing:"Kneel facing the M1",stance:"Kneeling with hips stable",start:"Rope beside the head and torso tall",finish:"Ribs curled toward the pelvis",view:"Side view",pinNote:"Use one pulley at position 13."},
+      why:"Adds direct trunk flexion and bracing work that supports every major lift.",
+      weightRecommendation:"Use a light load that allows the abdominals—not the arms—to control every repetition.",
+      demoImage:"assets/phase2/cable-crunch.jpg"
+    }),
+    cloneExerciseByName("Cable Curl",{
+      name:"Cable Hammer Curl",sets:2,reps:12,
+      muscles:"Biceps, brachialis and forearms",
+      setup:["Set one pulley to the lowest position","Attach the rope","Face the M1 and hold the rope with palms facing each other"],
+      steps:["Stand tall with elbows beside your ribs.","Curl the rope toward the shoulders without changing grip.","Pause while keeping wrists neutral.","Lower slowly until the arms are nearly straight."],
+      cues:["Keep a neutral grip throughout.","Do not swing.","Keep elbows pinned."],
+      m1:{pinLeft:1,pinRight:null,attachment:"Rope on one low cable",bench:"No bench",facing:"Face the M1",stance:"Tall stance with elbows close",start:"Neutral grip with arms nearly straight",finish:"Rope ends near the shoulders",view:"Front-side view",pinNote:"Use one pulley at position 1."},
+      why:"Uses a neutral grip to complement Monday’s underhand cable curl and add forearm work.",
+      attachmentCard:{key:"rope",name:"Triceps rope",qty:1},
+      correctedGuide:null,demoImage:"assets/phase2/cable-hammer-curl.jpg"
+    }),
+    cloneExerciseByName("Easy Treadmill Cooldown")
+  ];
+}
+
+function fullBodyCWorkout(){
+  return [
+    cloneExerciseByName("Treadmill Walk"),
+    cloneExerciseByName("Hip Hinge"),
+    Object.assign(deepCopy(window.SUBSTITUTION_DATA["smith-machine-squat"]),{
+      sets:3,
+      reps:8,
+      why:"Keeps one primary squat in the week’s third strength session while using the stable Smith setup and safety stops.",
+      weightRecommendation:"Start with the empty Smith bar and add plates only when all eight reps remain smooth and controlled."
+    }),
+    cloneExerciseByName("Cable Shoulder Press"),
+    cloneExerciseByName("Cable Shoulder Press",{
+      name:"Rear Delt Cable Fly",sets:2,reps:12,
+      muscles:"Rear shoulders, upper back and shoulder stabilizers",
+      setup:["Set both pulleys around shoulder height","Attach two D-handles","Stand centered and face the M1","Take the opposite handle in each hand"],
+      steps:["Begin with arms reaching forward and slightly crossed.","Keep a soft bend in both elbows.","Open the arms until they align with your torso.","Pause while squeezing the upper back.","Return slowly without letting the stacks slam."],
+      cues:["Lead with the elbows.","Keep shoulders down.","Use a light, controlled load."],
+      m1:{pinLeft:7,pinRight:7,attachment:"Two single D-handles",bench:"No bench",facing:"Face the M1",stance:"Tall centered stance",start:"Arms forward and slightly crossed",finish:"Arms open in line with the torso",view:"Front view",pinNote:"Set both pulleys around position 7."},
+      why:"Trains the rear shoulders and upper back to balance the week’s pressing volume.",
+      weightRecommendation:"Use the same light setting on both stacks and stop before the shoulders shrug.",
+      requires:["ritfitM1"],attachmentCard:{key:"dHandles",name:"Two D-handles",qty:2},
+      weightEntry:{mode:"dual",label:"Weight selected on each stack",help:"Enter the selector setting on ONE stack. Keep both stacks equal."},
+      correctedGuide:null,demoImage:"assets/phase2/rear-delt-cable-fly.jpg"
+    }),
+    cloneExerciseByName("Rope Triceps Pushdown",{
+      name:"Cable Face Pull",sets:2,reps:12,
+      muscles:"Upper back, rear shoulders and external rotators",
+      setup:["Set one pulley to the highest position","Attach the rope","Stand facing the M1 with a stable stance"],
+      steps:["Begin with arms extended and thumbs pointing toward each other.","Pull the rope toward eye level.","Separate the rope ends as the elbows travel outward.","Pause with shoulder blades gently squeezed.","Return under control."],
+      cues:["Pull toward the face, not the chest.","Do not lean backward.","Keep shoulders away from ears."],
+      m1:{pinLeft:13,pinRight:null,attachment:"Rope on one high cable",bench:"No bench",facing:"Face the M1",stance:"Stable tall stance",start:"Arms extended at eye level",finish:"Rope beside the face with elbows open",view:"Front-side view",pinNote:"Use one pulley at position 13."},
+      why:"Adds shoulder-health pulling and upper-posterior-chain work after the primary press.",
+      weightRecommendation:"Choose a light setting that allows rotation and a clean pause without leaning.",
+      demoImage:"assets/phase2/cable-face-pull.jpg"
+    }),
+    cloneExerciseByName("Lat Pulldown",{
+      name:"Cable Straight Arm Pushdown",sets:3,reps:12,
+      muscles:"Lats, upper back, triceps and core",
+      setup:["Set one pulley to the highest position","Attach the short straight bar","Stand facing the M1 with arms extended"],
+      steps:["Brace your ribs over your hips.","Keep a small fixed bend in the elbows.","Sweep the bar down toward the thighs.","Pause while tightening the lats.","Return slowly until the arms are overhead."],
+      cues:["Keep the arms nearly straight.","Do not turn it into a triceps pushdown.","Avoid arching the lower back."],
+      m1:{pinLeft:13,pinRight:null,attachment:"Short straight bar on one high cable",bench:"No bench",facing:"Face the M1",stance:"Tall stance with soft knees",start:"Arms extended overhead",finish:"Bar near the thighs",view:"Side view",pinNote:"Use one pulley at position 13."},
+      why:"Provides Friday’s primary vertical pull without repeating the standard pulldown used in Full Body A and B.",
+      weightRecommendation:"Use a moderate setting that lets the lats control the entire return.",
+      requires:["ritfitM1"],attachmentCard:{key:"straightBar",name:"Short straight bar",qty:1},
+      weightEntry:{mode:"single",label:"Weight selected on the active stack",help:"Enter the selector setting on the single high stack."},
+      demoImage:"assets/phase2/cable-straight-arm-pushdown.jpg"
+    }),
+    cloneExerciseByName("Rope Triceps Pushdown"),
+    cloneExerciseByName("Rope Triceps Pushdown",{
+      name:"High to Low Cable Chop",sets:2,reps:10,
+      muscles:"Obliques, abdominals, shoulders and hips",
+      setup:["Set one pulley near the highest position","Attach one D-handle","Stand side-on to the M1 with feet wider than hips"],
+      steps:["Hold the handle with both hands near the high shoulder.","Brace before starting the movement.","Pull diagonally across the body toward the opposite hip.","Rotate through the upper back while keeping the knees stable.","Return slowly and complete the other side."],
+      cues:["Move as one controlled unit.","Do not let the stack pull you back.","Use the same range on both sides."],
+      m1:{pinLeft:12,pinRight:null,attachment:"One D-handle",bench:"No bench",facing:"Stand side-on to the M1",stance:"Wide stable stance",start:"Hands beside the high shoulder",finish:"Hands beside the opposite hip",view:"Front-side view",pinNote:"Use one pulley near position 12."},
+      why:"Adds rotational core training to complement Wednesday’s straight-ahead cable crunch.",
+      weightRecommendation:"Use a light setting that allows the trunk to control both directions.",
+      requires:["ritfitM1"],attachmentCard:{key:"dHandles",name:"One D-handle",qty:1},
+      weightEntry:{mode:"single",label:"Weight selected on the active stack",help:"Enter the selector setting on the single stack used for this exercise."},
+      demoImage:"assets/phase2/high-to-low-cable-chop.jpg"
+    }),
+    cloneExerciseByName("Treadmill Walk",{
+      name:"Treadmill HIIT Intervals",type:"cardio",duration:"12:00",
+      muscles:"Cardiovascular conditioning, legs and work capacity",
+      setup:["Begin with the belt at an easy walking pace","Alternate one minute brisk with one minute easy","Use speed or incline—not both—to raise effort"],
+      steps:["Walk easily for the first minute.","Increase to a brisk controlled effort for one minute.","Return to an easy pace for one minute.","Repeat the brisk and easy pattern, then reduce speed before stopping."],
+      cues:["Stay below an all-out sprint.","Use the rails only for balance.","Reduce intensity if form changes."],
+      why:"Finishes the third strength day with a short conditioning dose without extending the lifting volume.",
+      demoImage:"assets/phase3/treadmill-hiit-intervals.jpg"
+    }),
+    cloneExerciseByName("Easy Treadmill Cooldown")
+  ];
+}
+
 function strengthWorkoutForDay(dayIndex){
-  /* Full Body B and C use the stable guided strength engine while their
-     dedicated exercise programming is refined. Session identity and schedule
-     still advance correctly instead of reverting to Monday. */
-  return data.map(resolveExercise).filter(ex=>!ex.unavailable).map((ex,index)=>({ex,index}))
-    .sort((a,b)=>setupGroup(a.ex)-setupGroup(b.ex)||a.index-b.index).map(x=>x.ex);
+  const workoutData=dayIndex===2?fullBodyBWorkout():dayIndex===4?fullBodyCWorkout():data;
+  const group=ex=>{
+    if(dayIndex===4&&ex.name==="Treadmill HIIT Intervals")return 6;
+    if((dayIndex===2||dayIndex===4)&&ex.type==="cooldown")return 7;
+    return setupGroup(ex);
+  };
+  return workoutData.map(resolveExercise).filter(ex=>!ex.unavailable).map((ex,index)=>({ex,index}))
+    .sort((a,b)=>group(a.ex)-group(b.ex)||a.index-b.index).map(x=>x.ex);
 }
 
 function workoutForDay(dayIndex=currentPlanIndex()){
@@ -2049,5 +1790,17 @@ save();
    save();
  }
 })();
+
+if("serviceWorker" in navigator){
+ window.addEventListener("load",async()=>{
+   try{
+     const registration=await navigator.serviceWorker.getRegistration("./");
+     if(registration)await registration.update();
+     else await navigator.serviceWorker.register("./sw.js",{scope:"./"});
+   }catch(error){
+     console.warn("Road to 12% service worker was not available.",error);
+   }
+ });
+}
 
 render();

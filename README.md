@@ -2,6 +2,31 @@
 
 Upload all files in this folder to the same GitHub repository folder.
 
+## Production foundation
+
+`index.html` is the production page. It loads `app.css`, then `data.js`, then
+`app.js`, and links `manifest.webmanifest`. `sw.js` is the service worker asset
+manifest. The versioned JavaScript and CSS files in the project root are legacy
+artifacts and are not loaded by the current page; they remain in place until
+older deployment dependencies can be ruled out.
+
+The application data key is `road12v5`. Foundation cleanup and later Version 12
+work must continue to read that key without deleting or replacing compatible
+stored fields.
+
+Run the read-only foundation checks from the project root:
+
+```text
+node scripts/validate-foundation.js
+```
+
+The command validates production JavaScript syntax, HTML and service-worker
+file references, the expected page entry points, and the `road12v5` key.
+It intentionally hard-codes the current JavaScript files, production entry
+points, and compatible storage key. Update those assertions when files are
+deliberately added or renamed; service-worker asset paths are read dynamically
+from `sw.js` and are not duplicated in the validator.
+
 Version 11.3.2 adds:
 - Complete guided workout flow
 - Session briefing and muscle-group summary

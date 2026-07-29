@@ -1,1 +1,30 @@
-const CACHE="road12-v11-3-2";const ASSETS=["./","./index.html","./app.css","./data.js","./app.js","./manifest.webmanifest","./assets/ritfit-m1-pin-rail.jpeg","./assets/cable-chest-press-guide.png","./assets/ritfit-exercise-library.png","./assets/exercise-library-v7-1.png","./assets/demos/bike.png","./assets/demos/bodyweight-squat.png","./assets/demos/cable-chest-press.png","./assets/demos/cable-curl.png","./assets/demos/cable-shoulder-press.png","./assets/demos/goblet-squat.png","./assets/demos/hip-hinge.png","./assets/demos/lat-pulldown.png","./assets/demos/rope-triceps-pushdown.png","./assets/demos/rower.png","./assets/demos/seated-cable-row.png","./assets/demos/stretching.png","./assets/demos/treadmill-walk.png","./assets/exercise-asset-pack-v7-2.png","./assets/v7-2/cable-chest-press.png","./assets/v7-2/cable-curl.png","./assets/v7-2/cable-shoulder-press.png","./assets/v7-2/goblet-squat.png","./assets/v7-2/lat-pulldown.png","./assets/v7-2/rope-triceps-pushdown.png","./assets/v7-2/seated-cable-row.png","./assets/corrected-cable-assets-v7-3.png","./assets/v7-3/rope-triceps-pushdown.png"];self.addEventListener("install",e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)));self.skipWaiting()});self.addEventListener("activate",e=>{e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==CACHE).map(x=>caches.delete(x)))));self.clients.claim()});self.addEventListener("fetch",e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request))));
+const CACHE="road12-v12-shell";
+const CACHE_PREFIX="road12-";
+const ASSETS=[
+  "./",
+  "./index.html",
+  "./app.css",
+  "./data.js",
+  "./app.js",
+  "./manifest.webmanifest"
+];
+
+self.addEventListener("install",event=>{
+  event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ASSETS)));
+  self.skipWaiting();
+});
+
+self.addEventListener("activate",event=>{
+  event.waitUntil(
+    caches.keys().then(keys=>Promise.all(
+      keys
+        .filter(key=>key.startsWith(CACHE_PREFIX)&&key!==CACHE)
+        .map(key=>caches.delete(key))
+    ))
+  );
+  self.clients.claim();
+});
+
+self.addEventListener("fetch",event=>{
+  event.respondWith(caches.match(event.request).then(response=>response||fetch(event.request)));
+});
