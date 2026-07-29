@@ -1,9 +1,12 @@
-const CACHE="road12-v12-shell";
+importScripts("./app-meta.js");
+
+const CACHE=self.ROAD12_META.serviceWorkerCache;
 const CACHE_PREFIX="road12-";
 const ASSETS=[
   "./",
   "./index.html",
   "./app.css",
+  "./app-meta.js",
   "./data.js",
   "./app.js",
   "./manifest.webmanifest"
