@@ -77,6 +77,18 @@ function exerciseAsset(ex){
 function listMarkup(items,emptyText){
  return items?.length?`<ul>${items.map(item=>`<li>${item}</li>`).join("")}</ul>`:`<p class="muted">${emptyText}</p>`;
 }
+function mediaStatus(entry){
+ return entry.sourceType==="official-manual"?"OFFICIAL RITFIT GUIDE":"REVIEWED LICENSED MEDIA";
+}
+function mediaChip(entry){
+ return entry.sourceType==="official-manual"?"RITFIT":entry.license?.shortName||"REVIEWED";
+}
+function mediaCredit(entry){
+ if(entry.sourceType==="official-manual"){
+   return `Source: ${entry.sourceDocument}, exercise “${entry.sourceExercise},” by <a href="${entry.providerUrl}" target="_blank" rel="noopener">${entry.provider}</a>. Used as the machine-specific reference in Andy’s personal app.`;
+ }
+ return `Source: <a href="${entry.sourceUrl}" target="_blank" rel="noopener">${entry.sourceExercise}</a> by ${entry.author}, via <a href="${entry.providerUrl}" target="_blank" rel="noopener">${entry.provider}</a>. <a href="${entry.license.url}" target="_blank" rel="noopener">${entry.license.fullName}</a>.`;
+}
 function licensedMediaMarkup(ex){
  const entry=exerciseLibraryEntry(ex);
  if(!entry){
@@ -88,14 +100,14 @@ function licensedMediaMarkup(ex){
  }
  return `<section class="exercise-media-card">
    <div class="exercise-media-heading">
-     <div><span class="media-status">REVIEWED LICENSED MEDIA</span><h3>Demonstration</h3></div>
-     <span class="license-chip">${entry.license.shortName}</span>
+     <div><span class="media-status">${mediaStatus(entry)}</span><h3>Demonstration</h3></div>
+     <span class="license-chip">${mediaChip(entry)}</span>
    </div>
    <button class="exercise-asset-button licensed-asset-button" id="openAsset">
      <img class="exercise-asset-image" src="${entry.media}" alt="${entry.mediaAlt}">
      <span>Tap to enlarge</span>
    </button>
-   <p class="media-credit">Source: <a href="${entry.sourceUrl}" target="_blank" rel="noopener">${entry.sourceExercise}</a> by ${entry.author}, via <a href="${LICENSED_EXERCISE_LIBRARY.providerUrl}" target="_blank" rel="noopener">${LICENSED_EXERCISE_LIBRARY.provider}</a>. <a href="${entry.license.url}" target="_blank" rel="noopener">${entry.license.fullName}</a>.</p>
+   <p class="media-credit">${mediaCredit(entry)}</p>
  </section>`;
 }
 function exerciseTeachingMarkup(ex){
@@ -698,8 +710,8 @@ function showLibraryExercise(ex){
 }
 function imageLicenses(){
  const namedEntries=Object.entries(LICENSED_EXERCISE_LIBRARY.entries||{});
- app.innerHTML=`<section class="card"><button class="secondary" id="licensesBack">Back to Equipment</button><span class="pill">ABOUT</span><h2>Image Sources & Licenses</h2><p>Only media reviewed for exercise match, visible quality and documented reuse terms is bundled. Each item remains credited to its contributor and source.</p></section>
- <section class="license-list">${namedEntries.map(([usedFor,entry])=>`<article class="card license-entry"><img src="${entry.media}" alt="${entry.mediaAlt}"><div><h3>${entry.sourceExercise}</h3><p><strong>Used for:</strong> ${usedFor}</p><p><strong>Author:</strong> ${entry.author}</p><p><strong>License:</strong> <a href="${entry.license.url}" target="_blank" rel="noopener">${entry.license.fullName}</a></p><p><a href="${entry.sourceUrl}" target="_blank" rel="noopener">wger record</a>${entry.originalSourceUrl?` · <a href="${entry.originalSourceUrl}" target="_blank" rel="noopener">original source</a>`:""}</p></div></article>`).join("")}</section>`;
+ app.innerHTML=`<section class="card"><button class="secondary" id="licensesBack">Back to Equipment</button><span class="pill">ABOUT</span><h2>Image Sources & Licenses</h2><p>RitFit poster illustrations are the primary reference for cable, Smith and bench exercises in this personal app. Reviewed Creative Commons media remains only where an official poster does not provide a clear match.</p></section>
+ <section class="license-list">${namedEntries.map(([usedFor,entry])=>`<article class="card license-entry"><img src="${entry.media}" alt="${entry.mediaAlt}"><div><h3>${entry.sourceExercise}</h3><p><strong>Used for:</strong> ${usedFor}</p><p><strong>Source:</strong> ${entry.sourceType==="official-manual"?entry.sourceDocument:entry.provider}</p><p><strong>Author:</strong> ${entry.author}</p>${entry.sourceType==="official-manual"?`<p><strong>Use:</strong> ${entry.rightsNote}</p><p><a href="${entry.providerUrl}" target="_blank" rel="noopener">RitFit website</a></p>`:`<p><strong>License:</strong> <a href="${entry.license.url}" target="_blank" rel="noopener">${entry.license.fullName}</a></p><p><a href="${entry.sourceUrl}" target="_blank" rel="noopener">wger record</a>${entry.originalSourceUrl?` · <a href="${entry.originalSourceUrl}" target="_blank" rel="noopener">original source</a>`:""}</p>`}</div></article>`).join("")}</section>`;
  document.querySelector("#licensesBack").onclick=equipment;
 }
 function equipment(){
@@ -889,7 +901,7 @@ function library(){
  let content="";
  if(category==="strength"){
    const strength=all.filter(x=>x.type==="strength");
-    content=`<div class="exercise-library-grid">${strength.map(x=>{const entry=exerciseLibraryEntry(x);return `<button class="exercise-library-tile professional-library-tile" data-lib-name="${x.name}">${entry?`<img src="${entry.media}" alt="${entry.mediaAlt}">`:`<div class="library-no-media">Written guide</div>`}<span class="tag">${entry?"Licensed media":"No reviewed image"}</span><strong>${x.name}</strong><small>${x.muscles||"Strength"}</small></button>`}).join("")}</div>`;
+    content=`<div class="exercise-library-grid">${strength.map(x=>{const entry=exerciseLibraryEntry(x);return `<button class="exercise-library-tile professional-library-tile" data-lib-name="${x.name}">${entry?`<img src="${entry.media}" alt="${entry.mediaAlt}">`:`<div class="library-no-media">Written guide</div>`}<span class="tag">${entry?(entry.sourceType==="official-manual"?"Official RitFit guide":"Licensed fallback"):"No reviewed image"}</span><strong>${x.name}</strong><small>${x.muscles||"Strength"}</small></button>`}).join("")}</div>`;
  }else if(category==="cardio"){
    const cards=["Treadmill Walking","Treadmill Incline Walk","Treadmill HIIT Intervals","Rower Technique","KICKR CORE Endurance Ride","KICKR CORE HIIT Ride"];
    content=`<div class="text-guide-grid">${cards.map(name=>`<article><span class="tag">Written guide</span><strong>${name}</strong><small>Equipment setup, technique and coaching cues remain available in the guided workout.</small></article>`).join("")}</div>`;
