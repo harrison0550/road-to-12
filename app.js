@@ -67,8 +67,59 @@ const SAFE_EXERCISE_ASSET_OVERRIDES={
  "Cool Down & Recovery":"assets/placeholders/cooldown-recovery.svg",
  "Cooldown":"assets/placeholders/cooldown-recovery.svg"
 };
+const LICENSED_EXERCISE_LIBRARY=window.ROAD12_EXERCISE_LIBRARY||{entries:{}};
+function exerciseLibraryEntry(ex){
+ return LICENSED_EXERCISE_LIBRARY.entries?.[ex?.name]||null;
+}
 function exerciseAsset(ex){
- return SAFE_EXERCISE_ASSET_OVERRIDES[ex?.name]||ex?.demoImage||null;
+ return exerciseLibraryEntry(ex)?.media||null;
+}
+function listMarkup(items,emptyText){
+ return items?.length?`<ul>${items.map(item=>`<li>${item}</li>`).join("")}</ul>`:`<p class="muted">${emptyText}</p>`;
+}
+function licensedMediaMarkup(ex){
+ const entry=exerciseLibraryEntry(ex);
+ if(!entry){
+   return `<section class="exercise-media-card media-unavailable">
+     <span class="media-status">WRITTEN GUIDE</span>
+     <h3>No reviewed free demonstration yet</h3>
+     <p>We removed the old generated artwork because it could be misleading. Follow the equipment setup and written movement steps below while a properly licensed exact match is sourced.</p>
+   </section>`;
+ }
+ return `<section class="exercise-media-card">
+   <div class="exercise-media-heading">
+     <div><span class="media-status">REVIEWED LICENSED MEDIA</span><h3>Demonstration</h3></div>
+     <span class="license-chip">${entry.license.shortName}</span>
+   </div>
+   <button class="exercise-asset-button licensed-asset-button" id="openAsset">
+     <img class="exercise-asset-image" src="${entry.media}" alt="${entry.mediaAlt}">
+     <span>Tap to enlarge</span>
+   </button>
+   <p class="media-credit">Source: <a href="${entry.sourceUrl}" target="_blank" rel="noopener">${entry.sourceExercise}</a> by ${entry.author}, via <a href="${LICENSED_EXERCISE_LIBRARY.providerUrl}" target="_blank" rel="noopener">${LICENSED_EXERCISE_LIBRARY.provider}</a>. <a href="${entry.license.url}" target="_blank" rel="noopener">${entry.license.fullName}</a>.</p>
+ </section>`;
+}
+function exerciseTeachingMarkup(ex){
+ const entry=exerciseLibraryEntry(ex);
+ const primary=entry?.primaryMuscles?.length?entry.primaryMuscles:(ex.muscles||"").split(",").map(x=>x.trim()).filter(Boolean);
+ const secondary=entry?.secondaryMuscles||[];
+ const equipment=entry?.equipment||ex.setup?.slice(0,2)||[];
+ const mistakes=entry?.commonMistakes||[
+   "Using momentum instead of a controlled range",
+   "Changing the prescribed grip or body orientation",
+   "Continuing after sharp pain or loss of control"
+ ];
+ return `<section class="teaching-grid">
+   <div class="teaching-card"><small>PRIMARY MUSCLES</small>${listMarkup(primary,"See the movement description.")}</div>
+   <div class="teaching-card"><small>SECONDARY MUSCLES</small>${listMarkup(secondary,"Supporting muscles vary by setup.")}</div>
+   <div class="teaching-card"><small>EQUIPMENT</small>${listMarkup(equipment,"No equipment required.")}</div>
+ </section>
+ ${licensedMediaMarkup(ex)}
+ <section class="movement-instructions professional-instructions">
+   <div class="instruction-block"><small>SETUP</small>${listMarkup(ex.setup,"Follow the setup shown above.")}</div>
+   <div class="instruction-block"><small>EXECUTION</small><ol class="steps">${ex.steps.map(step=>`<li>${step}</li>`).join("")}</ol></div>
+   <div class="instruction-block cue"><small>COACHING CUES</small>${listMarkup(ex.cues,"Move slowly and stay in a pain-free range.")}</div>
+   <div class="instruction-block mistakes"><small>COMMON MISTAKES</small>${listMarkup(mistakes,"")}</div>
+ </section>`;
 }
 
 
@@ -641,8 +692,15 @@ function startTimer(sec){remaining=sec;const el=document.querySelector("#timer")
 function next(){state.step++;save();workout()}
 
 function showLibraryExercise(ex){
- app.innerHTML=`<section class="card workout-card"><button class="secondary" id="libraryBack">Back to Library</button><h2>${ex.name}</h2><p class="muted workout-subtitle">${ex.muscles}</p><div class="why-card"><h3>Why this exercise?</h3><p>${ex.why||"Builds strength and movement control."}</p></div>${attachmentPhotoMarkup(ex)}${ex.m1?m1SetupCoach(ex):`<div class="setup-grid">${ex.setup.map(x=>`<div><strong>${x}</strong></div>`).join("")}</div>`}<section class="movement-instructions"><ol class="steps">${ex.steps.map(s=>`<li>${s}</li>`).join("")}</ol><div class="cue"><strong>Key cues</strong><p>${ex.cues.join(" • ")}</p></div></section></section>`;
+ app.innerHTML=`<section class="card workout-card professional-exercise-detail"><button class="secondary" id="libraryBack">Back to Library</button><span class="pill">EXERCISE GUIDE</span><h2>${ex.name}</h2><p class="muted workout-subtitle">${ex.muscles}</p><div class="why-card"><h3>Why this exercise?</h3><p>${ex.why||"Builds strength and movement control."}</p></div>${attachmentPhotoMarkup(ex)}${ex.m1?m1SetupCoach(ex):""}${exerciseTeachingMarkup(ex)}</section>`;
  document.querySelector("#libraryBack").onclick=library;
+ document.querySelector("#openAsset")?.addEventListener("click",()=>openExerciseAsset(ex));
+}
+function imageLicenses(){
+ const namedEntries=Object.entries(LICENSED_EXERCISE_LIBRARY.entries||{});
+ app.innerHTML=`<section class="card"><button class="secondary" id="licensesBack">Back to Equipment</button><span class="pill">ABOUT</span><h2>Image Sources & Licenses</h2><p>Only media reviewed for exercise match, visible quality and documented reuse terms is bundled. Each item remains credited to its contributor and source.</p></section>
+ <section class="license-list">${namedEntries.map(([usedFor,entry])=>`<article class="card license-entry"><img src="${entry.media}" alt="${entry.mediaAlt}"><div><h3>${entry.sourceExercise}</h3><p><strong>Used for:</strong> ${usedFor}</p><p><strong>Author:</strong> ${entry.author}</p><p><strong>License:</strong> <a href="${entry.license.url}" target="_blank" rel="noopener">${entry.license.fullName}</a></p><p><a href="${entry.sourceUrl}" target="_blank" rel="noopener">wger record</a>${entry.originalSourceUrl?` · <a href="${entry.originalSourceUrl}" target="_blank" rel="noopener">original source</a>`:""}</p></div></article>`).join("")}</section>`;
+ document.querySelector("#licensesBack").onclick=equipment;
 }
 function equipment(){
  const items=[
@@ -665,12 +723,13 @@ function equipment(){
  app.innerHTML=`<section class="card"><h2>Profile</h2><label>What should the app call you?<input id="preferredName" value="${state.preferredName}" autocomplete="given-name"></label><button class="secondary profile-save" id="saveProfile">Save name</button></section><section class="card"><h2>My Equipment</h2><p class="muted">Workouts use only equipment switched on.</p><div class="equipment-toggle-list">${items.map(([key,icon,title,note])=>`<label class="equipment-toggle"><span class="equipment-symbol">${icon}</span><span class="equipment-copy"><strong>${title}</strong><small>${note}</small></span><input type="checkbox" data-equipment="${key}" ${state.equipment[key]?"checked":""}><span class="toggle-ui"></span></label>`).join("")}</div></section>
  <section class="card"><h2>Attachment Locker</h2><p class="muted">Add a close-up photo of each attachment from your actual gym. The correct photo will appear during every exercise with a bright “USE THIS ONE” label.</p><div class="attachment-locker">${attachments.map(([key,title,note])=>`<div class="locker-item">${state.attachmentPhotos[key]?`<img src="${state.attachmentPhotos[key]}" alt="${title}">`:`<div class="locker-placeholder">📷</div>`}<div class="locker-copy"><strong>${title}</strong><small>${note}</small><label class="photo-button">Choose photo<input type="file" accept="image/*" capture="environment" data-photo="${key}"></label>${state.attachmentPhotos[key]?`<button class="clear-photo" data-clear-photo="${key}">Remove</button>`:""}</div></div>`).join("")}</div></section>
  <section class="card equipment-impact"><h3>Current workout impact</h3><div class="impact-row"><span>Available exercises</span><strong>${activeWorkout().length}</strong></div><div class="impact-row"><span>Automatic substitutions</span><strong>${substitutionCount()}</strong></div><div class="impact-row"><span>Bumper-plate exercises</span><strong>${state.equipment.bumperPlates?"Enabled":"Disabled"}</strong></div><button class="primary" id="equipmentWorkout">Start equipment-safe workout</button></section>
- <section class="card about-card"><span class="pill">ABOUT</span><h2>Road to 12%</h2><div class="about-grid"><div><small>VERSION</small><strong>${APP_META.version}</strong></div><div><small>BUILD</small><strong>${APP_META.build}</strong></div><div><small>LAST UPDATED</small><strong>${APP_META.lastUpdated}</strong></div><div><small>GIT COMMIT</small><strong>${APP_META.gitCommit||"Not embedded"}</strong></div><div><small>SERVICE WORKER</small><strong>${APP_META.serviceWorkerCache}</strong></div></div></section>`;
+ <section class="card about-card"><span class="pill">ABOUT</span><h2>Road to 12%</h2><div class="about-grid"><div><small>VERSION</small><strong>${APP_META.version}</strong></div><div><small>BUILD</small><strong>${APP_META.build}</strong></div><div><small>LAST UPDATED</small><strong>${APP_META.lastUpdated}</strong></div><div><small>GIT COMMIT</small><strong>${APP_META.gitCommit||"Not embedded"}</strong></div><div><small>SERVICE WORKER</small><strong>${APP_META.serviceWorkerCache}</strong></div></div><button class="secondary about-license-button" id="imageLicenses">Image Sources & Licenses</button></section>`;
  document.querySelector("#saveProfile").onclick=()=>{state.preferredName=document.querySelector("#preferredName").value.trim()||"Andy";save();equipment()};
  document.querySelectorAll("[data-equipment]").forEach(input=>input.onchange=()=>{state.equipment[input.dataset.equipment]=input.checked;state.step=0;save();equipment()});
  document.querySelectorAll("[data-photo]").forEach(input=>input.onchange=e=>saveAttachmentPhoto(input.dataset.photo,e.target.files?.[0]));
  document.querySelectorAll("[data-clear-photo]").forEach(btn=>btn.onclick=()=>{delete state.attachmentPhotos[btn.dataset.clearPhoto];save();equipment()});
  document.querySelector("#equipmentWorkout").onclick=()=>{startNewSession();setTab("workout")};
+ document.querySelector("#imageLicenses").onclick=imageLicenses;
 }
 function saveAttachmentPhoto(key,file){
  if(!file)return;
@@ -830,20 +889,18 @@ function library(){
  let content="";
  if(category==="strength"){
    const strength=all.filter(x=>x.type==="strength");
-    content=`<div class="exercise-library-grid">${strength.map((x,i)=>`<button class="exercise-library-tile" data-lib-name="${x.name}">${exerciseAsset(x)?`<img src="${exerciseAsset(x)}" alt="">`:""}<span class="tag">${x.type}</span><strong>${x.name}</strong><small>${x.muscles||"Strength"}</small></button>`).join("")}</div>`;
+    content=`<div class="exercise-library-grid">${strength.map(x=>{const entry=exerciseLibraryEntry(x);return `<button class="exercise-library-tile professional-library-tile" data-lib-name="${x.name}">${entry?`<img src="${entry.media}" alt="${entry.mediaAlt}">`:`<div class="library-no-media">Written guide</div>`}<span class="tag">${entry?"Licensed media":"No reviewed image"}</span><strong>${x.name}</strong><small>${x.muscles||"Strength"}</small></button>`}).join("")}</div>`;
  }else if(category==="cardio"){
-   const cards=[
-    ["Treadmill Walking","assets/phase3/treadmill-walking.jpg"],["Treadmill Incline Walk","assets/phase3/treadmill-incline-walk.jpg"],["Treadmill HIIT Intervals","assets/phase3/treadmill-hiit-intervals.jpg"],["Rower Technique","assets/phase3/rower-technique.jpg"],["KICKR CORE Endurance Ride","assets/phase3/kickr-core-endurance-ride.jpg"],["KICKR CORE HIIT Ride","assets/phase3/kickr-core-hiit-ride.jpg"]
-   ];
-   content=`<div class="visual-guide-grid">${cards.map(([n,img])=>`<button data-guide-image="${img}" data-guide-title="${n}"><img src="${img}"><strong>${n}</strong></button>`).join("")}</div>`;
+   const cards=["Treadmill Walking","Treadmill Incline Walk","Treadmill HIIT Intervals","Rower Technique","KICKR CORE Endurance Ride","KICKR CORE HIIT Ride"];
+   content=`<div class="text-guide-grid">${cards.map(name=>`<article><span class="tag">Written guide</span><strong>${name}</strong><small>Equipment setup, technique and coaching cues remain available in the guided workout.</small></article>`).join("")}</div>`;
  }else if(category==="mobility"){
-    const cards=[["Dynamic Warm-Up","assets/placeholders/dynamic-warm-up.svg"],["Hip & Glute Mobility","assets/placeholders/hip-glute-mobility.svg"],["Thoracic & Shoulder Mobility","assets/placeholders/thoracic-shoulder-mobility.svg"],["Core Activation","assets/placeholders/core-activation.svg"],["Cool Down & Recovery","assets/placeholders/cooldown-recovery.svg"]];
-   content=`<div class="visual-guide-grid">${cards.map(([n,img])=>`<button data-guide-image="${img}" data-guide-title="${n}"><img src="${img}"><strong>${n}</strong></button>`).join("")}</div>`;
+   const cards=["Dynamic Warm-Up","Hip & Glute Mobility","Thoracic & Shoulder Mobility","Core Activation","Cool Down & Recovery"];
+   content=`<div class="text-guide-grid">${cards.map(name=>`<article><span class="tag">${name.includes("Hip")?"Licensed media in workout":"Written guide"}</span><strong>${name}</strong><small>Generated artwork has been removed from the active library.</small></article>`).join("")}</div>`;
  }else if(category==="setup"){
-   const cards=[["M1 Attachment Reference","assets/phase1/m1-attachment-reference.jpg"],["M1 Setup Guide","assets/phase1/m1-setup-guide.jpg"],["Smith Machine Setup","assets/phase1/smith-machine-setup-guide.jpg"],["KICKR CORE Bike Setup","assets/phase3/kickr-core-bike-setup.jpg"]];
-   content=`<div class="visual-guide-grid">${cards.map(([n,img])=>`<button data-guide-image="${img}" data-guide-title="${n}"><img src="${img}"><strong>${n}</strong></button>`).join("")}</div>`;
+   const cards=["M1 Attachment Reference","M1 Setup Guide","Smith Machine Setup","KICKR CORE Bike Setup"];
+   content=`<div class="text-guide-grid">${cards.map(name=>`<article><span class="tag">Setup guide</span><strong>${name}</strong><small>Use the exact setup, pin and attachment instructions shown during each workout.</small></article>`).join("")}</div>`;
  }else{
-   content=`<div class="recovery-library"><img src="assets/placeholders/cooldown-recovery.svg"><h3>Recovery dashboard</h3><p>Use the Progress tab to review trained muscles, workout feedback and recovery readiness.</p><button class="primary" id="openRecovery">Open Progress</button></div>`;
+   content=`<div class="recovery-library"><h3>Recovery dashboard</h3><p>Use the Progress tab to review trained muscles, workout feedback and recovery readiness.</p><button class="primary" id="openRecovery">Open Progress</button></div>`;
  }
  app.innerHTML=`<section class="card"><span class="pill">VISUAL GUIDES</span><h2>Library</h2><p>Organized by purpose—not by development phase.</p><div class="library-category-grid">${V11_LIBRARY_CATEGORIES.map(c=>`<button data-category="${c.key}" class="${c.key===category?"active":""}"><span>${c.icon}</span><strong>${c.title}</strong><small>${c.description}</small></button>`).join("")}</div></section><section class="card">${content}</section>`;
  document.querySelectorAll("[data-category]").forEach(b=>b.onclick=()=>{state.libraryCategory=b.dataset.category;save();library()});
@@ -1260,11 +1317,6 @@ function progress(){
 }
 
 function exercise(ex,workoutData=activeWorkout()){
- if(V1131_ANATOMICAL_ASSETS[ex.name])ex.demoImage=V1131_ANATOMICAL_ASSETS[ex.name];
- if(ex&&PHASE2_ASSET_MAP[ex.name])ex.demoImage=PHASE2_ASSET_MAP[ex.name];
- if(ex&&PHASE3_ASSET_MAP[ex.name])ex.demoImage=PHASE3_ASSET_MAP[ex.name];
- if(V1131_ANATOMICAL_ASSETS[ex.name])ex.demoImage=V1131_ANATOMICAL_ASSETS[ex.name];
-
  const pct=Math.round(state.step/workoutData.length*100);
  const strength=ex.type==="strength";
  if(strength&&!state.logs[ex.name])state.logs[ex.name]=Array(ex.sets).fill(null);
@@ -1285,15 +1337,7 @@ function exercise(ex,workoutData=activeWorkout()){
    <div class="why-card"><h3>Why this exercise?</h3><p>${ex.why||"Builds strength, control and confidence."}</p></div>
    ${attachmentPhotoMarkup(ex)}
    ${ex.m1?m1SetupCoach(ex):`<div class="simple-setup-flow"><section class="setup-section"><div class="section-number">1</div><div><small>SETUP</small><h3>Get ready</h3>${ex.setup.map(x=>`<p>${x}</p>`).join("")}</div></section></div>`}
-    ${exerciseAsset(ex)?`<section class="exercise-visual-section">
-      <div class="section-heading"><span>▶</span><div><small>VISUAL GUIDE</small><h3>Start, move and finish</h3></div></div>
-      <button class="exercise-asset-button" id="openAsset"><img class="exercise-asset-image" src="${exerciseAsset(ex)}" alt="${ex.name} visual guide"><span>Tap to enlarge</span></button>
-    </section>`:`<section class="card visual-withheld"><strong>Visual temporarily removed</strong><p>Use the verified setup and written steps while a trustworthy replacement is prepared.</p></section>`}
-   <section class="movement-instructions">
-     <div class="section-heading"><span>✓</span><div><small>PERFORM THE MOVEMENT</small><h3>Step by step</h3></div></div>
-     <ol class="steps">${ex.steps.map(s=>`<li>${s}</li>`).join("")}</ol>
-     <div class="cue"><strong>Key cues</strong><p>${ex.cues.join(" • ")}</p></div>
-   </section>
+   ${exerciseTeachingMarkup(ex)}
    ${smithPlateCalculator(ex)}
    ${quickSettings(ex)}
    ${strength?`<div class="weight-coach-card"><h3>Weight recommendation</h3><p>${ex.weightRecommendation}</p></div>`:""}

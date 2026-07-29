@@ -1,4 +1,16 @@
-# Road to 12% — Version 11.3.2
+# Road to 12% — Version 13
+
+## Version 13 exercise media
+
+Version 13 replaces generated workout artwork in the active exercise flow with a
+quality-gated, locally bundled subset of the wger exercise library. Only exact or
+close equipment matches that were visually reviewed and marked non-AI by wger are
+included. Exercises without a reviewed free match intentionally display the written
+setup and form guide without an image.
+
+Every bundled asset has author, source, original-source (when supplied), and
+Creative Commons license metadata in `exercise-library.js`. The same information is
+available in the app under **Equipment → About → Image Sources & Licenses**.
 
 Upload all files in this folder to the same GitHub repository folder.
 

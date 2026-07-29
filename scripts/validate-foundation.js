@@ -23,6 +23,7 @@ function requireFile(relativePath, source) {
 
 for (const file of [
   "app-meta.js",
+  "exercise-library.js",
   "data.js",
   "app.js",
   "sw.js",
@@ -48,6 +49,7 @@ const expectedEntryPoints = [
   "manifest.webmanifest",
   "app.css",
   "app-meta.js",
+  "exercise-library.js",
   "data.js",
   "app.js",
 ];

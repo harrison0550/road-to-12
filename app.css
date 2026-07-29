@@ -2012,3 +2012,44 @@ header .reset,#reset,.reset-button{display:none!important}
 .visual-withheld{border-color:#614b25;background:#201b12}
 .visual-withheld p{margin-bottom:0;color:#d6c7a9}
 .set-row button{touch-action:manipulation}
+
+/* Version 13 professional exercise library */
+.professional-exercise-detail>.pill{display:inline-flex;margin:18px 0 6px}
+.teaching-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:18px 0}
+.teaching-card,.instruction-block{padding:15px;border:1px solid var(--line);border-radius:15px;background:#0c1117}
+.teaching-card small,.instruction-block>small,.media-status{display:block;color:#e25a54;font-size:10px;font-weight:900;letter-spacing:.11em}
+.teaching-card ul,.instruction-block ul{margin:10px 0 0;padding-left:19px;line-height:1.55}
+.exercise-media-card{margin:18px 0;padding:16px;border:1px solid #34414d;border-radius:18px;background:#10171e}
+.exercise-media-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px}
+.exercise-media-heading h3{margin:4px 0 0}
+.license-chip{padding:6px 9px;border:1px solid #44725c;border-radius:999px;color:#9ee5b7;background:#10251b;font-size:11px;font-weight:900;white-space:nowrap}
+.licensed-asset-button{overflow:hidden;background:#fff}
+.licensed-asset-button img{width:100%;max-height:520px;object-fit:contain;background:#fff}
+.media-credit{margin:12px 2px 0;color:var(--muted);font-size:12px;line-height:1.5}
+.media-credit a,.license-entry a{color:#9ccfff}
+.media-unavailable{border-color:#5b4a2b;background:#1d1911}
+.media-unavailable h3{margin:7px 0}
+.media-unavailable p{margin-bottom:0;color:#d8ccb6;line-height:1.55}
+.professional-instructions{display:grid;gap:12px;margin-top:18px}
+.professional-instructions .instruction-block{margin:0}
+.professional-instructions .mistakes{border-color:#603b3b;background:#1c1113}
+.professional-instructions ol{margin-bottom:0}
+.professional-library-tile{overflow:hidden}
+.professional-library-tile img{width:100%;aspect-ratio:4/3;object-fit:contain;background:#fff}
+.library-no-media{display:grid;place-items:center;min-height:130px;background:linear-gradient(135deg,#151c23,#0c1117);color:var(--muted);font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.08em}
+.text-guide-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.text-guide-grid article{display:flex;flex-direction:column;gap:9px;padding:16px;border:1px solid var(--line);border-radius:16px;background:#0c1117}
+.text-guide-grid small{color:var(--muted);line-height:1.45}
+.about-license-button{width:100%;margin-top:14px}
+.license-list{display:grid;gap:14px}
+.license-entry{display:grid;grid-template-columns:180px 1fr;gap:16px;align-items:center}
+.license-entry img{width:100%;max-height:180px;object-fit:contain;border-radius:12px;background:#fff}
+.license-entry h3{margin:0 0 8px}
+.license-entry p{margin:6px 0;color:var(--muted);line-height:1.45}
+@media(max-width:620px){
+  .teaching-grid{grid-template-columns:1fr}
+  .text-guide-grid{grid-template-columns:1fr}
+  .license-entry{grid-template-columns:1fr}
+  .license-entry img{max-height:260px}
+  .exercise-media-heading{align-items:flex-start;flex-direction:column}
+}

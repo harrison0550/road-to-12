@@ -7,9 +7,15 @@ const ASSETS=[
   "./index.html",
   "./app.css",
   "./app-meta.js",
+  "./exercise-library.js",
   "./data.js",
   "./app.js",
-  "./manifest.webmanifest"
+  "./manifest.webmanifest",
+  "./assets/exercise-library/wger/triceps-pushdown.webp",
+  "./assets/exercise-library/wger/smith-split-squat.gif",
+  "./assets/exercise-library/wger/straight-arm-pulldown.png",
+  "./assets/exercise-library/wger/smith-machine-squat.jpg",
+  "./assets/exercise-library/wger/hip-flexor-stretch.webp"
 ];
 
 self.addEventListener("install",event=>{
