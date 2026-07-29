@@ -108,10 +108,6 @@ function setupGroup(ex){
   if(pin<=9)return 4;
   return 5;
 }
-function activeWorkout(){
-  return data.map(resolveExercise).filter(ex=>!ex.unavailable).map((ex,index)=>({ex,index}))
-    .sort((a,b)=>setupGroup(a.ex)-setupGroup(b.ex)||a.index-b.index).map(x=>x.ex);
-}
 function setupBlockLabel(ex){
   return ({0:"Warm-up / mobility",1:"Smith station",2:"No pulley adjustment",3:"Low pulley block",4:"Mid pulley block",5:"High pulley block"})[setupGroup(ex)]||"Workout block";
 }
@@ -165,19 +161,6 @@ function migrateHistory(){
     return item;
   });
   if(changed)save();
-}
-function startNewSession(){
-  state.logs={};
-  state.currentSession={
-    id:`session-${Date.now()}`,
-    name:"Full Body A",
-    startedAt:new Date().toISOString(),
-    dateKey:localDateKey(),
-    equipment:deepCopy(state.equipment)
-  };
-  state.step=0;
-  state.setupReady=false;
-  save();
 }
 function attachmentFor(ex){
   return ex.attachmentCard||null;
@@ -263,33 +246,6 @@ function render(){
  const brand=document.querySelector("#gymBrand");
  if(brand)brand.textContent=`${state.preferredName.toUpperCase()}'S HOME GYM`;
  document.querySelector('#phase1LibraryButton')?.remove();clearInterval(timerId);document.body.classList.toggle("workout-mode",state.tab==="workout");nav.forEach(b=>b.classList.toggle("active",b.dataset.tab===state.tab));({home:home,workout:workout,library:library,equipment:equipment,progress:progress}[state.tab]||home)()}
-function home(){
- const day=weekPlan[state.selectedDay];
- const done=todayCompleted();
- const completed=completedTodaySession();
- if(done){
-   const totals=sessionTotals(completed);
-   app.innerHTML=`<section class="celebration-hero"><div class="celebration-burst">🏆</div><span class="pill">TODAY COMPLETE</span><h2>You crushed it, ${state.preferredName}!</h2><p>Workout #${state.sessions||state.history.length} on the Road to 12% is officially complete.</p><div class="celebration-stats"><div><small>WORKOUT</small><strong>${completed.name}</strong></div><div><small>TIME</small><strong>${formatDuration(completed.durationMs)}</strong></div><div><small>SETS SAVED</small><strong>${totals.completedSets}</strong></div></div><button class="primary" id="viewCompleted">View today’s completed workout</button><button class="secondary repeat-button" id="repeatWorkout">Repeat workout intentionally</button><small class="recovery-message">Hydrate, eat well, and recover. See you for the next session.</small></section>
-   <section class="card week-card"><h2>Training schedule</h2><div class="week-strip">${weekPlan.map((d,i)=>`<button class="day-button ${i===state.selectedDay?"selected":""} ${i===0?"completed-day":""}" data-day="${i}"><span class="day-icon">${i===0?"✅":d.icon}</span><strong>${d.short}</strong><small>${i===0?"Complete":i===state.selectedDay?"Selected":""}</small></button>`).join("")}</div><div class="selected-plan"><div class="large-icon">✅</div><div><h3>Today is logged</h3><p class="muted">Your weights, reps and completed sets are stored in Workout History.</p></div></div></section>
-   <section class="stats"><div><small>WEIGHT</small><strong>${state.weight} lb</strong></div><div><small>WAIST</small><strong>${state.waist} in</strong></div><div><small>SESSIONS</small><strong>${state.sessions}</strong></div></section>`;
-   document.querySelector("#viewCompleted").onclick=()=>{state.historyView=completed.id;setTab("progress")};
-   document.querySelector("#repeatWorkout").onclick=()=>{if(confirm("Start another Full Body A workout today? Your completed session will remain saved.")){startNewSession();setTab("workout")}};
-   document.querySelectorAll("[data-day]").forEach(b=>b.onclick=()=>{state.selectedDay=+b.dataset.day;state.previewDay=state.selectedDay;save();showDayPlan(state.selectedDay)});
-   return;
- }
- app.innerHTML=`<section class="hero"><img src="${window.HERO_IMAGE}"><div class="shade"></div><div class="hero-copy"><span class="pill">WEEK 1 • FOUNDATION</span><h2>${day.title}</h2><p>${day.detail}</p><button class="primary" id="start">${day.action==="workout"?"Start today's guided workout":"Open selected day"}</button></div></section>
- <section class="card week-card"><h2>Training schedule</h2><p class="muted">Tap any day to view its plan.</p><div class="week-strip">${weekPlan.map((d,i)=>`<button class="day-button ${i===state.selectedDay?"selected":""}" data-day="${i}"><span class="day-icon">${d.icon}</span><strong>${d.short}</strong><small>${i===state.selectedDay?"Selected":""}</small></button>`).join("")}</div><div class="selected-plan"><div class="large-icon">${day.icon}</div><div><h3>${day.title}</h3><p class="muted">${day.detail}</p></div></div></section>
- <section class="card equipment-ready-card"><div><span class="ready-icon">✓</span><div><strong>Workout is equipment-ready</strong><p class="muted">${state.equipment.bumperPlates?"Bumper plates are enabled.":"Bumper plates are off. Plate-dependent barbell work is excluded."} ${substitutionCount()} automatic substitution${substitutionCount()===1?"":"s"} active.</p></div></div><button class="secondary" id="editEquipment">My equipment</button></section>
- <section class="stats"><div><small>WEIGHT</small><strong>${state.weight} lb</strong></div><div><small>WAIST</small><strong>${state.waist} in</strong></div><div><small>SESSIONS</small><strong>${state.sessions}</strong></div></section>`;
- document.querySelectorAll("[data-day]").forEach(b=>b.onclick=()=>{state.selectedDay=+b.dataset.day;state.previewDay=state.selectedDay;save();showDayPlan(state.selectedDay)});
- document.querySelector("#editEquipment").onclick=()=>setTab("equipment");
- document.querySelector("#start").onclick=()=>{
-   const action=weekPlan[state.selectedDay].action;
-   if(action==="workout"){startNewSession();setTab("workout")}
-   else if(action==="progress")setTab("progress");
-   else showDayPlan();
- };
-}
 
 function showDayPlan(dayIndex=state.selectedDay){
  const day=weekPlan[dayIndex],isToday=dayIndex===0;
@@ -499,53 +455,8 @@ function bindGuideTabs(){
   });
 }
 
-function workout(){
- if(!state.currentSession && state.step===0){
-   state.currentSession={id:`session-${Date.now()}`,name:"Full Body A",startedAt:new Date().toISOString(),dateKey:localDateKey(),equipment:deepCopy(state.equipment)};
-   save();
- }
- const workoutData=activeWorkout();
- if(state.step===0)return briefing();
- if(state.step>workoutData.length)return summary();
- const ex=workoutData[state.step-1]; exercise(ex,workoutData);
-}
-function briefing(){
- const workoutData=activeWorkout(),swaps=workoutData.filter(ex=>ex.originalExercise),blocks=setupPlanSummary(workoutData);
- const swapMarkup=swaps.map(ex=>`<div class="swap-row"><div><small>REPLACED</small><strong>${ex.originalExercise}</strong></div><span>→</span><div><small>TODAY</small><strong>${ex.name}</strong></div></div>`).join("");
- app.innerHTML=`<section class="card"><div class="phase"><span class="pill">SETUP-EFFICIENT SESSION</span><strong>50–60 min</strong></div><h2>Full Body A</h2><p class="muted">Exercises are grouped by M1 setup zone to reduce repeated pulley adjustments.</p><div class="brief-grid"><div><small>PRIMARY</small><strong>Full body</strong></div><div><small>PLATES</small><strong>${state.equipment.bumperPlates?"Available":"Not installed"}</strong></div><div><small>INTENSITY</small><strong>Leave 2–3 reps in reserve</strong></div><div><small>SETUP BLOCKS</small><strong>${blocks.length}</strong></div></div></section>
- <section class="card"><h3>Today’s setup route</h3><div class="setup-route">${blocks.map((b,i)=>`<div><span>${i+1}</span><strong>${b.label}</strong><small>${b.pin||"No M1 pin"} • ${b.count} exercise${b.count===1?"":"s"}</small></div>`).join("")}</div><p class="muted">Finish each block before moving the pulley carriages again.</p></section>
- ${swaps.length?`<section class="card substitution-summary"><h3>Automatic substitutions</h3>${swapMarkup}</section>`:""}
- <section class="card muscles"><h3>Today’s muscle groups</h3><p>Chest, shoulders, triceps, back, biceps, quads, glutes, hamstrings and core.</p></section><button class="primary" id="go">Begin warm-up</button>`;
- document.querySelector("#go").onclick=next
-}
 
 function restCoachText(n){if(n<=10)return"Get ready and set your posture.";if(n<=20)return"Review the next setup and take two slow breaths.";if(n<=40)return"Drink water if needed and relax your grip.";return"Recover and prepare for the next set."}
-function exercise(ex,workoutData=activeWorkout()){
- const pct=Math.round(state.step/workoutData.length*100),strength=ex.type==="strength";
- if(strength&&!state.logs[ex.name])state.logs[ex.name]=Array(ex.sets).fill(null);
- const currentBlock=setupBlockLabel(ex),previous=workoutData[state.step-2],blockChanged=!previous||setupBlockLabel(previous)!==currentBlock;
- app.innerHTML=`<section class="card workout-card"><div class="phase"><span class="tag">${ex.type}</span><strong>${state.step}/${workoutData.length}</strong></div><div class="progress workout-progress"><i style="width:${pct}%"></i></div>
- ${blockChanged?`<div class="setup-block-banner"><small>NOW ENTERING</small><strong>${currentBlock}</strong>${ex.m1?`<span>Keep this pulley zone until the block is complete.</span>`:""}</div>`:""}
- <h2>${ex.name}</h2><p class="muted workout-subtitle">${ex.muscles}</p>
- ${ex.originalExercise?`<div class="substitution-alert"><strong>Equipment substitution</strong><p>${ex.originalExercise} was replaced with ${ex.name} because required equipment is unavailable.</p></div>`:""}
- <div class="why-card"><h3>Why this exercise?</h3><p>${ex.why}</p></div>
- ${attachmentPhotoMarkup(ex)}
- ${ex.m1?m1SetupCoach(ex):`<div class="simple-setup-flow"><section class="setup-section"><div class="section-number">1</div><div><small>SETUP</small><h3>Get ready</h3>${ex.setup.map(x=>`<p>${x}</p>`).join("")}</div></section></div>`}
- <section class="exercise-visual-section">
-   <div class="section-heading"><span>${ex.m1?5:2}</span><div><small>VISUAL GUIDE</small><h3>Use this movement reference</h3></div></div>
-   ${ex.correctedGuide?correctedDemoMarkup(ex):`<button class="exercise-asset-button" id="openAsset"><img class="exercise-asset-image" src="${ex.demoImage}" alt="${ex.name} visual guide"><span>Tap to enlarge</span></button>`}
- </section>
- <section class="movement-instructions"><div class="section-heading"><span>${ex.m1?6:3}</span><div><small>PERFORM THE MOVEMENT</small><h3>Step by step</h3></div></div><ol class="steps">${ex.steps.map(s=>`<li>${s}</li>`).join("")}</ol><div class="cue"><strong>Key cues</strong><p>${ex.cues.join(" • ")}</p></div></section>
- ${quickSettings(ex)}
- ${strength?`<div class="weight-coach-card"><h3>Beginner weight recommendation</h3><p>${ex.weightRecommendation}</p></div>`:""}</section>
- ${strength?sets(ex):timed(ex)}
- <div class="workout-actions"><button class="secondary" id="back">Back</button><button class="primary" id="next">${state.step===workoutData.length?"Finish session":"Complete & continue"}</button></div>`;
- document.querySelector("#back").onclick=()=>{state.step=Math.max(0,state.step-1);save();workout()};
- document.querySelector("#next").onclick=next;
- const assetButton=document.querySelector("#openAsset");
- if(assetButton)assetButton.onclick=()=>openExerciseAsset(ex);
- if(strength)bindSets(ex);else bindTimer(ex);
-}
 
 
 function openVisualLibraries(){
@@ -632,66 +543,6 @@ function bindTimer(ex){let b=document.querySelector("#rest");if(b)b.onclick=()=>
 function stopTimer(){clearInterval(timerId);timerId=null;}
 function startTimer(sec){remaining=sec;const el=document.querySelector("#timer");clearInterval(timerId);tick();timerId=setInterval(()=>{remaining--;tick();if(remaining<=0){clearInterval(timerId);navigator.vibrate?.([200,100,200])}},1000);function tick(){el.textContent=`${String(Math.floor(remaining/60)).padStart(2,"0")}:${String(remaining%60).padStart(2,"0")}`;const c=document.querySelector("#restCoach");if(c)c.textContent=restCoachText(remaining)}}
 function next(){state.step++;save();workout()}
-function summary(){
- let session;
- if(state.currentSession?.completedId){
-   session=state.history.find(h=>h.id===state.currentSession.completedId);
- }else{
-   const endedAt=new Date();
-   const startedAt=state.currentSession?.startedAt?new Date(state.currentSession.startedAt):endedAt;
-   session={
-     id:state.currentSession?.id||`session-${Date.now()}`,
-     date:endedAt.toLocaleDateString(),
-     dateKey:localDateKey(endedAt),
-     completedAt:endedAt.toISOString(),
-     startedAt:startedAt.toISOString(),
-     durationMs:Math.max(0,endedAt-startedAt),
-     name:"Full Body A",
-     exercises:sessionExerciseSnapshot(),
-     equipment:deepCopy(state.equipment)
-   };
-   state.sessions++;
-   state.history.push(session);
-   state.currentSession={completedId:session.id};
-   state.step=0;
-   save();
- }
- const totals=sessionTotals(session);
- app.innerHTML=`<section class="card complete upgraded-complete"><div class="check">✓</div><span class="pill">ROAD TO 12% • SESSION ${state.sessions}</span><h2>You crushed it!</h2><p class="muted">Full Body A is permanently saved. Your completed sets, reps and selected weights are now available in Workout History.</p><div class="brief-grid"><div><small>TIME</small><strong>${formatDuration(session.durationMs)}</strong></div><div><small>SETS SAVED</small><strong>${totals.completedSets}</strong></div><div><small>REPS</small><strong>${totals.totalReps}</strong></div><div><small>NEXT</small><strong>Recover + hydrate</strong></div></div></section><button class="primary" id="viewSession">View completed workout</button><button class="secondary" id="home">Return to celebration home</button>`;
- document.querySelector("#viewSession").onclick=()=>{state.historyView=session.id;setTab("progress")};
- document.querySelector("#home").onclick=()=>setTab("home")
-}
-function library(){
- const extras=window.EXTRA_LIBRARY_DATA||[];
- const all=[...data,...extras];
- app.innerHTML=`<section class="card">
-   <h2>Exercise Library</h2>
-   <p class="muted">Select an exercise to review its attachment, setup and movement instructions.</p>
-
-   <div class="library-master">
-     <img src="assets/exercise-asset-pack-v7-2.png" alt="Version 7.2 quality-controlled exercise asset pack">
-     <div class="library-master-copy">
-       <span class="asset-badge">Master reference</span>
-       <h3>Version 7.2 exercise asset pack</h3>
-       <p>The complete pack stays in Library. Guided workouts show only the current exercise panel.</p>
-       <div class="guide-actions"><button class="primary-guide" data-open-asset="assets/exercise-asset-pack-v7-2.png">Open master library</button></div>
-     </div>
-   </div>
-
-   <h3 class="library-section-title">Today's guided exercises</h3>
-   <div class="exercise-library-grid">
-     ${data.map((x,i)=>`<button class="exercise-library-tile" data-workout-i="${i}"><span class="tag">${x.type}</span><strong>${x.name}</strong><small>Dedicated exercise asset</small></button>`).join("")}
-   </div>
-
-   <h3 class="library-section-title">Other equipment</h3>
-   <div class="exercise-library-grid">
-     ${extras.map((x,i)=>`<button class="exercise-library-tile" data-extra-i="${i}"><span class="tag">${x.type}</span><strong>${x.name}</strong><small>Setup, attachment and movement guide</small></button>`).join("")}
-   </div>
- </section>`;
- bindAssetViewer();
- document.querySelectorAll("[data-workout-i]").forEach(x=>x.onclick=()=>{state.step=+x.dataset.workoutI+1;setTab("workout")});
- document.querySelectorAll("[data-extra-i]").forEach(x=>x.onclick=()=>showLibraryExercise(extras[+x.dataset.extraI]));
-}
 
 function showLibraryExercise(ex){
  app.innerHTML=`<section class="card workout-card"><button class="secondary" id="libraryBack">Back to Library</button><h2>${ex.name}</h2><p class="muted workout-subtitle">${ex.muscles}</p><div class="why-card"><h3>Why this exercise?</h3><p>${ex.why||"Builds strength and movement control."}</p></div>${attachmentPhotoMarkup(ex)}${ex.m1?m1SetupCoach(ex):`<div class="setup-grid">${ex.setup.map(x=>`<div><strong>${x}</strong></div>`).join("")}</div>`}<section class="movement-instructions"><ol class="steps">${ex.steps.map(s=>`<li>${s}</li>`).join("")}</ol><div class="cue"><strong>Key cues</strong><p>${ex.cues.join(" • ")}</p></div></section></section>`;
@@ -740,17 +591,6 @@ function saveAttachmentPhoto(key,file){
    img.src=reader.result;
  };
  reader.readAsDataURL(file);
-}
-function progress(){
- if(state.historyView){
-   const session=state.history.find(h=>h.id===state.historyView);
-   if(session)return sessionDetail(session);
-   state.historyView=null;
- }
- app.innerHTML=`<section class="card"><h2>Progress check-in</h2><label>Weight (lb)<input id="w" value="${state.weight}"></label><br><label>Waist (in)<input id="wa" value="${state.waist}"></label><br><button class="primary" id="saveP">Save check-in</button></section>
- <section class="card"><h2>Workout history</h2><p class="muted">Tap a workout to reopen every saved exercise, set, weight and rep.</p>${state.history.length?state.history.slice().reverse().map(h=>{const t=sessionTotals(h);return `<button class="history-card" data-history="${h.id}"><span class="history-check">✓</span><span><strong>${h.name}</strong><small>${h.date} • ${formatDuration(h.durationMs)} • ${t.completedSets} sets saved${h.recoveredFromV74?" • Recovered from 7.4":""}</small></span><span class="history-arrow">›</span></button>`}).join(""):'<p class="muted">No completed sessions yet.</p>'}</section>`;
- document.querySelector("#saveP").onclick=()=>{state.weight=document.querySelector("#w").value;state.waist=document.querySelector("#wa").value;save();progress()};
- document.querySelectorAll("[data-history]").forEach(btn=>btn.onclick=()=>{state.historyView=btn.dataset.history;save();progress()});
 }
 function sessionDetail(session){
  const totals=sessionTotals(session);
@@ -838,29 +678,6 @@ function exercisePreviewAsset(name){
  const ex=all.find(x=>x.name===name||name.toLowerCase().includes(x.name.toLowerCase())||x.name.toLowerCase().includes(name.toLowerCase()));
  return ex?.demoImage||"";
 }
-function home(){
- const done=todayCompleted(), completed=completedTodaySession(), check=todayCheckin(), tomorrow=tomorrowPlan();
- const totals=completed?sessionTotals(completed):null;
- app.innerHTML=`<section class="v11-dashboard-head"><span class="pill">VERSION 11.3.2</span><h2>${greeting()}, ${state.preferredName}</h2><p>${done?"Training complete. Now make recovery count.":"Your personalized home-gym plan is ready."}</p></section>
- ${done?`<section class="card v11-status-card complete-status"><div class="dashboard-icon">🏆</div><div><small>TODAY’S STATUS</small><h3>Workout complete</h3><p>${completed.name} • ${formatDuration(completed.durationMs)} • ${totals.completedSets} sets saved</p></div><button class="secondary" id="viewToday">View</button></section>`:
- `<section class="card v11-status-card"><div class="dashboard-icon">▶</div><div><small>TODAY’S WORKOUT</small><h3>${weekPlan[state.selectedDay].title}</h3><p>${weekPlan[state.selectedDay].time} • ${weekPlan[state.selectedDay].focus}</p></div><button class="primary compact-primary" id="startToday">Start</button></section>`}
- <section class="card dashboard-section"><div class="section-title-row"><div><small>DAILY READINESS</small><h3>Recovery check-in</h3></div><span class="readiness-score">${[check.water,check.nutrition,!!check.sleep].filter(Boolean).length}/3</span></div>
- <div class="checkin-grid">
-  <label><span>Sleep</span><select id="sleepCheck"><option value="">Select</option><option ${check.sleep==="Great"?"selected":""}>Great</option><option ${check.sleep==="Good"?"selected":""}>Good</option><option ${check.sleep==="Poor"?"selected":""}>Poor</option></select></label>
-  <button class="checkin-toggle ${check.water?"checked":""}" id="waterCheck"><span>${check.water?"✓":"○"}</span> Water</button>
-  <button class="checkin-toggle ${check.nutrition?"checked":""}" id="nutritionCheck"><span>${check.nutrition?"✓":"○"}</span> Nutrition</button>
- </div></section>
- <section class="card tomorrow-card"><div class="section-title-row"><div><small>NEXT UP</small><h3>${tomorrow.title}</h3></div><span>${tomorrow.time}</span></div><p>${tomorrow.detail}</p><div class="focus-chips">${tomorrow.focus.split(",").map(x=>`<span>${x}</span>`).join("")}</div><button class="secondary" id="previewTomorrow">Preview tomorrow</button></section>
- <section class="card week-card"><h3>This week</h3><div class="week-strip">${weekPlan.map((d,i)=>`<button class="day-button ${i===state.selectedDay?"selected":""} ${i===0&&done?"completed-day":""}" data-day="${i}"><span class="day-icon">${i===0&&done?"✅":d.icon}</span><strong>${d.short}</strong></button>`).join("")}</div></section>
- <section class="stats"><div><small>WEIGHT</small><strong>${state.weight} lb</strong></div><div><small>WAIST</small><strong>${state.waist} in</strong></div><div><small>SESSIONS</small><strong>${state.sessions}</strong></div></section>`;
- document.querySelector("#viewToday")?.addEventListener("click",()=>{state.historyView=completed.id;setTab("progress")});
- document.querySelector("#startToday")?.addEventListener("click",()=>{startNewSession();setTab("workout")});
- document.querySelector("#previewTomorrow").onclick=()=>showDayPlan((state.selectedDay+1)%7);
- document.querySelector("#sleepCheck").onchange=e=>{check.sleep=e.target.value;save();home()};
- document.querySelector("#waterCheck").onclick=()=>{check.water=!check.water;save();home()};
- document.querySelector("#nutritionCheck").onclick=()=>{check.nutrition=!check.nutrition;save();home()};
- document.querySelectorAll("[data-day]").forEach(b=>b.onclick=()=>{state.selectedDay=+b.dataset.day;save();showDayPlan(state.selectedDay)});
-}
 
 function briefing(){
  const workoutData=activeWorkout(),blocks=setupPlanSummary(workoutData);
@@ -890,33 +707,6 @@ function calculatePlates(total){
  const plates=[45,35,25,10,5,2.5], result=[];
  plates.forEach(p=>{const n=Math.floor((side+.001)/p);if(n){result.push(`${n} × ${p}`);side-=n*p}});
  return result.length?`Each side: ${result.join(" + ")} lb`:"Empty Smith bar";
-}
-function exercise(ex,workoutData=activeWorkout()){
- if(ex&&PHASE2_ASSET_MAP[ex.name])ex.demoImage=PHASE2_ASSET_MAP[ex.name];
- if(ex&&PHASE3_ASSET_MAP[ex.name])ex.demoImage=PHASE3_ASSET_MAP[ex.name];
- const pct=Math.round(state.step/workoutData.length*100),strength=ex.type==="strength";
- if(strength&&!state.logs[ex.name])state.logs[ex.name]=Array(ex.sets).fill(null);
- const currentBlock=setupBlockLabel(ex),previous=workoutData[state.step-2],blockChanged=!previous||setupBlockLabel(previous)!==currentBlock;
- app.innerHTML=`<section class="card workout-card gym-mode-card"><div class="phase"><span class="tag">${ex.type}</span><strong>${state.step}/${workoutData.length}</strong></div>
- ${blockProgressMarkup(workoutData,ex)}
- ${blockChanged?`<div class="setup-block-banner"><small>NOW ENTERING</small><strong>${currentBlock}</strong><span>${ex.m1?"Keep this pulley setup until this block ends.":"Complete this section before moving on."}</span></div>`:""}
- <h2>${ex.name}</h2><p class="muted workout-subtitle">${ex.muscles}</p>
- <div class="why-card"><h3>Why this exercise?</h3><p>${ex.why||"Builds strength, control and confidence."}</p></div>
- ${attachmentPhotoMarkup(ex)}
- ${ex.m1?m1SetupCoach(ex):`<div class="simple-setup-flow"><section class="setup-section"><div class="section-number">1</div><div><small>SETUP</small><h3>Get ready</h3>${ex.setup.map(x=>`<p>${x}</p>`).join("")}</div></section></div>`}
- <section class="exercise-visual-section"><div class="section-heading"><span>▶</span><div><small>VISUAL GUIDE</small><h3>Start, move and finish</h3></div></div><button class="exercise-asset-button" id="openAsset"><img class="exercise-asset-image" src="${ex.demoImage}" alt="${ex.name} visual guide"><span>Tap to enlarge</span></button></section>
- <section class="movement-instructions"><div class="section-heading"><span>✓</span><div><small>COACHING</small><h3>Step by step</h3></div></div><ol class="steps">${ex.steps.map(s=>`<li>${s}</li>`).join("")}</ol><div class="cue"><strong>Key cues</strong><p>${ex.cues.join(" • ")}</p></div></section>
- ${smithPlateCalculator(ex)}
- ${quickSettings(ex)}
- ${strength?`<div class="weight-coach-card"><h3>Load guidance</h3><p>${ex.weightRecommendation}</p></div>`:""}</section>
- ${strength?sets(ex):timed(ex)}
- <div class="workout-actions"><button class="secondary" id="back">Back</button><button class="primary" id="next">${state.step===workoutData.length?"Finish session":"Complete & continue"}</button></div>`;
- document.querySelector("#back").onclick=()=>{state.step=Math.max(0,state.step-1);save();workout()};
- document.querySelector("#next").onclick=next;
- document.querySelector("#openAsset").onclick=()=>openExerciseAsset(ex);
- const plate=document.querySelector("#plateTotal");
- if(plate)plate.oninput=()=>document.querySelector("#plateResult").textContent=calculatePlates(plate.value);
- if(strength)bindSets(ex);else bindTimer(ex);
 }
 
 function summary(){
@@ -970,17 +760,6 @@ function openStandaloneGuide(title,image){
  document.body.appendChild(overlay);const close=()=>overlay.remove();overlay.querySelector(".asset-close").onclick=close;overlay.onclick=e=>{if(e.target===overlay)close()};
 }
 
-function progress(){
- if(state.historyView){const session=state.history.find(h=>h.id===state.historyView);if(session)return sessionDetail(session);state.historyView=null}
- const records=personalRecords().slice(0,6),muscles=recentMuscles(),achievements=earnedAchievements();
- app.innerHTML=`<section class="card"><span class="pill">PROGRESS CENTER</span><h2>Your Road to 12%</h2><div class="brief-grid"><div><small>SESSIONS</small><strong>${state.history.length}</strong></div><div><small>LIFETIME VOLUME</small><strong>${Math.round(totalLifetimeVolume()).toLocaleString()} lb</strong></div><div><small>WEIGHT</small><strong>${state.weight} lb</strong></div><div><small>WAIST</small><strong>${state.waist} in</strong></div></div><div class="measurement-row"><input id="w" value="${state.weight}" inputmode="decimal"><input id="wa" value="${state.waist}" inputmode="decimal"><button class="secondary" id="saveP">Save check-in</button></div></section>
- <section class="card"><h2>Muscle recovery map</h2><p class="muted">Red muscles were trained recently. Green groups are ready or were not emphasized in the last three sessions.</p><div class="muscle-map">${muscles.map(m=>`<div class="${m.trained?"recovering":"ready"}"><span></span><strong>${m.label}</strong><small>${m.trained?"Recovering":"Ready"}</small></div>`).join("")}</div></section>
- <section class="card"><h2>Personal records</h2>${records.length?`<div class="pr-grid">${records.map(r=>`<div><small>${r.name}</small><strong>${r.bestWeight} lb</strong><span>Best volume ${Math.round(r.bestVolume).toLocaleString()} lb</span></div>`).join("")}</div>`:'<p class="muted">Complete strength workouts to establish your first records.</p>'}</section>
- <section class="card"><h2>Achievements</h2><div class="achievement-grid">${achievements.length?achievements.map(([a,d])=>`<div><span>✓</span><strong>${a}</strong><small>${d}</small></div>`).join(""):'<p class="muted">Your first achievement unlocks after one completed workout.</p>'}</div></section>
- <section class="card"><h2>Workout history</h2>${state.history.length?state.history.slice().reverse().map(h=>{const t=sessionTotals(h),rating=state.workoutRatings[h.id]||"";return `<button class="history-card" data-history="${h.id}"><span class="history-check">✓</span><span><strong>${h.name}</strong><small>${h.date} • ${formatDuration(h.durationMs)} • ${t.completedSets} sets${rating?` • ${rating}`:""}</small></span><span class="history-arrow">›</span></button>`}).join(""):'<p class="muted">No completed sessions yet.</p>'}</section>`;
- document.querySelector("#saveP").onclick=()=>{state.weight=document.querySelector("#w").value;state.waist=document.querySelector("#wa").value;save();progress()};
- document.querySelectorAll("[data-history]").forEach(btn=>btn.onclick=()=>{state.historyView=btn.dataset.history;save();progress()});
-}
 
 
 /* =========================================================
@@ -989,117 +768,6 @@ function progress(){
 
 /* Restore the motivating Home experience while retaining
    Version 11 intelligence inside Library and Progress. */
-function home(){
- const day=weekPlan[state.selectedDay];
- const done=todayCompleted();
- const completed=completedTodaySession();
-
- if(done){
-   const totals=sessionTotals(completed);
-   const tomorrow=weekPlan[(state.selectedDay+1)%weekPlan.length];
-   app.innerHTML=`<section class="celebration-hero v111-celebration">
-     <div class="celebration-burst">🏆</div>
-     <span class="pill">TODAY COMPLETE</span>
-     <h2>You crushed it, ${state.preferredName}!</h2>
-     <p>Workout #${state.sessions||state.history.length} on the Road to 12% is officially complete.</p>
-     <div class="celebration-stats">
-       <div><small>WORKOUT</small><strong>${completed.name}</strong></div>
-       <div><small>TIME</small><strong>${formatDuration(completed.durationMs)}</strong></div>
-       <div><small>SETS SAVED</small><strong>${totals.completedSets}</strong></div>
-     </div>
-     <button class="primary" id="viewCompleted">View today’s completed workout</button>
-     <small class="recovery-message">Hydrate, eat well, and recover. See you tomorrow.</small>
-   </section>
-
-   <section class="card tomorrow-simple">
-     <div class="section-title-row">
-       <div><small>NEXT UP</small><h2>${tomorrow.title}</h2></div>
-       <span class="tomorrow-time">${tomorrow.time}</span>
-     </div>
-     <p>${tomorrow.detail}</p>
-     <div class="focus-chips">${tomorrow.focus.split(",").map(x=>`<span>${x}</span>`).join("")}</div>
-     <button class="secondary" id="previewTomorrow">Preview tomorrow</button>
-   </section>
-
-   <section class="card week-card">
-     <h2>Training schedule</h2>
-     <p class="muted">Tap any day to preview its plan.</p>
-     <div class="week-strip">${weekPlan.map((d,i)=>`<button class="day-button ${i===state.selectedDay?"selected":""} ${i===0?"completed-day":""}" data-day="${i}">
-       <span class="day-icon">${i===0?"✅":d.icon}</span>
-       <strong>${d.short}</strong>
-       <small>${i===0?"Complete":i===state.selectedDay?"Selected":""}</small>
-     </button>`).join("")}</div>
-   </section>
-
-   <section class="stats">
-     <div><small>WEIGHT</small><strong>${state.weight} lb</strong></div>
-     <div><small>WAIST</small><strong>${state.waist} in</strong></div>
-     <div><small>SESSIONS</small><strong>${state.sessions}</strong></div>
-   </section>`;
-
-   document.querySelector("#viewCompleted").onclick=()=>{state.historyView=completed.id;setTab("progress")};
-   document.querySelector("#previewTomorrow").onclick=()=>showDayPlan((state.selectedDay+1)%weekPlan.length);
-   document.querySelectorAll("[data-day]").forEach(b=>b.onclick=()=>{
-     state.selectedDay=+b.dataset.day;
-     state.previewDay=state.selectedDay;
-     save();
-     showDayPlan(state.selectedDay);
-   });
-   return;
- }
-
- app.innerHTML=`<section class="hero v111-hero">
-   <img src="${window.HERO_IMAGE}">
-   <div class="shade"></div>
-   <div class="hero-copy">
-     <span class="pill">WEEK 1 • FOUNDATION</span>
-     <h2>${day.title}</h2>
-     <p>${day.detail}</p>
-     <button class="primary" id="start">${day.action==="workout"?"Start today’s guided workout":"Open selected day"}</button>
-   </div>
- </section>
-
- <section class="card week-card">
-   <h2>Training schedule</h2>
-   <p class="muted">Tap any day to view its workout, time, focus and exercises.</p>
-   <div class="week-strip">${weekPlan.map((d,i)=>`<button class="day-button ${i===state.selectedDay?"selected":""}" data-day="${i}">
-     <span class="day-icon">${d.icon}</span>
-     <strong>${d.short}</strong>
-     <small>${i===state.selectedDay?"Selected":""}</small>
-   </button>`).join("")}</div>
-   <div class="selected-plan">
-     <div class="large-icon">${day.icon}</div>
-     <div><h3>${day.title}</h3><p class="muted">${day.detail}</p></div>
-   </div>
- </section>
-
- <section class="stats">
-   <div><small>WEIGHT</small><strong>${state.weight} lb</strong></div>
-   <div><small>WAIST</small><strong>${state.waist} in</strong></div>
-   <div><small>SESSIONS</small><strong>${state.sessions}</strong></div>
- </section>`;
-
- document.querySelectorAll("[data-day]").forEach(b=>b.onclick=()=>{
-   state.selectedDay=+b.dataset.day;
-   state.previewDay=state.selectedDay;
-   save();
-   showDayPlan(state.selectedDay);
- });
-
- document.querySelector("#start").onclick=()=>{
-   const action=weekPlan[state.selectedDay].action;
-   if(action==="workout"){
-     startNewSession();
-     state.tab="workout";
-     save();
-     workout();
-   }else if(action==="progress"){
-     setTab("progress");
-   }else{
-     showDayPlan();
-   }
- };
-}
 
 /* Remove Gym Mode and the pre-workout checklist.
    Starting a workout now opens the first guided movement immediately. */
@@ -1130,135 +798,8 @@ function workout(){
 
 /* Restore the simpler step-by-step exercise experience.
    Advanced features remain available where useful, without a checklist-heavy shell. */
-function exercise(ex,workoutData=activeWorkout()){
- if(ex&&PHASE2_ASSET_MAP[ex.name])ex.demoImage=PHASE2_ASSET_MAP[ex.name];
- if(ex&&PHASE3_ASSET_MAP[ex.name])ex.demoImage=PHASE3_ASSET_MAP[ex.name];
-
- const pct=Math.round(state.step/workoutData.length*100);
- const strength=ex.type==="strength";
-
- if(strength&&!state.logs[ex.name]){
-   state.logs[ex.name]=Array(ex.sets).fill(null);
- }
-
- const currentBlock=setupBlockLabel(ex);
- const previous=workoutData[state.step-2];
- const blockChanged=!previous||setupBlockLabel(previous)!==currentBlock;
-
- app.innerHTML=`<section class="card workout-card v111-workout-card">
-   <div class="phase">
-     <span class="tag">${ex.type}</span>
-     <strong>${state.step}/${workoutData.length}</strong>
-   </div>
-   <div class="progress workout-progress"><i style="width:${pct}%"></i></div>
-
-   ${blockChanged?`<div class="setup-block-banner compact-block-banner">
-     <small>SETUP FOR THIS SECTION</small>
-     <strong>${currentBlock}</strong>
-     ${ex.m1?`<span>Complete the exercises in this pulley zone before adjusting it again.</span>`:""}
-   </div>`:""}
-
-   <h2>${ex.name}</h2>
-   <p class="muted workout-subtitle">${ex.muscles}</p>
-
-   <div class="why-card">
-     <h3>Why this exercise?</h3>
-     <p>${ex.why||"Builds strength, control and confidence."}</p>
-   </div>
-
-   ${attachmentPhotoMarkup(ex)}
-
-   ${ex.m1
-     ?m1SetupCoach(ex)
-     :`<div class="simple-setup-flow"><section class="setup-section">
-        <div class="section-number">1</div>
-        <div><small>SETUP</small><h3>Get ready</h3>${ex.setup.map(x=>`<p>${x}</p>`).join("")}</div>
-      </section></div>`}
-
-   <section class="exercise-visual-section">
-     <div class="section-heading">
-       <span>▶</span>
-       <div><small>VISUAL GUIDE</small><h3>Start, move and finish</h3></div>
-     </div>
-     <button class="exercise-asset-button" id="openAsset">
-       <img class="exercise-asset-image" src="${ex.demoImage}" alt="${ex.name} visual guide">
-       <span>Tap to enlarge</span>
-     </button>
-   </section>
-
-   <section class="movement-instructions">
-     <div class="section-heading">
-       <span>✓</span>
-       <div><small>PERFORM THE MOVEMENT</small><h3>Step by step</h3></div>
-     </div>
-     <ol class="steps">${ex.steps.map(s=>`<li>${s}</li>`).join("")}</ol>
-     <div class="cue"><strong>Key cues</strong><p>${ex.cues.join(" • ")}</p></div>
-   </section>
-
-   ${smithPlateCalculator(ex)}
-   ${quickSettings(ex)}
-
-   ${strength?`<div class="weight-coach-card">
-     <h3>Weight recommendation</h3>
-     <p>${ex.weightRecommendation}</p>
-   </div>`:""}
- </section>
-
- ${strength?sets(ex):timed(ex)}
-
- <div class="workout-actions">
-   <button class="secondary" id="back">Back</button>
-   <button class="primary" id="next">${state.step===workoutData.length?"Finish session":"Complete & continue"}</button>
- </div>`;
-
- document.querySelector("#back").onclick=()=>{
-   state.step=Math.max(1,state.step-1);
-   save();
-   workout();
- };
- document.querySelector("#next").onclick=next;
- document.querySelector("#openAsset").onclick=()=>openExerciseAsset(ex);
-
- const plate=document.querySelector("#plateTotal");
- if(plate){
-   plate.oninput=()=>document.querySelector("#plateResult").textContent=calculatePlates(plate.value);
- }
-
- if(strength)bindSets(ex);
- else bindTimer(ex);
-}
 
 
-function workoutLanding(){
- const workoutData=activeWorkout();
- const hasActive=!!state.currentSession && state.step>0 && state.step<=workoutData.length;
- app.innerHTML=`<section class="card workout-launch-card">
-   <span class="pill">${hasActive?"WORKOUT IN PROGRESS":"TODAY’S WORKOUT"}</span>
-   <h2>${hasActive?"Resume Full Body A":"Full Body A"}</h2>
-   <p>${hasActive?`You are on exercise ${state.step} of ${workoutData.length}.`:"Start the guided workout when you are ready. You will move through it one step at a time."}</p>
-   <div class="launch-summary">
-     <div><small>EXERCISES</small><strong>${workoutData.length}</strong></div>
-     <div><small>ESTIMATED TIME</small><strong>50–60 min</strong></div>
-     <div><small>FLOW</small><strong>Step by step</strong></div>
-   </div>
-   <button class="primary" id="launchWorkout">${hasActive?"Resume workout":"Start workout"}</button>
-   ${hasActive?`<button class="secondary" id="restartWorkout">Restart workout</button>`:""}
- </section>`;
- document.querySelector("#launchWorkout").onclick=()=>{
-   if(!hasActive)startNewSession();
-   state.tab="workout";
-   save();
-   workout();
- };
- document.querySelector("#restartWorkout")?.addEventListener("click",()=>{
-   if(confirm("Restart today’s workout from the beginning?")){
-     startNewSession();
-     state.tab="workout";
-     save();
-     workout();
-   }
- });
-}
 
 
 
@@ -1533,37 +1074,6 @@ function home(){
  });
 }
 
-function workoutLanding(){
- const workoutData=activeWorkout();
- const hasActive=!!state.currentSession&&state.step>0&&state.step<=workoutData.length&&hasActualWorkoutProgress();
- app.innerHTML=`<section class="card workout-launch-card">
-   <span class="pill">${hasActive?"WORKOUT IN PROGRESS":"TODAY’S WORKOUT"}</span>
-   <h2>${hasActive?"Resume Full Body A":"Full Body A"}</h2>
-   <p>${hasActive?`You are on exercise ${state.step} of ${workoutData.length}.`:"Start the guided workout when you are ready. You will move through it one step at a time."}</p>
-   <div class="launch-summary">
-     <div><small>EXERCISES</small><strong>${workoutData.length}</strong></div>
-     <div><small>ESTIMATED TIME</small><strong>50–60 min</strong></div>
-     <div><small>FLOW</small><strong>Step by step</strong></div>
-   </div>
-   <button class="primary" id="launchWorkout">${hasActive?"Resume workout":"Start workout"}</button>
-   ${hasActive?`<button class="secondary" id="restartWorkout">Restart workout</button>`:""}
- </section>`;
-
- document.querySelector("#launchWorkout").onclick=()=>{
-   if(!hasActive)startNewSession();
-   state.tab="workout";
-   save();
-   workout();
- };
- document.querySelector("#restartWorkout")?.addEventListener("click",()=>{
-   if(confirm("Restart today’s workout from the beginning?")){
-     startNewSession();
-     state.tab="workout";
-     save();
-     workout();
-   }
- });
-}
 
 function progress(){
  if(state.historyView){
