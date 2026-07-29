@@ -1,5 +1,40 @@
 # Road to 12% — Version 13
 
+## Version 13.1 RitFit-specific exercise library
+
+Version 13.1 uses individual crops from Andy's official RitFit M1-C, BPC06,
+and BWB02 workout posters as the primary visual reference for supported cable,
+Smith-machine, and bench exercises. Each exercise page combines the
+machine-relevant visual with the existing attachment, pulley, bench, setup,
+execution, coaching-cue, common-mistake, and set-logging information.
+
+- RitFit poster media is used only for this personal training app.
+- Reviewed wger media remains as a fallback when no official poster panel is
+  an exact match.
+- Exercises without a trustworthy media match use the written guide rather
+  than an approximate image.
+- Source details appear under Equipment > About > Image Sources & Licenses.
+- All active media is included in the Version 13.1 offline cache.
+
+The generated RitFit crops live under `assets/exercise-library/ritfit/`.
+They can be rebuilt from the three original PDFs with:
+
+```powershell
+python scripts/build-ritfit-assets.py `
+  --m1 path\to\M1_WORKOUT_POSTER.pdf `
+  --bpc06 path\to\BPC06_WORKOUT_POSTER.pdf `
+  --bwb02 path\to\BWB02_WORKOUT_POSTER.pdf
+```
+
+The source PDFs are intentionally not committed; the build script accepts
+their local paths and produces deterministic WebP assets.
+
+Validate the media files, source metadata, and offline-cache coverage with:
+
+```powershell
+node scripts/validate-exercise-library.js
+```
+
 ## Version 13 exercise media
 
 Version 13 replaces generated workout artwork in the active exercise flow with a

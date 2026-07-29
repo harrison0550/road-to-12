@@ -1,12 +1,70 @@
 (function (root) {
-  const license = Object.freeze({
+  const wgerLicense = Object.freeze({
     shortName: "CC-BY-SA 4.0",
     fullName: "Creative Commons Attribution-ShareAlike 4.0",
     url: "https://creativecommons.org/licenses/by-sa/4.0/"
   });
 
+  const ritfit = ({
+    sourceExercise,
+    sourceDocument,
+    media,
+    mediaAlt,
+    primaryMuscles,
+    secondaryMuscles = [],
+    equipment,
+    commonMistakes
+  }) => ({
+    sourceType: "official-manual",
+    provider: "RitFit",
+    providerUrl: "https://www.ritfitsports.com/",
+    sourceExercise,
+    sourceDocument,
+    author: "RitFit",
+    media: `assets/exercise-library/ritfit/${media}`,
+    mediaAlt,
+    primaryMuscles,
+    secondaryMuscles,
+    equipment,
+    commonMistakes,
+    rightsNote: "Official equipment poster supplied by the user for this personal, private training app."
+  });
+
   const entries = {
+    "Cable Chest Press": ritfit({
+      sourceExercise: "Chest Press",
+      sourceDocument: "M1-C Workout Poster",
+      media: "cable-chest-press.webp",
+      mediaAlt: "RitFit chest press start and finish positions",
+      primaryMuscles: ["Chest"],
+      secondaryMuscles: ["Front shoulders", "Triceps"],
+      equipment: ["RitFit M1", "Two D-handles"],
+      commonMistakes: ["Shrugging the shoulders", "Arching the lower back", "Letting the elbows flare too high"]
+    }),
+    "Seated Cable Row": ritfit({
+      sourceExercise: "Seated Row",
+      sourceDocument: "BPC06 Workout Poster",
+      media: "seated-cable-row.webp",
+      mediaAlt: "RitFit seated cable row start and finish positions",
+      primaryMuscles: ["Mid-back", "Lats"],
+      secondaryMuscles: ["Rear shoulders", "Biceps"],
+      equipment: ["RitFit cable station", "Row handle", "Bench"],
+      commonMistakes: ["Rounding the back", "Leaning far backward", "Pulling with shrugged shoulders"]
+    }),
+    "Cable Shoulder Press": ritfit({
+      sourceExercise: "Seated Vertical Bench Press",
+      sourceDocument: "BPC06 Workout Poster",
+      media: "cable-shoulder-press.webp",
+      mediaAlt: "RitFit seated cable shoulder press start and finish positions",
+      primaryMuscles: ["Shoulders"],
+      secondaryMuscles: ["Triceps", "Upper chest"],
+      equipment: ["RitFit cable station", "Two D-handles", "Upright bench"],
+      commonMistakes: ["Using a straight bar", "Allowing a cable to cross the back", "Overarching the lower back"]
+    }),
     "Rope Triceps Pushdown": {
+      sourceType: "licensed-community",
+      provider: "wger Workout Manager",
+      providerUrl: "https://wger.de/",
       sourceExercise: "Tricep Pushdown on Cable",
       sourceExerciseId: 805,
       sourceUrl: "https://wger.de/en/exercise/805/view",
@@ -15,15 +73,44 @@
       mediaAlt: "Start and finish positions for a cable rope triceps pushdown",
       primaryMuscles: ["Triceps"],
       secondaryMuscles: [],
-      equipment: ["Cable machine", "Rope attachment"],
-      commonMistakes: [
-        "Letting the elbows drift forward",
-        "Using the shoulders or torso to move the rope",
-        "Snapping the elbows into lockout"
-      ],
-      license
+      equipment: ["RitFit cable station", "Rope attachment"],
+      commonMistakes: ["Letting the elbows drift forward", "Moving the shoulders or torso", "Snapping into elbow lockout"],
+      license: wgerLicense
     },
+    "Cable Curl": ritfit({
+      sourceExercise: "Curl",
+      sourceDocument: "M1-C Workout Poster",
+      media: "cable-curl.webp",
+      mediaAlt: "RitFit cable curl start and finish positions",
+      primaryMuscles: ["Biceps"],
+      secondaryMuscles: ["Forearms"],
+      equipment: ["RitFit M1", "Short straight bar"],
+      commonMistakes: ["Changing grip during the set", "Swinging the torso", "Allowing the elbows to travel forward"]
+    }),
+    "Smith Machine Squat": ritfit({
+      sourceExercise: "Barbell Squat",
+      sourceDocument: "M1-C Workout Poster",
+      media: "smith-machine-squat.webp",
+      mediaAlt: "RitFit squat standing and bottom positions",
+      primaryMuscles: ["Quadriceps", "Glutes"],
+      secondaryMuscles: ["Hamstrings", "Core"],
+      equipment: ["RitFit M1 Smith station"],
+      commonMistakes: ["Letting the knees collapse inward", "Lifting the heels", "Descending below a controllable depth"]
+    }),
+    "Smith Machine RDL": ritfit({
+      sourceExercise: "Romanian Deadlift",
+      sourceDocument: "M1-C Workout Poster",
+      media: "smith-machine-rdl.webp",
+      mediaAlt: "RitFit Romanian deadlift start and finish positions",
+      primaryMuscles: ["Hamstrings", "Glutes"],
+      secondaryMuscles: ["Back extensors", "Core"],
+      equipment: ["RitFit M1 Smith station"],
+      commonMistakes: ["Turning the hinge into a squat", "Rounding the back", "Letting the bar drift away from the legs"]
+    }),
     "Smith Bulgarian Split Squat": {
+      sourceType: "licensed-community",
+      provider: "wger Workout Manager",
+      providerUrl: "https://wger.de/",
       sourceExercise: "Smith Machine Split Squat",
       sourceExerciseId: 1593,
       sourceUrl: "https://wger.de/en/exercise/1593/view",
@@ -31,51 +118,96 @@
       author: "workout@rooven.anonaddy.me",
       media: "assets/exercise-library/wger/smith-split-squat.gif",
       mediaAlt: "Looping Smith machine split squat demonstration",
-      primaryMuscles: ["Quadriceps", "Hamstrings"],
-      secondaryMuscles: ["Glutes", "Core"],
-      equipment: ["Smith machine"],
-      commonMistakes: [
-        "Using a stance that is too short to keep the front heel planted",
-        "Letting the front knee collapse inward",
-        "Pushing off the rear foot instead of driving through the front foot"
-      ],
-      license
-    },
-    "Cable Straight Arm Pushdown": {
-      sourceExercise: "Straight-Arm Pulldown (Cable)",
-      sourceExerciseId: 1726,
-      sourceUrl: "https://wger.de/en/exercise/1726/view",
-      author: "barry",
-      media: "assets/exercise-library/wger/straight-arm-pulldown.png",
-      mediaAlt: "Start and finish positions for a straight-arm cable pulldown",
-      primaryMuscles: ["Lats"],
-      secondaryMuscles: ["Triceps", "Core"],
-      equipment: ["Cable machine", "Straight bar"],
-      commonMistakes: [
-        "Turning the movement into a triceps pushdown",
-        "Rounding the shoulders or lower back",
-        "Using momentum instead of a controlled shoulder arc"
-      ],
-      license
-    },
-    "Smith Machine Squat": {
-      sourceExercise: "Smith machine squat",
-      sourceExerciseId: 1747,
-      sourceUrl: "https://wger.de/en/exercise/1747/view",
-      author: "Tierrasverdes",
-      media: "assets/exercise-library/wger/smith-machine-squat.jpg",
-      mediaAlt: "Standing and bottom positions for a Smith machine squat",
       primaryMuscles: ["Quadriceps", "Glutes"],
       secondaryMuscles: ["Hamstrings", "Core"],
-      equipment: ["Smith machine"],
-      commonMistakes: [
-        "Standing so close that the heels lift",
-        "Letting the knees collapse inward",
-        "Descending below the depth you can control"
-      ],
-      license
+      equipment: ["RitFit M1 Smith station", "Bench"],
+      commonMistakes: ["Using a stance that is too short", "Letting the front knee cave inward", "Pushing primarily through the rear foot"],
+      license: wgerLicense
     },
+    "Smith Machine Calf Raise": ritfit({
+      sourceExercise: "Barbell Calf Raise",
+      sourceDocument: "M1-C Workout Poster",
+      media: "smith-machine-calf-raise.webp",
+      mediaAlt: "RitFit calf raise bottom and top positions",
+      primaryMuscles: ["Calves"],
+      secondaryMuscles: ["Foot and ankle stabilizers"],
+      equipment: ["RitFit M1 Smith station"],
+      commonMistakes: ["Bouncing through the repetitions", "Rolling the ankles outward", "Using a shortened range of motion"]
+    }),
+    "Single Arm Cable Row": ritfit({
+      sourceExercise: "Single Arm Row",
+      sourceDocument: "BPC06 Workout Poster",
+      media: "single-arm-cable-row.webp",
+      mediaAlt: "RitFit single-arm cable row start and finish positions",
+      primaryMuscles: ["Lats", "Mid-back"],
+      secondaryMuscles: ["Biceps", "Rear shoulders", "Core"],
+      equipment: ["RitFit cable station", "One D-handle"],
+      commonMistakes: ["Twisting the torso", "Shrugging the working shoulder", "Jerking the handle"]
+    }),
+    "Cable Lateral Raise": ritfit({
+      sourceExercise: "Crossover Lateral Raise",
+      sourceDocument: "BPC06 Workout Poster",
+      media: "cable-lateral-raise.webp",
+      mediaAlt: "RitFit cable lateral raise start and finish positions",
+      primaryMuscles: ["Side shoulders"],
+      secondaryMuscles: ["Upper traps"],
+      equipment: ["RitFit cable station", "Two D-handles"],
+      commonMistakes: ["Shrugging toward the ears", "Swinging the weights", "Raising the hands far above shoulder height"]
+    }),
+    "Cable Crunch": ritfit({
+      sourceExercise: "Ab Crunch",
+      sourceDocument: "M1-C Workout Poster",
+      media: "cable-crunch.webp",
+      mediaAlt: "RitFit kneeling cable crunch start and finish positions",
+      primaryMuscles: ["Abdominals"],
+      secondaryMuscles: ["Obliques"],
+      equipment: ["RitFit M1", "Rope attachment"],
+      commonMistakes: ["Hinging only at the hips", "Pulling with the arms", "Letting the weight pull the lower back into extension"]
+    }),
+    "Rear Delt Cable Fly": ritfit({
+      sourceExercise: "Reverse Fly",
+      sourceDocument: "BPC06 Workout Poster",
+      media: "rear-delt-cable-fly.webp",
+      mediaAlt: "RitFit reverse cable fly start and finish positions",
+      primaryMuscles: ["Rear shoulders"],
+      secondaryMuscles: ["Upper back"],
+      equipment: ["RitFit cable station", "Two D-handles"],
+      commonMistakes: ["Shrugging the shoulders", "Using momentum", "Turning the exercise into a row"]
+    }),
+    "Cable Face Pull": ritfit({
+      sourceExercise: "Face Pull",
+      sourceDocument: "BPC06 Workout Poster",
+      media: "cable-face-pull.webp",
+      mediaAlt: "RitFit face pull start and finish positions",
+      primaryMuscles: ["Rear shoulders", "Upper back"],
+      secondaryMuscles: ["Rotator cuff", "Biceps"],
+      equipment: ["RitFit cable station", "Rope attachment"],
+      commonMistakes: ["Pulling toward the chest instead of the face", "Flaring the ribs", "Shrugging the shoulders"]
+    }),
+    "Cable Straight Arm Pushdown": ritfit({
+      sourceExercise: "Lat Pushdown",
+      sourceDocument: "M1-C Workout Poster",
+      media: "straight-arm-pulldown.webp",
+      mediaAlt: "RitFit straight-arm lat pushdown start and finish positions",
+      primaryMuscles: ["Lats"],
+      secondaryMuscles: ["Triceps", "Core"],
+      equipment: ["RitFit M1", "Straight bar"],
+      commonMistakes: ["Turning it into a triceps pushdown", "Rounding the back", "Using body momentum"]
+    }),
+    "High to Low Cable Chop": ritfit({
+      sourceExercise: "Wood Chop",
+      sourceDocument: "M1-C Workout Poster",
+      media: "high-to-low-cable-chop.webp",
+      mediaAlt: "RitFit high-to-low cable wood chop start and finish positions",
+      primaryMuscles: ["Obliques", "Abdominals"],
+      secondaryMuscles: ["Shoulders", "Hips"],
+      equipment: ["RitFit M1", "D-handle"],
+      commonMistakes: ["Pulling only with the arms", "Twisting through the knees", "Moving too quickly to control the return"]
+    }),
     "Hip Flexor Mobility": {
+      sourceType: "licensed-community",
+      provider: "wger Workout Manager",
+      providerUrl: "https://wger.de/",
       sourceExercise: "Hip Flexor Stretch",
       sourceExerciseId: 1867,
       sourceUrl: "https://wger.de/en/exercise/1867/view",
@@ -85,18 +217,14 @@
       primaryMuscles: ["Hip flexors"],
       secondaryMuscles: ["Quadriceps"],
       equipment: ["Exercise mat"],
-      commonMistakes: [
-        "Arching the lower back instead of tucking the pelvis",
-        "Leaning forward without moving the hips",
-        "Forcing a painful range"
-      ],
-      license
+      commonMistakes: ["Arching the lower back", "Leaning without moving the hips", "Forcing a painful range"],
+      license: wgerLicense
     }
   };
 
   root.ROAD12_EXERCISE_LIBRARY = Object.freeze({
-    provider: "wger Workout Manager",
-    providerUrl: "https://wger.de/",
+    provider: "RitFit official posters with reviewed wger fallbacks",
+    providerUrl: "https://www.ritfitsports.com/",
     reviewedOn: "2026-07-29",
     entries: Object.freeze(entries)
   });
