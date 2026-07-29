@@ -111,7 +111,7 @@ const weekPlan=[
  {short:"TUE",icon:"🚶",title:"Cardio + Mobility",detail:"Incline treadmill and mobility recovery",action:"cardio",time:"30–40 min",focus:"Recovery and aerobic base",items:["5-minute easy treadmill warm-up","20–25 minute incline walk at conversational pace","Hip flexor stretch","Hamstring stretch","Chest and shoulder mobility","Easy cooldown"],setup:"Treadmill only; no M1 adjustments"},
  {short:"WED",icon:"💪",title:"Full Body B",detail:"Alternate guided full-body strength session",action:"upcoming",time:"50–60 min",focus:"Back, legs, chest and arms",items:["Treadmill warm-up","Hip hinge mobility","Smith Machine RDL","Smith Bulgarian Split Squat","Smith Machine Calf Raise","Incline Cable Press","Single Arm Cable Row","Lat Pulldown","Cable Lateral Raise","Cable Crunch","Cable Hammer Curl","Cooldown"],setup:"Smith station → low pulleys → mid pulleys → high pulleys"},
  {short:"THU",icon:"🧘",title:"Core + Recovery",detail:"Core training, stretching and easy movement",action:"recovery",time:"25–35 min",focus:"Core control and mobility",items:["Easy walk or row","Dead bug","Bird dog","Side plank from knees","Hip mobility","Upper-back mobility","Slow breathing cooldown"],setup:"Floor space; optional treadmill or rower"},
- {short:"FRI",icon:"🏋️",title:"Full Body C",detail:"Third weekly guided full-body strength session",action:"upcoming",time:"50–60 min",focus:"Legs, pushing, pulling and arms",items:["Treadmill warm-up","Smith Squat","Cable Curl","Cable Shoulder Press","Cable Chest Press","Seated Cable Row","Straight-arm Pulldown","Rope Triceps Pushdown","Cooldown"],setup:"Smith station → low pulleys → mid pulleys → high pulleys"},
+ {short:"FRI",icon:"🏋️",title:"Full Body C",detail:"Third weekly guided full-body strength session",action:"upcoming",time:"50–60 min",focus:"Legs, pushing, pulling and arms",items:["Treadmill warm-up","Hip hinge mobility","Smith Machine Squat","Cable Shoulder Press","Rear Delt Cable Fly","Cable Face Pull","Cable Straight Arm Pushdown","Rope Triceps Pushdown","High to Low Cable Chop","Treadmill HIIT Intervals","Cooldown"],setup:"Smith station → low pulleys → mid pulleys → high pulleys → treadmill"},
  {short:"SAT",icon:"❤️",title:"Zone 2 Cardio",detail:"Longer easy bike, rower or treadmill session",action:"cardio",time:"35–50 min",focus:"Fat-loss supporting aerobic work",items:["5-minute easy warm-up","25–40 minutes at a pace where you can speak in sentences","5-minute cooldown","Light stretching"],setup:"Choose treadmill, rower or KICKR CORE"},
  {short:"SUN",icon:"📏",title:"Recovery + Check-in",detail:"Rest, measurements and weekly review",action:"progress",time:"10–20 min",focus:"Recovery and progress review",items:["Morning body weight","Waist measurement","Optional progress photos","Review completed workouts","Plan the coming week","Full rest or gentle walk"],setup:"No gym setup required"}
 ];
@@ -1594,9 +1594,88 @@ function fullBodyBWorkout(){
   ];
 }
 
+function fullBodyCWorkout(){
+  return [
+    cloneExerciseByName("Treadmill Walk"),
+    cloneExerciseByName("Hip Hinge"),
+    Object.assign(deepCopy(window.SUBSTITUTION_DATA["smith-machine-squat"]),{
+      sets:3,
+      reps:8,
+      why:"Keeps one primary squat in the week’s third strength session while using the stable Smith setup and safety stops.",
+      weightRecommendation:"Start with the empty Smith bar and add plates only when all eight reps remain smooth and controlled."
+    }),
+    cloneExerciseByName("Cable Shoulder Press"),
+    cloneExerciseByName("Cable Shoulder Press",{
+      name:"Rear Delt Cable Fly",sets:2,reps:12,
+      muscles:"Rear shoulders, upper back and shoulder stabilizers",
+      setup:["Set both pulleys around shoulder height","Attach two D-handles","Stand centered and face the M1","Take the opposite handle in each hand"],
+      steps:["Begin with arms reaching forward and slightly crossed.","Keep a soft bend in both elbows.","Open the arms until they align with your torso.","Pause while squeezing the upper back.","Return slowly without letting the stacks slam."],
+      cues:["Lead with the elbows.","Keep shoulders down.","Use a light, controlled load."],
+      m1:{pinLeft:7,pinRight:7,attachment:"Two single D-handles",bench:"No bench",facing:"Face the M1",stance:"Tall centered stance",start:"Arms forward and slightly crossed",finish:"Arms open in line with the torso",view:"Front view",pinNote:"Set both pulleys around position 7."},
+      why:"Trains the rear shoulders and upper back to balance the week’s pressing volume.",
+      weightRecommendation:"Use the same light setting on both stacks and stop before the shoulders shrug.",
+      requires:["ritfitM1"],attachmentCard:{key:"dHandles",name:"Two D-handles",qty:2},
+      weightEntry:{mode:"dual",label:"Weight selected on each stack",help:"Enter the selector setting on ONE stack. Keep both stacks equal."},
+      correctedGuide:null,demoImage:"assets/phase2/rear-delt-cable-fly.jpg"
+    }),
+    cloneExerciseByName("Rope Triceps Pushdown",{
+      name:"Cable Face Pull",sets:2,reps:12,
+      muscles:"Upper back, rear shoulders and external rotators",
+      setup:["Set one pulley to the highest position","Attach the rope","Stand facing the M1 with a stable stance"],
+      steps:["Begin with arms extended and thumbs pointing toward each other.","Pull the rope toward eye level.","Separate the rope ends as the elbows travel outward.","Pause with shoulder blades gently squeezed.","Return under control."],
+      cues:["Pull toward the face, not the chest.","Do not lean backward.","Keep shoulders away from ears."],
+      m1:{pinLeft:13,pinRight:null,attachment:"Rope on one high cable",bench:"No bench",facing:"Face the M1",stance:"Stable tall stance",start:"Arms extended at eye level",finish:"Rope beside the face with elbows open",view:"Front-side view",pinNote:"Use one pulley at position 13."},
+      why:"Adds shoulder-health pulling and upper-posterior-chain work after the primary press.",
+      weightRecommendation:"Choose a light setting that allows rotation and a clean pause without leaning.",
+      demoImage:"assets/phase2/cable-face-pull.jpg"
+    }),
+    cloneExerciseByName("Lat Pulldown",{
+      name:"Cable Straight Arm Pushdown",sets:3,reps:12,
+      muscles:"Lats, upper back, triceps and core",
+      setup:["Set one pulley to the highest position","Attach the short straight bar","Stand facing the M1 with arms extended"],
+      steps:["Brace your ribs over your hips.","Keep a small fixed bend in the elbows.","Sweep the bar down toward the thighs.","Pause while tightening the lats.","Return slowly until the arms are overhead."],
+      cues:["Keep the arms nearly straight.","Do not turn it into a triceps pushdown.","Avoid arching the lower back."],
+      m1:{pinLeft:13,pinRight:null,attachment:"Short straight bar on one high cable",bench:"No bench",facing:"Face the M1",stance:"Tall stance with soft knees",start:"Arms extended overhead",finish:"Bar near the thighs",view:"Side view",pinNote:"Use one pulley at position 13."},
+      why:"Provides Friday’s primary vertical pull without repeating the standard pulldown used in Full Body A and B.",
+      weightRecommendation:"Use a moderate setting that lets the lats control the entire return.",
+      requires:["ritfitM1"],attachmentCard:{key:"straightBar",name:"Short straight bar",qty:1},
+      weightEntry:{mode:"single",label:"Weight selected on the active stack",help:"Enter the selector setting on the single high stack."},
+      demoImage:"assets/phase2/cable-straight-arm-pushdown.jpg"
+    }),
+    cloneExerciseByName("Rope Triceps Pushdown"),
+    cloneExerciseByName("Rope Triceps Pushdown",{
+      name:"High to Low Cable Chop",sets:2,reps:10,
+      muscles:"Obliques, abdominals, shoulders and hips",
+      setup:["Set one pulley near the highest position","Attach one D-handle","Stand side-on to the M1 with feet wider than hips"],
+      steps:["Hold the handle with both hands near the high shoulder.","Brace before starting the movement.","Pull diagonally across the body toward the opposite hip.","Rotate through the upper back while keeping the knees stable.","Return slowly and complete the other side."],
+      cues:["Move as one controlled unit.","Do not let the stack pull you back.","Use the same range on both sides."],
+      m1:{pinLeft:12,pinRight:null,attachment:"One D-handle",bench:"No bench",facing:"Stand side-on to the M1",stance:"Wide stable stance",start:"Hands beside the high shoulder",finish:"Hands beside the opposite hip",view:"Front-side view",pinNote:"Use one pulley near position 12."},
+      why:"Adds rotational core training to complement Wednesday’s straight-ahead cable crunch.",
+      weightRecommendation:"Use a light setting that allows the trunk to control both directions.",
+      requires:["ritfitM1"],attachmentCard:{key:"dHandles",name:"One D-handle",qty:1},
+      weightEntry:{mode:"single",label:"Weight selected on the active stack",help:"Enter the selector setting on the single stack used for this exercise."},
+      demoImage:"assets/phase2/high-to-low-cable-chop.jpg"
+    }),
+    cloneExerciseByName("Treadmill Walk",{
+      name:"Treadmill HIIT Intervals",type:"cardio",duration:"12:00",
+      muscles:"Cardiovascular conditioning, legs and work capacity",
+      setup:["Begin with the belt at an easy walking pace","Alternate one minute brisk with one minute easy","Use speed or incline—not both—to raise effort"],
+      steps:["Walk easily for the first minute.","Increase to a brisk controlled effort for one minute.","Return to an easy pace for one minute.","Repeat the brisk and easy pattern, then reduce speed before stopping."],
+      cues:["Stay below an all-out sprint.","Use the rails only for balance.","Reduce intensity if form changes."],
+      why:"Finishes the third strength day with a short conditioning dose without extending the lifting volume.",
+      demoImage:"assets/phase3/treadmill-hiit-intervals.jpg"
+    }),
+    cloneExerciseByName("Easy Treadmill Cooldown")
+  ];
+}
+
 function strengthWorkoutForDay(dayIndex){
-  const workoutData=dayIndex===2?fullBodyBWorkout():data;
-  const group=ex=>dayIndex===2&&ex.type==="cooldown"?6:setupGroup(ex);
+  const workoutData=dayIndex===2?fullBodyBWorkout():dayIndex===4?fullBodyCWorkout():data;
+  const group=ex=>{
+    if(dayIndex===4&&ex.name==="Treadmill HIIT Intervals")return 6;
+    if((dayIndex===2||dayIndex===4)&&ex.type==="cooldown")return 7;
+    return setupGroup(ex);
+  };
   return workoutData.map(resolveExercise).filter(ex=>!ex.unavailable).map((ex,index)=>({ex,index}))
     .sort((a,b)=>group(a.ex)-group(b.ex)||a.index-b.index).map(x=>x.ex);
 }
