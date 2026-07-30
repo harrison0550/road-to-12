@@ -138,7 +138,7 @@ function exerciseTeachingMarkup(ex){
 const data=window.WORKOUT_DATA;
 /* Versioned storage boundary. Migrations must remain ordered and idempotent. */
 const ROAD12_STORAGE_KEY="road12v5";
-const ROAD12_SCHEMA_VERSION=1;
+const ROAD12_SCHEMA_VERSION=2;
 const ROAD12_MIGRATIONS=[
   {
     version:1,
@@ -146,6 +146,16 @@ const ROAD12_MIGRATIONS=[
       if(!Object.prototype.hasOwnProperty.call(value,"schemaVersion")){
         value.schemaVersion=1;
       }
+      return value;
+    }
+  },
+  {
+    version:2,
+    up(value){
+      value.workoutSessions=Array.isArray(value.workoutSessions)?value.workoutSessions:[];
+      value.calendarMonth=value.calendarMonth||null;
+      value.scheduleActivatedDate=value.scheduleActivatedDate||new Date().toISOString().slice(0,10);
+      value.schemaVersion=2;
       return value;
     }
   }
@@ -189,6 +199,10 @@ state.currentSession=state.currentSession||null;
 state.historyView=state.historyView||null;
 state.preferredName=state.preferredName||"Andy";
 state.previewDay=Number.isInteger(state.previewDay)?state.previewDay:null;
+state.workoutSessions=Array.isArray(state.workoutSessions)?state.workoutSessions:[];
+state.calendarMonth=state.calendarMonth||null;
+state.scheduleActivatedDate=state.scheduleActivatedDate||localDateKey();
+state.workoutScroll=Number.isFinite(state.workoutScroll)?state.workoutScroll:0;
 state.equipment=Object.assign({
   ritfitM1:true,
   bench:true,
@@ -384,7 +398,7 @@ function ensurePhase1Button(){
 function render(){
  const brand=document.querySelector("#gymBrand");
  if(brand)brand.textContent=`${state.preferredName.toUpperCase()}'S HOME GYM`;
- document.querySelector('#phase1LibraryButton')?.remove();clearInterval(timerId);document.body.classList.toggle("workout-mode",state.tab==="workout");nav.forEach(b=>b.classList.toggle("active",b.dataset.tab===state.tab));({home:home,workout:workout,library:library,equipment:equipment,progress:progress}[state.tab]||home)()}
+ document.querySelector('#phase1LibraryButton')?.remove();clearInterval(timerId);document.body.classList.toggle("workout-mode",state.tab==="workout");nav.forEach(b=>b.classList.toggle("active",b.dataset.tab===state.tab));({home:home,calendar:calendar,workout:workout,library:library,equipment:equipment,progress:progress}[state.tab]||home)()}
 
 function showDayPlan(dayIndex=state.selectedDay){
  const day=weekPlan[dayIndex],isToday=dayIndex===0;
@@ -673,7 +687,6 @@ function bindSets(ex){
    save();
  });
  document.querySelectorAll("[data-d]").forEach(b=>b.onclick=()=>{
-   const anchorTop=b.getBoundingClientRect().top;
    const i=+b.dataset.d;
    const w=document.querySelector(`[data-w="${i}"]`).value;
    const r=document.querySelector(`[data-r="${i}"]`).value;
@@ -684,24 +697,20 @@ function bindSets(ex){
    b.textContent=done?"✓":"○";
    b.setAttribute("aria-label",done?"Mark set incomplete":"Mark set complete");
    if(done)startTimer(ex.rest);
-   preserveViewportAnchor(b,anchorTop);
  });
  document.querySelector("#rest").onclick=()=>startTimer(ex.rest);
  const stop=document.querySelector("#stopTimer");if(stop)stop.onclick=stopTimer
 }
-function preserveViewportAnchor(element,top){
- const restore=()=>{
-   if(!element.isConnected)return;
-   const delta=element.getBoundingClientRect().top-top;
-   if(Math.abs(delta)>1)window.scrollBy(0,delta);
- };
- requestAnimationFrame(()=>requestAnimationFrame(restore));
- setTimeout(restore,180);
-}
 function bindTimer(ex){let b=document.querySelector("#rest");if(b)b.onclick=()=>{let [m,s]=ex.duration.split(":").map(Number);startTimer(m*60+s)};const stop=document.querySelector("#stopTimer");if(stop)stop.onclick=stopTimer}
 function stopTimer(){clearInterval(timerId);timerId=null;}
 function startTimer(sec){remaining=sec;const el=document.querySelector("#timer");clearInterval(timerId);tick();timerId=setInterval(()=>{remaining--;tick();if(remaining<=0){clearInterval(timerId);navigator.vibrate?.([200,100,200])}},1000);function tick(){el.textContent=`${String(Math.floor(remaining/60)).padStart(2,"0")}:${String(remaining%60).padStart(2,"0")}`;const c=document.querySelector("#restCoach");if(c)c.textContent=restCoachText(remaining)}}
-function next(){state.step++;save();workout()}
+function next(){
+ state.step++;
+ state.workoutScroll=0;
+ save();
+ workout();
+ window.scrollTo({top:0,behavior:"smooth"});
+}
 
 function showLibraryExercise(ex){
  app.innerHTML=`<section class="card workout-card professional-exercise-detail"><button class="secondary" id="libraryBack">Back to Library</button><span class="pill">EXERCISE GUIDE</span><h2>${ex.name}</h2><p class="muted workout-subtitle">${ex.muscles}</p><div class="why-card"><h3>Why this exercise?</h3><p>${ex.why||"Builds strength and movement control."}</p></div>${attachmentPhotoMarkup(ex)}${ex.m1?m1SetupCoach(ex):""}${exerciseTeachingMarkup(ex)}</section>`;
@@ -883,7 +892,9 @@ function summary(){
    session=state.history.find(h=>h.id===state.currentSession.completedId);
  }else{
    const endedAt=new Date(),startedAt=state.currentSession?.startedAt?new Date(state.currentSession.startedAt):endedAt;
-   session={id:state.currentSession?.id||`session-${Date.now()}`,date:endedAt.toLocaleDateString(),dateKey:localDateKey(endedAt),completedAt:endedAt.toISOString(),startedAt:startedAt.toISOString(),durationMs:Math.max(0,endedAt-startedAt),name:state.currentSession?.name||weekPlan[currentPlanIndex()].title,exercises:sessionExerciseSnapshot(),equipment:deepCopy(state.equipment)};
+   session={id:state.currentSession?.id||`session-${Date.now()}`,scheduleId:state.currentSession?.scheduleId||null,date:endedAt.toLocaleDateString(),dateKey:localDateKey(endedAt),completedAt:endedAt.toISOString(),startedAt:startedAt.toISOString(),durationMs:Math.max(0,endedAt-startedAt),name:state.currentSession?.name||weekPlan[currentPlanIndex()].title,exercises:sessionExerciseSnapshot(),equipment:deepCopy(state.equipment)};
+   const scheduled=state.workoutSessions.find(item=>item.id===session.scheduleId);
+   if(scheduled)scheduled.status="completed";
    state.sessions++;state.history.push(session);state.currentSession={completedId:session.id};state.step=0;state.setupReady=false;save();
  }
  const totals=sessionTotals(session),rating=state.workoutRatings[session.id]||"";
@@ -1804,6 +1815,11 @@ function activeWorkout(){
 
 function startNewSession(dayIndex=currentPlanIndex()){
   const plan=weekPlan[dayIndex];
+  ensureWorkoutSchedule();
+  const todaySchedule=state.workoutSessions
+    .filter(item=>item.scheduledDate===localDateKey()&&item.status!=="restDay")
+    .sort((a,b)=>(a.status==="rescheduled"?-1:1)-(b.status==="rescheduled"?-1:1))[0];
+  if(todaySchedule&&todaySchedule.status!=="rescheduled")todaySchedule.status="inProgress";
   state.logs={};
   state.currentSession={
     id:`session-${Date.now()}`,
@@ -1811,6 +1827,7 @@ function startNewSession(dayIndex=currentPlanIndex()){
     planDay:dayIndex,
     startedAt:new Date().toISOString(),
     dateKey:localDateKey(),
+    scheduleId:todaySchedule?.id||null,
     equipment:deepCopy(state.equipment)
   };
   state.step=0;
@@ -1872,6 +1889,293 @@ function workoutLanding(){
     }
   });
 }
+
+/* =========================================================
+   VERSION 13.2 / V4.2 — FLEXIBLE WORKOUT RECOVERY
+   plannedDate is immutable after creation; only scheduledDate moves.
+   ========================================================= */
+const V42_STATUS={
+ completed:{icon:"🟢",label:"Completed",description:"Workout finished and saved."},
+ scheduled:{icon:"🔵",label:"Scheduled",description:"Workout is planned for this date."},
+ inProgress:{icon:"🟡",label:"In Progress",description:"Workout has started but is not finished."},
+ rescheduled:{icon:"🟠",label:"Rescheduled",description:"Workout moved from its original planned date."},
+ missed:{icon:"⚫",label:"Missed",description:"Workout was not completed on its scheduled date."},
+ restDay:{icon:"🟣",label:"Rest Day",description:"Protected recovery day; shifting workouts will not remove it."}
+};
+const V42_TYPES={
+ strength:{icon:"💪",label:"Strength",description:"Resistance training for strength and muscle."},
+ cardio:{icon:"❤️",label:"Cardio",description:"Steady aerobic training for heart health and endurance."},
+ mobility:{icon:"🧘",label:"Mobility",description:"Mobility and movement-quality work."},
+ conditioning:{icon:"🏃",label:"Conditioning",description:"Higher-intensity work-capacity training."},
+ recovery:{icon:"😴",label:"Recovery",description:"Low-intensity recovery and check-in work."},
+ rest:{icon:"—",label:"No Workout",description:"A full rest day with no scheduled workout."}
+};
+const V42_REASONS={travel:"Travel",busy:"Busy",recovery:"Recovery",illness:"Illness",other:"Other"};
+
+function parseDateKey(key){
+ const [year,month,day]=key.split("-").map(Number);
+ return new Date(year,month-1,day,12);
+}
+function dateKeyFromParts(year,month,day){
+ return `${year}-${String(month).padStart(2,"0")}-${String(day).padStart(2,"0")}`;
+}
+function addCalendarDays(key,amount){
+ const date=parseDateKey(key);
+ date.setDate(date.getDate()+amount);
+ return localDateKey(date);
+}
+function planIndexForDate(date){
+ return (date.getDay()+6)%7;
+}
+function workoutTypeForPlan(index){
+ if([0,2,4].includes(index))return "strength";
+ if([1,5].includes(index))return "cardio";
+ if(index===3)return "mobility";
+ if(index===6)return "recovery";
+ return "recovery";
+}
+function ensureWorkoutSchedule(){
+ const today=parseDateKey(localDateKey());
+ const start=parseDateKey(state.scheduleActivatedDate);
+ const end=new Date(today);end.setDate(end.getDate()+240);
+ const known=new Set(state.workoutSessions.map(item=>item.id));
+ for(let date=new Date(start);date<=end;date.setDate(date.getDate()+1)){
+   const key=localDateKey(date);
+   const planDay=planIndexForDate(date);
+   const id=`planned-${key}`;
+   if(known.has(id))continue;
+   const type=workoutTypeForPlan(planDay);
+   state.workoutSessions.push({
+     id,
+     plannedDate:key,
+     scheduledDate:key,
+     planDay,
+     name:weekPlan[planDay].title,
+     workoutType:type,
+     status:planDay===6?"restDay":key<localDateKey()?"missed":"scheduled"
+   });
+ }
+ state.history.forEach(historyItem=>{
+   const key=historyItem.dateKey||(historyItem.completedAt?localDateKey(new Date(historyItem.completedAt)):null);
+   if(!key||known.has(`planned-${key}`))return;
+   const planDay=planIndexForDate(parseDateKey(key));
+   state.workoutSessions.push({
+     id:`planned-${key}`,plannedDate:key,scheduledDate:key,planDay,
+     name:historyItem.name||weekPlan[planDay].title,
+     workoutType:workoutTypeForPlan(planDay),status:"completed"
+   });
+   known.add(`planned-${key}`);
+ });
+ const completedKeys=new Set(state.history.map(item=>item.dateKey||(item.completedAt?localDateKey(new Date(item.completedAt)):null)).filter(Boolean));
+ state.workoutSessions.forEach(item=>{
+   if(completedKeys.has(item.scheduledDate)&&item.status!=="rescheduled")item.status="completed";
+   if(item.planDay===6)item.status="restDay";
+ });
+}
+function sessionsForDate(key){
+ ensureWorkoutSchedule();
+ return state.workoutSessions
+   .filter(item=>item.scheduledDate===key)
+   .sort((a,b)=>a.plannedDate.localeCompare(b.plannedDate));
+}
+function v42Dialog(content,label="Dialog"){
+ let overlay=document.querySelector("#v42Dialog");
+ if(!overlay){
+   overlay=document.createElement("div");
+   overlay.id="v42Dialog";
+   overlay.className="v42-dialog hidden";
+   overlay.setAttribute("role","dialog");
+   overlay.setAttribute("aria-modal","true");
+   document.body.appendChild(overlay);
+ }
+ overlay.setAttribute("aria-label",label);
+ overlay.innerHTML=`<div class="v42-dialog-card">${content}<button class="secondary v42-close" type="button">Close</button></div>`;
+ overlay.classList.remove("hidden");
+ overlay.querySelector(".v42-close").onclick=()=>overlay.classList.add("hidden");
+ overlay.onclick=event=>{if(event.target===overlay)overlay.classList.add("hidden")};
+ return overlay;
+}
+function explainCalendarItem(kind,key){
+ const item=(kind==="status"?V42_STATUS:V42_TYPES)[key];
+ v42Dialog(`<span class="legend-dialog-icon">${item.icon}</span><h2>${item.label}</h2><p>${item.description}</p>`,item.label);
+}
+function calendar(){
+ ensureWorkoutSchedule();
+ const base=state.calendarMonth?parseDateKey(`${state.calendarMonth}-01`):new Date();
+ const year=base.getFullYear(),month=base.getMonth();
+ const first=new Date(year,month,1),lastDay=new Date(year,month+1,0).getDate();
+ const leading=first.getDay();
+ const monthKey=`${year}-${String(month+1).padStart(2,"0")}`;
+ state.calendarMonth=monthKey;
+ const cells=Array.from({length:leading},()=>`<span class="calendar-empty"></span>`);
+ for(let day=1;day<=lastDay;day++){
+   const key=dateKeyFromParts(year,month+1,day);
+   const entries=sessionsForDate(key);
+   const primary=entries.find(item=>item.status!=="restDay")||entries[0];
+   const count=entries.filter(item=>item.status!=="restDay").length;
+   cells.push(`<button class="calendar-day ${key===localDateKey()?"today":""}" data-calendar-day="${key}" aria-label="${parseDateKey(key).toLocaleDateString(undefined,{month:"long",day:"numeric"})}, ${primary?V42_STATUS[primary.status].label:"No workout"}">
+     <strong>${day}</strong>
+     <span title="${primary?V42_STATUS[primary.status].label:"No workout"}">${primary?V42_STATUS[primary.status].icon:""}</span>
+     <span title="${primary?V42_TYPES[primary.workoutType].label:"No workout"}">${primary?V42_TYPES[primary.workoutType].icon:""}</span>
+     ${count>1?`<small>+${count-1}</small>`:""}
+   </button>`);
+ }
+ app.innerHTML=`<section class="card calendar-card">
+   <span class="pill">WORKOUT CALENDAR</span>
+   <div class="calendar-heading"><button class="calendar-arrow" id="previousMonth" aria-label="Previous month">‹</button><h2>${first.toLocaleDateString(undefined,{month:"long",year:"numeric"})}</h2><button class="calendar-arrow" id="nextMonth" aria-label="Next month">›</button></div>
+   <div class="calendar-weekdays">${["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].map(day=>`<span>${day}</span>`).join("")}</div>
+   <div class="calendar-grid">${cells.join("")}</div>
+ </section>
+ <section class="card calendar-legend" aria-label="Calendar legend">
+   <h2>Legend</h2>
+   <h3>Workout Status</h3>
+   <div class="legend-grid">${Object.entries(V42_STATUS).map(([key,item])=>`<button data-legend-kind="status" data-legend-key="${key}"><span>${item.icon}</span>${item.label}</button>`).join("")}</div>
+   <h3>Workout Types</h3>
+   <div class="legend-grid">${Object.entries(V42_TYPES).filter(([key])=>key!=="rest").map(([key,item])=>`<button data-legend-kind="type" data-legend-key="${key}"><span>${item.icon}</span>${item.label}</button>`).join("")}</div>
+ </section>`;
+ document.querySelector("#previousMonth").onclick=()=>{base.setMonth(month-1);state.calendarMonth=localDateKey(base).slice(0,7);save();calendar()};
+ document.querySelector("#nextMonth").onclick=()=>{base.setMonth(month+1);state.calendarMonth=localDateKey(base).slice(0,7);save();calendar()};
+ document.querySelectorAll("[data-calendar-day]").forEach(button=>button.onclick=()=>openCalendarDay(button.dataset.calendarDay));
+ document.querySelectorAll("[data-legend-kind]").forEach(button=>button.onclick=()=>explainCalendarItem(button.dataset.legendKind,button.dataset.legendKey));
+ save();
+}
+function openCalendarDay(key){
+ const entries=sessionsForDate(key);
+ const dateLabel=parseDateKey(key).toLocaleDateString(undefined,{weekday:"long",month:"long",day:"numeric"});
+ v42Dialog(`<span class="pill">${dateLabel}</span><h2>Workout Details</h2>
+   <div class="calendar-detail-list">${entries.map(item=>`<article>
+     <div class="calendar-detail-title"><span>${V42_TYPES[item.workoutType].icon}</span><div><strong>${item.name}</strong><small>${V42_STATUS[item.status].icon} ${V42_STATUS[item.status].label}</small></div></div>
+     ${item.plannedDate!==item.scheduledDate?`<p>Originally planned for ${parseDateKey(item.plannedDate).toLocaleDateString()}.</p>`:""}
+     ${item.reason?`<p>Reason: ${V42_REASONS[item.reason]}</p>`:""}
+     ${item.status==="missed"?`<button class="primary" data-recover="${item.id}">Manage missed workout</button>`:""}
+   </article>`).join("")}</div>`,dateLabel);
+ document.querySelectorAll("[data-recover]").forEach(button=>button.onclick=()=>openMissedWorkout(button.dataset.recover));
+}
+function openMissedWorkout(id){
+ const session=state.workoutSessions.find(item=>item.id===id);
+ if(!session)return;
+ const reasonOptions=Object.entries(V42_REASONS).map(([key,label])=>`<option value="${key}" ${session.reason===key?"selected":""}>${label}</option>`).join("");
+ const dialog=v42Dialog(`<span class="pill">WORKOUT DETAILS</span><h2>${session.name}</h2>
+   <div class="status-line"><span>${V42_STATUS.missed.icon}</span><div><small>STATUS</small><strong>Missed</strong></div></div>
+   <label class="field-label">Reason<select id="missedReason">${reasonOptions}</select></label>
+   <div class="recovery-actions"><button class="primary" id="startMissedToday">Start Today</button><button class="secondary" id="moveMissed">Move Workout</button><button class="secondary" id="leaveMissed">Leave Missed</button></div>`,`${session.name} recovery`);
+ dialog.querySelector("#missedReason").onchange=event=>{session.reason=event.target.value;save()};
+ dialog.querySelector("#startMissedToday").onclick=()=>openStartTodayFlow(id);
+ dialog.querySelector("#moveMissed").onclick=()=>openMoveWorkout(id);
+ dialog.querySelector("#leaveMissed").onclick=()=>{save();dialog.classList.add("hidden")};
+}
+function openStartTodayFlow(id){
+ const session=state.workoutSessions.find(item=>item.id===id);
+ if(!session)return;
+ const today=sessionsForDate(localDateKey()).find(item=>item.status!=="restDay"&&item.id!==id);
+ const dialog=v42Dialog(`<span class="pill">START TODAY</span><h2>How should today’s workout be handled?</h2>
+   <div class="choice-list"><button class="choice-button" data-start-choice="replace"><strong>Replace today’s workout</strong><small>Keep the program order and move future workouts forward.</small></button>
+   <button class="choice-button" data-start-choice="both"><strong>Complete both workouts</strong><small>${today?.name||"Today’s workout"} remains scheduled.</small></button>
+   <button class="choice-button" data-start-choice="forward"><strong>Move today’s workout forward</strong><small>Recover this workout now and shift today’s session.</small></button></div>`,`Start ${session.name} today`);
+ dialog.querySelectorAll("[data-start-choice]").forEach(button=>button.onclick=()=>{
+   recoverWorkoutToday(session,button.dataset.startChoice);
+   dialog.classList.add("hidden");
+   state.tab="home";save();render();
+ });
+}
+function nextTrainingDates(fromKey,count){
+ const dates=[];
+ for(let offset=0;dates.length<count&&offset<400;offset++){
+   const key=addCalendarDays(fromKey,offset);
+   if(planIndexForDate(parseDateKey(key))!==6)dates.push(key);
+ }
+ return dates;
+}
+function recoverWorkoutToday(missed,choice){
+ const today=localDateKey();
+ missed.scheduledDate=today;
+ missed.status="rescheduled";
+ if(choice==="both")return save();
+ const movable=state.workoutSessions
+   .filter(item=>item.id!==missed.id&&item.status!=="restDay"&&item.scheduledDate>=today&&item.status!=="completed")
+   .sort((a,b)=>a.scheduledDate.localeCompare(b.scheduledDate)||a.plannedDate.localeCompare(b.plannedDate));
+ const targets=nextTrainingDates(addCalendarDays(today,1),movable.length);
+ movable.forEach((item,index)=>{
+   item.scheduledDate=targets[index];
+   item.status=item.scheduledDate===item.plannedDate?"scheduled":"rescheduled";
+ });
+ save();
+}
+function openMoveWorkout(id){
+ const session=state.workoutSessions.find(item=>item.id===id);
+ if(!session)return;
+ const minimum=addCalendarDays(localDateKey(),1);
+ const dialog=v42Dialog(`<span class="pill">MOVE WORKOUT</span><h2>Choose a future date</h2><label class="field-label">New scheduled date<input id="moveWorkoutDate" type="date" min="${minimum}" value="${minimum}"></label><button class="primary" id="confirmMoveWorkout">Move ${session.name}</button>`,`Move ${session.name}`);
+ dialog.querySelector("#confirmMoveWorkout").onclick=()=>{
+   const target=dialog.querySelector("#moveWorkoutDate").value;
+   if(!target||target<minimum)return;
+   session.scheduledDate=target;
+   session.status="rescheduled";
+   save();dialog.classList.add("hidden");calendar();
+ };
+}
+function v42Metrics(){
+ ensureWorkoutSchedule();
+ const relevant=state.workoutSessions.filter(item=>item.status!=="restDay"&&item.plannedDate<=localDateKey());
+ const completed=relevant.filter(item=>item.status==="completed").length;
+ const adherence=relevant.length?Math.round(completed/relevant.length*100):100;
+ const recent=state.workoutSessions.filter(item=>item.status!=="restDay"&&item.scheduledDate<=localDateKey()&&item.scheduledDate>=addCalendarDays(localDateKey(),-7));
+ const recovery=Math.max(0,Math.min(100,100-recent.filter(item=>item.status==="missed").length*15));
+ let streak=0;
+ for(const item of relevant.slice().sort((a,b)=>b.scheduledDate.localeCompare(a.scheduledDate))){
+   if(item.status==="completed")streak++;
+   else if(item.status==="missed")break;
+ }
+ return {streak,adherence,recovery,total:state.history.length};
+}
+function coachRecommendationMarkup(){
+ ensureWorkoutSchedule();
+ const missed=state.workoutSessions.filter(item=>item.status==="missed").sort((a,b)=>b.scheduledDate.localeCompare(a.scheduledDate))[0];
+ if(!missed)return "";
+ const today=sessionsForDate(localDateKey()).find(item=>item.status!=="restDay");
+ return `<section class="card coach-recommendation"><span class="pill">COACH RECOMMENDATION</span><h2>Get back on sequence</h2><p>You missed <strong>${missed.name}</strong>${missed.reason?` due to ${V42_REASONS[missed.reason].toLowerCase()}`:""}.</p><div class="recommendation-box"><small>RECOMMENDED</small><strong>Complete ${missed.name} today.</strong><span>${today?.name||"Today’s workout"} will move to the next training day.</span></div><div class="impact-line"><span>Estimated impact</span><strong>Minimal</strong></div><button class="primary" data-coach-recover="${missed.id}">Review recovery options</button></section>`;
+}
+const v42BaseHome=home;
+home=function(){
+ v42BaseHome();
+ const recommendation=coachRecommendationMarkup();
+ const todayRescheduled=sessionsForDate(localDateKey()).find(item=>item.status==="rescheduled");
+ if(todayRescheduled){
+   const moved=state.workoutSessions.find(item=>item.plannedDate===localDateKey()&&item.id!==todayRescheduled.id);
+   app.insertAdjacentHTML("afterbegin",`<section class="card today-rescheduled"><span class="pill">TODAY’S WORKOUT</span><h2>${todayRescheduled.name}</h2><p>Rescheduled from ${parseDateKey(todayRescheduled.plannedDate).toLocaleDateString(undefined,{weekday:"long"})}.</p>${moved?`<small>Today’s ${moved.name.toLowerCase()} moved to ${parseDateKey(moved.scheduledDate).toLocaleDateString(undefined,{weekday:"long"})}.</small>`:""}</section>`);
+ }
+ if(recommendation)app.insertAdjacentHTML("beforeend",recommendation);
+ document.querySelectorAll("[data-coach-recover]").forEach(button=>button.onclick=()=>openMissedWorkout(button.dataset.coachRecover));
+};
+const v42BaseProgress=progress;
+progress=function(){
+ v42BaseProgress();
+ if(state.historyView)return;
+ const metrics=v42Metrics();
+ app.insertAdjacentHTML("afterbegin",`<section class="card training-metrics"><span class="pill">TRAINING PROGRESS</span><h2>Consistency & recovery</h2><div class="metric-grid">
+   <div><small>TRAINING STREAK</small><strong>${metrics.streak}</strong><span>sessions</span></div>
+   <div><small>PROGRAM ADHERENCE</small><strong>${metrics.adherence}%</strong><span>completed</span></div>
+   <div><small>RECOVERY SCORE</small><strong>${metrics.recovery}</strong><span>out of 100</span></div>
+   <div><small>TOTAL SESSIONS</small><strong>${metrics.total}</strong><span>saved</span></div>
+ </div></section>`);
+};
+const v42BaseExercise=exercise;
+exercise=function(ex,workoutData=activeWorkout()){
+ v42BaseExercise(ex,workoutData);
+ if(state.workoutScroll>0){
+   const target=state.workoutScroll;
+   state.workoutScroll=0;
+   requestAnimationFrame(()=>requestAnimationFrame(()=>window.scrollTo({top:target,behavior:"auto"})));
+ }
+};
+const v42BaseSetTab=setTab;
+setTab=function(tab){
+ if(state.tab==="workout"&&tab!=="workout"){
+   state.workoutScroll=window.scrollY;
+   save();
+ }
+ v42BaseSetTab(tab);
+};
 
 migrateHistory();
 recoverV1131History();
