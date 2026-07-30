@@ -1,9 +1,9 @@
 (function (root) {
   root.ROAD12_META = Object.freeze({
-    version: "13.1.0",
-    build: "2026.07.29.2",
-    lastUpdated: "July 29, 2026",
+    version: "13.2.0",
+    build: "2026.07.30.1",
+    lastUpdated: "July 30, 2026",
     gitCommit: null,
-    serviceWorkerCache: "road12-v13-1-shell"
+    serviceWorkerCache: "road12-v13-2-shell"
   });
 })(typeof self !== "undefined" ? self : window);
