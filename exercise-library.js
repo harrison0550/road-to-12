@@ -53,6 +53,15 @@
   });
 
   const entries = {
+    "Cable Hammer Curl": road12Illustration({
+      sourceExercise: "Rope cable hammer curl on a red cage-style Smith machine",
+      media: "cable-hammer-curl-red-cage.webp",
+      mediaAlt: "Start and finish positions for a neutral-grip rope hammer curl using one low pulley on the inner front-left post of a red cage-style Smith machine",
+      primaryMuscles: ["Biceps", "Brachialis"],
+      secondaryMuscles: ["Forearms"],
+      equipment: ["Red cage-style Smith machine", "One low inner front-left pulley", "Triceps rope"],
+      commonMistakes: ["Swinging the torso", "Letting the elbows travel forward", "Changing from a neutral grip"]
+    }),
     "Incline Cable Press": road12Illustration({
       sourceExercise: "Incline cable press in a cage-style Smith machine",
       media: "incline-cable-press-cage.webp",

@@ -20,6 +20,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Offline treadmill posture artwork with a full-screen enlargement and accessible description.
 - Offline two-position Hip Hinge artwork showing the standing start and correct hinge posture.
 - Offline two-position Incline Cable Press artwork using a cage-style Smith machine with low pulleys on both front posts.
+- Offline two-position Cable Hammer Curl artwork using a rope on the low inner front-left pulley of the red Smith cage.
 
 ### Changed
 
@@ -42,6 +43,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Advanced the maintenance build to `2026.07.30.12` and rotated the offline shell cache for the Incline Cable Press visual guide.
 - Advanced the maintenance build to `2026.07.30.13` and rotated the offline shell cache for the corrected Incline Cable Press equipment artwork.
 - Advanced the maintenance build to `2026.07.30.14` and rotated the offline shell cache after moving the left Incline Cable Press pulley to the inner front-left upright.
+- Advanced the maintenance build to `2026.07.30.15` and rotated the offline shell cache for the Cable Hammer Curl visual guide.
 - Replaced developer-facing missing-media copy with concise coached-instruction guidance.
 
 ### Fixed

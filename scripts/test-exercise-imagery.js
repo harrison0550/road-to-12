@@ -12,6 +12,8 @@ const treadmill = context.self.ROAD12_EXERCISE_LIBRARY.entries["Treadmill Walk"]
 const hipHinge = context.self.ROAD12_EXERCISE_LIBRARY.entries["Hip Hinge"];
 const inclineCablePress =
   context.self.ROAD12_EXERCISE_LIBRARY.entries["Incline Cable Press"];
+const cableHammerCurl =
+  context.self.ROAD12_EXERCISE_LIBRARY.entries["Cable Hammer Curl"];
 assert(treadmill, "Treadmill Walk must have an exercise-library visual");
 assert.strictEqual(treadmill.sourceType, "app-original");
 assert(treadmill.mediaAlt.includes("safety clip"), "the visual needs useful alternative text");
@@ -42,6 +44,18 @@ assert(
   fs.existsSync(path.join(root, inclineCablePress.media)),
   "the incline cable press illustration must be stored locally",
 );
+assert(cableHammerCurl, "Cable Hammer Curl must have an exercise-library visual");
+assert.strictEqual(cableHammerCurl.sourceType, "app-original");
+assert(
+  cableHammerCurl.mediaAlt.includes("neutral-grip rope hammer curl") &&
+    cableHammerCurl.mediaAlt.includes("inner front-left post") &&
+    cableHammerCurl.mediaAlt.includes("red cage-style Smith machine"),
+  "the cable hammer curl needs grip- and equipment-specific alternative text",
+);
+assert(
+  fs.existsSync(path.join(root, cableHammerCurl.media)),
+  "the cable hammer curl illustration must be stored locally",
+);
 
 const app = fs.readFileSync(path.join(root, "app.js"), "utf8");
 assert(!app.includes("No reviewed free demonstration yet"));
@@ -63,7 +77,11 @@ assert(
   sw.includes(`./${inclineCablePress.media}`),
   "the incline cable press illustration must be available offline",
 );
+assert(
+  sw.includes(`./${cableHammerCurl.media}`),
+  "the cable hammer curl illustration must be available offline",
+);
 
 console.log(
-  "Exercise imagery tests passed: treadmill, hip-hinge, and incline-cable-press artwork, provenance, accessible text, polished fallback, and offline caching.",
+  "Exercise imagery tests passed: treadmill, hip-hinge, incline-cable-press, and cable-hammer-curl artwork, provenance, accessible text, polished fallback, and offline caching.",
 );
