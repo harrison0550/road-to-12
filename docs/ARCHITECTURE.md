@@ -61,7 +61,7 @@ Optional future synchronization must not make the local store unusable offline.
 
 ## Service Worker
 
-The Service Worker precaches the application shell and required exercise media. `app-meta.js` owns the cache version. Each release that changes cached production files must rotate the cache name so installed PWAs receive the update.
+The Service Worker precaches the application shell and required exercise media. `app-meta.js` owns the cache version. Mutable shell files use a network-first strategy with cached fallback; reviewed media remains cache-first. Each release that changes cached production files must rotate the cache name and update the `app-meta.js` import query in `sw.js` so installed iOS PWAs receive fresh metadata.
 
 Offline validation must cover first installation, cached relaunch, update activation, and missing-network behavior. The Service Worker must not conceal stale application code indefinitely.
 

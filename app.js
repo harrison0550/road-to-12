@@ -2282,9 +2282,17 @@ save();
 if("serviceWorker" in navigator){
  window.addEventListener("load",async()=>{
    try{
+     const hadController=!!navigator.serviceWorker.controller;
+     let refreshing=false;
+     navigator.serviceWorker.addEventListener("controllerchange",()=>{
+       if(hadController&&!refreshing){
+         refreshing=true;
+         location.reload();
+       }
+     });
      const registration=await navigator.serviceWorker.getRegistration("./");
      if(registration)await registration.update();
-     else await navigator.serviceWorker.register("./sw.js",{scope:"./"});
+     else await navigator.serviceWorker.register("./sw.js",{scope:"./",updateViaCache:"none"});
    }catch(error){
      console.warn("Road to 12% service worker was not available.",error);
    }

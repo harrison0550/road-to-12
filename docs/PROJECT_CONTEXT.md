@@ -6,9 +6,9 @@ Read this file at the beginning of every Codex or engineering session. It is the
 
 - Product: Road to 12%
 - Version: 13.2.0
-- Build: 2026.07.30.7
+- Build: 2026.07.30.8
 - Last updated: July 30, 2026
-- Service Worker cache: `road12-v13-2-6-shell`
+- Service Worker cache: `road12-v13-2-7-shell`
 - Runtime: static, client-only, offline-first PWA
 - Primary storage key: `road12v5`
 
@@ -36,6 +36,7 @@ Historical regressions requiring automated coverage:
 - BUG-001: Workout page scroll jumps — resolved in 13.2.0.
 - BUG-002: Save Check-In button exceeds screen width — resolved in 13.2.0.
 - BUG-003: Past workout opens Close-only details — resolved in build 2026.07.30.7.
+- BUG-004: Installed PWA remains on an older shell — resolved in build 2026.07.30.8.
 
 See `KNOWN_BUGS.md` before diagnosing or fixing defects.
 
@@ -66,6 +67,7 @@ See `CODEX_TASKS.md` for priority and acceptance detail.
 - Recovered history records the immutable planned date separately from the actual completion date.
 - Past incomplete Calendar sessions offer immediate start or explicit rescheduling to today, tomorrow, or a chosen available date.
 - Recovery actions are rendered directly by the existing Calendar Workout Details modal; there is no separate recovery-details modal.
+- Mutable shell files use network-first refresh with cached offline fallback, and Service Worker metadata imports carry the current build query to prevent stale iOS updates.
 - Rescheduling inserts into an occupied training date by shifting later incomplete sessions around completed workouts and protected rest days.
 - Traditional streak emphasis was replaced with adherence, recovery, and total-session context.
 - Workout scroll is restored only when resuming; intentional next-exercise navigation may scroll to the top.

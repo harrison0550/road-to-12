@@ -35,6 +35,15 @@ No confirmed production defects are currently documented.
 - Resolution: The existing Calendar Workout Details renderer now includes recovery metadata and actions directly; the separate recovery-details modal path was removed.
 - Regression test: `scripts/test-recovered-workout-flow.js`
 
+### BUG-004 — Installed PWA does not promptly receive a new build
+
+- Status: Resolved in v13.2.0 maintenance build 2026.07.30.8
+- Severity: High
+- Area: Service Worker / Release
+- Report: The live site served the corrected build, but an installed iPhone Home Screen app could remain on an older cached shell.
+- Resolution: Mutable shell requests now refresh network-first, Service Worker metadata imports are build-keyed, new registrations bypass the HTTP cache, and controller changes trigger one safe reload.
+- Regression test: `scripts/test-offline-pwa.js`
+
 ## Bug template
 
 ```markdown

@@ -28,6 +28,9 @@ function cacheFor(name) {
     async match(request) {
       return store.get(requestKey(request));
     },
+    async put(request, response) {
+      store.set(requestKey(request), response);
+    },
   };
 }
 
@@ -37,7 +40,7 @@ const context = {
   URL,
   importScripts(relativePath) {
     const source = fs.readFileSync(
-      path.join(root, relativePath.replace(/^\.\//, "")),
+      path.join(root, relativePath.replace(/^\.\//, "").split("?")[0]),
       "utf8",
     );
     vm.runInContext(source, context, { filename: relativePath });
@@ -64,7 +67,14 @@ const context = {
   async fetch(request) {
     networkRequests++;
     if (!networkOnline) throw new Error("offline");
-    return { source: "network", url: requestKey(request) };
+    return {
+      source: "network",
+      url: requestKey(request),
+      ok: true,
+      clone() {
+        return { source: "network-cache", url: requestKey(request), ok: true };
+      },
+    };
   },
   self: {
     addEventListener(type, handler) {
@@ -100,7 +110,7 @@ async function dispatchExtendable(type) {
 async function dispatchFetch(url) {
   let response;
   listeners.get("fetch")({
-    request: { url },
+    request: { url, method: "GET", mode: url.endsWith("index.html") ? "navigate" : "same-origin" },
     respondWith(promise) {
       response = Promise.resolve(promise);
     },
@@ -111,7 +121,7 @@ async function dispatchFetch(url) {
 
 (async () => {
   const cacheName = context.self.ROAD12_META.serviceWorkerCache;
-  assert.strictEqual(cacheName, "road12-v13-2-6-shell");
+  assert.strictEqual(cacheName, "road12-v13-2-7-shell");
 
   await dispatchExtendable("install");
   assert.strictEqual(skipWaitingCalled, true, "new worker must activate promptly");
@@ -146,16 +156,23 @@ async function dispatchFetch(url) {
   assert.strictEqual(cachedRelaunch.source, "cache");
   assert.strictEqual(
     networkRequests,
-    requestsBeforeOfflineRelaunch,
-    "offline relaunch must not require a network request when the shell is cached",
+    requestsBeforeOfflineRelaunch + 1,
+    "offline relaunch must attempt a refresh before falling back to the cached shell",
   );
 
   networkOnline = true;
+  const refreshedApp = await dispatchFetch("./app.js");
+  assert.strictEqual(refreshedApp.source, "network");
+  assert.strictEqual(
+    stores.get(cacheName).get("./app.js").source,
+    "network-cache",
+    "mutable application files must refresh the offline cache while online",
+  );
   const networkResponse = await dispatchFetch("./not-cached.txt");
   assert.strictEqual(networkResponse.source, "network");
   assert.strictEqual(
     networkRequests,
-    requestsBeforeOfflineRelaunch + 1,
+    requestsBeforeOfflineRelaunch + 3,
     "uncached requests must fall back to the network",
   );
 

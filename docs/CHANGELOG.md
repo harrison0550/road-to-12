@@ -28,12 +28,16 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Advanced the maintenance build to `2026.07.30.4` and rotated the offline shell cache for the recovered-workout flow.
 - Past incomplete Calendar workouts now open complete details with Start Workout, Reschedule, and Close actions.
 - Consolidated recovery actions into the existing Workout Details modal, removing the obsolete Close-only/intermediate recovery path.
+- Mutable PWA shell files now refresh from the network when available while retaining cached offline fallback.
+- Service Worker metadata imports are build-keyed to prevent stale iOS Home Screen updates.
 - Rescheduling now avoids completed dates and protected rest days, shifting later incomplete workouts only when the selected date is occupied.
 - Advanced the maintenance build to `2026.07.30.7` and rotated the offline shell cache for the corrected Workout Details flow.
+- Advanced the maintenance build to `2026.07.30.8` and rotated the offline shell cache for reliable installed-PWA updates.
 
 ### Fixed
 
 - Added a consistent visible keyboard focus indicator across interactive controls.
+- Fixed installed PWAs remaining on an older shell after a newer build was deployed.
 
 ### Removed
 

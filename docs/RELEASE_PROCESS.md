@@ -28,9 +28,10 @@ Build identifiers use `YYYY.MM.DD.N`, where `N` increments for multiple builds o
    - `build`
    - `lastUpdated`
    - `serviceWorkerCache`
-5. Update `PROJECT_CONTEXT.md`.
-6. Update completed roadmap and sprint items.
-7. Update the About screen only through its metadata source; do not hard-code a second version value.
+5. Update the build query on the `app-meta.js` import in `sw.js` to the same build identifier.
+6. Update `PROJECT_CONTEXT.md`.
+7. Update completed roadmap and sprint items.
+8. Update the About screen only through its metadata source; do not hard-code a second version value.
 
 ## Automated checks
 
@@ -127,4 +128,3 @@ Publish release notes from the matching `CHANGELOG.md` section and keep technica
 3. Move remaining tasks to the appropriate roadmap release.
 4. Add newly discovered defects to `KNOWN_BUGS.md`.
 5. Update `PROJECT_CONTEXT.md` for the next session.
-
