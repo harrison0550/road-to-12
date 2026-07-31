@@ -35,7 +35,7 @@ assert.strictEqual(inclineCablePress.sourceType, "app-original");
 assert(
   inclineCablePress.mediaAlt.includes("low pulleys") &&
     inclineCablePress.mediaAlt.includes("both front posts") &&
-    inclineCablePress.mediaAlt.includes("cage-style Smith machine"),
+    inclineCablePress.mediaAlt.includes("red cage-style Smith machine"),
   "the incline cable press needs equipment-specific alternative text",
 );
 assert(

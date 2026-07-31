@@ -56,10 +56,10 @@
     "Incline Cable Press": road12Illustration({
       sourceExercise: "Incline cable press in a cage-style Smith machine",
       media: "incline-cable-press-cage.webp",
-      mediaAlt: "Start and finish positions for an incline cable press on a centered bench, with cables running from low pulleys on both front posts of a cage-style Smith machine",
+      mediaAlt: "Start and finish positions for an incline cable press inside a red cage-style Smith machine, with cables running from low pulleys on both front posts",
       primaryMuscles: ["Upper chest"],
       secondaryMuscles: ["Front shoulders", "Triceps"],
-      equipment: ["Cage-style Smith machine", "Two low front-post pulleys", "Two D-handles", "Low-incline bench"],
+      equipment: ["Red cage-style Smith machine", "Two low front-post pulleys", "Two D-handles", "Low-incline bench"],
       commonMistakes: ["Setting the pulleys too high", "Shrugging the shoulders", "Overarching the lower back"]
     }),
     "Hip Hinge": road12Illustration({
