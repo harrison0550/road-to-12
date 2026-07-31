@@ -2127,40 +2127,28 @@ function calendar(){
 function openCalendarDay(key){
  const entries=sessionsForDate(key);
  const isPastIncomplete=item=>item.scheduledDate<localDateKey()&&!["completed","restDay"].includes(item.status);
- if(entries.length===1&&isPastIncomplete(entries[0])){
-   openWorkoutRecovery(entries[0].id);
-   return;
- }
  const dateLabel=parseDateKey(key).toLocaleDateString(undefined,{weekday:"long",month:"long",day:"numeric"});
  v42Dialog(`<span class="pill">${dateLabel}</span><h2>Workout Details</h2>
    <div class="calendar-detail-list">${entries.map(item=>`<article>
      <div class="calendar-detail-title"><span>${V42_TYPES[item.workoutType].icon}</span><div><strong>${item.name}</strong><small>${V42_STATUS[item.status].icon} ${V42_STATUS[item.status].label}</small></div></div>
+     ${isPastIncomplete(item)?`<div class="recovery-workout-facts">
+       <div><small>WORKOUT TYPE</small><strong>${V42_TYPES[item.workoutType].icon} ${V42_TYPES[item.workoutType].label}</strong></div>
+       <div><small>SCHEDULED DATE</small><strong>${parseDateKey(item.scheduledDate).toLocaleDateString(undefined,{weekday:"long",month:"long",day:"numeric"})}</strong></div>
+     </div>`:""}
      ${item.plannedDate!==item.scheduledDate?`<p>Originally planned for ${parseDateKey(item.plannedDate).toLocaleDateString()}.</p>`:""}
      ${item.reason?`<p>Reason: ${V42_REASONS[item.reason]}</p>`:""}
-     ${isPastIncomplete(item)?`<button class="primary" data-recover="${item.id}">Open workout recovery</button>`:""}
+     ${isPastIncomplete(item)?`<div class="recovery-actions"><button class="primary" data-start-recovery="${item.id}">Start Workout</button><button class="secondary" data-reschedule-recovery="${item.id}">Reschedule</button></div>`:""}
    </article>`).join("")}</div>`,dateLabel);
- document.querySelectorAll("[data-recover]").forEach(button=>button.onclick=()=>openWorkoutRecovery(button.dataset.recover));
-}
-function openWorkoutRecovery(id){
- const session=state.workoutSessions.find(item=>item.id===id);
- if(!session||session.scheduledDate>=localDateKey()||["completed","restDay"].includes(session.status))return;
- const plan=weekPlan[session.planDay];
- const scheduledDate=parseDateKey(session.scheduledDate).toLocaleDateString(undefined,{weekday:"long",month:"long",day:"numeric"});
- const dialog=v42Dialog(`<span class="pill">WORKOUT DETAILS</span><h2>${session.name}</h2>
-   <div class="recovery-workout-facts">
-     <div><small>WORKOUT TYPE</small><strong>${V42_TYPES[session.workoutType].icon} ${V42_TYPES[session.workoutType].label}</strong></div>
-     <div><small>SCHEDULED DATE</small><strong>${scheduledDate}</strong></div>
-     <div><small>ESTIMATED DURATION</small><strong>${plan.time}</strong></div>
-   </div>
-   <div class="recovery-actions"><button class="primary" id="startMissedWorkout">Start Workout</button><button class="secondary" id="rescheduleMissedWorkout">Reschedule</button></div>`,`${session.name} recovery`);
- dialog.querySelector("#startMissedWorkout").onclick=()=>{
+ document.querySelectorAll("[data-start-recovery]").forEach(button=>button.onclick=()=>{
+   const session=state.workoutSessions.find(item=>item.id===button.dataset.startRecovery);
+   if(!session)return;
    startNewSession(session.planDay,session);
    closeV42Dialog();
    state.tab="workout";
    save();
    workout();
- };
- dialog.querySelector("#rescheduleMissedWorkout").onclick=()=>openWorkoutReschedule(session.id);
+ });
+ document.querySelectorAll("[data-reschedule-recovery]").forEach(button=>button.onclick=()=>openWorkoutReschedule(button.dataset.rescheduleRecovery));
 }
 function applyWorkoutReschedule(session,targetDate){
  const moved=window.ROAD12_SCHEDULING.rescheduleWorkout(
@@ -2231,7 +2219,10 @@ home=function(){
    app.insertAdjacentHTML("afterbegin",`<section class="card today-rescheduled"><span class="pill">TODAY’S WORKOUT</span><h2>${todayRescheduled.name}</h2><p>Rescheduled from ${parseDateKey(todayRescheduled.plannedDate).toLocaleDateString(undefined,{weekday:"long"})}.</p>${moved?`<small>Today’s ${moved.name.toLowerCase()} moved to ${parseDateKey(moved.scheduledDate).toLocaleDateString(undefined,{weekday:"long"})}.</small>`:""}</section>`);
  }
  if(recommendation)app.insertAdjacentHTML("beforeend",recommendation);
- document.querySelectorAll("[data-coach-recover]").forEach(button=>button.onclick=()=>openWorkoutRecovery(button.dataset.coachRecover));
+ document.querySelectorAll("[data-coach-recover]").forEach(button=>button.onclick=()=>{
+   const session=state.workoutSessions.find(item=>item.id===button.dataset.coachRecover);
+   if(session)openCalendarDay(session.scheduledDate);
+ });
 };
 const v42BaseProgress=progress;
 progress=function(){

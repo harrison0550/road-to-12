@@ -27,8 +27,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Missed-workout recovery now defers changes to today’s schedule until the recovered workout is complete and the user confirms a choice.
 - Advanced the maintenance build to `2026.07.30.4` and rotated the offline shell cache for the recovered-workout flow.
 - Past incomplete Calendar workouts now open complete details with Start Workout, Reschedule, and Close actions.
+- Consolidated recovery actions into the existing Workout Details modal, removing the obsolete Close-only/intermediate recovery path.
 - Rescheduling now avoids completed dates and protected rest days, shifting later incomplete workouts only when the selected date is occupied.
-- Advanced the maintenance build to `2026.07.30.6` and rotated the offline shell cache for Calendar recovery rescheduling.
+- Advanced the maintenance build to `2026.07.30.7` and rotated the offline shell cache for the corrected Workout Details flow.
 
 ### Fixed
 
