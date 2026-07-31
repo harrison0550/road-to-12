@@ -714,6 +714,10 @@ function next(){
    options=>window.scrollTo(options)
  );
 }
+function formatHistoryDateKey(key,fallback="Not recorded"){
+  if(!key)return fallback;
+  return parseDateKey(key).toLocaleDateString(undefined,{month:"short",day:"numeric",year:"numeric"});
+}
 
 function showLibraryExercise(ex){
  app.innerHTML=`<section class="card workout-card professional-exercise-detail"><button class="secondary" id="libraryBack">Back to Library</button><span class="pill">EXERCISE GUIDE</span><h2>${ex.name}</h2><p class="muted workout-subtitle">${ex.muscles}</p><div class="why-card"><h3>Why this exercise?</h3><p>${ex.why||"Builds strength and movement control."}</p></div>${attachmentPhotoMarkup(ex)}${ex.m1?m1SetupCoach(ex):""}${exerciseTeachingMarkup(ex)}</section>`;
@@ -774,7 +778,7 @@ function saveAttachmentPhoto(key,file){
 }
 function sessionDetail(session){
  const totals=sessionTotals(session);
- app.innerHTML=`<section class="card session-detail-header"><button class="secondary" id="historyBack">Back to history</button><div class="check small-check">✓</div><span class="pill">COMPLETED WORKOUT</span><h2>${session.name}</h2><p class="muted">${session.date} • ${formatDuration(session.durationMs)}</p><div class="brief-grid"><div><small>SETS</small><strong>${totals.completedSets}</strong></div><div><small>REPS</small><strong>${totals.totalReps}</strong></div><div><small>SELECTED VOLUME</small><strong>${Math.round(totals.selectedVolume).toLocaleString()} lb</strong></div><div><small>STATUS</small><strong>Saved</strong></div></div>${session.recoveredFromV74?`<div class="recovery-note">This session was recovered from Version 11.3.2. Any values still held in the old workout log are shown below.</div>`:""}</section>
+ app.innerHTML=`<section class="card session-detail-header"><button class="secondary" id="historyBack">Back to history</button><div class="check small-check">✓</div><span class="pill">${session.recoveryIndicator?"RECOVERED WORKOUT":"COMPLETED WORKOUT"}</span><h2>${session.name}</h2><p class="muted">${session.date} • ${formatDuration(session.durationMs)}</p><div class="brief-grid"><div><small>SETS</small><strong>${totals.completedSets}</strong></div><div><small>REPS</small><strong>${totals.totalReps}</strong></div><div><small>SELECTED VOLUME</small><strong>${Math.round(totals.selectedVolume).toLocaleString()} lb</strong></div><div><small>STATUS</small><strong>Saved</strong></div></div>${session.recoveryIndicator?`<div class="recovery-note"><strong>Recovery workout</strong><br>Originally planned: ${formatHistoryDateKey(session.plannedDate||session.originalScheduledDate)}<br>Completed: ${formatHistoryDateKey(session.actualCompletionDate||session.dateKey)}</div>`:""}${session.recoveredFromV74?`<div class="recovery-note">This session was recovered from Version 11.3.2. Any values still held in the old workout log are shown below.</div>`:""}</section>
  <section class="card"><h2>Exercises completed</h2><div class="history-exercise-list">${(session.exercises||[]).length?(session.exercises||[]).map(ex=>`<details class="history-exercise" open><summary><span><strong>${ex.name}</strong>${ex.originalExercise?`<small>Substituted for ${ex.originalExercise}</small>`:""}</span><span>${(ex.sets||[]).filter(s=>s?.done).length} sets</span></summary><div class="history-set-head"><span>SET</span><span>${ex.weightEntry?.mode==="dual"?"LB / STACK":"WEIGHT"}</span><span>REPS</span><span>STATUS</span></div>${(ex.sets||[]).map((s,i)=>`<div class="history-set-row"><strong>${i+1}</strong><span>${s?.weight!==undefined&&s?.weight!==""?`${s.weight} lb`:"—"}${ex.weightEntry?.mode==="dual"&&s?.weight?`<small>${Number(s.weight)*2} lb combined selected</small>`:""}</span><span>${s?.reps||"—"}</span><span>${s?.done?"✓ Complete":"Not marked"}</span></div>`).join("")||'<p class="muted">No set details were stored.</p>'}<div class="history-weight-note"><strong>${ex.weightEntry?.label||"Weight used"}</strong><p>${ex.weightEntry?.help||""}</p></div></details>`).join(""):'<p class="muted">The older session record did not contain exercise details.</p>'}</div></section>
  <button class="secondary" id="repeatHistory">Repeat this workout</button>`;
  document.querySelector("#historyBack").onclick=()=>{state.historyView=null;save();progress()};
@@ -895,16 +899,47 @@ function summary(){
    session=state.history.find(h=>h.id===state.currentSession.completedId);
  }else{
    const endedAt=new Date(),startedAt=state.currentSession?.startedAt?new Date(state.currentSession.startedAt):endedAt;
-   session={id:state.currentSession?.id||`session-${Date.now()}`,scheduleId:state.currentSession?.scheduleId||null,date:endedAt.toLocaleDateString(),dateKey:localDateKey(endedAt),completedAt:endedAt.toISOString(),startedAt:startedAt.toISOString(),durationMs:Math.max(0,endedAt-startedAt),name:state.currentSession?.name||weekPlan[currentPlanIndex()].title,exercises:sessionExerciseSnapshot(),equipment:deepCopy(state.equipment)};
+   session={id:state.currentSession?.id||`session-${Date.now()}`,scheduleId:state.currentSession?.scheduleId||null,date:endedAt.toLocaleDateString(),dateKey:localDateKey(endedAt),completedAt:endedAt.toISOString(),actualCompletionDate:localDateKey(endedAt),startedAt:startedAt.toISOString(),durationMs:Math.max(0,endedAt-startedAt),name:state.currentSession?.name||weekPlan[currentPlanIndex()].title,exercises:sessionExerciseSnapshot(),equipment:deepCopy(state.equipment)};
+   if(state.currentSession?.recoveredWorkout){
+     session.recoveryIndicator=true;
+     session.plannedDate=state.currentSession.plannedDate;
+     session.originalScheduledDate=state.currentSession.originalScheduledDate;
+     session.recoveryDecision="pending";
+   }
    const scheduled=state.workoutSessions.find(item=>item.id===session.scheduleId);
-   if(scheduled)scheduled.status="completed";
+   if(scheduled){
+     scheduled.status="completed";
+     scheduled.actualCompletionDate=session.actualCompletionDate;
+   }
    state.sessions++;state.history.push(session);state.currentSession={completedId:session.id};state.step=0;state.setupReady=false;save();
  }
  const totals=sessionTotals(session),rating=state.workoutRatings[session.id]||"";
  app.innerHTML=`<section class="card complete upgraded-complete"><div class="check">✓</div><span class="pill">SESSION ${state.sessions} COMPLETE</span><h2>You crushed it!</h2><p>${formatDuration(session.durationMs)} • ${totals.completedSets} sets • ${totals.totalReps} reps</p></section>
  <section class="card workout-rating"><h3>How did it feel?</h3><p>Your answer helps guide future load increases.</p><div class="rating-grid">${["Easy","Good","Tough","Exhausting"].map((x,i)=>`<button data-rating="${x}" class="${rating===x?"selected":""}"><span>${["😀","🙂","😐","😫"][i]}</span>${x}</button>`).join("")}</div><label>Workout notes<textarea id="workoutNote" placeholder="Energy, discomfort, equipment changes or wins...">${session.note||""}</textarea></label></section>
+ ${session.recoveryIndicator&&session.recoveryDecision==="pending"?`<section class="card recovery-completion-choice" aria-labelledby="recoveryCompletionTitle">
+   <span class="pill">RECOVERED WORKOUT</span>
+   <h2 id="recoveryCompletionTitle">You completed a workout that was originally scheduled for yesterday.</h2>
+   <p>What would you like to do with today’s scheduled workout?</p>
+   <div class="choice-list">
+     <button class="choice-button recommended-choice" data-recovery-decision="replace"><strong>Replace today’s workout with the one I just completed</strong><small>Recommended — move today’s workout forward while preserving the program order.</small></button>
+     <button class="choice-button" data-recovery-decision="keep"><strong>Keep today’s workout</strong><small>Today’s workout remains available as scheduled.</small></button>
+     <button class="choice-button" data-recovery-decision="later"><strong>Decide later</strong><small>Make no scheduling changes now.</small></button>
+   </div>
+ </section>`:""}
  <button class="primary" id="saveFinish">Save feedback and view workout</button><button class="secondary" id="home">Return home</button>`;
  document.querySelectorAll("[data-rating]").forEach(b=>b.onclick=()=>{state.workoutRatings[session.id]=b.dataset.rating;save();summary()});
+ document.querySelectorAll("[data-recovery-decision]").forEach(button=>button.onclick=()=>{
+   const decision=button.dataset.recoveryDecision;
+   window.ROAD12_SCHEDULING.completeRecoveredWorkout(
+     state.workoutSessions,
+     session.scheduleId,
+     session.actualCompletionDate,
+     decision
+   );
+   session.recoveryDecision=decision;
+   save();
+   summary();
+ });
  document.querySelector("#saveFinish").onclick=()=>{session.note=document.querySelector("#workoutNote").value.trim();save();state.historyView=session.id;setTab("progress")};
  document.querySelector("#home").onclick=()=>{session.note=document.querySelector("#workoutNote").value.trim();save();setTab("home")};
 }
@@ -1315,8 +1350,8 @@ function progress(){
    ${state.history.length?state.history.slice().reverse().map(h=>{
      const t=sessionTotals(h),rating=state.workoutRatings[h.id]||"";
      return `<button class="history-card" data-history="${h.id}">
-       <span class="history-check">✓</span>
-       <span><strong>${h.name}</strong><small>${h.date} • ${h.durationMs?formatDuration(h.durationMs):"Duration not captured"} • ${t.completedSets} sets${rating?` • ${rating}`:""}</small></span>
+       <span class="history-check">${h.recoveryIndicator?"↻":"✓"}</span>
+       <span><strong>${h.name}${h.recoveryIndicator?" · Recovery":""}</strong><small>${h.recoveryIndicator?`Planned ${formatHistoryDateKey(h.plannedDate||h.originalScheduledDate)} • Completed ${formatHistoryDateKey(h.actualCompletionDate||h.dateKey)}`:`${h.date}`} • ${h.durationMs?formatDuration(h.durationMs):"Duration not captured"} • ${t.completedSets} sets${rating?` • ${rating}`:""}</small></span>
        <span class="history-arrow">›</span>
      </button>`;
    }).join(""):'<p class="muted">No completed sessions yet.</p>'}
@@ -1816,23 +1851,26 @@ function activeWorkout(){
   return workoutForDay(sessionDay);
 }
 
-function startNewSession(dayIndex=currentPlanIndex()){
-  const plan=weekPlan[dayIndex];
-  ensureWorkoutSchedule();
-  const todaySchedule=state.workoutSessions
-    .filter(item=>item.scheduledDate===localDateKey()&&item.status!=="restDay")
-    .sort((a,b)=>(a.status==="rescheduled"?-1:1)-(b.status==="rescheduled"?-1:1))[0];
-  if(todaySchedule&&todaySchedule.status!=="rescheduled")todaySchedule.status="inProgress";
-  state.logs={};
-  state.currentSession={
-    id:`session-${Date.now()}`,
-    name:plan.title,
-    planDay:dayIndex,
-    startedAt:new Date().toISOString(),
-    dateKey:localDateKey(),
-    scheduleId:todaySchedule?.id||null,
-    equipment:deepCopy(state.equipment)
-  };
+function startNewSession(dayIndex=currentPlanIndex(),selectedSchedule=null){
+ const plan=weekPlan[dayIndex];
+ ensureWorkoutSchedule();
+ const todaySchedule=selectedSchedule||state.workoutSessions
+   .filter(item=>item.scheduledDate===localDateKey()&&item.status!=="restDay")
+   .sort((a,b)=>(a.status==="rescheduled"?-1:1)-(b.status==="rescheduled"?-1:1))[0];
+ if(todaySchedule&&!selectedSchedule&&todaySchedule.status!=="rescheduled")todaySchedule.status="inProgress";
+ state.logs={};
+ state.currentSession={
+   id:`session-${Date.now()}`,
+   name:selectedSchedule?.name||plan.title,
+   planDay:dayIndex,
+   startedAt:new Date().toISOString(),
+   dateKey:localDateKey(),
+   scheduleId:todaySchedule?.id||null,
+   recoveredWorkout:!!selectedSchedule,
+   plannedDate:selectedSchedule?.plannedDate||null,
+   originalScheduledDate:selectedSchedule?.scheduledDate||null,
+   equipment:deepCopy(state.equipment)
+ };
   state.step=0;
   state.setupReady=false;
   save();
@@ -1969,7 +2007,17 @@ function ensureWorkoutSchedule(){
    });
    known.add(`planned-${key}`);
  });
- const completedKeys=new Set(state.history.map(item=>item.dateKey||(item.completedAt?localDateKey(new Date(item.completedAt)):null)).filter(Boolean));
+ state.history.forEach(historyItem=>{
+   if(!historyItem.scheduleId)return;
+   const scheduled=state.workoutSessions.find(item=>item.id===historyItem.scheduleId);
+   if(!scheduled)return;
+   scheduled.status="completed";
+   scheduled.actualCompletionDate=historyItem.actualCompletionDate||historyItem.dateKey||(historyItem.completedAt?localDateKey(new Date(historyItem.completedAt)):null);
+ });
+ const completedKeys=new Set(state.history
+   .filter(item=>!item.scheduleId)
+   .map(item=>item.dateKey||(item.completedAt?localDateKey(new Date(item.completedAt)):null))
+   .filter(Boolean));
  state.workoutSessions.forEach(item=>{
    if(completedKeys.has(item.scheduledDate)&&item.status!=="rescheduled")item.status="completed";
    if(item.planDay===6)item.status="restDay";
@@ -1990,7 +2038,7 @@ function closeV42Dialog(){
  if(v42DialogReturnFocus?.isConnected)v42DialogReturnFocus.focus();
  v42DialogReturnFocus=null;
 }
-function v42Dialog(content,label="Dialog"){
+function v42Dialog(content,label="Dialog",options={}){
  let overlay=document.querySelector("#v42Dialog");
  if(!overlay){
    overlay=document.createElement("div");
@@ -2012,10 +2060,11 @@ function v42Dialog(content,label="Dialog"){
    overlay.setAttribute("aria-label",label);
    overlay.removeAttribute("aria-labelledby");
  }
- overlay.innerHTML=`<div class="v42-dialog-card">${labelledContent}<button class="secondary v42-close" type="button">Close</button></div>`;
+ overlay.innerHTML=`<div class="v42-dialog-card">${labelledContent}${options.showClose===false?"":'<button class="secondary v42-close" type="button">Close</button>'}</div>`;
  overlay.classList.remove("hidden");
  document.querySelector(".shell")?.setAttribute("inert","");
- overlay.querySelector(".v42-close").onclick=closeV42Dialog;
+ const closeButton=overlay.querySelector(".v42-close");
+ if(closeButton)closeButton.onclick=closeV42Dialog;
  overlay.onclick=event=>{if(event.target===overlay)closeV42Dialog()};
  overlay.onkeydown=event=>{
    if(event.key==="Escape"){
@@ -2044,7 +2093,7 @@ function calendar(){
    const entries=sessionsForDate(key);
    const primary=entries.find(item=>item.status!=="restDay")||entries[0];
    const count=entries.filter(item=>item.status!=="restDay").length;
-   cells.push(`<button class="calendar-day ${key===localDateKey()?"today":""}" data-calendar-day="${key}" aria-label="${parseDateKey(key).toLocaleDateString(undefined,{month:"long",day:"numeric"})}, ${primary?`${V42_STATUS[primary.status].label}, ${V42_TYPES[primary.workoutType].label}`:"No workout"}">
+   cells.push(`<button class="calendar-day ${primary?`status-${primary.status}`:""} ${key===localDateKey()?"today":""}" data-calendar-day="${key}" aria-label="${parseDateKey(key).toLocaleDateString(undefined,{month:"long",day:"numeric"})}, ${primary?`${V42_STATUS[primary.status].label}, ${V42_TYPES[primary.workoutType].label}`:"No workout"}">
      <strong>${day}</strong>
      <span title="${primary?V42_STATUS[primary.status].label:"No workout"}">${primary?V42_STATUS[primary.status].icon:""}</span>
      <span title="${primary?V42_TYPES[primary.workoutType].label:"No workout"}">${primary?V42_TYPES[primary.workoutType].icon:""}</span>
@@ -2072,62 +2121,40 @@ function calendar(){
 }
 function openCalendarDay(key){
  const entries=sessionsForDate(key);
+ if(entries.length===1&&entries[0].status==="missed"){
+   openMissedWorkout(entries[0].id);
+   return;
+ }
  const dateLabel=parseDateKey(key).toLocaleDateString(undefined,{weekday:"long",month:"long",day:"numeric"});
  v42Dialog(`<span class="pill">${dateLabel}</span><h2>Workout Details</h2>
    <div class="calendar-detail-list">${entries.map(item=>`<article>
      <div class="calendar-detail-title"><span>${V42_TYPES[item.workoutType].icon}</span><div><strong>${item.name}</strong><small>${V42_STATUS[item.status].icon} ${V42_STATUS[item.status].label}</small></div></div>
      ${item.plannedDate!==item.scheduledDate?`<p>Originally planned for ${parseDateKey(item.plannedDate).toLocaleDateString()}.</p>`:""}
      ${item.reason?`<p>Reason: ${V42_REASONS[item.reason]}</p>`:""}
-     ${item.status==="missed"?`<button class="primary" data-recover="${item.id}">Manage missed workout</button>`:""}
+     ${item.status==="missed"?`<button class="primary" data-recover="${item.id}">Open workout recovery</button>`:""}
    </article>`).join("")}</div>`,dateLabel);
  document.querySelectorAll("[data-recover]").forEach(button=>button.onclick=()=>openMissedWorkout(button.dataset.recover));
 }
 function openMissedWorkout(id){
  const session=state.workoutSessions.find(item=>item.id===id);
  if(!session)return;
- const reasonOptions=Object.entries(V42_REASONS).map(([key,label])=>`<option value="${key}" ${session.reason===key?"selected":""}>${label}</option>`).join("");
- const dialog=v42Dialog(`<span class="pill">WORKOUT DETAILS</span><h2>${session.name}</h2>
-   <div class="status-line"><span>${V42_STATUS.missed.icon}</span><div><small>STATUS</small><strong>Missed</strong></div></div>
-   <label class="field-label">Reason<select id="missedReason">${reasonOptions}</select></label>
-   <div class="recovery-actions"><button class="primary" id="startMissedToday">Start Today</button><button class="secondary" id="moveMissed">Move Workout</button><button class="secondary" id="leaveMissed">Leave Missed</button></div>`,`${session.name} recovery`);
- dialog.querySelector("#missedReason").onchange=event=>{session.reason=event.target.value;save()};
- dialog.querySelector("#startMissedToday").onclick=()=>openStartTodayFlow(id);
- dialog.querySelector("#moveMissed").onclick=()=>openMoveWorkout(id);
- dialog.querySelector("#leaveMissed").onclick=()=>{save();closeV42Dialog()};
-}
-function openStartTodayFlow(id){
- const session=state.workoutSessions.find(item=>item.id===id);
- if(!session)return;
- const today=sessionsForDate(localDateKey()).find(item=>item.status!=="restDay"&&item.id!==id);
- const dialog=v42Dialog(`<span class="pill">START TODAY</span><h2>How should today’s workout be handled?</h2>
-   <div class="choice-list"><button class="choice-button" data-start-choice="replace"><strong>Replace today’s workout</strong><small>Keep the program order and move future workouts forward.</small></button>
-   <button class="choice-button" data-start-choice="both"><strong>Complete both workouts</strong><small>${today?.name||"Today’s workout"} remains scheduled.</small></button>
-   <button class="choice-button" data-start-choice="forward"><strong>Move today’s workout forward</strong><small>Recover this workout now and shift today’s session.</small></button></div>`,`Start ${session.name} today`);
- dialog.querySelectorAll("[data-start-choice]").forEach(button=>button.onclick=()=>{
-   recoverWorkoutToday(session,button.dataset.startChoice);
+ const plan=weekPlan[session.planDay];
+ const originalDate=parseDateKey(session.plannedDate).toLocaleDateString(undefined,{weekday:"long",month:"long",day:"numeric"});
+ const dialog=v42Dialog(`<span class="pill">WORKOUT RECOVERY</span><h2>${session.name}</h2>
+   <div class="recovery-workout-facts">
+     <div><small>ORIGINAL SCHEDULED DATE</small><strong>${originalDate}</strong></div>
+     <div><small>WORKOUT TYPE</small><strong>${V42_TYPES[session.workoutType].icon} ${V42_TYPES[session.workoutType].label}</strong></div>
+     <div><small>ESTIMATED DURATION</small><strong>${plan.time}</strong></div>
+   </div>
+   <div class="recovery-actions"><button class="primary" id="startMissedWorkout">Start Workout</button><button class="secondary" id="cancelMissedWorkout">Cancel</button></div>`,`${session.name} recovery`,{showClose:false});
+ dialog.querySelector("#startMissedWorkout").onclick=()=>{
+   startNewSession(session.planDay,session);
    closeV42Dialog();
-   state.tab="home";save();render();
- });
-}
-function recoverWorkoutToday(missed,choice){
- window.ROAD12_SCHEDULING.recoverWorkoutToday(
-   state.workoutSessions,
-   missed.id,
-   choice,
-   localDateKey()
- );
- save();
-}
-function openMoveWorkout(id){
- const session=state.workoutSessions.find(item=>item.id===id);
- if(!session)return;
- const minimum=addCalendarDays(localDateKey(),1);
- const dialog=v42Dialog(`<span class="pill">MOVE WORKOUT</span><h2>Choose a future date</h2><label class="field-label">New scheduled date<input id="moveWorkoutDate" type="date" min="${minimum}" value="${minimum}"></label><button class="primary" id="confirmMoveWorkout">Move ${session.name}</button>`,`Move ${session.name}`);
- dialog.querySelector("#confirmMoveWorkout").onclick=()=>{
-   const target=dialog.querySelector("#moveWorkoutDate").value;
-   if(!window.ROAD12_SCHEDULING.moveWorkout(state.workoutSessions,session.id,target,minimum))return;
-   save();closeV42Dialog();calendar();
+   state.tab="workout";
+   save();
+   workout();
  };
+ dialog.querySelector("#cancelMissedWorkout").onclick=closeV42Dialog;
 }
 function v42Metrics(){
  ensureWorkoutSchedule();

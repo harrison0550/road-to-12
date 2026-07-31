@@ -119,6 +119,66 @@ for (const choice of ["replace", "forward"]) {
   const sessions = baseSchedule();
   const before = structuredClone(sessions);
   assert.strictEqual(
+    scheduling.completeRecoveredWorkout(sessions, "missed", TODAY, "replace"),
+    true,
+  );
+  assertPlannedDatesUnchanged(before, sessions);
+  assert.deepStrictEqual(
+    {
+      scheduledDate: sessions.find((item) => item.id === "missed").scheduledDate,
+      actualCompletionDate: sessions.find((item) => item.id === "missed").actualCompletionDate,
+      status: sessions.find((item) => item.id === "missed").status,
+    },
+    {
+      scheduledDate: "2026-07-29",
+      actualCompletionDate: TODAY,
+      status: "completed",
+    },
+    "recovery completion must preserve the original schedule date and record the actual date",
+  );
+  assert.deepStrictEqual(
+    sessions
+      .filter((item) => ["today", "friday", "saturday", "monday"].includes(item.id))
+      .map((item) => item.scheduledDate),
+    ["2026-07-31", "2026-08-01", "2026-08-03", "2026-08-04"],
+    "replacement must shift future workouts in order and skip Sunday",
+  );
+  assert.deepStrictEqual(
+    sessions.find((item) => item.id === "rest"),
+    before.find((item) => item.id === "rest"),
+    "replacement must preserve protected rest days",
+  );
+  assert.deepStrictEqual(
+    sessions.find((item) => item.id === "completed"),
+    before.find((item) => item.id === "completed"),
+    "replacement must never overwrite completed workouts",
+  );
+}
+
+for (const decision of ["keep", "later"]) {
+  const sessions = baseSchedule();
+  const before = structuredClone(sessions);
+  assert.strictEqual(
+    scheduling.completeRecoveredWorkout(sessions, "missed", TODAY, decision),
+    true,
+  );
+  assertPlannedDatesUnchanged(before, sessions);
+  assert.strictEqual(sessions.find((item) => item.id === "missed").status, "completed");
+  assert.strictEqual(
+    sessions.find((item) => item.id === "missed").actualCompletionDate,
+    TODAY,
+  );
+  assert.deepStrictEqual(
+    sessions.find((item) => item.id === "today"),
+    before.find((item) => item.id === "today"),
+    `${decision} must leave today's scheduled workout unchanged`,
+  );
+}
+
+{
+  const sessions = baseSchedule();
+  const before = structuredClone(sessions);
+  assert.strictEqual(
     scheduling.moveWorkout(sessions, "missed", "2026-08-05", "2026-07-31"),
     true,
   );

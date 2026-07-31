@@ -58,6 +58,7 @@ Copy this block for new work:
 
 ## Completed this sprint
 
+- [x] Complete yesterday’s missed workout today without changing today’s schedule before completion.
 - [x] Add deterministic recovery, sequence, immutability, and rest-day tests.
 - [x] Add BUG-001 workout scroll restoration regression tests.
 - [x] Add BUG-002 responsive Save Check-In layout regression tests.
