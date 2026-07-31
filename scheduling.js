@@ -27,6 +27,22 @@
     return dates;
   }
 
+  function nextAvailableTrainingDates(fromKey, count, blockedDates) {
+    const blocked = new Set(blockedDates || []);
+    const dates = [];
+    for (let offset = 0; dates.length < count && offset < 400; offset++) {
+      const key = addCalendarDays(fromKey, offset);
+      if (!isRestDate(key) && !blocked.has(key)) dates.push(key);
+    }
+    return dates;
+  }
+
+  function protectedDates(sessions) {
+    return sessions
+      .filter((item) => item.status === "completed" || item.status === "restDay")
+      .map((item) => item.scheduledDate);
+  }
+
   function recoverWorkoutToday(sessions, missedId, choice, today) {
     const missed = sessions.find((item) => item.id === missedId);
     if (!missed) return false;
@@ -48,7 +64,11 @@
           a.scheduledDate.localeCompare(b.scheduledDate) ||
           a.plannedDate.localeCompare(b.plannedDate),
       );
-    const targets = nextTrainingDates(addCalendarDays(today, 1), movable.length);
+    const targets = nextAvailableTrainingDates(
+      addCalendarDays(today, 1),
+      movable.length,
+      protectedDates(sessions),
+    );
     movable.forEach((item, index) => {
       item.scheduledDate = targets[index];
       item.status =
@@ -63,6 +83,7 @@
 
     recovered.status = "completed";
     recovered.actualCompletionDate = today;
+    recovered.completedDate = today;
     if (decision !== "replace") return true;
 
     const movable = sessions
@@ -78,7 +99,64 @@
           a.scheduledDate.localeCompare(b.scheduledDate) ||
           a.plannedDate.localeCompare(b.plannedDate),
       );
-    const targets = nextTrainingDates(addCalendarDays(today, 1), movable.length);
+    const targets = nextAvailableTrainingDates(
+      addCalendarDays(today, 1),
+      movable.length,
+      protectedDates(sessions),
+    );
+    movable.forEach((item, index) => {
+      item.scheduledDate = targets[index];
+      item.status =
+        item.scheduledDate === item.plannedDate ? "scheduled" : "rescheduled";
+    });
+    return true;
+  }
+
+  function rescheduleWorkout(sessions, sessionId, targetDate, minimumDate) {
+    const session = sessions.find((item) => item.id === sessionId);
+    if (
+      !session ||
+      session.status === "completed" ||
+      session.status === "restDay" ||
+      !targetDate ||
+      targetDate < minimumDate ||
+      isRestDate(targetDate)
+    ) {
+      return false;
+    }
+
+    const blocked = protectedDates(sessions);
+    if (blocked.includes(targetDate)) return false;
+
+    const hasCollision = sessions.some(
+      (item) =>
+        item.id !== session.id &&
+        item.status !== "restDay" &&
+        item.status !== "completed" &&
+        item.scheduledDate === targetDate,
+    );
+    session.scheduledDate = targetDate;
+    session.status = "rescheduled";
+    if (!hasCollision) return true;
+
+    const movable = sessions
+      .filter(
+        (item) =>
+          item.id !== session.id &&
+          item.status !== "restDay" &&
+          item.status !== "completed" &&
+          item.scheduledDate >= targetDate,
+      )
+      .sort(
+        (a, b) =>
+          a.scheduledDate.localeCompare(b.scheduledDate) ||
+          a.plannedDate.localeCompare(b.plannedDate),
+      );
+    const targets = nextAvailableTrainingDates(
+      addCalendarDays(targetDate, 1),
+      movable.length,
+      blocked,
+    );
     movable.forEach((item, index) => {
       item.scheduledDate = targets[index];
       item.status =
@@ -100,7 +178,9 @@
     completeRecoveredWorkout,
     isRestDate,
     moveWorkout,
+    nextAvailableTrainingDates,
     nextTrainingDates,
     recoverWorkoutToday,
+    rescheduleWorkout,
   });
 })(typeof self !== "undefined" ? self : window);
