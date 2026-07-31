@@ -16,6 +16,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Automated Service Worker smoke coverage for install, update cleanup, cached relaunch, and network fallback.
 - Calendar-driven recovery for completing a missed workout through the existing workout engine.
 - Recovery history metadata showing the original planned date and actual completion date.
+- Workout Recovery rescheduling choices for today, tomorrow, or a user-selected date.
 
 ### Changed
 
@@ -25,6 +26,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Advanced the maintenance build to `2026.07.30.2` and rotated the offline shell cache to deliver the completed High Priority fixes to installed PWAs.
 - Missed-workout recovery now defers changes to today’s schedule until the recovered workout is complete and the user confirms a choice.
 - Advanced the maintenance build to `2026.07.30.4` and rotated the offline shell cache for the recovered-workout flow.
+- Past incomplete Calendar workouts now open complete details with Start Workout, Reschedule, and Close actions.
+- Rescheduling now avoids completed dates and protected rest days, shifting later incomplete workouts only when the selected date is occupied.
+- Advanced the maintenance build to `2026.07.30.6` and rotated the offline shell cache for Calendar recovery rescheduling.
 
 ### Fixed
 

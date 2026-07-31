@@ -6,9 +6,9 @@ Read this file at the beginning of every Codex or engineering session. It is the
 
 - Product: Road to 12%
 - Version: 13.2.0
-- Build: 2026.07.30.4
+- Build: 2026.07.30.6
 - Last updated: July 30, 2026
-- Service Worker cache: `road12-v13-2-3-shell`
+- Service Worker cache: `road12-v13-2-5-shell`
 - Runtime: static, client-only, offline-first PWA
 - Primary storage key: `road12v5`
 
@@ -63,6 +63,8 @@ See `CODEX_TASKS.md` for priority and acceptance detail.
 - Recovery recommendations explain impact and require an explicit user action.
 - Starting a missed workout does not alter today’s schedule; replacement shifting occurs only after completion and explicit confirmation.
 - Recovered history records the immutable planned date separately from the actual completion date.
+- Past incomplete Calendar sessions offer immediate start or explicit rescheduling to today, tomorrow, or a chosen available date.
+- Rescheduling inserts into an occupied training date by shifting later incomplete sessions around completed workouts and protected rest days.
 - Traditional streak emphasis was replaced with adherence, recovery, and total-session context.
 - Workout scroll is restored only when resuming; intentional next-exercise navigation may scroll to the top.
 - Primary buttons are full-width inside their content container.

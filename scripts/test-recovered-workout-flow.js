@@ -7,13 +7,17 @@ const app = fs.readFileSync(path.join(root, "app.js"), "utf8");
 const css = fs.readFileSync(path.join(root, "app.css"), "utf8");
 const sw = fs.readFileSync(path.join(root, "sw.js"), "utf8");
 
-assert.match(app, /if\(entries\.length===1&&entries\[0\]\.status==="missed"\)/);
-assert.match(app, /<span class="pill">WORKOUT RECOVERY<\/span>/);
-assert.match(app, /ORIGINAL SCHEDULED DATE/);
+assert.match(app, /if\(entries\.length===1&&isPastIncomplete\(entries\[0\]\)\)/);
+assert.match(app, /<span class="pill">WORKOUT DETAILS<\/span>/);
+assert.match(app, /SCHEDULED DATE/);
 assert.match(app, /WORKOUT TYPE/);
 assert.match(app, /ESTIMATED DURATION/);
 assert.match(app, /id="startMissedWorkout">Start Workout<\/button>/);
-assert.match(app, /id="cancelMissedWorkout">Cancel<\/button>/);
+assert.match(app, /id="rescheduleMissedWorkout">Reschedule<\/button>/);
+assert.match(app, /Move to Today/);
+assert.match(app, /Move to Tomorrow/);
+assert.match(app, /Choose Date…/);
+assert.match(app, /Reschedule Workout/);
 assert.match(app, /startNewSession\(session\.planDay,session\)/);
 assert.match(
   app,
@@ -24,6 +28,7 @@ assert.match(app, /Replace today’s workout with the one I just completed/);
 assert.match(app, /Keep today’s workout/);
 assert.match(app, /Decide later/);
 assert.match(app, /actualCompletionDate/);
+assert.match(app, /completedDate/);
 assert.match(app, /recoveryIndicator/);
 assert.match(app, /Originally planned:/);
 assert.match(app, /Completed:/);
