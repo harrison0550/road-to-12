@@ -16,6 +16,7 @@ Read this file at the beginning of every Codex or engineering session. It is the
 
 - `index.html` is the application shell.
 - `app.js` owns screen rendering, workout flow, scheduling, recovery, and progress behavior.
+- `scheduling.js` owns pure recovery and date-shifting rules without DOM or storage access.
 - `data.js` contains workout definitions.
 - `exercise-library.js` contains reviewed exercise education metadata.
 - `app.css` contains the current responsive design system.
@@ -38,7 +39,7 @@ See `KNOWN_BUGS.md` before diagnosing or fixing defects.
 
 ## Active sprint goals
 
-1. Add deterministic scheduling and rest-day regression tests.
+1. Add BUG-001 and BUG-002 regression coverage.
 2. Add PWA installation, update, and offline smoke tests.
 3. Audit Calendar and recovery dialogs for VoiceOver and focus behavior.
 4. Improve calendar navigation and filtering without altering schedule truth.
@@ -80,4 +81,3 @@ See `CODEX_TASKS.md` for priority and acceptance detail.
 5. Identify the relevant roadmap item, task, bug, architecture boundary, and UI rule.
 6. Preserve unrelated user changes.
 7. Update this file when a release, architecture decision, active sprint, or important constraint changes.
-

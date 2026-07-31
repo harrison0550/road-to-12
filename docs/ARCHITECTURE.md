@@ -23,6 +23,8 @@ Scheduling represents training intent separately from execution:
 
 Recovery operations move `scheduledDate` values while preserving `plannedDate`, workout order, completed sessions, and protected rest days. Scheduling rules should remain deterministic and independently testable as the codebase evolves.
 
+Pure recovery and date-shifting rules live in `scheduling.js`. UI code supplies the current session collection and persists the result; the scheduling module does not access the DOM or `localStorage`. This boundary allows deterministic Node.js regression tests without changing the versioned storage model.
+
 ## Calendar
 
 The Calendar is a projection of scheduled sessions, not a separate source of truth. It groups sessions by `scheduledDate` and renders status and workout type independently. Every date remains interactive, including empty dates and rest days.
@@ -82,4 +84,3 @@ Service Worker and browser platform
 ```
 
 Refactoring production code requires dedicated tests and a separate task. Documentation-only work must not alter these runtime boundaries.
-

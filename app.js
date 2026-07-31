@@ -2078,27 +2078,13 @@ function openStartTodayFlow(id){
    state.tab="home";save();render();
  });
 }
-function nextTrainingDates(fromKey,count){
- const dates=[];
- for(let offset=0;dates.length<count&&offset<400;offset++){
-   const key=addCalendarDays(fromKey,offset);
-   if(planIndexForDate(parseDateKey(key))!==6)dates.push(key);
- }
- return dates;
-}
 function recoverWorkoutToday(missed,choice){
- const today=localDateKey();
- missed.scheduledDate=today;
- missed.status="rescheduled";
- if(choice==="both")return save();
- const movable=state.workoutSessions
-   .filter(item=>item.id!==missed.id&&item.status!=="restDay"&&item.scheduledDate>=today&&item.status!=="completed")
-   .sort((a,b)=>a.scheduledDate.localeCompare(b.scheduledDate)||a.plannedDate.localeCompare(b.plannedDate));
- const targets=nextTrainingDates(addCalendarDays(today,1),movable.length);
- movable.forEach((item,index)=>{
-   item.scheduledDate=targets[index];
-   item.status=item.scheduledDate===item.plannedDate?"scheduled":"rescheduled";
- });
+ window.ROAD12_SCHEDULING.recoverWorkoutToday(
+   state.workoutSessions,
+   missed.id,
+   choice,
+   localDateKey()
+ );
  save();
 }
 function openMoveWorkout(id){
@@ -2108,9 +2094,7 @@ function openMoveWorkout(id){
  const dialog=v42Dialog(`<span class="pill">MOVE WORKOUT</span><h2>Choose a future date</h2><label class="field-label">New scheduled date<input id="moveWorkoutDate" type="date" min="${minimum}" value="${minimum}"></label><button class="primary" id="confirmMoveWorkout">Move ${session.name}</button>`,`Move ${session.name}`);
  dialog.querySelector("#confirmMoveWorkout").onclick=()=>{
    const target=dialog.querySelector("#moveWorkoutDate").value;
-   if(!target||target<minimum)return;
-   session.scheduledDate=target;
-   session.status="rescheduled";
+   if(!window.ROAD12_SCHEDULING.moveWorkout(state.workoutSessions,session.id,target,minimum))return;
    save();dialog.classList.add("hidden");calendar();
  };
 }

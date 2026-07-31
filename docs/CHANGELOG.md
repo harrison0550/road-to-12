@@ -10,8 +10,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 - Professional project documentation under `/docs`.
 - Project context and contributor standards for future development sessions.
+- Deterministic recovery scheduling tests covering sequence order, immutable planned dates, completed sessions, and protected rest days.
 
 ### Changed
+
+- Isolated pure recovery scheduling rules in a testable browser module without changing stored data.
 
 ### Fixed
 
@@ -52,4 +55,3 @@ Future versions should be inserted above `13.2.0`, beneath `Unreleased`.
 
 [Unreleased]: https://github.com/harrison0550/road-to-12/compare/v13.2.0...HEAD
 [13.2.0]: https://github.com/harrison0550/road-to-12/releases/tag/v13.2.0
-

@@ -9,6 +9,7 @@ const ASSETS=[
   "./app-meta.js",
   "./exercise-library.js",
   "./data.js",
+  "./scheduling.js",
   "./app.js",
   "./manifest.webmanifest",
   "./assets/exercise-library/wger/hip-flexor-stretch.webp",

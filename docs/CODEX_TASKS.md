@@ -4,8 +4,8 @@ This file contains implementation-ready work. Move completed user-visible work t
 
 ## High priority
 
-- [ ] Add deterministic tests for recovery sequence shifting.
-- [ ] Test that rest days remain fixed during every rescheduling mode.
+- [x] Add deterministic tests for recovery sequence shifting.
+- [x] Test that rest days remain fixed during every rescheduling mode.
 - [ ] Add regression coverage for BUG-001 workout scroll restoration.
 - [ ] Add regression coverage for BUG-002 small-iPhone check-in layout.
 - [ ] Add offline install, update, and relaunch smoke tests.
@@ -58,7 +58,7 @@ Copy this block for new work:
 
 ## Completed this sprint
 
+- [x] Add deterministic recovery, sequence, immutability, and rest-day tests.
 - [x] Establish the `/docs` documentation system.
 - [x] Record architecture, UI, contribution, and release standards.
 - [x] Add `PROJECT_CONTEXT.md` as the current project handoff.
-
