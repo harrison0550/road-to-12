@@ -58,6 +58,7 @@ Copy this block for new work:
 
 ## Completed this sprint
 
+- [x] Add an offline cage-style Smith machine Incline Cable Press illustration.
 - [x] Add an offline two-position Hip Hinge posture illustration.
 - [x] Add an offline treadmill posture illustration and polish the reviewed-media fallback.
 - [x] Repair local-date schedule activation so yesterday's missed workout remains visible and recoverable.

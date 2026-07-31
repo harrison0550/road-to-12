@@ -121,7 +121,7 @@ async function dispatchFetch(url) {
 
 (async () => {
   const cacheName = context.self.ROAD12_META.serviceWorkerCache;
-  assert.strictEqual(cacheName, "road12-v13-2-10-shell");
+  assert.strictEqual(cacheName, "road12-v13-2-11-shell");
 
   await dispatchExtendable("install");
   assert.strictEqual(skipWaitingCalled, true, "new worker must activate promptly");
@@ -136,6 +136,7 @@ async function dispatchFetch(url) {
     "./app.js",
     "./manifest.webmanifest",
     "./assets/exercise-library/original/hip-hinge-posture.webp",
+    "./assets/exercise-library/original/incline-cable-press-cage.webp",
     "./assets/exercise-library/original/treadmill-walk-posture.webp",
   ]) {
     assert(currentStore.has(asset), `install must cache ${asset}`);

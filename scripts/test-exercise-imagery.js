@@ -10,6 +10,8 @@ vm.runInNewContext(librarySource, context, { filename: "exercise-library.js" });
 
 const treadmill = context.self.ROAD12_EXERCISE_LIBRARY.entries["Treadmill Walk"];
 const hipHinge = context.self.ROAD12_EXERCISE_LIBRARY.entries["Hip Hinge"];
+const inclineCablePress =
+  context.self.ROAD12_EXERCISE_LIBRARY.entries["Incline Cable Press"];
 assert(treadmill, "Treadmill Walk must have an exercise-library visual");
 assert.strictEqual(treadmill.sourceType, "app-original");
 assert(treadmill.mediaAlt.includes("safety clip"), "the visual needs useful alternative text");
@@ -28,6 +30,18 @@ assert(
   fs.existsSync(path.join(root, hipHinge.media)),
   "the hip-hinge illustration must be stored locally",
 );
+assert(inclineCablePress, "Incline Cable Press must have an exercise-library visual");
+assert.strictEqual(inclineCablePress.sourceType, "app-original");
+assert(
+  inclineCablePress.mediaAlt.includes("low pulleys") &&
+    inclineCablePress.mediaAlt.includes("both front posts") &&
+    inclineCablePress.mediaAlt.includes("cage-style Smith machine"),
+  "the incline cable press needs equipment-specific alternative text",
+);
+assert(
+  fs.existsSync(path.join(root, inclineCablePress.media)),
+  "the incline cable press illustration must be stored locally",
+);
 
 const app = fs.readFileSync(path.join(root, "app.js"), "utf8");
 assert(!app.includes("No reviewed free demonstration yet"));
@@ -45,7 +59,11 @@ assert(
   sw.includes(`./${hipHinge.media}`),
   "the hip-hinge illustration must be available offline",
 );
+assert(
+  sw.includes(`./${inclineCablePress.media}`),
+  "the incline cable press illustration must be available offline",
+);
 
 console.log(
-  "Exercise imagery tests passed: treadmill and hip-hinge artwork, provenance, accessible text, polished fallback, and offline caching.",
+  "Exercise imagery tests passed: treadmill, hip-hinge, and incline-cable-press artwork, provenance, accessible text, polished fallback, and offline caching.",
 );
