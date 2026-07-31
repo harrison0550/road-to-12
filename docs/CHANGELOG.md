@@ -18,8 +18,13 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 ### Changed
 
 - Isolated pure recovery scheduling rules in a testable browser module without changing stored data.
+- Calendar cells now announce both workout status and workout type to assistive technology.
+- Calendar and recovery dialogs now focus their heading, isolate background controls, support Escape, and return focus to their invoking control.
+- Advanced the maintenance build to `2026.07.30.2` and rotated the offline shell cache to deliver the completed High Priority fixes to installed PWAs.
 
 ### Fixed
+
+- Added a consistent visible keyboard focus indicator across interactive controls.
 
 ### Removed
 

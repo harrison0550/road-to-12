@@ -6,9 +6,9 @@ Read this file at the beginning of every Codex or engineering session. It is the
 
 - Product: Road to 12%
 - Version: 13.2.0
-- Build: 2026.07.30.1
+- Build: 2026.07.30.2
 - Last updated: July 30, 2026
-- Service Worker cache: `road12-v13-2-shell`
+- Service Worker cache: `road12-v13-2-1-shell`
 - Runtime: static, client-only, offline-first PWA
 - Primary storage key: `road12v5`
 
@@ -40,9 +40,14 @@ See `KNOWN_BUGS.md` before diagnosing or fixing defects.
 
 ## Active sprint goals
 
-1. Audit Calendar and recovery dialogs for VoiceOver and focus behavior.
-2. Improve calendar navigation and filtering without altering schedule truth.
-3. Preserve v13.2 behavior while gradually creating clearer module boundaries.
+All High Priority tasks for the current sprint are complete.
+
+Next recommended goals:
+
+1. Improve calendar navigation and filtering without altering schedule truth.
+2. Document adherence and recovery-score formulas.
+3. Add structured validation for imported backup data.
+4. Preserve v13.2 behavior while gradually creating clearer module boundaries.
 
 See `CODEX_TASKS.md` for priority and acceptance detail.
 
@@ -50,6 +55,8 @@ See `CODEX_TASKS.md` for priority and acceptance detail.
 
 - The five primary destinations are Home, Calendar, Progress, Exercises, and Profile.
 - Calendar status and workout type are independent and never color-only.
+- Calendar cells announce date, status, and workout type to assistive technology.
+- Recovery dialogs use labelled headings, modal background isolation, Escape dismissal, and focus return.
 - The Calendar is a projection of scheduling state, not its own data source.
 - `plannedDate` is immutable; only `scheduledDate` moves.
 - Rest days remain protected when workouts shift.

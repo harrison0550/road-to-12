@@ -15,11 +15,11 @@ The roadmap communicates direction rather than a guaranteed schedule. Completed 
 
 ## Next release — v13.3
 
-- [ ] Add automated scheduling regression tests
+- [x] Add automated scheduling regression tests
 - [ ] Add calendar filtering and faster month navigation
 - [ ] Improve calendar history reconciliation
-- [ ] Audit VoiceOver labels and focus management
-- [ ] Add PWA installation and offline smoke tests
+- [x] Audit VoiceOver labels and focus management
+- [x] Add PWA installation and offline smoke tests
 - [ ] Consolidate legacy documentation and release artifacts
 
 ## Future releases
@@ -50,4 +50,3 @@ The roadmap communicates direction rather than a guaranteed schedule. Completed 
 - [ ] Accessibility themes and larger workout controls
 - [ ] Data portability using an open backup format
 - [ ] Optional reminders and training notifications
-

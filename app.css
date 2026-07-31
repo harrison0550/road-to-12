@@ -2058,6 +2058,7 @@ header .reset,#reset,.reset-button{display:none!important}
 html{overflow-x:hidden}
 main,.card,.primary,.secondary{max-width:100%}
 button{touch-action:manipulation}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,[tabindex]:focus-visible{outline:3px solid #7fc8ff;outline-offset:3px}
 .measurement-row{grid-template-columns:repeat(2,minmax(0,1fr))}
 .measurement-row input{min-width:0;width:100%}
 .measurement-row #saveP{grid-column:1/-1;width:100%}

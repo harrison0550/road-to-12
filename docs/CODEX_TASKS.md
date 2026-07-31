@@ -9,7 +9,7 @@ This file contains implementation-ready work. Move completed user-visible work t
 - [x] Add regression coverage for BUG-001 workout scroll restoration.
 - [x] Add regression coverage for BUG-002 small-iPhone check-in layout.
 - [x] Add offline install, update, and relaunch smoke tests.
-- [ ] Audit Calendar and recovery dialogs with VoiceOver.
+- [x] Audit Calendar and recovery dialogs with VoiceOver.
 
 ## Medium priority
 
@@ -62,6 +62,7 @@ Copy this block for new work:
 - [x] Add BUG-001 workout scroll restoration regression tests.
 - [x] Add BUG-002 responsive Save Check-In layout regression tests.
 - [x] Add Service Worker install, update, cache, and offline relaunch smoke tests.
+- [x] Audit and test Calendar names, recovery dialog focus, dismissal, and focus return.
 - [x] Establish the `/docs` documentation system.
 - [x] Record architecture, UI, contribution, and release standards.
 - [x] Add `PROJECT_CONTEXT.md` as the current project handoff.

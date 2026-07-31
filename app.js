@@ -1981,6 +1981,15 @@ function sessionsForDate(key){
    .filter(item=>item.scheduledDate===key)
    .sort((a,b)=>a.plannedDate.localeCompare(b.plannedDate));
 }
+let v42DialogReturnFocus=null;
+function closeV42Dialog(){
+ const overlay=document.querySelector("#v42Dialog");
+ if(!overlay||overlay.classList.contains("hidden"))return;
+ overlay.classList.add("hidden");
+ document.querySelector(".shell")?.removeAttribute("inert");
+ if(v42DialogReturnFocus?.isConnected)v42DialogReturnFocus.focus();
+ v42DialogReturnFocus=null;
+}
 function v42Dialog(content,label="Dialog"){
  let overlay=document.querySelector("#v42Dialog");
  if(!overlay){
@@ -1991,11 +2000,30 @@ function v42Dialog(content,label="Dialog"){
    overlay.setAttribute("aria-modal","true");
    document.body.appendChild(overlay);
  }
- overlay.setAttribute("aria-label",label);
- overlay.innerHTML=`<div class="v42-dialog-card">${content}<button class="secondary v42-close" type="button">Close</button></div>`;
+ if(overlay.classList.contains("hidden"))v42DialogReturnFocus=document.activeElement;
+ const labelledContent=content.replace(
+   /<h2(?=[ >])/,
+   '<h2 id="v42DialogTitle" tabindex="-1"'
+ );
+ if(labelledContent.includes('id="v42DialogTitle"')){
+   overlay.setAttribute("aria-labelledby","v42DialogTitle");
+   overlay.removeAttribute("aria-label");
+ }else{
+   overlay.setAttribute("aria-label",label);
+   overlay.removeAttribute("aria-labelledby");
+ }
+ overlay.innerHTML=`<div class="v42-dialog-card">${labelledContent}<button class="secondary v42-close" type="button">Close</button></div>`;
  overlay.classList.remove("hidden");
- overlay.querySelector(".v42-close").onclick=()=>overlay.classList.add("hidden");
- overlay.onclick=event=>{if(event.target===overlay)overlay.classList.add("hidden")};
+ document.querySelector(".shell")?.setAttribute("inert","");
+ overlay.querySelector(".v42-close").onclick=closeV42Dialog;
+ overlay.onclick=event=>{if(event.target===overlay)closeV42Dialog()};
+ overlay.onkeydown=event=>{
+   if(event.key==="Escape"){
+     event.preventDefault();
+     closeV42Dialog();
+   }
+ };
+ requestAnimationFrame(()=>overlay.querySelector("#v42DialogTitle")?.focus());
  return overlay;
 }
 function explainCalendarItem(kind,key){
@@ -2016,7 +2044,7 @@ function calendar(){
    const entries=sessionsForDate(key);
    const primary=entries.find(item=>item.status!=="restDay")||entries[0];
    const count=entries.filter(item=>item.status!=="restDay").length;
-   cells.push(`<button class="calendar-day ${key===localDateKey()?"today":""}" data-calendar-day="${key}" aria-label="${parseDateKey(key).toLocaleDateString(undefined,{month:"long",day:"numeric"})}, ${primary?V42_STATUS[primary.status].label:"No workout"}">
+   cells.push(`<button class="calendar-day ${key===localDateKey()?"today":""}" data-calendar-day="${key}" aria-label="${parseDateKey(key).toLocaleDateString(undefined,{month:"long",day:"numeric"})}, ${primary?`${V42_STATUS[primary.status].label}, ${V42_TYPES[primary.workoutType].label}`:"No workout"}">
      <strong>${day}</strong>
      <span title="${primary?V42_STATUS[primary.status].label:"No workout"}">${primary?V42_STATUS[primary.status].icon:""}</span>
      <span title="${primary?V42_TYPES[primary.workoutType].label:"No workout"}">${primary?V42_TYPES[primary.workoutType].icon:""}</span>
@@ -2065,7 +2093,7 @@ function openMissedWorkout(id){
  dialog.querySelector("#missedReason").onchange=event=>{session.reason=event.target.value;save()};
  dialog.querySelector("#startMissedToday").onclick=()=>openStartTodayFlow(id);
  dialog.querySelector("#moveMissed").onclick=()=>openMoveWorkout(id);
- dialog.querySelector("#leaveMissed").onclick=()=>{save();dialog.classList.add("hidden")};
+ dialog.querySelector("#leaveMissed").onclick=()=>{save();closeV42Dialog()};
 }
 function openStartTodayFlow(id){
  const session=state.workoutSessions.find(item=>item.id===id);
@@ -2077,7 +2105,7 @@ function openStartTodayFlow(id){
    <button class="choice-button" data-start-choice="forward"><strong>Move today’s workout forward</strong><small>Recover this workout now and shift today’s session.</small></button></div>`,`Start ${session.name} today`);
  dialog.querySelectorAll("[data-start-choice]").forEach(button=>button.onclick=()=>{
    recoverWorkoutToday(session,button.dataset.startChoice);
-   dialog.classList.add("hidden");
+   closeV42Dialog();
    state.tab="home";save();render();
  });
 }
@@ -2098,7 +2126,7 @@ function openMoveWorkout(id){
  dialog.querySelector("#confirmMoveWorkout").onclick=()=>{
    const target=dialog.querySelector("#moveWorkoutDate").value;
    if(!window.ROAD12_SCHEDULING.moveWorkout(state.workoutSessions,session.id,target,minimum))return;
-   save();dialog.classList.add("hidden");calendar();
+   save();closeV42Dialog();calendar();
  };
 }
 function v42Metrics(){

@@ -12,6 +12,8 @@ The Workout Engine selects the appropriate program day, resolves exercises again
 
 Session snapshots should remain stable after completion. Future changes to exercise definitions must not silently rewrite historical workout records. Active workout state may be resumed, but completed history is append-oriented.
 
+Workout navigation and scroll-state rules live in `workout-navigation.js`. The UI captures position before leaving a workout and restores it after returning; only an intentional next-exercise action requests smooth scrolling to the top.
+
 ## Scheduling
 
 Scheduling represents training intent separately from execution:
