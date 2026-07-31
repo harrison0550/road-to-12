@@ -15,6 +15,35 @@ vm.runInContext(
 const scheduling = context.self.ROAD12_SCHEDULING;
 const TODAY = "2026-07-30";
 
+assert.strictEqual(
+  scheduling.scheduleActivationDate(undefined, TODAY),
+  "2026-07-29",
+  "new calendars must include yesterday so a missed workout remains recoverable",
+);
+assert.strictEqual(
+  scheduling.scheduleActivationDate("2026-07-31", TODAY),
+  "2026-07-29",
+  "a UTC-derived future activation date must be repaired using the local calendar date",
+);
+assert.strictEqual(
+  scheduling.scheduleActivationDate("2026-07-30", TODAY),
+  "2026-07-29",
+  "same-day activation must backfill yesterday",
+);
+assert.strictEqual(
+  scheduling.scheduleActivationDate("2026-07-20", TODAY),
+  "2026-07-20",
+  "an earlier activation date and its existing history must be preserved",
+);
+assert.strictEqual(
+  scheduling.scheduleActivationDate(
+    scheduling.scheduleActivationDate("2026-07-31", TODAY),
+    TODAY,
+  ),
+  "2026-07-29",
+  "the activation repair must be idempotent",
+);
+
 function baseSchedule() {
   return [
     {
@@ -261,5 +290,5 @@ assert.deepStrictEqual(
 );
 
 console.log(
-  "Scheduling tests passed: recovery order, plannedDate immutability, completed-session protection, and rest-day preservation.",
+  "Scheduling tests passed: local-date activation, recovery order, plannedDate immutability, completed-session protection, and rest-day preservation.",
 );

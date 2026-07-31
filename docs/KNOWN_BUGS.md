@@ -44,6 +44,15 @@ No confirmed production defects are currently documented.
 - Resolution: Mutable shell requests now refresh network-first, Service Worker metadata imports are build-keyed, new registrations bypass the HTTP cache, and controller changes trigger one safe reload.
 - Regression test: `scripts/test-offline-pwa.js`
 
+### BUG-005 — Yesterday's missed workout is absent from Calendar
+
+- Status: Resolved in v13.2.0 maintenance build 2026.07.30.9
+- Severity: High
+- Area: Calendar / Data Migration
+- Report: On the evening of July 30 in a western UTC offset, Calendar began on July 31 and did not show July 29 as missed.
+- Resolution: Schedule activation now uses local calendar identity. An additive, idempotent migration backfills yesterday when the saved activation boundary is missing, today, or in the future, while preserving existing sessions and earlier history.
+- Regression test: `scripts/test-scheduling.js`
+
 ## Bug template
 
 ```markdown

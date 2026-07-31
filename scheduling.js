@@ -14,6 +14,11 @@
     return localDateKey(date);
   }
 
+  function scheduleActivationDate(existingDate, today) {
+    const yesterday = addCalendarDays(today, -1);
+    return !existingDate || existingDate > yesterday ? yesterday : existingDate;
+  }
+
   function isRestDate(key) {
     return parseDateKey(key).getDay() === 0;
   }
@@ -182,5 +187,6 @@
     nextTrainingDates,
     recoverWorkoutToday,
     rescheduleWorkout,
+    scheduleActivationDate,
   });
 })(typeof self !== "undefined" ? self : window);

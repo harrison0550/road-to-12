@@ -56,6 +56,7 @@ Key constraints:
 - Treat imports as untrusted input and validate their structure.
 - Keep backup export compatibility across releases.
 - Store dates in a stable local-date representation when calendar identity matters.
+- Derive schedule activation from the device's local calendar date. Backfill boundaries through additive, idempotent migrations; never replace existing session records to repair a boundary.
 
 Optional future synchronization must not make the local store unusable offline.
 

@@ -33,11 +33,13 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Rescheduling now avoids completed dates and protected rest days, shifting later incomplete workouts only when the selected date is occupied.
 - Advanced the maintenance build to `2026.07.30.7` and rotated the offline shell cache for the corrected Workout Details flow.
 - Advanced the maintenance build to `2026.07.30.8` and rotated the offline shell cache for reliable installed-PWA updates.
+- Advanced the maintenance build to `2026.07.30.9` and rotated the offline shell cache for the local-date Calendar repair.
 
 ### Fixed
 
 - Added a consistent visible keyboard focus indicator across interactive controls.
 - Fixed installed PWAs remaining on an older shell after a newer build was deployed.
+- Fixed UTC date conversion causing yesterday's missed workout to be absent from Calendar.
 
 ### Removed
 

@@ -138,7 +138,7 @@ function exerciseTeachingMarkup(ex){
 const data=window.WORKOUT_DATA;
 /* Versioned storage boundary. Migrations must remain ordered and idempotent. */
 const ROAD12_STORAGE_KEY="road12v5";
-const ROAD12_SCHEMA_VERSION=2;
+const ROAD12_SCHEMA_VERSION=3;
 const ROAD12_MIGRATIONS=[
   {
     version:1,
@@ -154,8 +154,20 @@ const ROAD12_MIGRATIONS=[
     up(value){
       value.workoutSessions=Array.isArray(value.workoutSessions)?value.workoutSessions:[];
       value.calendarMonth=value.calendarMonth||null;
-      value.scheduleActivatedDate=value.scheduleActivatedDate||new Date().toISOString().slice(0,10);
+      value.scheduleActivatedDate=value.scheduleActivatedDate||localDateKey();
       value.schemaVersion=2;
+      return value;
+    }
+  },
+  {
+    version:3,
+    up(value){
+      value.workoutSessions=Array.isArray(value.workoutSessions)?value.workoutSessions:[];
+      value.scheduleActivatedDate=window.ROAD12_SCHEDULING.scheduleActivationDate(
+        value.scheduleActivatedDate,
+        localDateKey()
+      );
+      value.schemaVersion=3;
       return value;
     }
   }

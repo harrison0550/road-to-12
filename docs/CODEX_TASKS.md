@@ -58,6 +58,7 @@ Copy this block for new work:
 
 ## Completed this sprint
 
+- [x] Repair local-date schedule activation so yesterday's missed workout remains visible and recoverable.
 - [x] Complete yesterday’s missed workout today without changing today’s schedule before completion.
 - [x] Add Calendar recovery rescheduling with completed-workout and rest-day collision protection.
 - [x] Add deterministic recovery, sequence, immutability, and rest-day tests.
