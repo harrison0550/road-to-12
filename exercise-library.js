@@ -30,7 +30,47 @@
     rightsNote: "Official equipment poster supplied by the user for this personal, private training app."
   });
 
+  const road12Illustration = ({
+    sourceExercise,
+    media,
+    mediaAlt,
+    primaryMuscles,
+    secondaryMuscles = [],
+    equipment,
+    commonMistakes
+  }) => ({
+    sourceType: "app-original",
+    provider: "Road to 12%",
+    sourceExercise,
+    author: "Road to 12%",
+    media: `assets/exercise-library/original/${media}`,
+    mediaAlt,
+    primaryMuscles,
+    secondaryMuscles,
+    equipment,
+    commonMistakes,
+    rightsNote: "App-created instructional illustration. Written setup and movement cues remain the authoritative coaching guide."
+  });
+
   const entries = {
+    "Treadmill Walk": road12Illustration({
+      sourceExercise: "Treadmill walking posture",
+      media: "treadmill-walk-posture.webp",
+      mediaAlt: "Side-view illustration of an upright treadmill walk with relaxed shoulders, free arms, and the safety clip attached",
+      primaryMuscles: ["Legs", "Cardiovascular system"],
+      secondaryMuscles: ["Core", "Postural muscles"],
+      equipment: ["Treadmill", "Safety clip"],
+      commonMistakes: ["Leaning on the console", "Holding the rails continuously", "Taking overly long strides"]
+    }),
+    "Easy Treadmill Cooldown": road12Illustration({
+      sourceExercise: "Easy treadmill cooldown posture",
+      media: "treadmill-walk-posture.webp",
+      mediaAlt: "Side-view illustration of an easy upright treadmill walk with the safety clip attached",
+      primaryMuscles: ["Legs", "Cardiovascular system"],
+      secondaryMuscles: ["Core", "Postural muscles"],
+      equipment: ["Treadmill", "Safety clip"],
+      commonMistakes: ["Stopping abruptly at a high speed", "Leaning on the console", "Stepping off before the belt stops"]
+    }),
     "Cable Chest Press": ritfit({
       sourceExercise: "Chest Press",
       sourceDocument: "M1-C Workout Poster",

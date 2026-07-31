@@ -2025,6 +2025,9 @@ header .reset,#reset,.reset-button{display:none!important}
 .license-chip{padding:6px 9px;border:1px solid #44725c;border-radius:999px;color:#9ee5b7;background:#10251b;font-size:11px;font-weight:900;white-space:nowrap}
 .licensed-asset-button{overflow:hidden;background:#fff}
 .licensed-asset-button img{width:100%;max-height:520px;object-fit:contain;background:#fff}
+.original-asset-button{overflow:hidden;background:#090d12}
+.original-asset-button img{width:100%;max-height:520px;aspect-ratio:3/2;object-fit:cover;background:#090d12}
+.original-asset-button span{color:#8ee9b9}
 .media-credit{margin:12px 2px 0;color:var(--muted);font-size:12px;line-height:1.5}
 .media-credit a,.license-entry a{color:#9ccfff}
 .media-unavailable{border-color:#5b4a2b;background:#1d1911}

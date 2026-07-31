@@ -114,6 +114,8 @@ Workout actions may use dedicated in-flow controls, but users must always have a
 
 ## Accessibility
 
+Exercise illustrations require meaningful alternative text. App-created artwork must be labelled as an illustration and must not imply that it is licensed footage or a substitute for written coaching.
+
 - Use semantic headings in a logical hierarchy.
 - Every icon-only control requires an accessible name.
 - Dialogs require a meaningful label, focus management, and a clear Close action.
@@ -135,4 +137,3 @@ Workout actions may use dedicated in-flow controls, but users must always have a
 - Are touch targets at least 44px?
 - Is the interaction understandable with reduced motion?
 - Can the flow be completed using VoiceOver or keyboard navigation?
-

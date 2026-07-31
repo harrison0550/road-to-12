@@ -6,9 +6,9 @@ Read this file at the beginning of every Codex or engineering session. It is the
 
 - Product: Road to 12%
 - Version: 13.2.0
-- Build: 2026.07.30.9
+- Build: 2026.07.30.10
 - Last updated: July 30, 2026
-- Service Worker cache: `road12-v13-2-8-shell`
+- Service Worker cache: `road12-v13-2-9-shell`
 - Runtime: static, client-only, offline-first PWA
 - Primary storage key: `road12v5`
 
@@ -75,6 +75,7 @@ See `CODEX_TASKS.md` for priority and acceptance detail.
 - Traditional streak emphasis was replaced with adherence, recovery, and total-session context.
 - Workout scroll is restored only when resuming; intentional next-exercise navigation may scroll to the top.
 - Primary buttons are full-width inside their content container.
+- App-created exercise illustrations are identified as posture illustrations; written setup and movement cues remain authoritative.
 
 ## Important implementation constraints
 

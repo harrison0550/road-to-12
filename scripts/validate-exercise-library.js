@@ -23,6 +23,10 @@ for (const [name, entry] of Object.entries(library.entries)) {
     for (const key of ["sourceDocument", "sourceExercise", "rightsNote"]) {
       if (!entry[key]) invalid.push(`${name}: missing ${key}`);
     }
+  } else if (entry.sourceType === "app-original") {
+    for (const key of ["provider", "sourceExercise", "author", "rightsNote"]) {
+      if (!entry[key]) invalid.push(`${name}: missing ${key}`);
+    }
   } else if (!entry.license?.url || !entry.sourceUrl) {
     invalid.push(`${name}: incomplete fallback license metadata`);
   }
@@ -33,5 +37,6 @@ if (notCached.length) throw new Error(`Media missing from service worker:\n${not
 if (invalid.length) throw new Error(`Invalid source metadata:\n${invalid.join("\n")}`);
 
 const official = Object.values(library.entries).filter(x => x.sourceType === "official-manual").length;
-const fallback = Object.keys(library.entries).length - official;
-console.log(`Exercise library validation passed: ${official} RitFit guides, ${fallback} licensed fallbacks.`);
+const original = Object.values(library.entries).filter(x => x.sourceType === "app-original").length;
+const fallback = Object.keys(library.entries).length - official - original;
+console.log(`Exercise library validation passed: ${official} RitFit guides, ${original} app-created illustrations, ${fallback} licensed fallbacks.`);

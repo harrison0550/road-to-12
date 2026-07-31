@@ -78,12 +78,19 @@ function listMarkup(items,emptyText){
  return items?.length?`<ul>${items.map(item=>`<li>${item}</li>`).join("")}</ul>`:`<p class="muted">${emptyText}</p>`;
 }
 function mediaStatus(entry){
- return entry.sourceType==="official-manual"?"OFFICIAL RITFIT GUIDE":"REVIEWED LICENSED MEDIA";
+ if(entry.sourceType==="official-manual")return "OFFICIAL RITFIT GUIDE";
+ if(entry.sourceType==="app-original")return "POSTURE ILLUSTRATION";
+ return "REVIEWED LICENSED MEDIA";
 }
 function mediaChip(entry){
- return entry.sourceType==="official-manual"?"RITFIT":entry.license?.shortName||"REVIEWED";
+ if(entry.sourceType==="official-manual")return "RITFIT";
+ if(entry.sourceType==="app-original")return "ROAD TO 12%";
+ return entry.license?.shortName||"REVIEWED";
 }
 function mediaCredit(entry){
+ if(entry.sourceType==="app-original"){
+   return `${entry.rightsNote}`;
+ }
  if(entry.sourceType==="official-manual"){
    return `Source: ${entry.sourceDocument}, exercise “${entry.sourceExercise},” by <a href="${entry.providerUrl}" target="_blank" rel="noopener">${entry.provider}</a>. Used as the machine-specific reference in Andy’s personal app.`;
  }
@@ -93,9 +100,9 @@ function licensedMediaMarkup(ex){
  const entry=exerciseLibraryEntry(ex);
  if(!entry){
    return `<section class="exercise-media-card media-unavailable">
-     <span class="media-status">WRITTEN GUIDE</span>
-     <h3>No reviewed free demonstration yet</h3>
-     <p>We removed the old generated artwork because it could be misleading. Follow the equipment setup and written movement steps below while a properly licensed exact match is sourced.</p>
+     <span class="media-status">COACHED INSTRUCTIONS</span>
+     <h3>Follow the guided movement steps</h3>
+     <p>Use the setup, execution, and coaching cues below. A visual will appear here only after it has been reviewed for this exact exercise.</p>
    </section>`;
  }
  return `<section class="exercise-media-card">
@@ -103,7 +110,7 @@ function licensedMediaMarkup(ex){
      <div><span class="media-status">${mediaStatus(entry)}</span><h3>Demonstration</h3></div>
      <span class="license-chip">${mediaChip(entry)}</span>
    </div>
-   <button class="exercise-asset-button licensed-asset-button" id="openAsset">
+   <button class="exercise-asset-button ${entry.sourceType==="app-original"?"original-asset-button":"licensed-asset-button"}" id="openAsset">
      <img class="exercise-asset-image" src="${entry.media}" alt="${entry.mediaAlt}">
      <span>Tap to enlarge</span>
    </button>
@@ -737,7 +744,7 @@ function showLibraryExercise(ex){
  document.querySelector("#openAsset")?.addEventListener("click",()=>openExerciseAsset(ex));
 }
 function imageLicenses(){
- const namedEntries=Object.entries(LICENSED_EXERCISE_LIBRARY.entries||{});
+ const namedEntries=Object.entries(LICENSED_EXERCISE_LIBRARY.entries||{}).filter(([,entry])=>entry.sourceType!=="app-original");
  app.innerHTML=`<section class="card"><button class="secondary" id="licensesBack">Back to Equipment</button><span class="pill">ABOUT</span><h2>Image Sources & Licenses</h2><p>RitFit poster illustrations are the primary reference for cable, Smith and bench exercises in this personal app. Reviewed Creative Commons media remains only where an official poster does not provide a clear match.</p></section>
  <section class="license-list">${namedEntries.map(([usedFor,entry])=>`<article class="card license-entry"><img src="${entry.media}" alt="${entry.mediaAlt}"><div><h3>${entry.sourceExercise}</h3><p><strong>Used for:</strong> ${usedFor}</p><p><strong>Source:</strong> ${entry.sourceType==="official-manual"?entry.sourceDocument:entry.provider}</p><p><strong>Author:</strong> ${entry.author}</p>${entry.sourceType==="official-manual"?`<p><strong>Use:</strong> ${entry.rightsNote}</p><p><a href="${entry.providerUrl}" target="_blank" rel="noopener">RitFit website</a></p>`:`<p><strong>License:</strong> <a href="${entry.license.url}" target="_blank" rel="noopener">${entry.license.fullName}</a></p><p><a href="${entry.sourceUrl}" target="_blank" rel="noopener">wger record</a>${entry.originalSourceUrl?` · <a href="${entry.originalSourceUrl}" target="_blank" rel="noopener">original source</a>`:""}</p>`}</div></article>`).join("")}</section>`;
  document.querySelector("#licensesBack").onclick=equipment;
