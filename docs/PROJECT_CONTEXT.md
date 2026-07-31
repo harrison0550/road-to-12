@@ -40,10 +40,9 @@ See `KNOWN_BUGS.md` before diagnosing or fixing defects.
 
 ## Active sprint goals
 
-1. Add PWA installation, update, and offline smoke tests.
-2. Audit Calendar and recovery dialogs for VoiceOver and focus behavior.
-3. Improve calendar navigation and filtering without altering schedule truth.
-4. Preserve v13.2 behavior while gradually creating clearer module boundaries.
+1. Audit Calendar and recovery dialogs for VoiceOver and focus behavior.
+2. Improve calendar navigation and filtering without altering schedule truth.
+3. Preserve v13.2 behavior while gradually creating clearer module boundaries.
 
 See `CODEX_TASKS.md` for priority and acceptance detail.
 

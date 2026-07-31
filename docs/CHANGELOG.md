@@ -13,6 +13,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Deterministic recovery scheduling tests covering sequence order, immutable planned dates, completed sessions, and protected rest days.
 - Automated regression coverage for workout resume and intentional next-exercise scrolling.
 - Automated small-iPhone layout coverage for the Progress Save Check-In control.
+- Automated Service Worker smoke coverage for install, update cleanup, cached relaunch, and network fallback.
 
 ### Changed
 
