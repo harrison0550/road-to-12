@@ -56,7 +56,7 @@
     "Cable Hammer Curl": road12Illustration({
       sourceExercise: "Rope cable hammer curl on a red cage-style Smith machine",
       media: "cable-hammer-curl-red-cage.webp",
-      mediaAlt: "Start and finish positions for a neutral-grip rope hammer curl using one low pulley on the inner front-left post of a red cage-style Smith machine",
+      mediaAlt: "Start and finish positions for a neutral-grip rope hammer curl, with the athlete facing the same single front post and its low pulley on a red cage-style Smith machine",
       primaryMuscles: ["Biceps", "Brachialis"],
       secondaryMuscles: ["Forearms"],
       equipment: ["Red cage-style Smith machine", "One low inner front-left pulley", "Triceps rope"],

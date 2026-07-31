@@ -48,9 +48,10 @@ assert(cableHammerCurl, "Cable Hammer Curl must have an exercise-library visual"
 assert.strictEqual(cableHammerCurl.sourceType, "app-original");
 assert(
   cableHammerCurl.mediaAlt.includes("neutral-grip rope hammer curl") &&
-    cableHammerCurl.mediaAlt.includes("inner front-left post") &&
+    cableHammerCurl.mediaAlt.includes("facing the same single front post") &&
+    cableHammerCurl.mediaAlt.includes("low pulley") &&
     cableHammerCurl.mediaAlt.includes("red cage-style Smith machine"),
-  "the cable hammer curl needs grip- and equipment-specific alternative text",
+  "the cable hammer curl needs grip-, orientation-, and equipment-specific alternative text",
 );
 assert(
   fs.existsSync(path.join(root, cableHammerCurl.media)),

@@ -58,6 +58,7 @@ Copy this block for new work:
 
 ## Completed this sprint
 
+- [x] Correct the Cable Hammer Curl start and finish positions to face one front pulley post.
 - [x] Add an offline Cable Hammer Curl illustration on the red Smith cage.
 - [x] Move the Incline Cable Press left carriage to the inner front-left upright.
 - [x] Correct the Incline Cable Press pulley placement and red Smith cage finish.
