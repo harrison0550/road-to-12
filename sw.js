@@ -1,5 +1,5 @@
 /* Keep this query aligned with app-meta.js so Safari cannot reuse stale imported metadata. */
-importScripts("./app-meta.js?build=2026.07.30.13");
+importScripts("./app-meta.js?build=2026.07.30.14");
 
 const CACHE=self.ROAD12_META.serviceWorkerCache;
 const CACHE_PREFIX="road12-";

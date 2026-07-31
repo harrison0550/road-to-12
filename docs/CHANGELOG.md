@@ -41,6 +41,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Advanced the maintenance build to `2026.07.30.11` and rotated the offline shell cache for the Hip Hinge visual guide.
 - Advanced the maintenance build to `2026.07.30.12` and rotated the offline shell cache for the Incline Cable Press visual guide.
 - Advanced the maintenance build to `2026.07.30.13` and rotated the offline shell cache for the corrected Incline Cable Press equipment artwork.
+- Advanced the maintenance build to `2026.07.30.14` and rotated the offline shell cache after moving the left Incline Cable Press pulley to the inner front-left upright.
 - Replaced developer-facing missing-media copy with concise coached-instruction guidance.
 
 ### Fixed
@@ -49,6 +50,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Fixed installed PWAs remaining on an older shell after a newer build was deployed.
 - Fixed UTC date conversion causing yesterday's missed workout to be absent from Calendar.
 - Corrected the Incline Cable Press illustration so both low pulleys are on the front posts and the Smith cage matches the red equipment.
+- Corrected the left Incline Cable Press carriage placement from the outer rear-left upright to the inner front-left upright beside the bench.
 
 ### Removed
 

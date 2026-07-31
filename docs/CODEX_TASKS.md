@@ -58,6 +58,7 @@ Copy this block for new work:
 
 ## Completed this sprint
 
+- [x] Move the Incline Cable Press left carriage to the inner front-left upright.
 - [x] Correct the Incline Cable Press pulley placement and red Smith cage finish.
 - [x] Add an offline cage-style Smith machine Incline Cable Press illustration.
 - [x] Add an offline two-position Hip Hinge posture illustration.
