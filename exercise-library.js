@@ -53,6 +53,15 @@
   });
 
   const entries = {
+    "Hip Hinge": road12Illustration({
+      sourceExercise: "Bodyweight hip hinge posture",
+      media: "hip-hinge-posture.webp",
+      mediaAlt: "Side-by-side illustration of a standing start and a hip hinge with soft knees, hips pushed backward, and a long neutral spine",
+      primaryMuscles: ["Hamstrings", "Glutes"],
+      secondaryMuscles: ["Core", "Back extensors"],
+      equipment: ["No equipment"],
+      commonMistakes: ["Turning the hinge into a squat", "Rounding the back", "Shifting weight onto the toes"]
+    }),
     "Treadmill Walk": road12Illustration({
       sourceExercise: "Treadmill walking posture",
       media: "treadmill-walk-posture.webp",

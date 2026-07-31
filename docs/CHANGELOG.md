@@ -18,6 +18,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Recovery history metadata showing the original planned date and actual completion date.
 - Workout Recovery rescheduling choices for today, tomorrow, or a user-selected date.
 - Offline treadmill posture artwork with a full-screen enlargement and accessible description.
+- Offline two-position Hip Hinge artwork showing the standing start and correct hinge posture.
 
 ### Changed
 
@@ -36,6 +37,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Advanced the maintenance build to `2026.07.30.8` and rotated the offline shell cache for reliable installed-PWA updates.
 - Advanced the maintenance build to `2026.07.30.9` and rotated the offline shell cache for the local-date Calendar repair.
 - Advanced the maintenance build to `2026.07.30.10` and rotated the offline shell cache for the treadmill visual guide.
+- Advanced the maintenance build to `2026.07.30.11` and rotated the offline shell cache for the Hip Hinge visual guide.
 - Replaced developer-facing missing-media copy with concise coached-instruction guidance.
 
 ### Fixed
