@@ -24,7 +24,7 @@ No confirmed production defects are currently documented.
 - Area: Progress
 - Report: The Save Check-In button could extend beyond the content width on smaller iPhones.
 - Resolution: The button now spans the full grid container with safe, constrained input sizing.
-- Regression test needed: Yes
+- Regression test: `scripts/test-responsive-layout.js`
 
 ## Bug template
 

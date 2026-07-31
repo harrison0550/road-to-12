@@ -7,7 +7,7 @@ This file contains implementation-ready work. Move completed user-visible work t
 - [x] Add deterministic tests for recovery sequence shifting.
 - [x] Test that rest days remain fixed during every rescheduling mode.
 - [x] Add regression coverage for BUG-001 workout scroll restoration.
-- [ ] Add regression coverage for BUG-002 small-iPhone check-in layout.
+- [x] Add regression coverage for BUG-002 small-iPhone check-in layout.
 - [ ] Add offline install, update, and relaunch smoke tests.
 - [ ] Audit Calendar and recovery dialogs with VoiceOver.
 
@@ -60,6 +60,7 @@ Copy this block for new work:
 
 - [x] Add deterministic recovery, sequence, immutability, and rest-day tests.
 - [x] Add BUG-001 workout scroll restoration regression tests.
+- [x] Add BUG-002 responsive Save Check-In layout regression tests.
 - [x] Establish the `/docs` documentation system.
 - [x] Record architecture, UI, contribution, and release standards.
 - [x] Add `PROJECT_CONTEXT.md` as the current project handoff.
