@@ -57,6 +57,36 @@
     return true;
   }
 
+  function completeRecoveredWorkout(sessions, missedId, today, decision) {
+    const recovered = sessions.find((item) => item.id === missedId);
+    if (!recovered) return false;
+
+    recovered.status = "completed";
+    recovered.actualCompletionDate = today;
+    if (decision !== "replace") return true;
+
+    const movable = sessions
+      .filter(
+        (item) =>
+          item.id !== recovered.id &&
+          item.status !== "restDay" &&
+          item.status !== "completed" &&
+          item.scheduledDate >= today,
+      )
+      .sort(
+        (a, b) =>
+          a.scheduledDate.localeCompare(b.scheduledDate) ||
+          a.plannedDate.localeCompare(b.plannedDate),
+      );
+    const targets = nextTrainingDates(addCalendarDays(today, 1), movable.length);
+    movable.forEach((item, index) => {
+      item.scheduledDate = targets[index];
+      item.status =
+        item.scheduledDate === item.plannedDate ? "scheduled" : "rescheduled";
+    });
+    return true;
+  }
+
   function moveWorkout(sessions, sessionId, targetDate, minimumDate) {
     const session = sessions.find((item) => item.id === sessionId);
     if (!session || !targetDate || targetDate < minimumDate) return false;
@@ -67,6 +97,7 @@
 
   root.ROAD12_SCHEDULING = Object.freeze({
     addCalendarDays,
+    completeRecoveredWorkout,
     isRestDate,
     moveWorkout,
     nextTrainingDates,

@@ -25,6 +25,8 @@ Scheduling represents training intent separately from execution:
 
 Recovery operations move `scheduledDate` values while preserving `plannedDate`, workout order, completed sessions, and protected rest days. Scheduling rules should remain deterministic and independently testable as the codebase evolves.
 
+Starting a recovered workout does not mutate the schedule. It creates a normal Workout Engine session linked to the missed schedule entry. Completion records `actualCompletionDate`; any shift of today and future workouts occurs only after the user explicitly chooses the replacement option.
+
 Pure recovery and date-shifting rules live in `scheduling.js`. UI code supplies the current session collection and persists the result; the scheduling module does not access the DOM or `localStorage`. This boundary allows deterministic Node.js regression tests without changing the versioned storage model.
 
 ## Calendar

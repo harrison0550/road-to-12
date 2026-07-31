@@ -20,6 +20,7 @@ The roadmap communicates direction rather than a guaranteed schedule. Completed 
 - [ ] Improve calendar history reconciliation
 - [x] Audit VoiceOver labels and focus management
 - [x] Add PWA installation and offline smoke tests
+- [x] Complete yesterday’s missed workout through the existing workout engine
 - [ ] Consolidate legacy documentation and release artifacts
 
 ## Future releases

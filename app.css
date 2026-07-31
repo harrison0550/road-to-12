@@ -2068,10 +2068,18 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .calendar-weekdays,.calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}
 .calendar-weekdays{margin-bottom:7px;color:var(--muted);font-size:10px;font-weight:900;text-align:center;text-transform:uppercase}
 .calendar-day{position:relative;min-width:0;min-height:74px;padding:7px 2px;border:1px solid var(--line);border-radius:13px;background:#10151b;color:#fff;display:grid;grid-template-columns:1fr 1fr;align-content:start;gap:5px 1px}
+.calendar-day.status-missed{border-color:#727b87;background:linear-gradient(145deg,#171b21,#0d1014);box-shadow:inset 3px 0 0 #89929d}
 .calendar-day strong{grid-column:1/-1;font-size:13px}
 .calendar-day span{font-size:15px;line-height:1}
 .calendar-day small{position:absolute;top:4px;right:4px;color:#ffb84d;font-size:9px}
 .calendar-day.today{border-color:#ff5260;box-shadow:inset 0 0 0 1px rgba(255,82,96,.35)}
+.recovery-workout-facts{display:grid;grid-template-columns:minmax(0,1fr);gap:10px;margin:18px 0}
+.recovery-workout-facts>div{min-width:0;padding:14px;border:1px solid var(--line);border-radius:15px;background:var(--card2)}
+.recovery-workout-facts small,.recovery-workout-facts strong{display:block}
+.recovery-workout-facts small{color:var(--muted);font-size:11px;letter-spacing:.08em}
+.recovery-workout-facts strong{margin-top:5px;overflow-wrap:anywhere}
+.recovery-completion-choice{border-color:#725f32}
+.recommended-choice{border-color:#d7a846}
 .calendar-empty{min-height:74px}
 .calendar-legend h3{margin:20px 0 9px}
 .legend-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}

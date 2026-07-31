@@ -14,6 +14,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Automated regression coverage for workout resume and intentional next-exercise scrolling.
 - Automated small-iPhone layout coverage for the Progress Save Check-In control.
 - Automated Service Worker smoke coverage for install, update cleanup, cached relaunch, and network fallback.
+- Calendar-driven recovery for completing a missed workout through the existing workout engine.
+- Recovery history metadata showing the original planned date and actual completion date.
 
 ### Changed
 
@@ -21,6 +23,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Calendar cells now announce both workout status and workout type to assistive technology.
 - Calendar and recovery dialogs now focus their heading, isolate background controls, support Escape, and return focus to their invoking control.
 - Advanced the maintenance build to `2026.07.30.2` and rotated the offline shell cache to deliver the completed High Priority fixes to installed PWAs.
+- Missed-workout recovery now defers changes to today’s schedule until the recovered workout is complete and the user confirms a choice.
+- Advanced the maintenance build to `2026.07.30.4` and rotated the offline shell cache for the recovered-workout flow.
 
 ### Fixed
 
