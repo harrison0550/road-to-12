@@ -26,6 +26,15 @@ No confirmed production defects are currently documented.
 - Resolution: The button now spans the full grid container with safe, constrained input sizing.
 - Regression test: `scripts/test-responsive-layout.js`
 
+### BUG-003 — Past workout opens Close-only details
+
+- Status: Resolved in v13.2.0 maintenance build 2026.07.30.7
+- Severity: High
+- Area: Calendar / Workout Recovery
+- Report: A past incomplete workout could open the legacy Workout Details modal without Start Workout or Reschedule actions.
+- Resolution: The existing Calendar Workout Details renderer now includes recovery metadata and actions directly; the separate recovery-details modal path was removed.
+- Regression test: `scripts/test-recovered-workout-flow.js`
+
 ## Bug template
 
 ```markdown

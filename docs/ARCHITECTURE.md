@@ -37,6 +37,8 @@ The Calendar is a projection of scheduled sessions, not a separate source of tru
 
 Calendar actions delegate changes to scheduling rules. Calendar UI code should never directly invent or reorder program state.
 
+The existing Calendar Workout Details modal is the single entry point for past-session recovery actions. It renders Start Workout and Reschedule directly for incomplete past sessions rather than opening a second details modal.
+
 ## Progress Tracking
 
 Progress combines immutable workout history, body check-ins, exercise records, adherence, recovery indicators, and aggregate session counts. Calculated metrics should be derived from saved facts whenever possible rather than stored redundantly.
