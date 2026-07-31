@@ -705,11 +705,14 @@ function bindTimer(ex){let b=document.querySelector("#rest");if(b)b.onclick=()=>
 function stopTimer(){clearInterval(timerId);timerId=null;}
 function startTimer(sec){remaining=sec;const el=document.querySelector("#timer");clearInterval(timerId);tick();timerId=setInterval(()=>{remaining--;tick();if(remaining<=0){clearInterval(timerId);navigator.vibrate?.([200,100,200])}},1000);function tick(){el.textContent=`${String(Math.floor(remaining/60)).padStart(2,"0")}:${String(remaining%60).padStart(2,"0")}`;const c=document.querySelector("#restCoach");if(c)c.textContent=restCoachText(remaining)}}
 function next(){
- state.step++;
- state.workoutScroll=0;
+ window.ROAD12_WORKOUT_NAVIGATION.advanceExercise(
+   state
+ );
  save();
  workout();
- window.scrollTo({top:0,behavior:"smooth"});
+ window.ROAD12_WORKOUT_NAVIGATION.scrollToNextExercise(
+   options=>window.scrollTo(options)
+ );
 }
 
 function showLibraryExercise(ex){
@@ -1978,6 +1981,15 @@ function sessionsForDate(key){
    .filter(item=>item.scheduledDate===key)
    .sort((a,b)=>a.plannedDate.localeCompare(b.plannedDate));
 }
+let v42DialogReturnFocus=null;
+function closeV42Dialog(){
+ const overlay=document.querySelector("#v42Dialog");
+ if(!overlay||overlay.classList.contains("hidden"))return;
+ overlay.classList.add("hidden");
+ document.querySelector(".shell")?.removeAttribute("inert");
+ if(v42DialogReturnFocus?.isConnected)v42DialogReturnFocus.focus();
+ v42DialogReturnFocus=null;
+}
 function v42Dialog(content,label="Dialog"){
  let overlay=document.querySelector("#v42Dialog");
  if(!overlay){
@@ -1988,11 +2000,30 @@ function v42Dialog(content,label="Dialog"){
    overlay.setAttribute("aria-modal","true");
    document.body.appendChild(overlay);
  }
- overlay.setAttribute("aria-label",label);
- overlay.innerHTML=`<div class="v42-dialog-card">${content}<button class="secondary v42-close" type="button">Close</button></div>`;
+ if(overlay.classList.contains("hidden"))v42DialogReturnFocus=document.activeElement;
+ const labelledContent=content.replace(
+   /<h2(?=[ >])/,
+   '<h2 id="v42DialogTitle" tabindex="-1"'
+ );
+ if(labelledContent.includes('id="v42DialogTitle"')){
+   overlay.setAttribute("aria-labelledby","v42DialogTitle");
+   overlay.removeAttribute("aria-label");
+ }else{
+   overlay.setAttribute("aria-label",label);
+   overlay.removeAttribute("aria-labelledby");
+ }
+ overlay.innerHTML=`<div class="v42-dialog-card">${labelledContent}<button class="secondary v42-close" type="button">Close</button></div>`;
  overlay.classList.remove("hidden");
- overlay.querySelector(".v42-close").onclick=()=>overlay.classList.add("hidden");
- overlay.onclick=event=>{if(event.target===overlay)overlay.classList.add("hidden")};
+ document.querySelector(".shell")?.setAttribute("inert","");
+ overlay.querySelector(".v42-close").onclick=closeV42Dialog;
+ overlay.onclick=event=>{if(event.target===overlay)closeV42Dialog()};
+ overlay.onkeydown=event=>{
+   if(event.key==="Escape"){
+     event.preventDefault();
+     closeV42Dialog();
+   }
+ };
+ requestAnimationFrame(()=>overlay.querySelector("#v42DialogTitle")?.focus());
  return overlay;
 }
 function explainCalendarItem(kind,key){
@@ -2013,7 +2044,7 @@ function calendar(){
    const entries=sessionsForDate(key);
    const primary=entries.find(item=>item.status!=="restDay")||entries[0];
    const count=entries.filter(item=>item.status!=="restDay").length;
-   cells.push(`<button class="calendar-day ${key===localDateKey()?"today":""}" data-calendar-day="${key}" aria-label="${parseDateKey(key).toLocaleDateString(undefined,{month:"long",day:"numeric"})}, ${primary?V42_STATUS[primary.status].label:"No workout"}">
+   cells.push(`<button class="calendar-day ${key===localDateKey()?"today":""}" data-calendar-day="${key}" aria-label="${parseDateKey(key).toLocaleDateString(undefined,{month:"long",day:"numeric"})}, ${primary?`${V42_STATUS[primary.status].label}, ${V42_TYPES[primary.workoutType].label}`:"No workout"}">
      <strong>${day}</strong>
      <span title="${primary?V42_STATUS[primary.status].label:"No workout"}">${primary?V42_STATUS[primary.status].icon:""}</span>
      <span title="${primary?V42_TYPES[primary.workoutType].label:"No workout"}">${primary?V42_TYPES[primary.workoutType].icon:""}</span>
@@ -2062,7 +2093,7 @@ function openMissedWorkout(id){
  dialog.querySelector("#missedReason").onchange=event=>{session.reason=event.target.value;save()};
  dialog.querySelector("#startMissedToday").onclick=()=>openStartTodayFlow(id);
  dialog.querySelector("#moveMissed").onclick=()=>openMoveWorkout(id);
- dialog.querySelector("#leaveMissed").onclick=()=>{save();dialog.classList.add("hidden")};
+ dialog.querySelector("#leaveMissed").onclick=()=>{save();closeV42Dialog()};
 }
 function openStartTodayFlow(id){
  const session=state.workoutSessions.find(item=>item.id===id);
@@ -2074,31 +2105,17 @@ function openStartTodayFlow(id){
    <button class="choice-button" data-start-choice="forward"><strong>Move today’s workout forward</strong><small>Recover this workout now and shift today’s session.</small></button></div>`,`Start ${session.name} today`);
  dialog.querySelectorAll("[data-start-choice]").forEach(button=>button.onclick=()=>{
    recoverWorkoutToday(session,button.dataset.startChoice);
-   dialog.classList.add("hidden");
+   closeV42Dialog();
    state.tab="home";save();render();
  });
 }
-function nextTrainingDates(fromKey,count){
- const dates=[];
- for(let offset=0;dates.length<count&&offset<400;offset++){
-   const key=addCalendarDays(fromKey,offset);
-   if(planIndexForDate(parseDateKey(key))!==6)dates.push(key);
- }
- return dates;
-}
 function recoverWorkoutToday(missed,choice){
- const today=localDateKey();
- missed.scheduledDate=today;
- missed.status="rescheduled";
- if(choice==="both")return save();
- const movable=state.workoutSessions
-   .filter(item=>item.id!==missed.id&&item.status!=="restDay"&&item.scheduledDate>=today&&item.status!=="completed")
-   .sort((a,b)=>a.scheduledDate.localeCompare(b.scheduledDate)||a.plannedDate.localeCompare(b.plannedDate));
- const targets=nextTrainingDates(addCalendarDays(today,1),movable.length);
- movable.forEach((item,index)=>{
-   item.scheduledDate=targets[index];
-   item.status=item.scheduledDate===item.plannedDate?"scheduled":"rescheduled";
- });
+ window.ROAD12_SCHEDULING.recoverWorkoutToday(
+   state.workoutSessions,
+   missed.id,
+   choice,
+   localDateKey()
+ );
  save();
 }
 function openMoveWorkout(id){
@@ -2108,10 +2125,8 @@ function openMoveWorkout(id){
  const dialog=v42Dialog(`<span class="pill">MOVE WORKOUT</span><h2>Choose a future date</h2><label class="field-label">New scheduled date<input id="moveWorkoutDate" type="date" min="${minimum}" value="${minimum}"></label><button class="primary" id="confirmMoveWorkout">Move ${session.name}</button>`,`Move ${session.name}`);
  dialog.querySelector("#confirmMoveWorkout").onclick=()=>{
    const target=dialog.querySelector("#moveWorkoutDate").value;
-   if(!target||target<minimum)return;
-   session.scheduledDate=target;
-   session.status="rescheduled";
-   save();dialog.classList.add("hidden");calendar();
+   if(!window.ROAD12_SCHEDULING.moveWorkout(state.workoutSessions,session.id,target,minimum))return;
+   save();closeV42Dialog();calendar();
  };
 }
 function v42Metrics(){
@@ -2162,16 +2177,16 @@ progress=function(){
 const v42BaseExercise=exercise;
 exercise=function(ex,workoutData=activeWorkout()){
  v42BaseExercise(ex,workoutData);
- if(state.workoutScroll>0){
-   const target=state.workoutScroll;
-   state.workoutScroll=0;
-   requestAnimationFrame(()=>requestAnimationFrame(()=>window.scrollTo({top:target,behavior:"auto"})));
- }
+ window.ROAD12_WORKOUT_NAVIGATION.restoreWorkoutScroll(
+   state,
+   options=>window.scrollTo(options),
+   callback=>requestAnimationFrame(callback)
+ );
 };
 const v42BaseSetTab=setTab;
 setTab=function(tab){
  if(state.tab==="workout"&&tab!=="workout"){
-   state.workoutScroll=window.scrollY;
+   window.ROAD12_WORKOUT_NAVIGATION.captureWorkoutScroll(state,window.scrollY);
    save();
  }
  v42BaseSetTab(tab);
