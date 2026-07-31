@@ -15,7 +15,7 @@ No confirmed production defects are currently documented.
 - Area: Workout
 - Report: Returning to a workout caused the page to jump upward unexpectedly.
 - Resolution: Removed unintended viewport-anchor correction and restore the saved position only when resuming the same exercise. Intentional next-exercise navigation starts at the top.
-- Regression test needed: Yes
+- Regression test: `scripts/test-workout-scroll.js`
 
 ### BUG-002 — Save Check-In exceeds screen width
 
@@ -44,4 +44,3 @@ No confirmed production defects are currently documented.
 - Resolution:
 - Regression test:
 ```
-

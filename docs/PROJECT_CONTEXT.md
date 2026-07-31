@@ -17,6 +17,7 @@ Read this file at the beginning of every Codex or engineering session. It is the
 - `index.html` is the application shell.
 - `app.js` owns screen rendering, workout flow, scheduling, recovery, and progress behavior.
 - `scheduling.js` owns pure recovery and date-shifting rules without DOM or storage access.
+- `workout-navigation.js` owns testable workout scroll capture, restoration, and intentional advancement behavior.
 - `data.js` contains workout definitions.
 - `exercise-library.js` contains reviewed exercise education metadata.
 - `app.css` contains the current responsive design system.
@@ -39,7 +40,7 @@ See `KNOWN_BUGS.md` before diagnosing or fixing defects.
 
 ## Active sprint goals
 
-1. Add BUG-001 and BUG-002 regression coverage.
+1. Add BUG-002 small-iPhone layout regression coverage.
 2. Add PWA installation, update, and offline smoke tests.
 3. Audit Calendar and recovery dialogs for VoiceOver and focus behavior.
 4. Improve calendar navigation and filtering without altering schedule truth.

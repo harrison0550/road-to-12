@@ -11,6 +11,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Professional project documentation under `/docs`.
 - Project context and contributor standards for future development sessions.
 - Deterministic recovery scheduling tests covering sequence order, immutable planned dates, completed sessions, and protected rest days.
+- Automated regression coverage for workout resume and intentional next-exercise scrolling.
 
 ### Changed
 

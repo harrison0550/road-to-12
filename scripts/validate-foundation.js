@@ -26,6 +26,7 @@ for (const file of [
   "exercise-library.js",
   "data.js",
   "scheduling.js",
+  "workout-navigation.js",
   "app.js",
   "sw.js",
   "scripts/validate-foundation.js",
@@ -53,6 +54,7 @@ const expectedEntryPoints = [
   "exercise-library.js",
   "data.js",
   "scheduling.js",
+  "workout-navigation.js",
   "app.js",
 ];
 for (const entryPoint of expectedEntryPoints) {

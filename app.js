@@ -705,11 +705,14 @@ function bindTimer(ex){let b=document.querySelector("#rest");if(b)b.onclick=()=>
 function stopTimer(){clearInterval(timerId);timerId=null;}
 function startTimer(sec){remaining=sec;const el=document.querySelector("#timer");clearInterval(timerId);tick();timerId=setInterval(()=>{remaining--;tick();if(remaining<=0){clearInterval(timerId);navigator.vibrate?.([200,100,200])}},1000);function tick(){el.textContent=`${String(Math.floor(remaining/60)).padStart(2,"0")}:${String(remaining%60).padStart(2,"0")}`;const c=document.querySelector("#restCoach");if(c)c.textContent=restCoachText(remaining)}}
 function next(){
- state.step++;
- state.workoutScroll=0;
+ window.ROAD12_WORKOUT_NAVIGATION.advanceExercise(
+   state
+ );
  save();
  workout();
- window.scrollTo({top:0,behavior:"smooth"});
+ window.ROAD12_WORKOUT_NAVIGATION.scrollToNextExercise(
+   options=>window.scrollTo(options)
+ );
 }
 
 function showLibraryExercise(ex){
@@ -2146,16 +2149,16 @@ progress=function(){
 const v42BaseExercise=exercise;
 exercise=function(ex,workoutData=activeWorkout()){
  v42BaseExercise(ex,workoutData);
- if(state.workoutScroll>0){
-   const target=state.workoutScroll;
-   state.workoutScroll=0;
-   requestAnimationFrame(()=>requestAnimationFrame(()=>window.scrollTo({top:target,behavior:"auto"})));
- }
+ window.ROAD12_WORKOUT_NAVIGATION.restoreWorkoutScroll(
+   state,
+   options=>window.scrollTo(options),
+   callback=>requestAnimationFrame(callback)
+ );
 };
 const v42BaseSetTab=setTab;
 setTab=function(tab){
  if(state.tab==="workout"&&tab!=="workout"){
-   state.workoutScroll=window.scrollY;
+   window.ROAD12_WORKOUT_NAVIGATION.captureWorkoutScroll(state,window.scrollY);
    save();
  }
  v42BaseSetTab(tab);
