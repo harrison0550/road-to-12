@@ -1,0 +1,64 @@
+# Codex Sprint Backlog
+
+This file contains implementation-ready work. Move completed user-visible work to `CHANGELOG.md`; retain defect history in `KNOWN_BUGS.md`.
+
+## High priority
+
+- [ ] Add deterministic tests for recovery sequence shifting.
+- [ ] Test that rest days remain fixed during every rescheduling mode.
+- [ ] Add regression coverage for BUG-001 workout scroll restoration.
+- [ ] Add regression coverage for BUG-002 small-iPhone check-in layout.
+- [ ] Add offline install, update, and relaunch smoke tests.
+- [ ] Audit Calendar and recovery dialogs with VoiceOver.
+
+## Medium priority
+
+- [ ] Add calendar filters for status and workout type.
+- [ ] Improve calendar navigation for jumping to Today.
+- [ ] Document adherence and recovery-score formulas for users.
+- [ ] Add structured validation for imported backup data.
+- [ ] Review coach recommendations for stale missed sessions.
+- [ ] Consolidate duplicated legacy styling where tests permit.
+
+## Low priority
+
+- [ ] Add exercise search.
+- [ ] Add exercise category filters.
+- [ ] Add an agenda-style calendar option.
+- [ ] Improve empty states for historical calendar dates.
+- [ ] Add printable or exportable progress summaries.
+
+## Parking lot
+
+- [ ] Define a progressive-overload recommendation data contract.
+- [ ] Research privacy-preserving optional synchronization.
+- [ ] Research Apple Health integration requirements.
+- [ ] Research wearable and heart-rate data sources.
+- [ ] Define nutrition feature boundaries and safety language.
+
+## Future task template
+
+Copy this block for new work:
+
+```markdown
+### TASK-000 — Short title
+
+- Priority:
+- Target release:
+- Owner:
+- Status:
+- Problem:
+- Acceptance criteria:
+  - [ ]
+- Architecture notes:
+- UI notes:
+- Test plan:
+- Dependencies:
+```
+
+## Completed this sprint
+
+- [x] Establish the `/docs` documentation system.
+- [x] Record architecture, UI, contribution, and release standards.
+- [x] Add `PROJECT_CONTEXT.md` as the current project handoff.
+
