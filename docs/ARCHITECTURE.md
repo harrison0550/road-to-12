@@ -41,6 +41,8 @@ Calendar actions delegate changes to scheduling rules. Calendar UI code should n
 
 The existing Calendar Workout Details modal is the single entry point for past-session recovery actions. It renders Start Workout and Reschedule directly for incomplete past sessions rather than opening a second details modal.
 
+A fresh application launch initializes the Calendar viewport to the device's current local month. Incomplete sessions scheduled for today can start or resume through the same Workout Engine entry point; only sessions scheduled before today are classified as recovered workouts.
+
 ## Progress Tracking
 
 Progress combines immutable workout history, body check-ins, exercise records, adherence, recovery indicators, and aggregate session counts. Calculated metrics should be derived from saved facts whenever possible rather than stored redundantly.

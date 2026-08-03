@@ -45,6 +45,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Advanced the maintenance build to `2026.07.30.14` and rotated the offline shell cache after moving the left Incline Cable Press pulley to the inner front-left upright.
 - Advanced the maintenance build to `2026.07.30.15` and rotated the offline shell cache for the Cable Hammer Curl visual guide.
 - Advanced the maintenance build to `2026.07.30.16` and rotated the offline shell cache for the corrected Cable Hammer Curl orientation.
+- Advanced the maintenance build to `2026.08.03.1` and rotated the offline shell cache for the current-month Calendar and same-day workout-launch fixes.
 - Replaced developer-facing missing-media copy with concise coached-instruction guidance.
 
 ### Fixed
@@ -55,6 +56,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Corrected the Incline Cable Press illustration so both low pulleys are on the front posts and the Smith cage matches the red equipment.
 - Corrected the left Incline Cable Press carriage placement from the outer rear-left upright to the inner front-left upright beside the bench.
 - Corrected the Cable Hammer Curl illustration so both positions face the same single front pulley post.
+- Fixed Calendar opening on a previously viewed month after launching the app on a new month.
+- Added the missing Start Workout action for today's incomplete Calendar workout while preserving normal, non-recovery completion behavior.
 
 ### Removed
 

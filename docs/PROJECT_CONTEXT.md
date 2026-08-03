@@ -6,9 +6,9 @@ Read this file at the beginning of every Codex or engineering session. It is the
 
 - Product: Road to 12%
 - Version: 13.2.0
-- Build: 2026.07.30.16
-- Last updated: July 30, 2026
-- Service Worker cache: `road12-v13-2-15-shell`
+- Build: 2026.08.03.1
+- Last updated: August 3, 2026
+- Service Worker cache: `road12-v13-2-16-shell`
 - Runtime: static, client-only, offline-first PWA
 - Primary storage key: `road12v5`
 
@@ -39,6 +39,9 @@ Historical regressions requiring automated coverage:
 - BUG-004: Installed PWA remains on an older shell — resolved in build 2026.07.30.8.
 
 - BUG-005: UTC activation date hides yesterday's missed workout — resolved in build 2026.07.30.9.
+
+- BUG-006: Calendar retains the previous month on a later app launch — resolved in build 2026.08.03.1.
+- BUG-007: Today's scheduled Calendar workout has no Start action — resolved in build 2026.08.03.1.
 
 See `KNOWN_BUGS.md` before diagnosing or fixing defects.
 
@@ -72,6 +75,8 @@ See `CODEX_TASKS.md` for priority and acceptance detail.
 - Mutable shell files use network-first refresh with cached offline fallback, and Service Worker metadata imports carry the current build query to prevent stale iOS updates.
 - Rescheduling inserts into an occupied training date by shifting later incomplete sessions around completed workouts and protected rest days.
 - Schedule activation uses local calendar dates and backfills yesterday without replacing existing sessions or earlier history.
+- A fresh app launch opens Calendar on the device's current local month; deliberate month navigation remains intact during that app session.
+- Today's incomplete Calendar session starts or resumes through the existing Workout Engine and is not marked as a recovered workout.
 - Traditional streak emphasis was replaced with adherence, recovery, and total-session context.
 - Workout scroll is restored only when resuming; intentional next-exercise navigation may scroll to the top.
 - Primary buttons are full-width inside their content container.

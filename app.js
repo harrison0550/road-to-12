@@ -1873,23 +1873,25 @@ function activeWorkout(){
 
 function startNewSession(dayIndex=currentPlanIndex(),selectedSchedule=null){
  ensureWorkoutSchedule();
+ const todayKey=localDateKey();
  const todaySchedule=selectedSchedule||state.workoutSessions
-   .filter(item=>item.scheduledDate===localDateKey()&&item.status!=="restDay")
+   .filter(item=>item.scheduledDate===todayKey&&item.status!=="restDay")
    .sort((a,b)=>(a.status==="rescheduled"?-1:1)-(b.status==="rescheduled"?-1:1))[0];
+ const isRecovered=!!selectedSchedule&&selectedSchedule.scheduledDate<todayKey;
  const sessionDay=Number.isInteger(todaySchedule?.planDay)?todaySchedule.planDay:dayIndex;
  const plan=weekPlan[sessionDay];
- if(todaySchedule&&!selectedSchedule&&todaySchedule.status!=="rescheduled")todaySchedule.status="inProgress";
+ if(todaySchedule&&!isRecovered&&todaySchedule.status!=="rescheduled")todaySchedule.status="inProgress";
  state.logs={};
  state.currentSession={
    id:`session-${Date.now()}`,
    name:selectedSchedule?.name||plan.title,
    planDay:sessionDay,
    startedAt:new Date().toISOString(),
-   dateKey:localDateKey(),
+   dateKey:todayKey,
    scheduleId:todaySchedule?.id||null,
-   recoveredWorkout:!!selectedSchedule,
-   plannedDate:selectedSchedule?.plannedDate||null,
-   originalScheduledDate:selectedSchedule?.scheduledDate||null,
+   recoveredWorkout:isRecovered,
+   plannedDate:isRecovered?selectedSchedule.plannedDate:null,
+   originalScheduledDate:isRecovered?selectedSchedule.scheduledDate:null,
    equipment:deepCopy(state.equipment)
  };
   state.step=0;
@@ -2145,23 +2147,27 @@ function calendar(){
 }
 function openCalendarDay(key){
  const entries=sessionsForDate(key);
- const isPastIncomplete=item=>item.scheduledDate<localDateKey()&&!["completed","restDay"].includes(item.status);
+ const todayKey=localDateKey();
+ const isIncomplete=item=>!["completed","restDay"].includes(item.status);
+ const isPastIncomplete=item=>item.scheduledDate<todayKey&&isIncomplete(item);
+ const isStartable=item=>item.scheduledDate<=todayKey&&isIncomplete(item);
  const dateLabel=parseDateKey(key).toLocaleDateString(undefined,{weekday:"long",month:"long",day:"numeric"});
  v42Dialog(`<span class="pill">${dateLabel}</span><h2>Workout Details</h2>
    <div class="calendar-detail-list">${entries.map(item=>`<article>
      <div class="calendar-detail-title"><span>${V42_TYPES[item.workoutType].icon}</span><div><strong>${item.name}</strong><small>${V42_STATUS[item.status].icon} ${V42_STATUS[item.status].label}</small></div></div>
-     ${isPastIncomplete(item)?`<div class="recovery-workout-facts">
+     ${isStartable(item)?`<div class="recovery-workout-facts">
        <div><small>WORKOUT TYPE</small><strong>${V42_TYPES[item.workoutType].icon} ${V42_TYPES[item.workoutType].label}</strong></div>
        <div><small>SCHEDULED DATE</small><strong>${parseDateKey(item.scheduledDate).toLocaleDateString(undefined,{weekday:"long",month:"long",day:"numeric"})}</strong></div>
      </div>`:""}
      ${item.plannedDate!==item.scheduledDate?`<p>Originally planned for ${parseDateKey(item.plannedDate).toLocaleDateString()}.</p>`:""}
      ${item.reason?`<p>Reason: ${V42_REASONS[item.reason]}</p>`:""}
-     ${isPastIncomplete(item)?`<div class="recovery-actions"><button class="primary" data-start-recovery="${item.id}">Start Workout</button><button class="secondary" data-reschedule-recovery="${item.id}">Reschedule</button></div>`:""}
+     ${isStartable(item)?`<div class="recovery-actions"><button class="primary" data-start-calendar-workout="${item.id}">Start Workout</button>${isPastIncomplete(item)?`<button class="secondary" data-reschedule-recovery="${item.id}">Reschedule</button>`:""}</div>`:""}
    </article>`).join("")}</div>`,dateLabel);
- document.querySelectorAll("[data-start-recovery]").forEach(button=>button.onclick=()=>{
-   const session=state.workoutSessions.find(item=>item.id===button.dataset.startRecovery);
+ document.querySelectorAll("[data-start-calendar-workout]").forEach(button=>button.onclick=()=>{
+   const session=state.workoutSessions.find(item=>item.id===button.dataset.startCalendarWorkout);
    if(!session)return;
-   startNewSession(session.planDay,session);
+   const alreadyActive=state.currentSession?.scheduleId===session.id&&state.currentSession.dateKey===todayKey;
+   if(!alreadyActive)startNewSession(session.planDay,session);
    closeV42Dialog();
    state.tab="workout";
    save();
@@ -2284,6 +2290,9 @@ save();
    ========================================================= */
 (function repairV112LaunchState(){
  const migrationKey="road12-v11-2-launch-repaired";
+ /* A fresh launch always opens Calendar on the device's current month.
+    In-session previous/next navigation remains intact until the app reloads. */
+ state.calendarMonth=localDateKey().slice(0,7);
  if(!localStorage.getItem(migrationKey)){
    state.tab="home";
    state.setupReady=false;

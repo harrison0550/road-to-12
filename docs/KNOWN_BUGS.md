@@ -53,6 +53,24 @@ No confirmed production defects are currently documented.
 - Resolution: Schedule activation now uses local calendar identity. An additive, idempotent migration backfills yesterday when the saved activation boundary is missing, today, or in the future, while preserving existing sessions and earlier history.
 - Regression test: `scripts/test-scheduling.js`
 
+### BUG-006 — Calendar opens on a previously viewed month
+
+- Status: Resolved in v13.2.0 maintenance build 2026.08.03.1
+- Severity: High
+- Area: Calendar / Launch State
+- Report: Launching the app on August 3 could leave Calendar displaying July because the last browsed month was persisted.
+- Resolution: Every fresh application launch initializes the Calendar viewport from the device's current local month while preserving previous/next navigation during the running session.
+- Regression test: `scripts/test-calendar-current-workout.js`
+
+### BUG-007 — Today's Calendar workout has no Start action
+
+- Status: Resolved in v13.2.0 maintenance build 2026.08.03.1
+- Severity: High
+- Area: Calendar / Workout Launch
+- Report: Tapping today's scheduled workout displayed details with only a Close button.
+- Resolution: Today's incomplete session now exposes Start Workout and launches or resumes the existing Workout Engine without being classified as a recovered workout.
+- Regression test: `scripts/test-calendar-current-workout.js`
+
 ## Bug template
 
 ```markdown

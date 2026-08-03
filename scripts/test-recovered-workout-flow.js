@@ -10,7 +10,7 @@ const sw = fs.readFileSync(path.join(root, "sw.js"), "utf8");
 assert.match(app, /<h2>Workout Details<\/h2>/);
 assert.match(app, /SCHEDULED DATE/);
 assert.match(app, /WORKOUT TYPE/);
-assert.match(app, /data-start-recovery="\$\{item\.id\}">Start Workout<\/button>/);
+assert.match(app, /data-start-calendar-workout="\$\{item\.id\}">Start Workout<\/button>/);
 assert.match(app, /data-reschedule-recovery="\$\{item\.id\}">Reschedule<\/button>/);
 assert.doesNotMatch(app, /function openWorkoutRecovery/);
 assert.doesNotMatch(app, /Open workout recovery/);
@@ -18,7 +18,7 @@ assert.match(app, /Move to Today/);
 assert.match(app, /Move to Tomorrow/);
 assert.match(app, /Choose Date…/);
 assert.match(app, /Reschedule Workout/);
-assert.match(app, /startNewSession\(session\.planDay,session\)/);
+assert.match(app, /if\(!alreadyActive\)startNewSession\(session\.planDay,session\)/);
 assert.match(
   app,
   /You completed a workout that was originally scheduled for yesterday\./,
