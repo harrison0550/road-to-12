@@ -15,6 +15,8 @@ const inclineCablePress =
 const cableHammerCurl =
   context.self.ROAD12_EXERCISE_LIBRARY.entries["Cable Hammer Curl"];
 const armCircles = context.self.ROAD12_EXERCISE_LIBRARY.entries["Arm Circles"];
+const bodyweightSquat =
+  context.self.ROAD12_EXERCISE_LIBRARY.entries["Bodyweight Squat"];
 assert(treadmill, "Treadmill Walk must have an exercise-library visual");
 assert.strictEqual(treadmill.sourceType, "app-original");
 assert(treadmill.mediaAlt.includes("safety clip"), "the visual needs useful alternative text");
@@ -69,6 +71,18 @@ assert(
   fs.existsSync(path.join(root, armCircles.media)),
   "the arm-circles illustration must be stored locally",
 );
+assert(bodyweightSquat, "Bodyweight Squat must have an exercise-library visual");
+assert.strictEqual(bodyweightSquat.sourceType, "app-original");
+assert(
+  bodyweightSquat.mediaAlt.includes("heels planted") &&
+    bodyweightSquat.mediaAlt.includes("knees tracking over the toes") &&
+    bodyweightSquat.mediaAlt.includes("parallel-depth squat"),
+  "the bodyweight-squat visual needs depth-, foot-, and knee-specific alternative text",
+);
+assert(
+  fs.existsSync(path.join(root, bodyweightSquat.media)),
+  "the bodyweight-squat illustration must be stored locally",
+);
 
 const app = fs.readFileSync(path.join(root, "app.js"), "utf8");
 assert(!app.includes("No reviewed free demonstration yet"));
@@ -98,7 +112,11 @@ assert(
   sw.includes(`./${armCircles.media}`),
   "the arm-circles illustration must be available offline",
 );
+assert(
+  sw.includes(`./${bodyweightSquat.media}`),
+  "the bodyweight-squat illustration must be available offline",
+);
 
 console.log(
-  "Exercise imagery tests passed: treadmill, hip-hinge, incline-cable-press, cable-hammer-curl, and arm-circles artwork, provenance, accessible text, polished fallback, and offline caching.",
+  "Exercise imagery tests passed: treadmill, hip-hinge, incline-cable-press, cable-hammer-curl, arm-circles, and bodyweight-squat artwork, provenance, accessible text, polished fallback, and offline caching.",
 );

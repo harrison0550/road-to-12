@@ -62,6 +62,15 @@
       equipment: ["No equipment"],
       commonMistakes: ["Shrugging the shoulders", "Lowering the arms below shoulder height", "Moving too quickly or forcing the range"]
     }),
+    "Bodyweight Squat": road12Illustration({
+      sourceExercise: "Standing bodyweight squat",
+      media: "bodyweight-squat-posture.webp",
+      mediaAlt: "Side-by-side illustration of a tall bodyweight-squat start and a controlled parallel-depth squat with heels planted, knees tracking over the toes, and arms extended forward",
+      primaryMuscles: ["Quadriceps", "Glutes"],
+      secondaryMuscles: ["Hips", "Core", "Ankles"],
+      equipment: ["No equipment"],
+      commonMistakes: ["Letting the knees collapse inward", "Lifting the heels", "Rounding the back or forcing excessive depth"]
+    }),
     "Cable Hammer Curl": road12Illustration({
       sourceExercise: "Rope cable hammer curl on a red cage-style Smith machine",
       media: "cable-hammer-curl-red-cage.webp",
