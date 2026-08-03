@@ -58,6 +58,7 @@ Copy this block for new work:
 
 ## Completed this sprint
 
+- [x] Keep Full Body A cooldown and stretching exercises at the end of the workout.
 - [x] Add an offline two-position Bodyweight Squat posture illustration.
 - [x] Add an offline Arm Circles posture and motion illustration.
 - [x] Open Calendar on the current month at app launch and allow today's workout to start from its details.

@@ -6,9 +6,9 @@ Read this file at the beginning of every Codex or engineering session. It is the
 
 - Product: Road to 12%
 - Version: 13.2.0
-- Build: 2026.08.03.3
+- Build: 2026.08.03.4
 - Last updated: August 3, 2026
-- Service Worker cache: `road12-v13-2-18-shell`
+- Service Worker cache: `road12-v13-2-19-shell`
 - Runtime: static, client-only, offline-first PWA
 - Primary storage key: `road12v5`
 
@@ -42,6 +42,7 @@ Historical regressions requiring automated coverage:
 
 - BUG-006: Calendar retains the previous month on a later app launch — resolved in build 2026.08.03.1.
 - BUG-007: Today's scheduled Calendar workout has no Start action — resolved in build 2026.08.03.1.
+- BUG-008: Full Body A cooldowns appear in the middle of the workout — resolved in build 2026.08.03.4.
 
 See `KNOWN_BUGS.md` before diagnosing or fixing defects.
 
@@ -79,6 +80,7 @@ See `CODEX_TASKS.md` for priority and acceptance detail.
 - Today's incomplete Calendar session starts or resumes through the existing Workout Engine and is not marked as a recovered workout.
 - Traditional streak emphasis was replaced with adherence, recovery, and total-session context.
 - Workout scroll is restored only when resuming; intentional next-exercise navigation may scroll to the top.
+- Cooldown exercises always sort after all working blocks in every strength workout.
 - Primary buttons are full-width inside their content container.
 - App-created exercise illustrations are identified as posture illustrations; written setup and movement cues remain authoritative.
 

@@ -50,6 +50,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Advanced the maintenance build to `2026.08.03.1` and rotated the offline shell cache for the current-month Calendar and same-day workout-launch fixes.
 - Advanced the maintenance build to `2026.08.03.2` and rotated the offline shell cache for the Arm Circles visual guide.
 - Advanced the maintenance build to `2026.08.03.3` and rotated the offline shell cache for the Bodyweight Squat visual guide.
+- Advanced the maintenance build to `2026.08.03.4` and rotated the offline shell cache for corrected Full Body A workout ordering.
 - Replaced developer-facing missing-media copy with concise coached-instruction guidance.
 
 ### Fixed
@@ -62,6 +63,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Corrected the Cable Hammer Curl illustration so both positions face the same single front pulley post.
 - Fixed Calendar opening on a previously viewed month after launching the app on a new month.
 - Added the missing Start Workout action for today's incomplete Calendar workout while preserving normal, non-recovery completion behavior.
+- Moved Easy Treadmill Cooldown and Post-Workout Stretch to the end of Full Body A instead of between the Smith and cable blocks.
 
 ### Removed
 

@@ -1848,8 +1848,8 @@ function fullBodyCWorkout(){
 function strengthWorkoutForDay(dayIndex){
   const workoutData=dayIndex===2?fullBodyBWorkout():dayIndex===4?fullBodyCWorkout():data;
   const group=ex=>{
+    if(ex.type==="cooldown")return 7;
     if(dayIndex===4&&ex.name==="Treadmill HIIT Intervals")return 6;
-    if((dayIndex===2||dayIndex===4)&&ex.type==="cooldown")return 7;
     return setupGroup(ex);
   };
   return workoutData.map(resolveExercise).filter(ex=>!ex.unavailable).map((ex,index)=>({ex,index}))

@@ -71,6 +71,15 @@ No confirmed production defects are currently documented.
 - Resolution: Today's incomplete session now exposes Start Workout and launches or resumes the existing Workout Engine without being classified as a recovered workout.
 - Regression test: `scripts/test-calendar-current-workout.js`
 
+### BUG-008 — Full Body A cooldowns appear mid-workout
+
+- Status: Resolved in v13.2.0 maintenance build 2026.08.03.4
+- Severity: High
+- Area: Workout Engine / Exercise Ordering
+- Report: Easy Treadmill Cooldown and Post-Workout Stretch appeared after the Smith block but before the cable exercises in Full Body A.
+- Resolution: Cooldown exercises now use the final ordering group for every strength workout instead of only Full Body B and C.
+- Regression test: `scripts/test-workout-order.js`
+
 ## Bug template
 
 ```markdown
