@@ -89,6 +89,15 @@
       equipment: ["Red cage-style Smith machine", "Two low front-post pulleys", "Two D-handles", "Low-incline bench"],
       commonMistakes: ["Setting the pulleys too high", "Shrugging the shoulders", "Overarching the lower back"]
     }),
+    "Lat Pulldown": road12Illustration({
+      sourceExercise: "Seated lat pulldown on a red cage-style Smith machine",
+      media: "lat-pulldown-red-cage.webp",
+      mediaAlt: "Start and finish positions for a seated lat pulldown on a red cage-style Smith machine, using both high front-post pulleys and bringing the wide bar toward the upper chest",
+      primaryMuscles: ["Lats", "Upper back"],
+      secondaryMuscles: ["Biceps"],
+      equipment: ["Red cage-style Smith machine", "Two high front-post pulleys", "Wide lat bar", "Upright bench"],
+      commonMistakes: ["Pulling the bar behind the neck", "Swinging the torso backward", "Shrugging the shoulders"]
+    }),
     "Hip Hinge": road12Illustration({
       sourceExercise: "Bodyweight hip hinge posture",
       media: "hip-hinge-posture.webp",

@@ -23,6 +23,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Offline two-position Cable Hammer Curl artwork using a rope on the low inner front-left pulley of the red Smith cage.
 - Offline Arm Circles artwork showing the standing posture and circular arm path.
 - Offline two-position Bodyweight Squat artwork showing a tall start and controlled parallel-depth squat.
+- Offline two-position Lat Pulldown artwork using both high front-post pulleys on the red Smith cage and a safe upper-chest finish.
 
 ### Changed
 
@@ -51,6 +52,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Advanced the maintenance build to `2026.08.03.2` and rotated the offline shell cache for the Arm Circles visual guide.
 - Advanced the maintenance build to `2026.08.03.3` and rotated the offline shell cache for the Bodyweight Squat visual guide.
 - Advanced the maintenance build to `2026.08.03.4` and rotated the offline shell cache for corrected Full Body A workout ordering.
+- Advanced the maintenance build to `2026.08.03.5` and rotated the offline shell cache for the Lat Pulldown visual guide.
 - Replaced developer-facing missing-media copy with concise coached-instruction guidance.
 
 ### Fixed
