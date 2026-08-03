@@ -53,6 +53,15 @@
   });
 
   const entries = {
+    "Arm Circles": road12Illustration({
+      sourceExercise: "Standing bodyweight arm circles",
+      media: "arm-circles-posture.webp",
+      mediaAlt: "Front-view illustration of a tall standing arm-circle posture with both arms extended at shoulder height and red circular motion arrows around the hands",
+      primaryMuscles: ["Shoulders"],
+      secondaryMuscles: ["Upper back"],
+      equipment: ["No equipment"],
+      commonMistakes: ["Shrugging the shoulders", "Lowering the arms below shoulder height", "Moving too quickly or forcing the range"]
+    }),
     "Cable Hammer Curl": road12Illustration({
       sourceExercise: "Rope cable hammer curl on a red cage-style Smith machine",
       media: "cable-hammer-curl-red-cage.webp",

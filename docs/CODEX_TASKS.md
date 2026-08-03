@@ -58,6 +58,7 @@ Copy this block for new work:
 
 ## Completed this sprint
 
+- [x] Add an offline Arm Circles posture and motion illustration.
 - [x] Open Calendar on the current month at app launch and allow today's workout to start from its details.
 - [x] Correct the Cable Hammer Curl start and finish positions to face one front pulley post.
 - [x] Add an offline Cable Hammer Curl illustration on the red Smith cage.

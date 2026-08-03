@@ -14,6 +14,7 @@ const inclineCablePress =
   context.self.ROAD12_EXERCISE_LIBRARY.entries["Incline Cable Press"];
 const cableHammerCurl =
   context.self.ROAD12_EXERCISE_LIBRARY.entries["Cable Hammer Curl"];
+const armCircles = context.self.ROAD12_EXERCISE_LIBRARY.entries["Arm Circles"];
 assert(treadmill, "Treadmill Walk must have an exercise-library visual");
 assert.strictEqual(treadmill.sourceType, "app-original");
 assert(treadmill.mediaAlt.includes("safety clip"), "the visual needs useful alternative text");
@@ -57,6 +58,17 @@ assert(
   fs.existsSync(path.join(root, cableHammerCurl.media)),
   "the cable hammer curl illustration must be stored locally",
 );
+assert(armCircles, "Arm Circles must have an exercise-library visual");
+assert.strictEqual(armCircles.sourceType, "app-original");
+assert(
+  armCircles.mediaAlt.includes("arms extended at shoulder height") &&
+    armCircles.mediaAlt.includes("circular motion arrows"),
+  "the arm-circles visual needs posture- and movement-specific alternative text",
+);
+assert(
+  fs.existsSync(path.join(root, armCircles.media)),
+  "the arm-circles illustration must be stored locally",
+);
 
 const app = fs.readFileSync(path.join(root, "app.js"), "utf8");
 assert(!app.includes("No reviewed free demonstration yet"));
@@ -82,7 +94,11 @@ assert(
   sw.includes(`./${cableHammerCurl.media}`),
   "the cable hammer curl illustration must be available offline",
 );
+assert(
+  sw.includes(`./${armCircles.media}`),
+  "the arm-circles illustration must be available offline",
+);
 
 console.log(
-  "Exercise imagery tests passed: treadmill, hip-hinge, incline-cable-press, and cable-hammer-curl artwork, provenance, accessible text, polished fallback, and offline caching.",
+  "Exercise imagery tests passed: treadmill, hip-hinge, incline-cable-press, cable-hammer-curl, and arm-circles artwork, provenance, accessible text, polished fallback, and offline caching.",
 );
