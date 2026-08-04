@@ -23,10 +23,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Offline two-position Cable Hammer Curl artwork using a rope on the low inner front-left pulley of the red Smith cage.
 - Offline Arm Circles artwork showing the standing posture and circular arm path.
 - Offline two-position Bodyweight Squat artwork showing a tall start and controlled parallel-depth squat.
-- Offline two-position Lat Pulldown artwork using both high front-post pulleys on the red Smith cage and a safe upper-chest finish.
+- Offline two-position Lat Pulldown artwork showing the complete red Smith cage, one high front-post pulley, a center-connected cable, and a safe upper-chest finish.
 
 ### Changed
 
+- Bumper plates are now enabled for existing and new installations, reflecting the available 10–45 lb plate range for Smith-machine loading.
 - Isolated pure recovery scheduling rules in a testable browser module without changing stored data.
 - Calendar cells now announce both workout status and workout type to assistive technology.
 - Calendar and recovery dialogs now focus their heading, isolate background controls, support Escape, and return focus to their invoking control.
@@ -53,6 +54,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Advanced the maintenance build to `2026.08.03.3` and rotated the offline shell cache for the Bodyweight Squat visual guide.
 - Advanced the maintenance build to `2026.08.03.4` and rotated the offline shell cache for corrected Full Body A workout ordering.
 - Advanced the maintenance build to `2026.08.03.5` and rotated the offline shell cache for the Lat Pulldown visual guide.
+- Advanced the maintenance build to `2026.08.03.6` and rotated the offline shell cache for the approved full-cage Lat Pulldown artwork.
+- Advanced the maintenance build to `2026.08.03.7` and rotated the offline shell cache for the updated equipment availability.
 - Replaced developer-facing missing-media copy with concise coached-instruction guidance.
 
 ### Fixed

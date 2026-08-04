@@ -143,9 +143,20 @@ function exerciseTeachingMarkup(ex){
 
 
 const data=window.WORKOUT_DATA;
+const smithSquatTemplate=window.SUBSTITUTION_DATA?.["smith-machine-squat"];
+if(smithSquatTemplate){
+  smithSquatTemplate.setup=smithSquatTemplate.setup.map(item=>
+    item.includes("no bumper plates required")
+      ?"Load the Smith bar with matched bumper plates only after completing controlled warm-up reps"
+      :item
+  );
+  smithSquatTemplate.why="Trains the legs with a stable Smith path and supports progressive loading with the available bumper plates.";
+  smithSquatTemplate.weightRecommendation="Begin with the empty Smith bar, then add matched plates conservatively while every rep remains smooth and controlled.";
+  smithSquatTemplate.equipmentNote="Uses the RitFit M1 Smith bar with optional matched 10–45 lb bumper plates.";
+}
 /* Versioned storage boundary. Migrations must remain ordered and idempotent. */
 const ROAD12_STORAGE_KEY="road12v5";
-const ROAD12_SCHEMA_VERSION=3;
+const ROAD12_SCHEMA_VERSION=4;
 const ROAD12_MIGRATIONS=[
   {
     version:1,
@@ -175,6 +186,14 @@ const ROAD12_MIGRATIONS=[
         localDateKey()
       );
       value.schemaVersion=3;
+      return value;
+    }
+  },
+  {
+    version:4,
+    up(value){
+      value.equipment=Object.assign({},value.equipment||{}, {bumperPlates:true});
+      value.schemaVersion=4;
       return value;
     }
   }
@@ -228,7 +247,7 @@ state.equipment=Object.assign({
   treadmill:true,
   rower:true,
   kickrCore:true,
-  bumperPlates:false,
+  bumperPlates:true,
   dumbbells:false,
   olympicBarbell:false
 },state.equipment||{});
@@ -756,7 +775,7 @@ function equipment(){
   ["treadmill","🏃","iFIT treadmill","Used for warm-ups, cooldowns and cardio."],
   ["rower","🚣","iFIT rower","Available for technique and cardio sessions."],
   ["kickrCore","🚴","Wahoo KICKR CORE","Available for cycling sessions."],
-  ["bumperPlates","⚫","Olympic bumper plates","Keep off until the plates arrive and are ready to use."],
+  ["bumperPlates","⚫","Olympic bumper plates","Available in weights from 10–45 lb for Smith-machine loading."],
   ["dumbbells","🔩","Dumbbells / kettlebells","Keep off unless you have usable free weights."],
   ["olympicBarbell","🏋️‍♂️","Free Olympic barbell","This refers to free-barbell work, not the M1 Smith bar."]
  ];
