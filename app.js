@@ -266,7 +266,7 @@ const weekPlan=[
  {short:"SUN",icon:"📏",title:"Recovery + Check-in",detail:"Rest, measurements and weekly review",action:"progress",time:"10–20 min",focus:"Recovery and progress review",items:["Morning body weight","Waist measurement","Optional progress photos","Review completed workouts","Plan the coming week","Full rest or gentle walk"],setup:"No gym setup required"}
 ];
 const app=document.querySelector("#app"), nav=[...document.querySelectorAll("nav button")];
-let timerId=null, remaining=0;
+let timerId=null, remaining=0, timerAudioContext=null;
 const save=()=>road12Storage.write(state);
 const equipmentLabels={
   ritfitM1:"RitFit M1 Pro",
@@ -406,6 +406,7 @@ function formatDuration(ms){
 function sessionExerciseSnapshot(){
   return activeWorkout().filter(ex=>ex.type==="strength").map(ex=>({
     name:ex.name,
+    muscles:ex.muscles||"",
     originalExercise:ex.originalExercise||null,
     attachmentCard:ex.attachmentCard||null,
     weightEntry:ex.weightEntry||{mode:"total",label:"Weight used"},
@@ -709,16 +710,34 @@ function openExerciseAsset(ex){
  overlay.onclick=e=>{if(e.target===overlay)close()};
 }
 
+function lastCompletedWeight(ex){
+ const match=state.history.slice().reverse().map(session=>({
+   session,
+   exercise:(session.exercises||[]).find(item=>item.name===ex.name)
+ })).find(item=>item.exercise&&(item.exercise.sets||[]).some(set=>set?.done&&set.weight!==""&&set.weight!==undefined));
+ if(!match)return null;
+ const completedSets=match.exercise.sets.filter(set=>set?.done&&set.weight!==""&&set.weight!==undefined);
+ const weight=Number(completedSets[completedSets.length-1].weight);
+ if(!Number.isFinite(weight))return null;
+ const mode=match.exercise.weightEntry?.mode||ex.weightEntry?.mode;
+ const isSmith=ex.name.includes("Smith")&&mode==="total";
+ const label=isSmith
+   ?`${weight} lb plates total (${weight+SMITH_BAR_WEIGHT_LB} lb working weight)`
+   :mode==="dual"?`${weight} lb per stack`:`${weight} lb`;
+ return {label,date:v1131DateLabel(match.session)};
+}
+
 function sets(ex){
  const entry=ex.weightEntry||{mode:"total",label:"Weight used",help:"Enter the weight used for this set."};
  const isSmithAddedWeight=ex.name.includes("Smith")&&entry.mode==="total";
  const displayedLabel=isSmithAddedWeight?"Total Plates — Both Sides":entry.label;
+ const previous=lastCompletedWeight(ex);
  return `<section class="card timer-card"><h3>${ex.sets} sets × ${ex.reps} reps</h3>
- <div class="weight-entry-explainer"><span>${entry.mode==="dual"?"↔️":entry.mode==="single"?"1️⃣":"🏋️"}</span><div><strong>${displayedLabel}</strong><p>${entry.help}</p>${entry.mode==="dual"?`<small>Example: left 20 lb + right 20 lb → enter <b>20</b>; combined selected stack weight is 40 lb.</small>`:""}</div></div>
+ <div class="weight-entry-explainer"><span>${entry.mode==="dual"?"↔️":entry.mode==="single"?"1️⃣":"🏋️"}</span><div><strong>${displayedLabel}</strong><p>${entry.help}</p>${previous?`<small class="previous-weight">Last completed: <b>${previous.label}</b> on ${previous.date}</small>`:'<small class="previous-weight">No previous completed weight yet.</small>'}${entry.mode==="dual"?`<small>Example: left 20 lb + right 20 lb → enter <b>20</b>; combined selected stack weight is 40 lb.</small>`:""}</div></div>
  <div class="set-table-head"><span>SET</span><span>${entry.mode==="dual"?"LB / STACK":isSmithAddedWeight?"PLATES TOTAL":"WEIGHT LB"}</span><span>REPS</span><span>DONE</span></div>
  ${state.logs[ex.name].map((v,i)=>`<div class="set-row"><strong>${i+1}</strong><input data-w="${i}" inputmode="decimal" placeholder="${entry.mode==="dual"?"per stack":isSmithAddedWeight?"both sides":"lb"}" aria-label="${displayedLabel}, set ${i+1}" value="${v?.weight||""}"><input data-r="${i}" inputmode="numeric" value="${v?.reps||ex.reps}"><button data-d="${i}" class="${v?.done?"done":""}" aria-label="${v?.done?"Mark set incomplete":"Mark set complete"}">${v?.done?"✓":"○"}</button>${entry.mode==="dual"&&v?.weight?`<small class="combined-weight">Combined selected: ${Number(v.weight)*2} lb</small>`:""}</div>`).join("")}
- <div class="timer" id="timer">Rest ${String(Math.floor(ex.rest/60)).padStart(2,"0")}:${String(ex.rest%60).padStart(2,"0")}</div><div class="rest-coach-message" id="restCoach">Recover and prepare for your next set.</div><div class="timer-controls"><button class="secondary" id="rest">Start rest timer</button><button class="secondary" id="stopTimer">Stop timer</button></div></section>`}
-function timed(ex){return `<section class="card timer-card"><h3>${ex.duration}</h3><div class="timer" id="timer">${ex.duration.includes(":")?ex.duration:"Ready"}</div>${ex.duration.includes(":")?'<div class="timer-controls"><button class="primary" id="rest">Start timer</button><button class="secondary" id="stopTimer">Stop timer</button></div>':""}</section>`}
+ <div class="timer" id="timer" role="status" aria-live="polite">Rest ${String(Math.floor(ex.rest/60)).padStart(2,"0")}:${String(ex.rest%60).padStart(2,"0")}</div><div class="rest-coach-message" id="restCoach">Recover and prepare for your next set.</div><div class="timer-controls"><button class="secondary" id="rest">Start rest timer</button><button class="secondary" id="stopTimer">Stop timer</button></div></section>`}
+function timed(ex){return `<section class="card timer-card"><h3>${ex.duration}</h3><div class="timer" id="timer" role="status" aria-live="polite">${ex.duration.includes(":")?ex.duration:"Ready"}</div>${ex.duration.includes(":")?'<div class="timer-controls"><button class="primary" id="rest">Start timer</button><button class="secondary" id="stopTimer">Stop timer</button></div>':""}</section>`}
 function bindSets(ex){
  document.querySelectorAll("[data-w],[data-r]").forEach(input=>input.onchange=()=>{
    const i=Number(input.dataset.w??input.dataset.r);
@@ -746,7 +765,34 @@ function bindSets(ex){
 }
 function bindTimer(ex){let b=document.querySelector("#rest");if(b)b.onclick=()=>{let [m,s]=ex.duration.split(":").map(Number);startTimer(m*60+s)};const stop=document.querySelector("#stopTimer");if(stop)stop.onclick=stopTimer}
 function stopTimer(){clearInterval(timerId);timerId=null;}
-function startTimer(sec){remaining=sec;const el=document.querySelector("#timer");clearInterval(timerId);tick();timerId=setInterval(()=>{remaining--;tick();if(remaining<=0){clearInterval(timerId);navigator.vibrate?.([200,100,200])}},1000);function tick(){el.textContent=`${String(Math.floor(remaining/60)).padStart(2,"0")}:${String(remaining%60).padStart(2,"0")}`;const c=document.querySelector("#restCoach");if(c)c.textContent=restCoachText(remaining)}}
+function prepareTimerAudio(){
+ const AudioContextClass=window.AudioContext||window.webkitAudioContext;
+ if(!AudioContextClass)return null;
+ timerAudioContext=timerAudioContext||new AudioContextClass();
+ if(timerAudioContext.state==="suspended"){
+   const resumeResult=timerAudioContext.resume();
+   resumeResult?.catch?.(()=>{});
+ }
+ return timerAudioContext;
+}
+function playTimerCompleteSound(){
+ const context=prepareTimerAudio();
+ if(!context)return;
+ const now=context.currentTime;
+ [0,0.18].forEach((offset,index)=>{
+   const oscillator=context.createOscillator();
+   const gain=context.createGain();
+   oscillator.type="sine";
+   oscillator.frequency.setValueAtTime(index?880:660,now+offset);
+   gain.gain.setValueAtTime(0.0001,now+offset);
+   gain.gain.exponentialRampToValueAtTime(0.22,now+offset+0.02);
+   gain.gain.exponentialRampToValueAtTime(0.0001,now+offset+0.16);
+   oscillator.connect(gain).connect(context.destination);
+   oscillator.start(now+offset);
+   oscillator.stop(now+offset+0.17);
+ });
+}
+function startTimer(sec){remaining=sec;const el=document.querySelector("#timer");prepareTimerAudio();clearInterval(timerId);tick();timerId=setInterval(()=>{remaining--;tick();if(remaining<=0){clearInterval(timerId);timerId=null;playTimerCompleteSound();navigator.vibrate?.([200,100,200]);el.textContent="Timer complete";const c=document.querySelector("#restCoach");if(c)c.textContent="Rest complete. Begin when ready."}},1000);function tick(){el.textContent=`${String(Math.floor(remaining/60)).padStart(2,"0")}:${String(remaining%60).padStart(2,"0")}`;const c=document.querySelector("#restCoach");if(c)c.textContent=restCoachText(remaining)}}
 function next(){
  window.ROAD12_WORKOUT_NAVIGATION.advanceExercise(
    state
@@ -893,7 +939,14 @@ function earnedAchievements(){
 }
 function recentMuscles(){
  const last=state.history.slice(-3);
- const text=last.flatMap(h=>(h.exercises||[]).map(x=>x.muscles||"")).join(" ").toLowerCase();
+ const historyMuscles=name=>{
+   for(const dayIndex of [0,2,4]){
+     const exercise=workoutForDay(dayIndex).find(item=>item.name===name);
+     if(exercise?.muscles)return exercise.muscles;
+   }
+   return "";
+ };
+ const text=last.flatMap(h=>(h.exercises||[]).map(x=>x.muscles||historyMuscles(x.name))).join(" ").toLowerCase();
  const groups=[
   ["Chest","chest"],["Shoulders","shoulder"],["Back","back"],["Biceps","biceps"],
   ["Triceps","triceps"],["Quads","quad"],["Glutes","glute"],["Hamstrings","hamstring"],["Core","core"]
@@ -1237,12 +1290,24 @@ function importV1131Backup(file){
 }
 
 function home(){
- syncSelectedDayToCalendar();
- const selected=weekPlan[state.selectedDay];
- const latest=latestV1131Session();
- const historyCount=state.history.length;
- const workoutData=activeWorkout();
- const active=!!state.currentSession&&state.step>0&&state.step<=workoutData.length&&hasActualWorkoutProgress();
+  syncSelectedDayToCalendar();
+  const selected=weekPlan[state.selectedDay];
+  const latest=latestV1131Session();
+  const historyCount=state.history.length;
+  const workoutData=activeWorkout();
+  const active=!!state.currentSession&&state.step>0&&state.step<=workoutData.length&&hasActualWorkoutProgress();
+  ensureWorkoutSchedule();
+  const nextSession=state.workoutSessions
+    .filter(item=>item.scheduledDate>=localDateKey()&&!['completed','restDay'].includes(item.status))
+    .sort((a,b)=>a.scheduledDate.localeCompare(b.scheduledDate))[0]||null;
+  const nextDayIndex=active&&Number.isInteger(state.currentSession?.planDay)
+    ?state.currentSession.planDay
+    :Number.isInteger(nextSession?.planDay)?nextSession.planDay:state.selectedDay;
+  const nextPlan=weekPlan[nextDayIndex];
+  const nextIsFuture=!!nextSession&&nextSession.scheduledDate>localDateKey();
+  const nextDateLabel=nextSession
+    ?parseDateKey(nextSession.scheduledDate).toLocaleDateString(undefined,{weekday:"long",month:"short",day:"numeric"})
+    :"Upcoming";
 
  let top;
  if(latest){
@@ -1274,15 +1339,15 @@ function home(){
  }
 
  app.innerHTML=`${top}
- ${latest?`<section class="card next-workout-card">
-   <div class="section-title-row">
-     <div><small>${active?"WORKOUT IN PROGRESS":"NEXT WORKOUT"}</small><h2>${selected.title}</h2></div>
-     <span class="tomorrow-time">${selected.time}</span>
-   </div>
-   <p>${selected.detail}</p>
-   <div class="focus-chips">${selected.focus.split(",").map(x=>`<span>${x}</span>`).join("")}</div>
-   <button class="primary" id="startWorkout">${active?"Resume guided workout":"Start guided workout"}</button>
-   <button class="secondary" id="previewSelected">Preview workout</button>
+  ${latest?`<section class="card next-workout-card">
+    <div class="section-title-row">
+      <div><small>${active?"WORKOUT IN PROGRESS":`NEXT WORKOUT • ${nextDateLabel}`}</small><h2>${nextPlan.title}</h2></div>
+      <span class="tomorrow-time">${nextPlan.time}</span>
+    </div>
+    <p>${nextPlan.detail}</p>
+    <div class="focus-chips">${nextPlan.focus.split(",").map(x=>`<span>${x}</span>`).join("")}</div>
+    ${nextIsFuture&&!active?'<button class="primary" id="previewNextWorkout">Preview next workout</button>':`<button class="primary" id="startWorkout">${active?"Resume guided workout":"Start guided workout"}</button>`}
+    <button class="secondary" id="previewSelected">Preview workout</button>
  </section>`:""}
  <section class="card week-card">
    <div class="section-title-row">
@@ -1318,7 +1383,8 @@ function home(){
    save();
    progress();
  };
- document.querySelector("#previewSelected")?.addEventListener("click",()=>showDayPlan(state.selectedDay));
+ document.querySelector("#previewSelected")?.addEventListener("click",()=>showDayPlan(nextDayIndex));
+ document.querySelector("#previewNextWorkout")?.addEventListener("click",()=>showDayPlan(nextDayIndex));
  document.querySelectorAll("[data-day]").forEach(button=>{
    button.onclick=()=>{
      state.selectedDay=Number(button.dataset.day);
@@ -1328,7 +1394,7 @@ function home(){
    };
  });
  document.querySelector("#startWorkout")?.addEventListener("click",()=>{
-   if(!active)startNewSession(currentPlanIndex());
+   if(!active)startNewSession(nextDayIndex,nextSession?.scheduledDate===localDateKey()?nextSession:null);
    state.tab="workout";
    save();
    workout();

@@ -8,6 +8,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Added
 
+- Offline timer-completion chime with vibration and an accessible completion announcement.
+- Previous completed weight guidance on every strength exercise, including Smith working weight and per-stack context.
 - Professional project documentation under `/docs`.
 - Project context and contributor standards for future development sessions.
 - Deterministic recovery scheduling tests covering sequence order, immutable planned dates, completed sessions, and protected rest days.
@@ -27,6 +29,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Changed
 
+- The muscle recovery map now derives trained groups from saved exercise muscles and falls back to current exercise definitions for compatible older history.
 - Smith-machine weight entry now clearly requests total plate weight across both sides and reports the per-side load plus the M1 Pro's 33 lb Smith bar in the working-weight total.
 - Bumper plates are now enabled for existing and new installations, reflecting the available 10–45 lb plate range for Smith-machine loading.
 - Isolated pure recovery scheduling rules in a testable browser module without changing stored data.
@@ -58,10 +61,13 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Advanced the maintenance build to `2026.08.03.6` and rotated the offline shell cache for the approved full-cage Lat Pulldown artwork.
 - Advanced the maintenance build to `2026.08.03.7` and rotated the offline shell cache for the updated equipment availability.
 - Advanced the maintenance build to `2026.08.03.8` and rotated the offline shell cache for the clarified Smith-machine weight calculator.
+- Advanced the maintenance build to `2026.08.04.1` and rotated the offline shell cache for workout quality-of-life improvements.
 - Replaced developer-facing missing-media copy with concise coached-instruction guidance.
 
 ### Fixed
 
+- Fixed Home repeating a just-completed workout instead of displaying the next incomplete scheduled session.
+- Fixed the muscle recovery map remaining green after a completed workout whose exercise snapshots lacked muscle metadata.
 - Added a consistent visible keyboard focus indicator across interactive controls.
 - Fixed installed PWAs remaining on an older shell after a newer build was deployed.
 - Fixed UTC date conversion causing yesterday's missed workout to be absent from Calendar.

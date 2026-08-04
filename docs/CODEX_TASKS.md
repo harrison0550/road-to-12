@@ -58,6 +58,10 @@ Copy this block for new work:
 
 ## Completed this sprint
 
+- [x] Add an offline timer-completion sound and accessible completion announcement.
+- [x] Show the most recent completed weight during each strength exercise.
+- [x] Select the next incomplete scheduled session on Home after workout completion.
+- [x] Derive the muscle recovery map from completed workout history with legacy fallback coverage.
 - [x] Add an offline red-cage Lat Pulldown illustration with a safe upper-chest finish.
 - [x] Keep Full Body A cooldown and stretching exercises at the end of the workout.
 - [x] Add an offline two-position Bodyweight Squat posture illustration.

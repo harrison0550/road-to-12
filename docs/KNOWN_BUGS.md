@@ -80,6 +80,24 @@ No confirmed production defects are currently documented.
 - Resolution: Cooldown exercises now use the final ordering group for every strength workout instead of only Full Body B and C.
 - Regression test: `scripts/test-workout-order.js`
 
+### BUG-009 — Home repeats the completed workout
+
+- Status: Resolved in v13.2.0 maintenance build 2026.08.04.1
+- Severity: Medium
+- Area: Home / Scheduling
+- Report: After completing Full Body A, the Next Workout card still displayed Full Body A.
+- Resolution: Home now selects the next incomplete scheduled session and previews future sessions without rewriting schedule state.
+- Regression test: `scripts/test-workout-qol.js`
+
+### BUG-010 — Muscle recovery map remains green after training
+
+- Status: Resolved in v13.2.0 maintenance build 2026.08.04.1
+- Severity: Medium
+- Area: Progress / Workout History
+- Report: The recovery map showed every muscle as Ready immediately after a completed strength workout.
+- Resolution: New history snapshots include muscle metadata, and older snapshots resolve muscles from their saved exercise names without modifying history.
+- Regression test: `scripts/test-workout-qol.js`
+
 ## Bug template
 
 ```markdown

@@ -12,6 +12,8 @@ Exercise media may be an official equipment reference, reviewed licensed media, 
 
 The Workout Engine selects the appropriate program day, resolves exercises against available equipment, starts or resumes a session, tracks sets and timers, and writes a completed snapshot to workout history.
 
+Workout timers generate their completion chime locally through the browser audio API so the cue remains available offline. Previous-weight guidance is read from the latest completed snapshot for the same exercise and must never prefill or mutate the active set automatically.
+
 Session snapshots should remain stable after completion. Future changes to exercise definitions must not silently rewrite historical workout records. Active workout state may be resumed, but completed history is append-oriented.
 
 Workout navigation and scroll-state rules live in `workout-navigation.js`. The UI captures position before leaving a workout and restores it after returning; only an intentional next-exercise action requests smooth scrolling to the top.
@@ -46,6 +48,8 @@ A fresh application launch initializes the Calendar viewport to the device's cur
 ## Progress Tracking
 
 Progress combines immutable workout history, body check-ins, exercise records, adherence, recovery indicators, and aggregate session counts. Calculated metrics should be derived from saved facts whenever possible rather than stored redundantly.
+
+Completed exercise snapshots include their muscle description. Recovery-map rendering may resolve missing muscle descriptions from matching exercise definitions for older compatible history, but it must not rewrite those historical snapshots during rendering.
 
 Changes to formulas must be documented because users may compare results across releases.
 
