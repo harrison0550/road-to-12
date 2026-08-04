@@ -153,6 +153,11 @@ if(smithSquatTemplate){
   smithSquatTemplate.why="Trains the legs with a stable Smith path and supports progressive loading with the available bumper plates.";
   smithSquatTemplate.weightRecommendation="Begin with the empty Smith bar, then add matched plates conservatively while every rep remains smooth and controlled.";
   smithSquatTemplate.equipmentNote="Uses the RitFit M1 Smith bar with optional matched 10–45 lb bumper plates.";
+  smithSquatTemplate.weightEntry={
+    mode:"total",
+    label:"Total plate weight across both sides",
+    help:"Add together the plates on both sides. Do not include the 33 lb Smith bar; the calculator adds it for you."
+  };
 }
 /* Versioned storage boundary. Migrations must remain ordered and idempotent. */
 const ROAD12_STORAGE_KEY="road12v5";
@@ -707,11 +712,11 @@ function openExerciseAsset(ex){
 function sets(ex){
  const entry=ex.weightEntry||{mode:"total",label:"Weight used",help:"Enter the weight used for this set."};
  const isSmithAddedWeight=ex.name.includes("Smith")&&entry.mode==="total";
- const displayedLabel=isSmithAddedWeight?"Added Plate Weight":entry.label;
+ const displayedLabel=isSmithAddedWeight?"Total Plates — Both Sides":entry.label;
  return `<section class="card timer-card"><h3>${ex.sets} sets × ${ex.reps} reps</h3>
  <div class="weight-entry-explainer"><span>${entry.mode==="dual"?"↔️":entry.mode==="single"?"1️⃣":"🏋️"}</span><div><strong>${displayedLabel}</strong><p>${entry.help}</p>${entry.mode==="dual"?`<small>Example: left 20 lb + right 20 lb → enter <b>20</b>; combined selected stack weight is 40 lb.</small>`:""}</div></div>
- <div class="set-table-head"><span>SET</span><span>${entry.mode==="dual"?"LB / STACK":isSmithAddedWeight?"ADDED PLATE LB":"WEIGHT LB"}</span><span>REPS</span><span>DONE</span></div>
- ${state.logs[ex.name].map((v,i)=>`<div class="set-row"><strong>${i+1}</strong><input data-w="${i}" inputmode="decimal" placeholder="${entry.mode==="dual"?"per stack":isSmithAddedWeight?"0 lb":"lb"}" aria-label="${displayedLabel}, set ${i+1}" value="${v?.weight||""}"><input data-r="${i}" inputmode="numeric" value="${v?.reps||ex.reps}"><button data-d="${i}" class="${v?.done?"done":""}" aria-label="${v?.done?"Mark set incomplete":"Mark set complete"}">${v?.done?"✓":"○"}</button>${entry.mode==="dual"&&v?.weight?`<small class="combined-weight">Combined selected: ${Number(v.weight)*2} lb</small>`:""}</div>`).join("")}
+ <div class="set-table-head"><span>SET</span><span>${entry.mode==="dual"?"LB / STACK":isSmithAddedWeight?"PLATES TOTAL":"WEIGHT LB"}</span><span>REPS</span><span>DONE</span></div>
+ ${state.logs[ex.name].map((v,i)=>`<div class="set-row"><strong>${i+1}</strong><input data-w="${i}" inputmode="decimal" placeholder="${entry.mode==="dual"?"per stack":isSmithAddedWeight?"both sides":"lb"}" aria-label="${displayedLabel}, set ${i+1}" value="${v?.weight||""}"><input data-r="${i}" inputmode="numeric" value="${v?.reps||ex.reps}"><button data-d="${i}" class="${v?.done?"done":""}" aria-label="${v?.done?"Mark set incomplete":"Mark set complete"}">${v?.done?"✓":"○"}</button>${entry.mode==="dual"&&v?.weight?`<small class="combined-weight">Combined selected: ${Number(v.weight)*2} lb</small>`:""}</div>`).join("")}
  <div class="timer" id="timer">Rest ${String(Math.floor(ex.rest/60)).padStart(2,"0")}:${String(ex.rest%60).padStart(2,"0")}</div><div class="rest-coach-message" id="restCoach">Recover and prepare for your next set.</div><div class="timer-controls"><button class="secondary" id="rest">Start rest timer</button><button class="secondary" id="stopTimer">Stop timer</button></div></section>`}
 function timed(ex){return `<section class="card timer-card"><h3>${ex.duration}</h3><div class="timer" id="timer">${ex.duration.includes(":")?ex.duration:"Ready"}</div>${ex.duration.includes(":")?'<div class="timer-controls"><button class="primary" id="rest">Start timer</button><button class="secondary" id="stopTimer">Stop timer</button></div>':""}</section>`}
 function bindSets(ex){
@@ -920,15 +925,17 @@ function blockProgressMarkup(workoutData,ex){
  const current=groups.indexOf(setupBlockLabel(ex));
  return `<div class="block-progress">${groups.map((g,i)=>`<div class="${i<current?"complete":i===current?"active":""}"><span>${i<current?"✓":i+1}</span><small>${g.replace(" block","")}</small></div>`).join("")}</div>`;
 }
+const SMITH_BAR_WEIGHT_LB=33;
 function smithPlateCalculator(ex){
  if(!ex.name.toLowerCase().includes("smith"))return "";
- return `<section class="plate-calculator"><div><small>SMART PLATE CALCULATOR</small><h3>Added weight per side</h3></div><label>Total added weight<input id="plateTotal" type="number" inputmode="decimal" placeholder="0"></label><div class="plate-result" id="plateResult">Enter the total plate weight.</div></section>`;
+ return `<section class="plate-calculator"><div><small>SMART PLATE CALCULATOR</small><h3>Smith working weight</h3></div><label>Total plate weight across both sides<input id="plateTotal" type="number" inputmode="decimal" min="0" step="0.5" placeholder="0"><small>Enter the combined weight of every plate loaded. Do not include the Smith bar.</small></label><div class="plate-result" id="plateResult">Smith bar only: ${SMITH_BAR_WEIGHT_LB} lb</div></section>`;
 }
 function calculatePlates(total){
- let side=Math.max(0,Number(total)||0)/2;
- const plates=[45,35,25,10,5,2.5], result=[];
- plates.forEach(p=>{const n=Math.floor((side+.001)/p);if(n){result.push(`${n} × ${p}`);side-=n*p}});
- return result.length?`Each side: ${result.join(" + ")} lb`:"Empty Smith bar";
+ const added=Math.max(0,Number(total)||0);
+ if(!added)return `Smith bar only: ${SMITH_BAR_WEIGHT_LB} lb`;
+ const perSide=added/2;
+ const workingWeight=SMITH_BAR_WEIGHT_LB+added;
+ return `Load ${perSide} lb per side • ${added} lb plates + ${SMITH_BAR_WEIGHT_LB} lb bar = ${workingWeight} lb working weight`;
 }
 
 function summary(){
@@ -1685,8 +1692,8 @@ function zone2CardioWorkout(){
 function fullBodyBWorkout(){
   const smithWeightEntry={
     mode:"total",
-    label:"Added Plate Weight",
-    help:"Enter only the plates added to the Smith bar. Enter 0 when using the empty Smith bar."
+    label:"Total plate weight across both sides",
+    help:"Add together the plates on both sides. Do not include the 33 lb Smith bar; the calculator adds it for you."
   };
   return [
     cloneExerciseByName("Treadmill Walk"),

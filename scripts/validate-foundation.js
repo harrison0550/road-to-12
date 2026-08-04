@@ -100,6 +100,15 @@ if (!/bumperPlates:true,/.test(app)) {
 if (!/matched 10–45 lb bumper plates/.test(app)) {
   fail("app.js does not document the available Smith-machine bumper-plate range");
 }
+if (!/const SMITH_BAR_WEIGHT_LB=33;/.test(app)) {
+  fail("app.js does not include the official 33 lb RitFit M1 Pro Smith bar weight");
+}
+if (!/Total plate weight across both sides/.test(app) || !/PLATES TOTAL/.test(app)) {
+  fail("app.js does not clearly label Smith entries as total plate weight across both sides");
+}
+if (!/SMITH_BAR_WEIGHT_LB\+added/.test(app)) {
+  fail("app.js does not add the Smith bar to the plate weight calculation");
+}
 
 if (failures.length) {
   console.error("Foundation validation failed:");

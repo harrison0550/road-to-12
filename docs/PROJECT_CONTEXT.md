@@ -6,9 +6,9 @@ Read this file at the beginning of every Codex or engineering session. It is the
 
 - Product: Road to 12%
 - Version: 13.2.0
-- Build: 2026.08.03.7
+- Build: 2026.08.03.8
 - Last updated: August 3, 2026
-- Service Worker cache: `road12-v13-2-22-shell`
+- Service Worker cache: `road12-v13-2-23-shell`
 - Runtime: static, client-only, offline-first PWA
 - Primary storage key: `road12v5`
 
@@ -85,6 +85,7 @@ See `CODEX_TASKS.md` for priority and acceptance detail.
 - App-created exercise illustrations are identified as posture illustrations; written setup and movement cues remain authoritative.
 - Exercise artwork is previewed for user approval before it replaces an application asset; the approved Lat Pulldown guide shows the full cage with one center-connected cable on the facing front post.
 - Olympic bumper plates from 10–45 lb are available and enabled; existing Smith-machine squat, hinge, split-squat, and calf-raise programming may use progressive added plate weight.
+- Smith set entries store total added plate weight across both sides for backward compatibility; the calculator divides that load per side and adds the official 33 lb M1 Pro Smith bar to show working weight.
 
 ## Important implementation constraints
 

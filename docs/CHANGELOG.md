@@ -27,6 +27,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Changed
 
+- Smith-machine weight entry now clearly requests total plate weight across both sides and reports the per-side load plus the M1 Pro's 33 lb Smith bar in the working-weight total.
 - Bumper plates are now enabled for existing and new installations, reflecting the available 10–45 lb plate range for Smith-machine loading.
 - Isolated pure recovery scheduling rules in a testable browser module without changing stored data.
 - Calendar cells now announce both workout status and workout type to assistive technology.
@@ -56,6 +57,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Advanced the maintenance build to `2026.08.03.5` and rotated the offline shell cache for the Lat Pulldown visual guide.
 - Advanced the maintenance build to `2026.08.03.6` and rotated the offline shell cache for the approved full-cage Lat Pulldown artwork.
 - Advanced the maintenance build to `2026.08.03.7` and rotated the offline shell cache for the updated equipment availability.
+- Advanced the maintenance build to `2026.08.03.8` and rotated the offline shell cache for the clarified Smith-machine weight calculator.
 - Replaced developer-facing missing-media copy with concise coached-instruction guidance.
 
 ### Fixed
