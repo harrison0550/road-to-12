@@ -98,6 +98,15 @@ No confirmed production defects are currently documented.
 - Resolution: New history snapshots include muscle metadata, and older snapshots resolve muscles from their saved exercise names without modifying history.
 - Regression test: `scripts/test-workout-qol.js`
 
+### BUG-011 — Progress tab does not show its selected state
+
+- Status: Resolved in v13.2.0 maintenance build 2026.08.04.2
+- Severity: Low
+- Area: Bottom Navigation / Progress
+- Report: Tapping Progress opened the screen but left the bottom tab gray instead of red.
+- Resolution: Progress now renders through the shared navigation path that applies the active class while continuing to clear a previously opened history detail.
+- Regression test: `scripts/test-workout-qol.js`
+
 ## Bug template
 
 ```markdown

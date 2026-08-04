@@ -18,6 +18,11 @@ assert.match(app, /x\.muscles\|\|historyMuscles\(x\.name\)/);
 assert.match(app, /!\['completed','restDay'\]\.includes\(item\.status\)/);
 assert.match(app, /NEXT WORKOUT • \$\{nextDateLabel\}/);
 assert.match(app, /previewNextWorkout/);
+assert.match(
+  app,
+  /else if\(tab==="progress"\)\{\s*state\.historyView=null;\s*render\(\);/,
+  "Progress navigation must pass through render() so its bottom-tab active state updates",
+);
 
 console.log(
   "Workout quality-of-life tests passed: audible timer, previous weights, next scheduled workout, and muscle recovery history fallback.",

@@ -6,9 +6,9 @@ Read this file at the beginning of every Codex or engineering session. It is the
 
 - Product: Road to 12%
 - Version: 13.2.0
-- Build: 2026.08.04.1
+- Build: 2026.08.04.2
 - Last updated: August 4, 2026
-- Service Worker cache: `road12-v13-2-24-shell`
+- Service Worker cache: `road12-v13-2-25-shell`
 - Runtime: static, client-only, offline-first PWA
 - Primary storage key: `road12v5`
 
@@ -45,6 +45,7 @@ Historical regressions requiring automated coverage:
 - BUG-008: Full Body A cooldowns appear in the middle of the workout — resolved in build 2026.08.03.4.
 - BUG-009: Home repeats a completed workout as Next Workout — resolved in build 2026.08.04.1.
 - BUG-010: Muscle recovery map remains green after training — resolved in build 2026.08.04.1.
+- BUG-011: Progress tab does not show its selected red state — resolved in build 2026.08.04.2.
 
 See `KNOWN_BUGS.md` before diagnosing or fixing defects.
 

@@ -62,12 +62,14 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Advanced the maintenance build to `2026.08.03.7` and rotated the offline shell cache for the updated equipment availability.
 - Advanced the maintenance build to `2026.08.03.8` and rotated the offline shell cache for the clarified Smith-machine weight calculator.
 - Advanced the maintenance build to `2026.08.04.1` and rotated the offline shell cache for workout quality-of-life improvements.
+- Advanced the maintenance build to `2026.08.04.2` and rotated the offline shell cache for the Progress navigation-state fix.
 - Replaced developer-facing missing-media copy with concise coached-instruction guidance.
 
 ### Fixed
 
 - Fixed Home repeating a just-completed workout instead of displaying the next incomplete scheduled session.
 - Fixed the muscle recovery map remaining green after a completed workout whose exercise snapshots lacked muscle metadata.
+- Fixed the Progress bottom-navigation tab not turning red when selected.
 - Added a consistent visible keyboard focus indicator across interactive controls.
 - Fixed installed PWAs remaining on an older shell after a newer build was deployed.
 - Fixed UTC date conversion causing yesterday's missed workout to be absent from Calendar.

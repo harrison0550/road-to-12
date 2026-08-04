@@ -1538,7 +1538,7 @@ setTab=function(tab){
    workoutLanding();
  }else if(tab==="progress"){
    state.historyView=null;
-   progress();
+   render();
  }else{
    render();
  }
