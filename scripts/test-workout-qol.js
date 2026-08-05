@@ -15,7 +15,8 @@ assert.match(app, /Last completed:/);
 assert.match(css, /\.weight-entry-explainer \.previous-weight/);
 assert.match(app, /muscles:ex\.muscles\|\|""/);
 assert.match(app, /x\.muscles\|\|historyMuscles\(x\.name\)/);
-assert.match(app, /!\['completed','restDay'\]\.includes\(item\.status\)/);
+assert.match(app, /function nextHomeWorkoutSession\(sessions,history,today,excludeId=null\)/);
+assert.match(app, /!isCompletedScheduleSession\(item,history\)/);
 assert.match(app, /const primaryLabel=active\?"WORKOUT IN PROGRESS":nextIsFuture\?`UP NEXT/);
 assert.match(app, /previewNextWorkout/);
 assert.match(

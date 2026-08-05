@@ -1374,17 +1374,17 @@ function home(){
   const todayKey=localDateKey();
   const latest=latestV1131Session();
   const historyCount=state.history.length;
-  const selectedSession=selectedWorkoutSessionForToday(state.currentSession,todayKey);
+  const preparedSession=selectedWorkoutSessionForToday(state.currentSession,todayKey);
+  const preparedSchedule=preparedSession?.scheduleId?state.workoutSessions.find(item=>item.id===preparedSession.scheduleId):null;
+  const selectedSession=isCompletedScheduleSession(preparedSchedule,state.history)?null:preparedSession;
   const selectedWorkout=selectedSession?workoutForDay(selectedSession.planDay):activeWorkout();
   const active=!!selectedSession&&state.step>0&&state.step<=selectedWorkout.length&&hasActualWorkoutProgress();
-  const nextSession=state.workoutSessions
-    .filter(item=>item.scheduledDate>=todayKey&&!['completed','restDay'].includes(item.status))
-    .sort((a,b)=>a.scheduledDate.localeCompare(b.scheduledDate))[0]||null;
+  const nextSession=nextHomeWorkoutSession(state.workoutSessions,state.history,todayKey);
   const linkedSession=selectedSession?.scheduleId?state.workoutSessions.find(item=>item.id===selectedSession.scheduleId):null;
   const primarySession=linkedSession||nextSession;
   const nextDayIndex=selectedSession
     ?selectedSession.planDay
-    :Number.isInteger(nextSession?.planDay)?nextSession.planDay:state.selectedDay;
+    :Number.isInteger(primarySession?.planDay)?primarySession.planDay:state.selectedDay;
   const nextPlan=weekPlan[nextDayIndex];
   const nextIsFuture=!!primarySession&&primarySession.scheduledDate>todayKey;
   const nextDateLabel=primarySession
@@ -1402,9 +1402,7 @@ function home(){
     const isToday=key===todayKey;
     return `<button class="command-day ${isToday?"today":""} status-${status}" data-day="${index}" aria-label="${day.short}, ${isToday?"Today, ":""}${statusInfo.label}"><strong>${day.short.slice(0,1)}</strong><small>${isToday?"Today":day.short[0]+day.short.slice(1).toLowerCase()}</small><span aria-hidden="true">${statusInfo.icon}</span><em>${statusInfo.label}</em></button>`;
   }).join("");
-  const followingSession=state.workoutSessions
-    .filter(item=>item.id!==primarySession?.id&&item.scheduledDate>=todayKey&&!['completed','restDay'].includes(item.status))
-    .sort((a,b)=>a.scheduledDate.localeCompare(b.scheduledDate))[0]||null;
+  const followingSession=nextHomeWorkoutSession(state.workoutSessions,state.history,todayKey,primarySession?.id);
   const followingPlan=followingSession?weekPlan[followingSession.planDay]:null;
   const primaryLabel=active?"WORKOUT IN PROGRESS":nextIsFuture?`UP NEXT • ${nextDateLabel}`:"TODAY";
   const latestTotals=latest?sessionTotals(latest):null;
@@ -2063,6 +2061,20 @@ function selectedWorkoutSessionForToday(currentSession,today){
    &&Number.isInteger(currentSession.planDay)
    ?currentSession
    :null;
+}
+function completedScheduleIds(history=[]){
+ return new Set(history.map(item=>item.scheduleId).filter(Boolean));
+}
+function isCompletedScheduleSession(session,history=[]){
+ return !!session&&(session.status==="completed"||completedScheduleIds(history).has(session.id));
+}
+function nextHomeWorkoutSession(sessions,history,today,excludeId=null){
+ return sessions
+   .filter(item=>item.id!==excludeId
+     &&item.scheduledDate>=today
+     &&item.status!=="restDay"
+     &&!isCompletedScheduleSession(item,history))
+   .sort((a,b)=>a.scheduledDate.localeCompare(b.scheduledDate)||(a.plannedDate||a.scheduledDate).localeCompare(b.plannedDate||b.scheduledDate))[0]||null;
 }
 function workoutLanding(){
  syncSelectedDayToCalendar();

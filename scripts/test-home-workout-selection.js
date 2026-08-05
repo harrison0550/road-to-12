@@ -33,4 +33,28 @@ assert.match(app, /item\.status==="missed"&&!item\.coachDismissedAt/, "dismissed
 assert.match(app, /session\.coachDismissedAt=new Date\(\)\.toISOString\(\)/, "leave-missed action must record its additive dismissal state");
 assert.match(app, /session\.coachDisposition="leaveMissed"/, "leave-missed intent must be explicit");
 
-console.log("Home workout-selection checks passed: future previews launch correctly and missed recommendations can be dismissed safely.");
+const completedHelpers = [
+  app.match(/function completedScheduleIds\([\s\S]*?\n}/)?.[0],
+  app.match(/function isCompletedScheduleSession\([\s\S]*?\n}/)?.[0],
+  app.match(/function nextHomeWorkoutSession\([\s\S]*?\n}/)?.[0]
+].join("\n");
+assert(completedHelpers.includes("function nextHomeWorkoutSession"), "Home must have a dedicated next-workout selector");
+const homeContext = {};
+vm.runInNewContext(`${completedHelpers}; result=nextHomeWorkoutSession;`, homeContext);
+const selectHomeWorkout = homeContext.result;
+const staleSchedule = [
+  {id:"completed-today",plannedDate:"2026-08-04",scheduledDate:"2026-08-04",planDay:1,status:"scheduled"},
+  {id:"upcoming",plannedDate:"2026-08-05",scheduledDate:"2026-08-05",planDay:2,status:"scheduled"}
+];
+assert.strictEqual(
+  selectHomeWorkout(staleSchedule,[{scheduleId:"completed-today",dateKey:"2026-08-04"}],"2026-08-04").id,
+  "upcoming",
+  "Home must advance when today's workout is complete even if an older saved schedule still says scheduled"
+);
+assert.strictEqual(
+  selectHomeWorkout(staleSchedule,[],"2026-08-04").id,
+  "completed-today",
+  "Home must continue to offer today's workout when it has not been completed"
+);
+
+console.log("Home workout-selection checks passed: completed days advance, future previews launch correctly, and missed recommendations can be dismissed safely.");

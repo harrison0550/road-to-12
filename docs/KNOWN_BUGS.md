@@ -82,12 +82,12 @@ No confirmed production defects are currently documented.
 
 ### BUG-009 — Home repeats the completed workout
 
-- Status: Resolved in v13.2.0 maintenance build 2026.08.04.1
+- Status: Resolved in v13.2.0 maintenance build 2026.08.04.1; legacy-state hardening added in build 2026.08.04.9
 - Severity: Medium
 - Area: Home / Scheduling
 - Report: After completing Full Body A, the Next Workout card still displayed Full Body A.
-- Resolution: Home now selects the next incomplete scheduled session and previews future sessions without rewriting schedule state.
-- Regression test: `scripts/test-workout-qol.js`
+- Resolution: Home now selects the next incomplete scheduled session and previews future sessions without rewriting schedule state. Selection verifies both schedule status and linked workout history so stale saved schedule state cannot repeat a completed workout.
+- Regression tests: `scripts/test-workout-qol.js`, `scripts/test-home-workout-selection.js`
 
 ### BUG-010 — Muscle recovery map remains green after training
 

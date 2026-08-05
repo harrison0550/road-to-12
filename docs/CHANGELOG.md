@@ -33,6 +33,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Changed
 
+- Advanced the maintenance build to `2026.08.04.9` and rotated the offline shell cache for the Home next-workout correction.
 - Advanced the maintenance build to `2026.08.04.8` and rotated the offline shell cache for adaptive coaching.
 - The muscle recovery map now derives trained groups from saved exercise muscles and falls back to current exercise definitions for compatible older history.
 - Smith-machine weight entry now clearly requests total plate weight across both sides and reports the per-side load plus the M1 Pro's 33 lb Smith bar in the working-weight total.
@@ -78,6 +79,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Replaced developer-facing missing-media copy with concise coached-instruction guidance.
 
 ### Fixed
+
+- Home now advances to the next incomplete scheduled workout after today's workout is complete, including older saved sessions whose schedule status was not updated.
 
 - Fixed Start This Workout Early launching today’s workout instead of the selected future workout, including the second handoff through the pre-workout landing screen.
 - Fixed workout timers pausing while the iPhone PWA is suspended behind another app; elapsed wall-clock time is now reconciled when Road to 12% returns to the foreground.
