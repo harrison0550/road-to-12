@@ -15,6 +15,7 @@ The roadmap communicates direction rather than a guaranteed schedule. Completed 
 
 ## Next release — v13.3
 
+- [x] Refresh Home with the Concept B Training Command Center design
 - [x] Add automated scheduling regression tests
 - [ ] Add calendar filtering and faster month navigation
 - [ ] Improve calendar history reconciliation

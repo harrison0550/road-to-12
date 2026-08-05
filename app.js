@@ -442,7 +442,7 @@ function ensurePhase1Button(){
 function render(){
  const brand=document.querySelector("#gymBrand");
  if(brand)brand.textContent=`${state.preferredName.toUpperCase()}'S HOME GYM`;
- document.querySelector('#phase1LibraryButton')?.remove();clearInterval(timerId);document.body.classList.toggle("workout-mode",state.tab==="workout");nav.forEach(b=>b.classList.toggle("active",b.dataset.tab===state.tab));({home:home,calendar:calendar,workout:workout,library:library,equipment:equipment,progress:progress}[state.tab]||home)()}
+ document.querySelector('#phase1LibraryButton')?.remove();clearInterval(timerId);document.body.classList.toggle("workout-mode",state.tab==="workout");document.body.classList.toggle("home-mode",state.tab==="home");nav.forEach(b=>b.classList.toggle("active",b.dataset.tab===state.tab));({home:home,calendar:calendar,workout:workout,library:library,equipment:equipment,progress:progress}[state.tab]||home)()}
 
 function previewScheduleForDay(sessions,dayIndex,today){
  return sessions
@@ -1322,100 +1322,78 @@ function importV1131Backup(file){
 
 function home(){
   syncSelectedDayToCalendar();
-  const selected=weekPlan[state.selectedDay];
+  ensureWorkoutSchedule();
+  const todayKey=localDateKey();
   const latest=latestV1131Session();
   const historyCount=state.history.length;
-  const workoutData=activeWorkout();
-  const active=!!state.currentSession&&state.step>0&&state.step<=workoutData.length&&hasActualWorkoutProgress();
-  ensureWorkoutSchedule();
+  const selectedSession=selectedWorkoutSessionForToday(state.currentSession,todayKey);
+  const selectedWorkout=selectedSession?workoutForDay(selectedSession.planDay):activeWorkout();
+  const active=!!selectedSession&&state.step>0&&state.step<=selectedWorkout.length&&hasActualWorkoutProgress();
   const nextSession=state.workoutSessions
-    .filter(item=>item.scheduledDate>=localDateKey()&&!['completed','restDay'].includes(item.status))
+    .filter(item=>item.scheduledDate>=todayKey&&!['completed','restDay'].includes(item.status))
     .sort((a,b)=>a.scheduledDate.localeCompare(b.scheduledDate))[0]||null;
-  const nextDayIndex=active&&Number.isInteger(state.currentSession?.planDay)
-    ?state.currentSession.planDay
+  const linkedSession=selectedSession?.scheduleId?state.workoutSessions.find(item=>item.id===selectedSession.scheduleId):null;
+  const primarySession=linkedSession||nextSession;
+  const nextDayIndex=selectedSession
+    ?selectedSession.planDay
     :Number.isInteger(nextSession?.planDay)?nextSession.planDay:state.selectedDay;
   const nextPlan=weekPlan[nextDayIndex];
-  const nextIsFuture=!!nextSession&&nextSession.scheduledDate>localDateKey();
-  const nextDateLabel=nextSession
-    ?parseDateKey(nextSession.scheduledDate).toLocaleDateString(undefined,{weekday:"long",month:"short",day:"numeric"})
+  const nextIsFuture=!!primarySession&&primarySession.scheduledDate>todayKey;
+  const nextDateLabel=primarySession
+    ?parseDateKey(primarySession.scheduledDate).toLocaleDateString(undefined,{weekday:"long",month:"short",day:"numeric"})
     :"Upcoming";
+  const metrics=v42Metrics();
+  const weekStart=parseDateKey(todayKey);weekStart.setDate(weekStart.getDate()-currentPlanIndex());
+  const weekDays=weekPlan.map((day,index)=>{
+    const date=new Date(weekStart);date.setDate(weekStart.getDate()+index);
+    const key=localDateKey(date),entries=sessionsForDate(key);
+    const session=entries.find(item=>item.status!=="restDay")||entries[0];
+    const status=session?.status||"scheduled";
+    const statusInfo=V42_STATUS[status]||V42_STATUS.scheduled;
+    const isToday=key===todayKey;
+    return `<button class="command-day ${isToday?"today":""} status-${status}" data-day="${index}" aria-label="${day.short}, ${isToday?"Today, ":""}${statusInfo.label}"><strong>${day.short.slice(0,1)}</strong><small>${isToday?"Today":day.short[0]+day.short.slice(1).toLowerCase()}</small><span aria-hidden="true">${statusInfo.icon}</span><em>${statusInfo.label}</em></button>`;
+  }).join("");
+  const followingSession=state.workoutSessions
+    .filter(item=>item.id!==primarySession?.id&&item.scheduledDate>=todayKey&&!['completed','restDay'].includes(item.status))
+    .sort((a,b)=>a.scheduledDate.localeCompare(b.scheduledDate))[0]||null;
+  const followingPlan=followingSession?weekPlan[followingSession.planDay]:null;
+  const primaryLabel=active?"WORKOUT IN PROGRESS":nextIsFuture?`UP NEXT • ${nextDateLabel}`:"TODAY";
+  const latestTotals=latest?sessionTotals(latest):null;
 
- let top;
- if(latest){
-   const totals=sessionTotals(latest);
-   top=`<section class="celebration-hero v113-achievement">
-     <div class="celebration-burst">🏆</div>
-     <span class="pill">LATEST ACHIEVEMENT</span>
-     <h2>You crushed it, ${state.preferredName}!</h2>
-     <p>${latest.name||"Workout"} was completed on ${v1131DateLabel(latest)}.</p>
-     <div class="celebration-stats">
-       <div><small>WORKOUT</small><strong>${latest.name||"Completed workout"}</strong></div>
-       <div><small>TIME</small><strong>${latest.durationMs?formatDuration(latest.durationMs):"Duration not captured"}</strong></div>
-       <div><small>SETS SAVED</small><strong>${totals.completedSets}</strong></div>
-     </div>
-     <button class="primary" id="viewLatestAchievement">View completed workout</button>
-     <small class="recovery-message">${historyCount} workout${historyCount===1?"":"s"} listed in Progress.</small>
-   </section>`;
- }else{
-   top=`<section class="hero v111-hero">
-     <img src="${window.HERO_IMAGE}">
-     <div class="shade"></div>
-     <div class="hero-copy">
-       <span class="pill">WEEK 1 • FOUNDATION</span>
-       <h2>${selected.title}</h2>
-       <p>${selected.detail}</p>
-       <button class="primary" id="startWorkout">${active?"Resume guided workout":"Start today’s guided workout"}</button>
-     </div>
-   </section>`;
- }
-
- app.innerHTML=`${top}
-  ${latest?`<section class="card next-workout-card">
-    <div class="section-title-row">
-      <div><small>${active?"WORKOUT IN PROGRESS":`NEXT WORKOUT • ${nextDateLabel}`}</small><h2>${nextPlan.title}</h2></div>
-      <span class="tomorrow-time">${nextPlan.time}</span>
-    </div>
-    <p>${nextPlan.detail}</p>
-    <div class="focus-chips">${nextPlan.focus.split(",").map(x=>`<span>${x}</span>`).join("")}</div>
-    ${nextIsFuture&&!active?'<button class="primary" id="previewNextWorkout">Preview next workout</button>':`<button class="primary" id="startWorkout">${active?"Resume guided workout":"Start guided workout"}</button>`}
-    <button class="secondary" id="previewSelected">Preview workout</button>
- </section>`:""}
- <section class="card week-card">
-   <div class="section-title-row">
-     <div><small>YOUR PLAN</small><h2>Training schedule</h2></div>
-     <button class="history-count-button" id="openHistory">${historyCount} saved</button>
-   </div>
-   <p class="muted">Tap any day to view its workout, time, focus and exercises.</p>
-   <div class="week-strip">${weekPlan.map((d,i)=>`<button class="day-button ${i===state.selectedDay?"selected":""}" data-day="${i}">
-     <span class="day-icon">${d.icon}</span>
-     <strong>${d.short}</strong>
-     <small>${i===state.selectedDay?"Selected":""}</small>
-   </button>`).join("")}</div>
-   <div class="selected-plan">
-     <div class="large-icon">${selected.icon}</div>
-     <div><h3>${selected.title}</h3><p class="muted">${selected.detail}</p></div>
-   </div>
+ app.innerHTML=`<section class="card command-week" aria-labelledby="commandWeekTitle">
+   <div class="command-section-heading"><div><small>THIS WEEK</small><h2 id="commandWeekTitle">Training command center</h2></div><button class="history-count-button" id="openHistory">${historyCount} saved</button></div>
+   <div class="command-week-strip">${weekDays}</div>
  </section>
- <section class="stats">
-   <div><small>WEIGHT</small><strong>${state.weight} lb</strong></div>
-   <div><small>WAIST</small><strong>${state.waist} in</strong></div>
-   <div><small>HISTORY</small><strong>${historyCount}</strong></div>
- </section>`;
+ <section class="card command-workout-card">
+   <div class="command-workout-copy"><small>${primaryLabel}</small><h2>${nextPlan.title}</h2><p>${nextPlan.detail}</p><span class="command-duration">◷ ${nextPlan.time}</span></div>
+   <div class="command-workout-mark" aria-hidden="true"><span>${nextPlan.icon}</span></div>
+   ${nextIsFuture&&!active&&!selectedSession?'<button class="primary" id="previewNextWorkout">Preview workout</button>':`<button class="primary" id="startWorkout">${active?"Resume workout":nextIsFuture?"Start early":"Start workout"}</button>`}
+   <button class="secondary command-preview" id="previewSelected">View workout details</button>
+ </section>
+ <section class="card home-command-metrics" aria-label="Training metrics">
+   <div><span class="metric-ring adherence-ring" style="--metric-progress:${metrics.adherence}%"><strong>${metrics.adherence}%</strong></span><small>Adherence</small></div>
+   <div><span class="metric-ring recovery-ring" style="--metric-progress:${metrics.recovery}%"><strong>${metrics.recovery}</strong></span><small>Recovery</small></div>
+   <div><span class="session-metric-icon">▦</span><strong>${metrics.total}</strong><small>Sessions</small></div>
+ </section>
+ ${followingPlan?`<button class="card command-up-next" id="previewFollowingWorkout"><span class="up-next-icon">${followingPlan.icon}</span><span><small>UP NEXT • ${parseDateKey(followingSession.scheduledDate).toLocaleDateString(undefined,{weekday:"short",month:"short",day:"numeric"})}</small><strong>${followingPlan.title}</strong><em>${followingPlan.time}</em></span><b aria-hidden="true">›</b></button>`:""}
+ ${latest?`<section class="card command-achievement"><span class="achievement-icon">✓</span><div><small>LATEST ACHIEVEMENT</small><strong>${latest.name||"Completed workout"}</strong><span>${v1131DateLabel(latest)} • ${latestTotals.completedSets} sets</span></div><button class="secondary" id="viewLatestAchievement">View</button></section>`:""}
+ <section class="command-checkin" aria-label="Latest check-in"><div><small>WEIGHT</small><strong>${state.weight} lb</strong></div><div><small>WAIST</small><strong>${state.waist} in</strong></div></section>`;
 
  document.querySelector("#viewLatestAchievement")?.addEventListener("click",()=>{
    state.historyView=latest.id;
    state.tab="progress";
    save();
-   progress();
+   render();
  });
  document.querySelector("#openHistory").onclick=()=>{
    state.historyView=null;
    state.tab="progress";
    save();
-   progress();
+   render();
  };
  document.querySelector("#previewSelected")?.addEventListener("click",()=>showDayPlan(nextDayIndex));
  document.querySelector("#previewNextWorkout")?.addEventListener("click",()=>showDayPlan(nextDayIndex));
+ document.querySelector("#previewFollowingWorkout")?.addEventListener("click",()=>showDayPlan(followingSession.planDay));
  document.querySelectorAll("[data-day]").forEach(button=>{
    button.onclick=()=>{
      state.selectedDay=Number(button.dataset.day);
@@ -1425,7 +1403,7 @@ function home(){
    };
  });
  document.querySelector("#startWorkout")?.addEventListener("click",()=>{
-   if(!active)startNewSession(nextDayIndex,nextSession?.scheduledDate===localDateKey()?nextSession:null);
+   if(!selectedSession)startNewSession(nextDayIndex,primarySession?.scheduledDate===todayKey?primarySession:null);
    state.tab="workout";
    save();
    workout();
@@ -2385,9 +2363,16 @@ home=function(){
  const todayRescheduled=sessionsForDate(localDateKey()).find(item=>item.status==="rescheduled");
  if(todayRescheduled){
    const moved=state.workoutSessions.find(item=>item.plannedDate===localDateKey()&&item.id!==todayRescheduled.id);
-   app.insertAdjacentHTML("afterbegin",`<section class="card today-rescheduled"><span class="pill">TODAY’S WORKOUT</span><h2>${todayRescheduled.name}</h2><p>Rescheduled from ${parseDateKey(todayRescheduled.plannedDate).toLocaleDateString(undefined,{weekday:"long"})}.</p>${moved?`<small>Today’s ${moved.name.toLowerCase()} moved to ${parseDateKey(moved.scheduledDate).toLocaleDateString(undefined,{weekday:"long"})}.</small>`:""}</section>`);
+   const rescheduledMarkup=`<section class="card today-rescheduled"><span class="pill">SCHEDULE UPDATE</span><h2>${todayRescheduled.name}</h2><p>Rescheduled from ${parseDateKey(todayRescheduled.plannedDate).toLocaleDateString(undefined,{weekday:"long"})}.</p>${moved?`<small>Today’s ${moved.name.toLowerCase()} moved to ${parseDateKey(moved.scheduledDate).toLocaleDateString(undefined,{weekday:"long"})}.</small>`:""}</section>`;
+   const commandWeek=app.querySelector(".command-week");
+   if(commandWeek)commandWeek.insertAdjacentHTML("afterend",rescheduledMarkup);
+   else app.insertAdjacentHTML("afterbegin",rescheduledMarkup);
  }
- if(recommendation)app.insertAdjacentHTML("beforeend",recommendation);
+ if(recommendation){
+   const metrics=app.querySelector(".home-command-metrics");
+   if(metrics)metrics.insertAdjacentHTML("beforebegin",recommendation);
+   else app.insertAdjacentHTML("beforeend",recommendation);
+ }
  document.querySelectorAll("[data-coach-recover]").forEach(button=>button.onclick=()=>{
    const session=state.workoutSessions.find(item=>item.id===button.dataset.coachRecover);
    if(session)openCalendarDay(session.scheduledDate);

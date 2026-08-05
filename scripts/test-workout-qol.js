@@ -16,7 +16,7 @@ assert.match(css, /\.weight-entry-explainer \.previous-weight/);
 assert.match(app, /muscles:ex\.muscles\|\|""/);
 assert.match(app, /x\.muscles\|\|historyMuscles\(x\.name\)/);
 assert.match(app, /!\['completed','restDay'\]\.includes\(item\.status\)/);
-assert.match(app, /NEXT WORKOUT • \$\{nextDateLabel\}/);
+assert.match(app, /const primaryLabel=active\?"WORKOUT IN PROGRESS":nextIsFuture\?`UP NEXT/);
 assert.match(app, /previewNextWorkout/);
 assert.match(
   app,

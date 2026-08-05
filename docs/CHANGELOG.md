@@ -8,6 +8,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Added
 
+- A coach-forward Home command center with an accessible weekly status strip, focused workout card, existing adherence/recovery/session metrics, compact next-workout context, and latest check-in summary.
 - Home coach recommendations now offer a confirmed “Leave missed & continue plan” action while preserving the Missed Calendar record.
 - Offline timer-completion chime with vibration and an accessible completion announcement.
 - Previous completed weight guidance on every strength exercise, including Smith working weight and per-stack context.
@@ -69,6 +70,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Advanced the maintenance build to `2026.08.04.4` and rotated the offline shell cache for background-safe workout timers.
 - Advanced the maintenance build to `2026.08.04.5` and rotated the offline shell cache for future-workout launch selection and dismissible coach recommendations.
 - Advanced the maintenance build to `2026.08.04.6` and rotated the offline shell cache after preserving the selected early workout through the step-zero launch screen.
+- Advanced the maintenance build to `2026.08.04.7` and rotated the offline shell cache for the Concept B visual refresh.
+- Refreshed Home with the Training Command Center design while retaining the existing workout, preview, history, coach, scheduling, and bottom-navigation actions.
 - Replaced the ambiguous mobility directions with one equipment-specific movement per exercise that matches its illustration.
 - Replaced developer-facing missing-media copy with concise coached-instruction guidance.
 

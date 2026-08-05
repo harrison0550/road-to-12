@@ -58,6 +58,7 @@ Copy this block for new work:
 
 ## Completed this sprint
 
+- [x] Implement the approved Concept B Training Command Center visual refresh for Home using only existing application data and actions.
 - [x] Launch the explicitly selected future workout from Start This Workout Early and allow missed-workout coach recommendations to be dismissed without changing the schedule.
 - [x] Keep workout timers accurate while the iPhone PWA is suspended behind another app.
 - [x] Add approved offline illustrations and matching single-movement instructions for all three Tuesday mobility exercises.

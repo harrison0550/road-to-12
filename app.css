@@ -2124,3 +2124,98 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
   .calendar-day span{font-size:13px}
   nav span{font-size:9px}
 }
+
+/* Version 13.2 — Concept B: Training Command Center */
+body.home-mode .shell{padding-top:calc(12px + env(safe-area-inset-top));background:radial-gradient(circle at 50% -120px,rgba(239,57,71,.08),transparent 320px)}
+body.home-mode header{min-height:68px;margin-bottom:16px;grid-template-columns:minmax(0,1fr) auto}
+body.home-mode header>div{display:flex;align-items:center;gap:12px}
+body.home-mode header p{display:none}
+body.home-mode header h1{display:flex;align-items:center;gap:12px;margin:0;font-size:clamp(27px,8vw,39px);line-height:1;letter-spacing:-1.4px}
+body.home-mode header h1:before{content:"12%";flex:0 0 48px;width:48px;height:48px;display:grid;place-items:center;border:4px solid #ff4e5a;border-right-color:#3b2428;border-radius:50%;color:#ff5662;font-size:15px;letter-spacing:-.5px;background:#11151a;box-shadow:0 0 0 4px rgba(239,57,71,.06)}
+body.home-mode header button{min-width:0;padding:11px 13px;border-radius:14px;color:var(--muted);font-size:12px;background:#11161c}
+.command-week{padding:16px 14px 13px;border-radius:22px;background:linear-gradient(145deg,#151a20,#0e1217)}
+body.home-mode .today-rescheduled{margin-top:12px;padding:14px 16px;border-color:#7d5728;border-radius:18px;background:linear-gradient(145deg,#201b12,#15140f)}
+body.home-mode .today-rescheduled .pill{margin-bottom:8px;color:#ffc45c;border-color:#745223;background:#2b2112}
+body.home-mode .today-rescheduled h2{font-size:22px}
+body.home-mode .today-rescheduled p,body.home-mode .today-rescheduled small{color:#c7bda9}
+.command-section-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:12px}
+.command-section-heading small{display:block;color:var(--muted);font-size:10px;font-weight:900;letter-spacing:.13em}
+.command-section-heading h2{margin:4px 0 0;font-size:clamp(18px,5.2vw,24px)}
+.history-count-button{min-height:44px;padding:9px 12px;border:1px solid var(--line);border-radius:13px;background:#151b22;color:#dce2e8;font-weight:800}
+.command-week-strip{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:0;border:1px solid var(--line);border-radius:17px;overflow:hidden;background:#0d1116}
+.command-day{position:relative;min-width:0;min-height:76px;padding:9px 1px;border:0;border-right:1px solid var(--line);border-radius:0;background:transparent;color:var(--muted);display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:3px}
+.command-day:last-child{border-right:0}
+.command-day strong{color:#f2f4f7;font-size:12px}
+.command-day small{max-width:100%;overflow:hidden;text-overflow:ellipsis;color:var(--muted);font-size:8px}
+.command-day span{font-size:14px;line-height:1.25}
+.command-day em{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.command-day.today{background:rgba(239,57,71,.1);box-shadow:inset 0 -3px #ef3947}
+.command-day.today strong,.command-day.today small{color:#ff6772}
+.command-workout-card{display:grid;grid-template-columns:minmax(0,1fr) 112px;gap:14px;align-items:center;padding:22px;border-radius:25px;background:radial-gradient(circle at 87% 37%,rgba(239,57,71,.13),transparent 31%),linear-gradient(145deg,#151a20,#0d1116)}
+.command-workout-copy{min-width:0}
+.command-workout-copy>small{color:#ff5a66;font-size:11px;font-weight:900;letter-spacing:.13em}
+.command-workout-copy h2{margin:10px 0 8px;font-size:clamp(36px,10.5vw,52px);line-height:.96;letter-spacing:-1.7px;overflow-wrap:anywhere}
+.command-workout-copy p{margin:0 0 14px;color:#b7c0cb;line-height:1.45}
+.command-duration{display:inline-flex;align-items:center;gap:6px;color:#c7ced6;font-weight:800}
+.command-workout-mark{width:104px;height:104px;display:grid;place-items:center;border-radius:50%;background:radial-gradient(circle,#151a20 0 50%,transparent 51%),conic-gradient(#ff4654 0 72%,#262c34 72% 100%);box-shadow:inset 0 0 0 8px #0f1318}
+.command-workout-mark span{font-size:37px;filter:grayscale(.25)}
+.command-workout-card>.primary,.command-workout-card>.secondary{grid-column:1/-1}
+.command-workout-card>.primary{min-height:56px;font-size:17px}
+.command-preview{margin-top:-5px}
+.home-command-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;padding:16px 8px;border-radius:22px}
+.home-command-metrics>div{min-width:0;min-height:112px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;border-right:1px solid var(--line);text-align:center}
+.home-command-metrics>div:last-child{border-right:0}
+.home-command-metrics small{color:var(--muted);font-size:10px;font-weight:850;text-transform:uppercase;letter-spacing:.04em}
+.home-command-metrics>div>strong{font-size:29px;line-height:1}
+.metric-ring{width:67px;height:67px;display:grid;place-items:center;border-radius:50%;background:radial-gradient(circle,#12171d 0 62%,transparent 64%),conic-gradient(#f1a12a 0 var(--metric-progress,75%),#303640 var(--metric-progress,75%) 100%)}
+.metric-ring strong{font-size:18px}
+.recovery-ring{background:radial-gradient(circle,#12171d 0 62%,transparent 64%),conic-gradient(#59d88f 0 var(--metric-progress,78%),#303640 var(--metric-progress,78%) 100%)}
+.session-metric-icon{width:42px;height:42px;display:grid;place-items:center;border-radius:13px;background:rgba(239,57,71,.13);color:#ff5260;font-size:25px}
+.command-up-next{width:100%;display:grid;grid-template-columns:52px minmax(0,1fr) auto;gap:13px;align-items:center;text-align:left;color:#fff}
+.command-up-next .up-next-icon{width:52px;height:52px;display:grid;place-items:center;border-radius:16px;background:#1e242c;font-size:25px}
+.command-up-next span:nth-child(2){display:grid;gap:3px;min-width:0}
+.command-up-next small{color:var(--muted);font-size:10px;font-weight:900;letter-spacing:.08em}
+.command-up-next strong{font-size:20px;overflow-wrap:anywhere}
+.command-up-next em{color:var(--muted);font-size:12px;font-style:normal}
+.command-up-next b{color:#8c96a3;font-size:34px;font-weight:400}
+.command-achievement{display:grid;grid-template-columns:42px minmax(0,1fr) 70px;gap:12px;align-items:center}
+.command-achievement .achievement-icon{width:42px;height:42px;display:grid;place-items:center;border-radius:50%;background:#174c37;color:#58e3a1;font-size:22px;font-weight:900}
+.command-achievement>div{display:grid;gap:3px;min-width:0}
+.command-achievement small,.command-achievement span{color:var(--muted);font-size:11px}
+.command-achievement strong{overflow-wrap:anywhere}
+.command-achievement button{padding:11px 8px;border-radius:13px}
+.command-checkin{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:4px}
+.command-checkin div{padding:14px 16px;border:1px solid var(--line);border-radius:17px;background:#10151b}
+.command-checkin small,.command-checkin strong{display:block}
+.command-checkin small{color:var(--muted);font-size:10px;letter-spacing:.08em}
+.command-checkin strong{margin-top:5px;font-size:20px}
+body.home-mode .coach-recommendation{position:relative;padding-left:72px;border-color:#80551e;background:radial-gradient(circle at 10% 25%,rgba(255,171,47,.18),transparent 28%),linear-gradient(145deg,#211a10,#111419)}
+body.home-mode .coach-recommendation:before{content:"★";position:absolute;left:18px;top:22px;width:40px;height:40px;display:grid;place-items:center;border:2px solid #f2a127;border-radius:14px;color:#ffb13d;font-size:21px}
+body.home-mode .coach-recommendation .pill{border:0;padding:0;background:transparent;color:#ffb13d;font-size:11px;letter-spacing:.1em}
+body.home-mode .coach-recommendation h2{margin:8px 0 5px;font-size:24px}
+body.home-mode .coach-recommendation .recommendation-box,body.home-mode .coach-recommendation .impact-line{margin-left:-54px}
+body.home-mode .coach-recommendation>.primary,body.home-mode .coach-recommendation>.secondary,body.home-mode .coach-recommendation>p.muted{width:calc(100% + 54px);margin-left:-54px}
+body.home-mode .coach-recommendation>.secondary{margin-top:9px;border-color:#745625;background:#1c1811}
+body.home-mode nav{background:rgba(8,10,13,.97);border-top-color:#252c35}
+body.home-mode nav button{min-width:0;min-height:52px}
+body.home-mode nav b{font-size:22px}
+body.home-mode nav button.active{color:#ff4e5b}
+@media(max-width:370px){
+  body.home-mode .shell{padding-left:max(10px,env(safe-area-inset-left));padding-right:max(10px,env(safe-area-inset-right))}
+  body.home-mode header h1{font-size:27px}
+  body.home-mode header h1:before{flex-basis:42px;width:42px;height:42px;font-size:13px}
+  .command-week{padding-inline:10px}
+  .command-section-heading h2{font-size:18px}
+  .command-day{min-height:70px}
+  .command-day small{font-size:7px}
+  .command-workout-card{grid-template-columns:minmax(0,1fr) 82px;padding:18px 16px}
+  .command-workout-mark{width:80px;height:80px}
+  .command-workout-copy h2{font-size:34px}
+  .home-command-metrics{padding-inline:3px}
+  .home-command-metrics>div{min-height:103px}
+  .metric-ring{width:58px;height:58px}
+  .metric-ring strong{font-size:16px}
+  body.home-mode .coach-recommendation{padding-left:62px}
+  body.home-mode .coach-recommendation:before{left:13px;width:36px;height:36px}
+}
+@media(prefers-reduced-motion:reduce){.command-workout-card,.command-week,.home-command-metrics{scroll-behavior:auto}}

@@ -4,6 +4,8 @@
 
 Road to 12% uses a focused, high-contrast dark interface designed for short interactions during training. It should feel energetic and capable without becoming visually noisy. New screens should reuse existing components and spacing before introducing new patterns.
 
+Home follows the Concept B “Training Command Center” direction: a compact brand header, seven-day status strip, dominant workout card, coach recommendation, three existing training metrics, and concise upcoming/history context. Use red for the primary workout action, amber for coach guidance, and green for completion or recovery readiness. Do not introduce wearable-style metrics unless the product actually stores their source data.
+
 ## Dark theme
 
 - Use the near-black page background for visual stability in a gym environment.
