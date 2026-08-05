@@ -6,9 +6,9 @@ Read this file at the beginning of every Codex or engineering session. It is the
 
 - Product: Road to 12%
 - Version: 13.2.0
-- Build: 2026.08.04.9
+- Build: 2026.08.04.10
 - Last updated: August 4, 2026
-- Service Worker cache: `road12-v13-2-32-shell`
+- Service Worker cache: `road12-v13-2-33-shell`
 - Runtime: static, client-only, offline-first PWA
 - Primary storage key: `road12v5`
 
@@ -91,6 +91,7 @@ See `CODEX_TASKS.md` for priority and acceptance detail.
 - App-created exercise illustrations are identified as posture illustrations; written setup and movement cues remain authoritative.
 - Exercise artwork is previewed for user approval before it replaces an application asset; the approved Lat Pulldown guide shows the full cage with one center-connected cable on the facing front post.
 - Olympic bumper plates from 10–45 lb are available and enabled; existing Smith-machine squat, hinge, split-squat, and calf-raise programming may use progressive added plate weight.
+- Dumbbells are available and enabled independently from kettlebells; kettlebells remain unavailable. Goblet Squat may therefore use one dumbbell in the equipment-safe rotation.
 - Smith set entries store total added plate weight across both sides for backward compatibility; the calculator divides that load per side and adds the official 33 lb M1 Pro Smith bar to show working weight.
 - Timer completion uses a locally generated Web Audio chime, vibration where supported, and an accessible status announcement; it does not require a network asset.
 - Active timers use an absolute wall-clock finish time and reconcile on foreground restoration so iOS suspension does not pause elapsed time; completion audio may be delayed until the PWA resumes because of platform restrictions.
@@ -107,6 +108,7 @@ See `CODEX_TASKS.md` for priority and acceptance detail.
 - Preserve existing workout history and `road12v5` compatibility.
 - Migrations must be additive, ordered, and idempotent.
 - Equipment migration v4 enables the newly available bumper plates without changing completed workout snapshots.
+- Equipment migration v6 separates dumbbells from kettlebells, enables the user's dumbbells, and leaves kettlebells disabled without changing completed workout snapshots.
 - Do not overwrite `plannedDate`.
 - Do not shift rest days or reorder completed sessions.
 - Do not make network access a requirement for core workouts.

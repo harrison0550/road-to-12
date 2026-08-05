@@ -8,6 +8,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Added
 
+- Independent Dumbbells and Kettlebells controls under My Equipment, with dumbbells enabled and kettlebells disabled for the current equipment profile.
 - An offline adaptive-coaching foundation with a private on-device training profile, explainable recommendations, explicit acceptance, session-length volume caps, cardio targets, conservative progression guardrails, and backup compatibility.
 - A coach-forward Home command center with an accessible weekly status strip, focused workout card, existing adherence/recovery/session metrics, compact next-workout context, and latest check-in summary.
 - Home coach recommendations now offer a confirmed “Leave missed & continue plan” action while preserving the Missed Calendar record.
@@ -33,6 +34,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Changed
 
+- Advanced the maintenance build to `2026.08.04.10` and rotated the offline shell cache for the equipment-profile update.
+- Goblet Squat now explicitly uses one dumbbell and returns to the equipment-safe workout rotation.
 - Advanced the maintenance build to `2026.08.04.9` and rotated the offline shell cache for the Home next-workout correction.
 - Advanced the maintenance build to `2026.08.04.8` and rotated the offline shell cache for adaptive coaching.
 - The muscle recovery map now derives trained groups from saved exercise muscles and falls back to current exercise definitions for compatible older history.

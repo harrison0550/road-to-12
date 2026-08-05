@@ -143,6 +143,11 @@ function exerciseTeachingMarkup(ex){
 
 
 const data=window.WORKOUT_DATA;
+const gobletSquatTemplate=data.find(exercise=>exercise.name==="Goblet Squat");
+if(gobletSquatTemplate){
+  gobletSquatTemplate.setup=["Equipment: one dumbbell","Hold one end of the dumbbell vertically at chest"];
+  gobletSquatTemplate.weightRecommendation="Begin with the lightest dumbbell until depth and balance are controlled.";
+}
 const smithSquatTemplate=window.SUBSTITUTION_DATA?.["smith-machine-squat"];
 if(smithSquatTemplate){
   smithSquatTemplate.setup=smithSquatTemplate.setup.map(item=>
@@ -161,7 +166,7 @@ if(smithSquatTemplate){
 }
 /* Versioned storage boundary. Migrations must remain ordered and idempotent. */
 const ROAD12_STORAGE_KEY="road12v5";
-const ROAD12_SCHEMA_VERSION=5;
+const ROAD12_SCHEMA_VERSION=6;
 const ROAD12_MIGRATIONS=[
   {
     version:1,
@@ -209,6 +214,14 @@ const ROAD12_MIGRATIONS=[
       value.adaptiveRecommendation=value.adaptiveRecommendation||null;
       value.acceptedAdaptivePlan=value.acceptedAdaptivePlan||null;
       value.schemaVersion=5;
+      return value;
+    }
+  },
+  {
+    version:6,
+    up(value){
+      value.equipment=Object.assign({},value.equipment||{}, {dumbbells:true,kettlebells:false});
+      value.schemaVersion=6;
       return value;
     }
   }
@@ -266,7 +279,8 @@ state.equipment=Object.assign({
   rower:true,
   kickrCore:true,
   bumperPlates:true,
-  dumbbells:false,
+  dumbbells:true,
+  kettlebells:false,
   olympicBarbell:false
 },state.equipment||{});
 const weekPlan=[
@@ -288,7 +302,8 @@ const equipmentLabels={
   rower:"iFIT rower",
   kickrCore:"Wahoo KICKR CORE",
   bumperPlates:"Olympic bumper plates",
-  dumbbells:"Dumbbells / kettlebells",
+  dumbbells:"Dumbbells",
+  kettlebells:"Kettlebells",
   olympicBarbell:"Free Olympic barbell"
 };
 function hasRequirements(ex){
@@ -880,7 +895,8 @@ function equipment(){
   ["rower","🚣","iFIT rower","Available for technique and cardio sessions."],
   ["kickrCore","🚴","Wahoo KICKR CORE","Available for cycling sessions."],
   ["bumperPlates","⚫","Olympic bumper plates","Available in weights from 10–45 lb for Smith-machine loading."],
-  ["dumbbells","🔩","Dumbbells / kettlebells","Keep off unless you have usable free weights."],
+  ["dumbbells","🔩","Dumbbells","Available for goblet squats and future free-weight movements."],
+  ["kettlebells","⚫","Kettlebells","Separate from dumbbells. Keep off when no kettlebells are available."],
   ["olympicBarbell","🏋️‍♂️","Free Olympic barbell","This refers to free-barbell work, not the M1 Smith bar."]
  ];
  const attachments=[
