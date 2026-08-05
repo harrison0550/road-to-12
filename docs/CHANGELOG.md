@@ -8,6 +8,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Added
 
+- Home coach recommendations now offer a confirmed “Leave missed & continue plan” action while preserving the Missed Calendar record.
 - Offline timer-completion chime with vibration and an accessible completion announcement.
 - Previous completed weight guidance on every strength exercise, including Smith working weight and per-stack context.
 - Professional project documentation under `/docs`.
@@ -65,11 +66,15 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Advanced the maintenance build to `2026.08.04.1` and rotated the offline shell cache for workout quality-of-life improvements.
 - Advanced the maintenance build to `2026.08.04.2` and rotated the offline shell cache for the Progress navigation-state fix.
 - Advanced the maintenance build to `2026.08.04.3` and rotated the offline shell cache for the three approved mobility guides.
+- Advanced the maintenance build to `2026.08.04.4` and rotated the offline shell cache for background-safe workout timers.
+- Advanced the maintenance build to `2026.08.04.5` and rotated the offline shell cache for future-workout launch selection and dismissible coach recommendations.
 - Replaced the ambiguous mobility directions with one equipment-specific movement per exercise that matches its illustration.
 - Replaced developer-facing missing-media copy with concise coached-instruction guidance.
 
 ### Fixed
 
+- Fixed Start This Workout Early launching today’s workout instead of the selected future workout.
+- Fixed workout timers pausing while the iPhone PWA is suspended behind another app; elapsed wall-clock time is now reconciled when Road to 12% returns to the foreground.
 - Fixed Home repeating a just-completed workout instead of displaying the next incomplete scheduled session.
 - Fixed the muscle recovery map remaining green after a completed workout whose exercise snapshots lacked muscle metadata.
 - Fixed the Progress bottom-navigation tab not turning red when selected.

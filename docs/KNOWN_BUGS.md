@@ -107,6 +107,25 @@ No confirmed production defects are currently documented.
 - Resolution: Progress now renders through the shared navigation path that applies the active class while continuing to clear a previously opened history detail.
 - Regression test: `scripts/test-workout-qol.js`
 
+### BUG-012 — Workout timer pauses while another iPhone app is active
+
+- Status: Resolved in v13.2.0 maintenance build 2026.08.04.4
+- Severity: Medium
+- Area: Workout Engine / Timer
+- Report: Switching from the installed PWA to another app suspended JavaScript callbacks, so a walking or rest timer resumed from the value shown when Road to 12% entered the background.
+- Resolution: Active timers now store an absolute finish timestamp, derive remaining time from the device clock, and synchronize on visibility, focus, and page restoration. If the timer expires while suspended, completion is announced once when the PWA resumes.
+- Platform limitation: iOS may not permit a Home Screen PWA to play audio while it remains suspended; the existing sound and vibration occur when the app returns if the timer expired in the background.
+- Regression test: `scripts/test-background-timer.js`
+
+### BUG-013 — Starting a future preview launches today’s workout
+
+- Status: Resolved in v13.2.0 maintenance build 2026.08.04.5
+- Severity: High
+- Area: Home / Workout Engine
+- Report: Confirming Start This Workout Early from tomorrow’s preview discarded the selected weekday and called the session launcher with its default arguments, restarting today’s workout.
+- Resolution: Home now resolves the earliest incomplete schedule entry for the previewed weekday and passes both its plan day and schedule record into the existing Workout Engine. Today detection now uses the current weekday instead of treating Monday as the only possible today.
+- Regression test: `scripts/test-home-workout-selection.js`
+
 ## Bug template
 
 ```markdown

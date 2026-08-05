@@ -12,7 +12,7 @@ Exercise media may be an official equipment reference, reviewed licensed media, 
 
 The Workout Engine selects the appropriate program day, resolves exercises against available equipment, starts or resumes a session, tracks sets and timers, and writes a completed snapshot to workout history.
 
-Workout timers generate their completion chime locally through the browser audio API so the cue remains available offline. Previous-weight guidance is read from the latest completed snapshot for the same exercise and must never prefill or mutate the active set automatically.
+Workout timers use an absolute wall-clock finish timestamp rather than counting interval callbacks. The UI reconciles remaining time when the document becomes visible, receives focus, or is restored, because iOS may suspend JavaScript while another app is active. Completion chimes are generated locally through the browser audio API so the cue remains available offline, although iOS may delay the cue until the PWA resumes. Previous-weight guidance is read from the latest completed snapshot for the same exercise and must never prefill or mutate the active set automatically.
 
 Session snapshots should remain stable after completion. Future changes to exercise definitions must not silently rewrite historical workout records. Active workout state may be resumed, but completed history is append-oriented.
 
@@ -30,6 +30,8 @@ Scheduling represents training intent separately from execution:
 Recovery operations move `scheduledDate` values while preserving `plannedDate`, workout order, completed sessions, and protected rest days. Scheduling rules should remain deterministic and independently testable as the codebase evolves.
 
 Starting a recovered workout does not mutate the schedule. It creates a normal Workout Engine session linked to the missed schedule entry. Completion records `completedDate` while retaining `actualCompletionDate` as a compatibility alias; any shift of today and future workouts occurs only after the user explicitly chooses the replacement option.
+
+Starting a future workout early links the active session to the explicitly selected future schedule entry rather than re-resolving today’s entry. Dismissing a Home coach recommendation adds `coachDismissedAt` and `coachDisposition` metadata to the missed session; it does not change `status`, `plannedDate`, `scheduledDate`, or later workouts, and the missed session remains recoverable from Calendar.
 
 Calendar rescheduling delegates to the pure scheduling module. Moving into an occupied training date shifts later incomplete sessions in order; completed dates and protected rest dates are treated as unavailable. Moving into an open date does not shift unrelated sessions.
 

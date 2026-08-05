@@ -266,7 +266,7 @@ const weekPlan=[
  {short:"SUN",icon:"📏",title:"Recovery + Check-in",detail:"Rest, measurements and weekly review",action:"progress",time:"10–20 min",focus:"Recovery and progress review",items:["Morning body weight","Waist measurement","Optional progress photos","Review completed workouts","Plan the coming week","Full rest or gentle walk"],setup:"No gym setup required"}
 ];
 const app=document.querySelector("#app"), nav=[...document.querySelectorAll("nav button")];
-let timerId=null, remaining=0, timerAudioContext=null;
+let timerId=null, remaining=0, timerEndsAt=null, timerAudioContext=null;
 const save=()=>road12Storage.write(state);
 const equipmentLabels={
   ritfitM1:"RitFit M1 Pro",
@@ -444,8 +444,13 @@ function render(){
  if(brand)brand.textContent=`${state.preferredName.toUpperCase()}'S HOME GYM`;
  document.querySelector('#phase1LibraryButton')?.remove();clearInterval(timerId);document.body.classList.toggle("workout-mode",state.tab==="workout");nav.forEach(b=>b.classList.toggle("active",b.dataset.tab===state.tab));({home:home,calendar:calendar,workout:workout,library:library,equipment:equipment,progress:progress}[state.tab]||home)()}
 
+function previewScheduleForDay(sessions,dayIndex,today){
+ return sessions
+   .filter(item=>item.planDay===dayIndex&&item.scheduledDate>=today&&!['completed','restDay'].includes(item.status))
+   .sort((a,b)=>a.scheduledDate.localeCompare(b.scheduledDate))[0]||null;
+}
 function showDayPlan(dayIndex=state.selectedDay){
- const day=weekPlan[dayIndex],isToday=dayIndex===0;
+ const day=weekPlan[dayIndex],isToday=dayIndex===currentPlanIndex();
  app.innerHTML=`<section class="card day-preview-card"><button class="secondary" id="previewBack">Back to schedule</button><div class="preview-title"><span class="large-icon">${day.icon}</span><div><span class="pill">${day.short} PREVIEW</span><h2>${day.title}</h2><p class="muted">${day.detail}</p></div></div><div class="brief-grid"><div><small>TIME</small><strong>${day.time}</strong></div><div><small>FOCUS</small><strong>${day.focus}</strong></div><div><small>STATUS</small><strong>${isToday&&todayCompleted()?"Completed":isToday?"Today":"Preview"}</strong></div><div><small>SETUP FLOW</small><strong>${day.setup}</strong></div></div></section>
  <section class="card"><h2>Workout preview</h2><p class="muted">Previewing does not start or change your active workout.</p><ol class="preview-exercise-list">${day.items.map((item,i)=>`<li><span>${i+1}</span><strong>${item}</strong></li>`).join("")}</ol></section>
  ${day.action==="workout"||day.action==="upcoming"?`<section class="card setup-efficiency-card"><h3>M1 setup efficiency</h3><p>The sequence is grouped so you finish one pulley zone before moving to the next.</p><div class="setup-flow">${day.setup.split(" → ").map(x=>`<span>${x}</span>`).join("")}</div></section>`:""}
@@ -455,7 +460,8 @@ function showDayPlan(dayIndex=state.selectedDay){
    if(day.action==="progress")return setTab("progress");
    if(day.action==="workout"||day.action==="upcoming"){
      if(!isToday&&!confirm(`Start ${day.title} early?`))return;
-     startNewSession();setTab("workout");return;
+     const selectedSchedule=previewScheduleForDay(state.workoutSessions,dayIndex,localDateKey());
+     startNewSession(dayIndex,selectedSchedule);setTab("workout");return;
    }
    alert(`${day.title} is available as a preview. Its guided timer flow will be added as the program expands.`);
  };
@@ -764,7 +770,7 @@ function bindSets(ex){
  const stop=document.querySelector("#stopTimer");if(stop)stop.onclick=stopTimer
 }
 function bindTimer(ex){let b=document.querySelector("#rest");if(b)b.onclick=()=>{let [m,s]=ex.duration.split(":").map(Number);startTimer(m*60+s)};const stop=document.querySelector("#stopTimer");if(stop)stop.onclick=stopTimer}
-function stopTimer(){clearInterval(timerId);timerId=null;}
+function stopTimer(){clearInterval(timerId);timerId=null;timerEndsAt=null;remaining=0;}
 function prepareTimerAudio(){
  const AudioContextClass=window.AudioContext||window.webkitAudioContext;
  if(!AudioContextClass)return null;
@@ -792,7 +798,32 @@ function playTimerCompleteSound(){
    oscillator.stop(now+offset+0.17);
  });
 }
-function startTimer(sec){remaining=sec;const el=document.querySelector("#timer");prepareTimerAudio();clearInterval(timerId);tick();timerId=setInterval(()=>{remaining--;tick();if(remaining<=0){clearInterval(timerId);timerId=null;playTimerCompleteSound();navigator.vibrate?.([200,100,200]);el.textContent="Timer complete";const c=document.querySelector("#restCoach");if(c)c.textContent="Rest complete. Begin when ready."}},1000);function tick(){el.textContent=`${String(Math.floor(remaining/60)).padStart(2,"0")}:${String(remaining%60).padStart(2,"0")}`;const c=document.querySelector("#restCoach");if(c)c.textContent=restCoachText(remaining)}}
+function timerRemainingSeconds(endsAt,now=Date.now()){
+ return Math.max(0,Math.ceil((endsAt-now)/1000));
+}
+function completeTimer(){
+ if(timerEndsAt===null)return;
+ clearInterval(timerId);timerId=null;timerEndsAt=null;remaining=0;
+ playTimerCompleteSound();navigator.vibrate?.([200,100,200]);
+ const el=document.querySelector("#timer");if(el)el.textContent="Timer complete";
+ const c=document.querySelector("#restCoach");if(c)c.textContent="Rest complete. Begin when ready.";
+}
+function syncTimer(){
+ if(timerEndsAt===null)return;
+ remaining=timerRemainingSeconds(timerEndsAt);
+ if(remaining<=0){completeTimer();return;}
+ const el=document.querySelector("#timer");
+ if(el)el.textContent=`${String(Math.floor(remaining/60)).padStart(2,"0")}:${String(remaining%60).padStart(2,"0")}`;
+ const c=document.querySelector("#restCoach");if(c)c.textContent=restCoachText(remaining);
+}
+function startTimer(sec){
+ remaining=Math.max(0,Number(sec)||0);timerEndsAt=Date.now()+(remaining*1000);
+ prepareTimerAudio();clearInterval(timerId);syncTimer();
+ if(timerEndsAt!==null)timerId=setInterval(syncTimer,1000);
+}
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")syncTimer()});
+window.addEventListener("pageshow",syncTimer);
+window.addEventListener("focus",syncTimer);
 function next(){
  window.ROAD12_WORKOUT_NAVIGATION.advanceExercise(
    state
@@ -2321,10 +2352,20 @@ function v42Metrics(){
 }
 function coachRecommendationMarkup(){
  ensureWorkoutSchedule();
- const missed=state.workoutSessions.filter(item=>item.status==="missed").sort((a,b)=>b.scheduledDate.localeCompare(a.scheduledDate))[0];
+ const missed=state.workoutSessions.filter(item=>item.status==="missed"&&!item.coachDismissedAt).sort((a,b)=>b.scheduledDate.localeCompare(a.scheduledDate))[0];
  if(!missed)return "";
  const today=sessionsForDate(localDateKey()).find(item=>item.status!=="restDay");
- return `<section class="card coach-recommendation"><span class="pill">COACH RECOMMENDATION</span><h2>Get back on sequence</h2><p>You missed <strong>${missed.name}</strong>${missed.reason?` due to ${V42_REASONS[missed.reason].toLowerCase()}`:""}.</p><div class="recommendation-box"><small>RECOMMENDED</small><strong>Complete ${missed.name} today.</strong><span>${today?.name||"Today’s workout"} will move to the next training day.</span></div><div class="impact-line"><span>Estimated impact</span><strong>Minimal</strong></div><button class="primary" data-coach-recover="${missed.id}">Review recovery options</button></section>`;
+ return `<section class="card coach-recommendation"><span class="pill">COACH RECOMMENDATION</span><h2>Get back on sequence</h2><p>You missed <strong>${missed.name}</strong>${missed.reason?` due to ${V42_REASONS[missed.reason].toLowerCase()}`:""}.</p><div class="recommendation-box"><small>RECOMMENDED</small><strong>Complete ${missed.name} today.</strong><span>${today?.name||"Today’s workout"} will move to the next training day.</span></div><div class="impact-line"><span>Estimated impact</span><strong>Minimal</strong></div><button class="primary" data-coach-recover="${missed.id}">Review recovery options</button><button class="secondary" data-coach-leave-missed="${missed.id}">Leave missed & continue plan</button><p class="muted">This keeps the workout marked Missed in Calendar and continues with your current schedule.</p></section>`;
+}
+function confirmLeaveMissedWorkout(id){
+ const session=state.workoutSessions.find(item=>item.id===id&&item.status==="missed");
+ if(!session)return;
+ const dialog=v42Dialog(`<span class="pill">CONTINUE PLAN</span><h2>Leave ${session.name} missed?</h2><p>This workout will stay visible in Calendar as Missed. Your next scheduled workout will not move, and you can still open the missed workout from Calendar later.</p><button class="primary" id="confirmLeaveMissed">Leave missed & continue</button>`,`${session.name} missed workout choice`);
+ dialog.querySelector("#confirmLeaveMissed").onclick=()=>{
+   session.coachDismissedAt=new Date().toISOString();
+   session.coachDisposition="leaveMissed";
+   save();closeV42Dialog();home();
+ };
 }
 const v42BaseHome=home;
 home=function(){
@@ -2340,6 +2381,7 @@ home=function(){
    const session=state.workoutSessions.find(item=>item.id===button.dataset.coachRecover);
    if(session)openCalendarDay(session.scheduledDate);
  });
+ document.querySelectorAll("[data-coach-leave-missed]").forEach(button=>button.onclick=()=>confirmLeaveMissedWorkout(button.dataset.coachLeaveMissed));
 };
 const v42BaseProgress=progress;
 progress=function(){
