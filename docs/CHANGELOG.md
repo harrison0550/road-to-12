@@ -68,12 +68,13 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Advanced the maintenance build to `2026.08.04.3` and rotated the offline shell cache for the three approved mobility guides.
 - Advanced the maintenance build to `2026.08.04.4` and rotated the offline shell cache for background-safe workout timers.
 - Advanced the maintenance build to `2026.08.04.5` and rotated the offline shell cache for future-workout launch selection and dismissible coach recommendations.
+- Advanced the maintenance build to `2026.08.04.6` and rotated the offline shell cache after preserving the selected early workout through the step-zero launch screen.
 - Replaced the ambiguous mobility directions with one equipment-specific movement per exercise that matches its illustration.
 - Replaced developer-facing missing-media copy with concise coached-instruction guidance.
 
 ### Fixed
 
-- Fixed Start This Workout Early launching today’s workout instead of the selected future workout.
+- Fixed Start This Workout Early launching today’s workout instead of the selected future workout, including the second handoff through the pre-workout landing screen.
 - Fixed workout timers pausing while the iPhone PWA is suspended behind another app; elapsed wall-clock time is now reconciled when Road to 12% returns to the foreground.
 - Fixed Home repeating a just-completed workout instead of displaying the next incomplete scheduled session.
 - Fixed the muscle recovery map remaining green after a completed workout whose exercise snapshots lacked muscle metadata.

@@ -119,11 +119,11 @@ No confirmed production defects are currently documented.
 
 ### BUG-013 — Starting a future preview launches today’s workout
 
-- Status: Resolved in v13.2.0 maintenance build 2026.08.04.5
+- Status: Resolved in v13.2.0 maintenance build 2026.08.04.6
 - Severity: High
 - Area: Home / Workout Engine
 - Report: Confirming Start This Workout Early from tomorrow’s preview discarded the selected weekday and called the session launcher with its default arguments, restarting today’s workout.
-- Resolution: Home now resolves the earliest incomplete schedule entry for the previewed weekday and passes both its plan day and schedule record into the existing Workout Engine. Today detection now uses the current weekday instead of treating Monday as the only possible today.
+- Resolution: Home now resolves the earliest incomplete schedule entry for the previewed weekday and passes both its plan day and schedule record into the existing Workout Engine. The pre-workout landing screen preserves that selected session at step zero instead of falling back to the current weekday or creating today’s session over it. Today detection now uses the current weekday instead of treating Monday as the only possible today.
 - Regression test: `scripts/test-home-workout-selection.js`
 
 ## Bug template

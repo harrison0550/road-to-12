@@ -6,9 +6,9 @@ Read this file at the beginning of every Codex or engineering session. It is the
 
 - Product: Road to 12%
 - Version: 13.2.0
-- Build: 2026.08.04.5
+- Build: 2026.08.04.6
 - Last updated: August 4, 2026
-- Service Worker cache: `road12-v13-2-28-shell`
+- Service Worker cache: `road12-v13-2-29-shell`
 - Runtime: static, client-only, offline-first PWA
 - Primary storage key: `road12v5`
 
@@ -47,7 +47,7 @@ Historical regressions requiring automated coverage:
 - BUG-010: Muscle recovery map remains green after training — resolved in build 2026.08.04.1.
 - BUG-011: Progress tab does not show its selected red state — resolved in build 2026.08.04.2.
 - BUG-012: Workout timer pauses while another iPhone app is active — resolved in build 2026.08.04.4.
-- BUG-013: Starting a future workout preview launches today’s workout — resolved in build 2026.08.04.5.
+- BUG-013: Starting a future workout preview launches today’s workout — fully resolved in build 2026.08.04.6 after repairing both preview and step-zero landing handoffs.
 
 See `KNOWN_BUGS.md` before diagnosing or fixing defects.
 
@@ -96,7 +96,7 @@ See `CODEX_TASKS.md` for priority and acceptance detail.
 - Previous-weight guidance is derived from the most recent completed set for the same exercise and never overwrites the current set entry.
 - Home's Next Workout card follows the next incomplete scheduled session; the recovery map derives recent muscle groups from immutable workout history with a legacy name-based fallback.
 - Mobility education uses one clearly named movement per exercise; the approved Hip Flexor, supported standing Hamstring, and Chest and Shoulder wall-slide illustrations are cached for offline workouts and match their written steps.
-- Future workout previews carry the selected schedule entry into the existing Workout Engine; Home coach recommendations can be dismissed with an additive disposition while the workout remains Missed and recoverable from Calendar.
+- Future workout previews carry the selected schedule entry through the step-zero landing screen and into the existing Workout Engine; Home coach recommendations can be dismissed with an additive disposition while the workout remains Missed and recoverable from Calendar.
 
 ## Important implementation constraints
 

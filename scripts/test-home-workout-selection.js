@@ -20,6 +20,15 @@ assert.strictEqual(selectPreview(sessions,2,"2026-08-04").id,"tomorrow","startin
 assert.strictEqual(selectPreview(sessions,1,"2026-08-04").id,"today","starting today's preview must select today's schedule entry");
 assert.match(app, /startNewSession\(dayIndex,selectedSchedule\)/, "preview launch must pass the selected day and schedule to the workout engine");
 assert.match(app, /isToday=dayIndex===currentPlanIndex\(\)/, "preview must identify today on every weekday, not only Monday");
+const selectedSessionSource = app.match(/function selectedWorkoutSessionForToday\([\s\S]*?\n}/)?.[0];
+assert(selectedSessionSource, "workout landing must preserve a newly selected session before step one");
+const landingContext = {};
+vm.runInNewContext(`${selectedSessionSource}; result=selectedWorkoutSessionForToday;`, landingContext);
+assert.strictEqual(landingContext.result({dateKey:"2026-08-04",planDay:2,scheduleId:"tomorrow"},"2026-08-04").planDay,2,"a step-zero Full Body B session must remain selected on Tuesday");
+assert.strictEqual(landingContext.result({dateKey:"2026-08-03",planDay:2},"2026-08-04"),null,"a stale prior-day session must not override today");
+assert.match(app, /const dayIndex=selectedSession[\s\S]*?selectedSession\.planDay/, "workout landing must derive its plan from the selected session");
+assert.match(app, /if\(!selectedSession\)startNewSession\(dayIndex\)/, "launching a prepared early session must not create today's session over it");
+assert.match(app, /isStartingEarly\?"STARTING EARLY"/, "the landing screen must identify an early workout explicitly");
 assert.match(app, /item\.status==="missed"&&!item\.coachDismissedAt/, "dismissed missed workouts must stop producing coach recommendations");
 assert.match(app, /session\.coachDismissedAt=new Date\(\)\.toISOString\(\)/, "leave-missed action must record its additive dismissal state");
 assert.match(app, /session\.coachDisposition="leaveMissed"/, "leave-missed intent must be explicit");

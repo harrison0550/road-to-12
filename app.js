@@ -2022,19 +2022,30 @@ function startNewSession(dayIndex=currentPlanIndex(),selectedSchedule=null){
   save();
 }
 
+function selectedWorkoutSessionForToday(currentSession,today){
+ return currentSession
+   &&currentSession.dateKey===today
+   &&!currentSession.completedId
+   &&Number.isInteger(currentSession.planDay)
+   ?currentSession
+   :null;
+}
 function workoutLanding(){
  syncSelectedDayToCalendar();
- const resumableSession=!!state.currentSession
-   &&state.currentSession.dateKey===localDateKey()
+ const todayKey=localDateKey();
+ const selectedSession=selectedWorkoutSessionForToday(state.currentSession,todayKey);
+ const resumableSession=!!selectedSession
    &&state.step>0
    &&state.step<=activeWorkout().length
    &&hasActualWorkoutProgress();
- const dayIndex=resumableSession&&Number.isInteger(state.currentSession.planDay)
-   ?state.currentSession.planDay
+ const dayIndex=selectedSession
+   ?selectedSession.planDay
    :currentPlanIndex();
  const plan=weekPlan[dayIndex];
  const workoutData=workoutForDay(dayIndex);
  const hasActive=resumableSession;
+ const linkedSchedule=selectedSession?.scheduleId?state.workoutSessions.find(item=>item.id===selectedSession.scheduleId):null;
+ const isStartingEarly=!!linkedSchedule&&linkedSchedule.scheduledDate>todayKey;
 
   if(plan.action==="progress"){
     app.innerHTML=`<section class="card workout-launch-card">
@@ -2048,7 +2059,7 @@ function workoutLanding(){
   }
 
   app.innerHTML=`<section class="card workout-launch-card">
-    <span class="pill">${hasActive?"WORKOUT IN PROGRESS":"TODAY’S WORKOUT"}</span>
+    <span class="pill">${hasActive?"WORKOUT IN PROGRESS":isStartingEarly?"STARTING EARLY":"TODAY’S WORKOUT"}</span>
     <h2>${hasActive?`Resume ${plan.title}`:plan.title}</h2>
     <p>${hasActive
       ?`You are on step ${state.step} of ${activeWorkout().length}.`
@@ -2063,7 +2074,7 @@ function workoutLanding(){
   </section>`;
 
   document.querySelector("#launchWorkout").onclick=()=>{
-    if(!hasActive)startNewSession(dayIndex);
+    if(!selectedSession)startNewSession(dayIndex);
     state.tab="workout";
     save();
     workout();

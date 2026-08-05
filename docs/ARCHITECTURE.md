@@ -31,7 +31,7 @@ Recovery operations move `scheduledDate` values while preserving `plannedDate`, 
 
 Starting a recovered workout does not mutate the schedule. It creates a normal Workout Engine session linked to the missed schedule entry. Completion records `completedDate` while retaining `actualCompletionDate` as a compatibility alias; any shift of today and future workouts occurs only after the user explicitly chooses the replacement option.
 
-Starting a future workout early links the active session to the explicitly selected future schedule entry rather than re-resolving today’s entry. Dismissing a Home coach recommendation adds `coachDismissedAt` and `coachDisposition` metadata to the missed session; it does not change `status`, `plannedDate`, `scheduledDate`, or later workouts, and the missed session remains recoverable from Calendar.
+Starting a future workout early links the active session to the explicitly selected future schedule entry rather than re-resolving today’s entry. A selected session remains authoritative on the pre-workout landing screen even while `step` is zero; workout progress is not required merely to preserve that selection. Dismissing a Home coach recommendation adds `coachDismissedAt` and `coachDisposition` metadata to the missed session; it does not change `status`, `plannedDate`, `scheduledDate`, or later workouts, and the missed session remains recoverable from Calendar.
 
 Calendar rescheduling delegates to the pure scheduling module. Moving into an occupied training date shifts later incomplete sessions in order; completed dates and protected rest dates are treated as unavailable. Moving into an open date does not shift unrelated sessions.
 
