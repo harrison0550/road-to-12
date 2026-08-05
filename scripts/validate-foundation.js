@@ -25,6 +25,7 @@ for (const file of [
   "app-meta.js",
   "exercise-library.js",
   "data.js",
+  "adaptive-coaching.js",
   "scheduling.js",
   "workout-navigation.js",
   "app.js",
@@ -53,6 +54,7 @@ const expectedEntryPoints = [
   "app-meta.js",
   "exercise-library.js",
   "data.js",
+  "adaptive-coaching.js",
   "scheduling.js",
   "workout-navigation.js",
   "app.js",
@@ -88,8 +90,8 @@ if (incompatibleKeys.length) {
   fail(`unexpected versioned storage key(s): ${incompatibleKeys.join(", ")}`);
 }
 
-if (!/const ROAD12_SCHEMA_VERSION=4;/.test(app)) {
-  fail("app.js does not expose the bumper-plate equipment migration schema");
+if (!/const ROAD12_SCHEMA_VERSION=5;/.test(app)) {
+  fail("app.js does not expose the adaptive-profile migration schema");
 }
 if (!/version:4,[\s\S]*?bumperPlates:true[\s\S]*?value\.schemaVersion=4;/.test(app)) {
   fail("app.js does not migrate existing road12v5 profiles to available bumper plates");

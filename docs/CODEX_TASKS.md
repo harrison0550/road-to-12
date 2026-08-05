@@ -4,6 +4,7 @@ This file contains implementation-ready work. Move completed user-visible work t
 
 ## High priority
 
+- [x] Add an offline adaptive training profile with explainable, confirm-before-apply volume, cardio, and progression recommendations.
 - [x] Add deterministic tests for recovery sequence shifting.
 - [x] Test that rest days remain fixed during every rescheduling mode.
 - [x] Add regression coverage for BUG-001 workout scroll restoration.
@@ -30,7 +31,7 @@ This file contains implementation-ready work. Move completed user-visible work t
 
 ## Parking lot
 
-- [ ] Define a progressive-overload recommendation data contract.
+- [x] Define a progressive-overload recommendation data contract.
 - [ ] Research privacy-preserving optional synchronization.
 - [ ] Research Apple Health integration requirements.
 - [ ] Research wearable and heart-rate data sources.

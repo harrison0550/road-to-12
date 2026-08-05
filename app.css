@@ -2219,3 +2219,31 @@ body.home-mode nav button.active{color:#ff4e5b}
   body.home-mode .coach-recommendation:before{left:13px;width:36px;height:36px}
 }
 @media(prefers-reduced-motion:reduce){.command-workout-card,.command-week,.home-command-metrics{scroll-behavior:auto}}
+
+/* Adaptive coaching profile and explainable recommendations */
+.adaptive-profile-card,.adaptive-plan-card,.home-adaptive-card{border-color:#704c1e;background:linear-gradient(145deg,#1d1912,#11151a)}
+.adaptive-profile-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:16px 0}
+.adaptive-profile-card label{display:grid;gap:7px;color:#dce2e8;font-size:13px;font-weight:800}
+.adaptive-profile-card input,.adaptive-profile-card select,.adaptive-profile-card textarea{min-width:0;width:100%;max-width:100%;margin:0}
+.adaptive-profile-card textarea{min-height:96px;resize:vertical}
+.adaptive-check{grid-template-columns:24px minmax(0,1fr)!important;align-items:start;margin:15px 0}
+.adaptive-check input{width:22px!important;height:22px;margin:0!important}
+.adaptive-safety-note{padding:12px 14px;border:1px solid #694c27;border-radius:14px;color:#d6c4a5;background:#211a10;font-size:13px;line-height:1.5}
+.adaptive-plan-card ul{padding-left:20px;color:#c5cbd2;line-height:1.5}
+.adaptive-plan-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:16px 0}
+.adaptive-plan-stats div{min-width:0;padding:12px;border:1px solid #3b352a;border-radius:14px;background:#101419}
+.adaptive-plan-stats small,.adaptive-plan-stats strong{display:block}
+.adaptive-plan-stats small{color:#e3a747;font-size:9px;letter-spacing:.08em}
+.adaptive-plan-stats strong{margin-top:6px;font-size:14px;overflow-wrap:anywhere}
+.adaptive-applied{padding:13px;border-radius:14px;color:#64e3a2;background:#133225;font-weight:900;text-align:center}
+.home-adaptive-card .pill{color:#ffbd52;border-color:#6e4b1e;background:#2a2012}
+.home-adaptive-card h2{margin:11px 0 6px;font-size:24px}
+.adaptive-home-details{display:flex;flex-wrap:wrap;gap:7px;margin:14px 0}
+.adaptive-home-details span{padding:8px 10px;border-radius:999px;background:#242018;color:#f0c77f;font-size:11px;font-weight:800}
+.adaptive-workout-note{display:grid;gap:5px;margin:14px 0;padding:15px;border:1px solid #6f4d22;border-radius:17px;background:#201a11}
+.adaptive-workout-note small{color:#ffb94c;font-weight:900;letter-spacing:.08em}
+.adaptive-workout-note span{color:#c8bfae;font-size:13px;line-height:1.45}
+@media(max-width:370px){
+  .adaptive-profile-grid{grid-template-columns:minmax(0,1fr)}
+  .adaptive-plan-stats{grid-template-columns:minmax(0,1fr)}
+}

@@ -6,9 +6,9 @@ Read this file at the beginning of every Codex or engineering session. It is the
 
 - Product: Road to 12%
 - Version: 13.2.0
-- Build: 2026.08.04.7
+- Build: 2026.08.04.8
 - Last updated: August 4, 2026
-- Service Worker cache: `road12-v13-2-30-shell`
+- Service Worker cache: `road12-v13-2-31-shell`
 - Runtime: static, client-only, offline-first PWA
 - Primary storage key: `road12v5`
 
@@ -17,6 +17,7 @@ Read this file at the beginning of every Codex or engineering session. It is the
 - `index.html` is the application shell.
 - `app.js` owns screen rendering, workout flow, scheduling, recovery, and progress behavior.
 - `scheduling.js` owns pure recovery and date-shifting rules without DOM or storage access.
+- `adaptive-coaching.js` owns pure profile normalization, explainable recommendation rules, and non-mutating workout adaptation.
 - `workout-navigation.js` owns testable workout scroll capture, restoration, and intentional advancement behavior.
 - `data.js` contains workout definitions.
 - `exercise-library.js` contains reviewed exercise education metadata.
@@ -100,6 +101,8 @@ See `CODEX_TASKS.md` for priority and acceptance detail.
 - Home uses the approved Concept B “Training Command Center” language: compact current-week status, one dominant workout action, coach context, existing adherence/recovery/session metrics, and a restrained red/amber/green hierarchy. No wearable or invented health metrics are displayed.
 
 ## Important implementation constraints
+
+- Adaptive coaching is on-device and confirmation-based. Age supplies safety context, experience and available time shape set caps, goals shape cardio emphasis, and recent ratings/recovery govern progression versus holding. Weight remains a progress trend, not a lifting-load formula. Accepted plans are snapshotted into new sessions and never mutate planned dates, rest days, or completed history.
 
 - Preserve existing workout history and `road12v5` compatibility.
 - Migrations must be additive, ordered, and idempotent.

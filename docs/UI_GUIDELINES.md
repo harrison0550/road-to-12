@@ -116,6 +116,8 @@ Workout actions may use dedicated in-flow controls, but users must always have a
 
 ## Accessibility
 
+Adaptive recommendations use amber coach styling, show a plain-language rationale, and require a labelled Apply action. Applied state must be conveyed with text and an icon rather than green alone. Profile health and limitation fields must never imply diagnosis or replace professional care.
+
 Exercise illustrations require meaningful alternative text. App-created artwork must be labelled as an illustration and must not imply that it is licensed footage or a substitute for written coaching.
 
 - Use semantic headings in a logical hierarchy.

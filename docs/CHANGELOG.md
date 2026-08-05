@@ -8,6 +8,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Added
 
+- An offline adaptive-coaching foundation with a private on-device training profile, explainable recommendations, explicit acceptance, session-length volume caps, cardio targets, conservative progression guardrails, and backup compatibility.
 - A coach-forward Home command center with an accessible weekly status strip, focused workout card, existing adherence/recovery/session metrics, compact next-workout context, and latest check-in summary.
 - Home coach recommendations now offer a confirmed “Leave missed & continue plan” action while preserving the Missed Calendar record.
 - Offline timer-completion chime with vibration and an accessible completion announcement.
@@ -32,6 +33,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Changed
 
+- Advanced the maintenance build to `2026.08.04.8` and rotated the offline shell cache for adaptive coaching.
 - The muscle recovery map now derives trained groups from saved exercise muscles and falls back to current exercise definitions for compatible older history.
 - Smith-machine weight entry now clearly requests total plate weight across both sides and reports the per-side load plus the M1 Pro's 33 lb Smith bar in the working-weight total.
 - Bumper plates are now enabled for existing and new installations, reflecting the available 10–45 lb plate range for Smith-machine loading.

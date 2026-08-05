@@ -88,6 +88,8 @@ AI capabilities should enter through explicit, testable boundaries:
 
 AI modules must be optional, privacy-conscious, and gracefully unavailable offline. Deterministic scheduling and workout completion rules remain authoritative.
 
+The first adaptive-coaching foundation is deterministic and offline. `adaptive-coaching.js` normalizes profile inputs, builds an explainable recommendation from the profile and saved workout feedback, and returns cloned workout definitions with an accepted set cap or cardio target. It never accesses the DOM, storage, Calendar, or scheduling state. The UI stores a recommendation only after explicit acceptance and snapshots it into a newly started session so feedback changes cannot alter an active workout. Recorded limitations disable load-increase recommendations; they are not parsed into medical exercise prescriptions.
+
 ## Architectural boundaries
 
 New work should move toward clear modules without large one-release rewrites:

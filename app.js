@@ -161,7 +161,7 @@ if(smithSquatTemplate){
 }
 /* Versioned storage boundary. Migrations must remain ordered and idempotent. */
 const ROAD12_STORAGE_KEY="road12v5";
-const ROAD12_SCHEMA_VERSION=4;
+const ROAD12_SCHEMA_VERSION=5;
 const ROAD12_MIGRATIONS=[
   {
     version:1,
@@ -199,6 +199,16 @@ const ROAD12_MIGRATIONS=[
     up(value){
       value.equipment=Object.assign({},value.equipment||{}, {bumperPlates:true});
       value.schemaVersion=4;
+      return value;
+    }
+  },
+  {
+    version:5,
+    up(value){
+      value.trainingProfile=window.ROAD12_ADAPTIVE.normalizeProfile(value.trainingProfile||{});
+      value.adaptiveRecommendation=value.adaptiveRecommendation||null;
+      value.acceptedAdaptivePlan=value.acceptedAdaptivePlan||null;
+      value.schemaVersion=5;
       return value;
     }
   }
@@ -246,6 +256,9 @@ state.workoutSessions=Array.isArray(state.workoutSessions)?state.workoutSessions
 state.calendarMonth=state.calendarMonth||null;
 state.scheduleActivatedDate=state.scheduleActivatedDate||localDateKey();
 state.workoutScroll=Number.isFinite(state.workoutScroll)?state.workoutScroll:0;
+state.trainingProfile=window.ROAD12_ADAPTIVE.normalizeProfile(state.trainingProfile||{});
+state.adaptiveRecommendation=state.adaptiveRecommendation||null;
+state.acceptedAdaptivePlan=state.acceptedAdaptivePlan||null;
 state.equipment=Object.assign({
   ritfitM1:true,
   bench:true,
@@ -850,7 +863,16 @@ function imageLicenses(){
  <section class="license-list">${namedEntries.map(([usedFor,entry])=>`<article class="card license-entry"><img src="${entry.media}" alt="${entry.mediaAlt}"><div><h3>${entry.sourceExercise}</h3><p><strong>Used for:</strong> ${usedFor}</p><p><strong>Source:</strong> ${entry.sourceType==="official-manual"?entry.sourceDocument:entry.provider}</p><p><strong>Author:</strong> ${entry.author}</p>${entry.sourceType==="official-manual"?`<p><strong>Use:</strong> ${entry.rightsNote}</p><p><a href="${entry.providerUrl}" target="_blank" rel="noopener">RitFit website</a></p>`:`<p><strong>License:</strong> <a href="${entry.license.url}" target="_blank" rel="noopener">${entry.license.fullName}</a></p><p><a href="${entry.sourceUrl}" target="_blank" rel="noopener">wger record</a>${entry.originalSourceUrl?` · <a href="${entry.originalSourceUrl}" target="_blank" rel="noopener">original source</a>`:""}</p>`}</div></article>`).join("")}</section>`;
  document.querySelector("#licensesBack").onclick=equipment;
 }
+function escapeAdaptiveText(value){
+ return String(value||"").replace(/[&<>"']/g,character=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[character]);
+}
+function currentAdaptiveRecommendation(){
+ const latestCheckin=Object.keys(state.dailyCheckins||{}).sort().reverse().map(key=>state.dailyCheckins[key])[0];
+ return window.ROAD12_ADAPTIVE.buildRecommendation({profile:state.trainingProfile,currentWeight:state.weight,history:state.history,ratings:state.workoutRatings,latestRecovery:latestCheckin?.recovery||"Good"});
+}
 function equipment(){
+ const profile=state.trainingProfile;
+ const recommendation=currentAdaptiveRecommendation();
  const items=[
   ["ritfitM1","🏋️","RitFit M1 Pro","Required for cable and Smith-machine exercises."],
   ["bench","🪑","Adjustable bench","Used for seated rows, pulldowns and supported movements."],
@@ -868,11 +890,33 @@ function equipment(){
   ["latBar","Lat pulldown bar","Used for lat pulldowns."],
   ["rowHandle","Close-grip row handle","Used for seated cable rows."]
  ];
- app.innerHTML=`<section class="card"><h2>Profile</h2><label>What should the app call you?<input id="preferredName" value="${state.preferredName}" autocomplete="given-name"></label><button class="secondary profile-save" id="saveProfile">Save name</button></section><section class="card"><h2>My Equipment</h2><p class="muted">Workouts use only equipment switched on.</p><div class="equipment-toggle-list">${items.map(([key,icon,title,note])=>`<label class="equipment-toggle"><span class="equipment-symbol">${icon}</span><span class="equipment-copy"><strong>${title}</strong><small>${note}</small></span><input type="checkbox" data-equipment="${key}" ${state.equipment[key]?"checked":""}><span class="toggle-ui"></span></label>`).join("")}</div></section>
+ app.innerHTML=`<section class="card"><h2>Profile</h2><label>What should the app call you?<input id="preferredName" value="${state.preferredName}" autocomplete="given-name"></label><button class="secondary profile-save" id="saveProfile">Save name</button></section>
+ <section class="card adaptive-profile-card" aria-labelledby="trainingProfileTitle"><span class="pill">ADAPTIVE COACH</span><h2 id="trainingProfileTitle">Training profile</h2><p class="muted">These details shape training volume and recommendations. They remain on this device.</p>
+   <div class="adaptive-profile-grid">
+     <label>Age<input id="profileAge" type="number" inputmode="numeric" min="18" max="100" value="${profile.age||""}"></label>
+     <label>Height (inches)<input id="profileHeight" type="number" inputmode="decimal" min="48" max="84" value="${profile.heightIn||""}"></label>
+     <label>Target weight (lb)<input id="profileTargetWeight" type="number" inputmode="decimal" min="90" max="500" value="${profile.targetWeight||""}"></label>
+     <label>Typical session<select id="profileSessionMinutes">${[30,45,60,75,90].map(value=>`<option value="${value}" ${profile.sessionMinutes===value?"selected":""}>${value} minutes</option>`).join("")}</select></label>
+     <label>Primary goal<select id="profileGoal"><option value="fatLoss" ${profile.goal==="fatLoss"?"selected":""}>Fat loss while preserving muscle</option><option value="recomposition" ${profile.goal==="recomposition"?"selected":""}>Body recomposition</option><option value="strength" ${profile.goal==="strength"?"selected":""}>Strength</option><option value="general" ${profile.goal==="general"?"selected":""}>General fitness</option></select></label>
+     <label>Training experience<select id="profileExperience"><option value="beginner" ${profile.experience==="beginner"?"selected":""}>Beginner</option><option value="intermediate" ${profile.experience==="intermediate"?"selected":""}>Intermediate</option><option value="advanced" ${profile.experience==="advanced"?"selected":""}>Advanced</option></select></label>
+     <label>Available training days<select id="profileTrainingDays">${[2,3,4,5,6,7].map(value=>`<option value="${value}" ${profile.trainingDays===value?"selected":""}>${value} days per week</option>`).join("")}</select></label>
+   </div>
+   <label>Injuries, limitations, or movements to avoid<textarea id="profileLimitations" maxlength="500" placeholder="Leave blank if none">${escapeAdaptiveText(profile.limitations)}</textarea></label>
+   <label class="adaptive-check"><input id="profileHealthClearance" type="checkbox" ${profile.healthClearance?"checked":""}><span>I have a health concern that should keep progression conservative.</span></label>
+   <p class="adaptive-safety-note">This coaching system is not medical advice. Stop for chest pain, faintness, or sharp pain and seek appropriate professional guidance.</p>
+   <button class="primary" id="saveTrainingProfile">Save profile and refresh recommendation</button>
+ </section>
+ <section class="card adaptive-plan-card"><span class="pill">CURRENT RECOMMENDATION</span><h2>${recommendation.title}</h2><p>${recommendation.summary}</p><ul>${recommendation.reasons.map(reason=>`<li>${reason}</li>`).join("")}</ul><div class="adaptive-plan-stats"><div><small>STRENGTH</small><strong>Up to ${recommendation.strengthSetCap} sets</strong></div><div><small>CARDIO TARGET</small><strong>${recommendation.cardioTargetMinutes} min</strong></div><div><small>LOAD</small><strong>${recommendation.progression==="smallIncrease"?"Small increase":"Hold"}</strong></div></div>${state.acceptedAdaptivePlan?.id===recommendation.id?'<p class="adaptive-applied" role="status">✓ Applied to upcoming workouts</p>':'<button class="primary" id="applyAdaptivePlan">Apply this recommendation</button>'}<p class="muted">Applying never changes planned dates, completed workouts, or rest days.</p></section>
+ <section class="card"><h2>My Equipment</h2><p class="muted">Workouts use only equipment switched on.</p><div class="equipment-toggle-list">${items.map(([key,icon,title,note])=>`<label class="equipment-toggle"><span class="equipment-symbol">${icon}</span><span class="equipment-copy"><strong>${title}</strong><small>${note}</small></span><input type="checkbox" data-equipment="${key}" ${state.equipment[key]?"checked":""}><span class="toggle-ui"></span></label>`).join("")}</div></section>
  <section class="card"><h2>Attachment Locker</h2><p class="muted">Add a close-up photo of each attachment from your actual gym. The correct photo will appear during every exercise with a bright “USE THIS ONE” label.</p><div class="attachment-locker">${attachments.map(([key,title,note])=>`<div class="locker-item">${state.attachmentPhotos[key]?`<img src="${state.attachmentPhotos[key]}" alt="${title}">`:`<div class="locker-placeholder">📷</div>`}<div class="locker-copy"><strong>${title}</strong><small>${note}</small><label class="photo-button">Choose photo<input type="file" accept="image/*" capture="environment" data-photo="${key}"></label>${state.attachmentPhotos[key]?`<button class="clear-photo" data-clear-photo="${key}">Remove</button>`:""}</div></div>`).join("")}</div></section>
  <section class="card equipment-impact"><h3>Current workout impact</h3><div class="impact-row"><span>Available exercises</span><strong>${activeWorkout().length}</strong></div><div class="impact-row"><span>Automatic substitutions</span><strong>${substitutionCount()}</strong></div><div class="impact-row"><span>Bumper-plate exercises</span><strong>${state.equipment.bumperPlates?"Enabled":"Disabled"}</strong></div><button class="primary" id="equipmentWorkout">Start equipment-safe workout</button></section>
  <section class="card about-card"><span class="pill">ABOUT</span><h2>Road to 12%</h2><div class="about-grid"><div><small>VERSION</small><strong>${APP_META.version}</strong></div><div><small>BUILD</small><strong>${APP_META.build}</strong></div><div><small>LAST UPDATED</small><strong>${APP_META.lastUpdated}</strong></div><div><small>GIT COMMIT</small><strong>${APP_META.gitCommit||"Not embedded"}</strong></div><div><small>SERVICE WORKER</small><strong>${APP_META.serviceWorkerCache}</strong></div></div><button class="secondary about-license-button" id="imageLicenses">Image Sources & Licenses</button></section>`;
  document.querySelector("#saveProfile").onclick=()=>{state.preferredName=document.querySelector("#preferredName").value.trim()||"Andy";save();equipment()};
+ document.querySelector("#saveTrainingProfile").onclick=()=>{
+   state.trainingProfile=window.ROAD12_ADAPTIVE.normalizeProfile({age:document.querySelector("#profileAge").value,heightIn:document.querySelector("#profileHeight").value,targetWeight:document.querySelector("#profileTargetWeight").value,goal:document.querySelector("#profileGoal").value,experience:document.querySelector("#profileExperience").value,trainingDays:document.querySelector("#profileTrainingDays").value,sessionMinutes:document.querySelector("#profileSessionMinutes").value,limitations:document.querySelector("#profileLimitations").value,healthClearance:document.querySelector("#profileHealthClearance").checked});
+   state.adaptiveRecommendation=null;state.acceptedAdaptivePlan=null;save();equipment();
+ };
+ document.querySelector("#applyAdaptivePlan")?.addEventListener("click",()=>{state.acceptedAdaptivePlan=currentAdaptiveRecommendation();save();equipment()});
  document.querySelectorAll("[data-equipment]").forEach(input=>input.onchange=()=>{state.equipment[input.dataset.equipment]=input.checked;state.step=0;save();equipment()});
  document.querySelectorAll("[data-photo]").forEach(input=>input.onchange=e=>saveAttachmentPhoto(input.dataset.photo,e.target.files?.[0]));
  document.querySelectorAll("[data-clear-photo]").forEach(btn=>btn.onclick=()=>{delete state.attachmentPhotos[btn.dataset.clearPhoto];save();equipment()});
@@ -1278,6 +1322,8 @@ function exportV1131Backup(){
      workoutRatings:state.workoutRatings||{},
      dailyCheckins:state.dailyCheckins||{},
      achievements:state.achievements||{},
+     trainingProfile:state.trainingProfile,
+     acceptedAdaptivePlan:state.acceptedAdaptivePlan,
      equipment:state.equipment,
      attachmentPhotos:state.attachmentPhotos||{}
    }
@@ -1304,6 +1350,8 @@ function importV1131Backup(file){
      state.workoutRatings=Object.assign({},incoming.workoutRatings||{},state.workoutRatings||{});
      state.dailyCheckins=Object.assign({},incoming.dailyCheckins||{},state.dailyCheckins||{});
      state.achievements=Object.assign({},incoming.achievements||{},state.achievements||{});
+     if(incoming.trainingProfile)state.trainingProfile=window.ROAD12_ADAPTIVE.normalizeProfile(incoming.trainingProfile);
+     if(incoming.acceptedAdaptivePlan&&!state.acceptedAdaptivePlan)state.acceptedAdaptivePlan=incoming.acceptedAdaptivePlan;
      state.equipment=Object.assign({},state.equipment||{},incoming.equipment||{});
      state.attachmentPhotos=Object.assign({},state.attachmentPhotos||{},incoming.attachmentPhotos||{});
      if(incoming.weight)state.weight=incoming.weight;
@@ -1343,6 +1391,7 @@ function home(){
     ?parseDateKey(primarySession.scheduledDate).toLocaleDateString(undefined,{weekday:"long",month:"short",day:"numeric"})
     :"Upcoming";
   const metrics=v42Metrics();
+  const adaptiveRecommendation=currentAdaptiveRecommendation();
   const weekStart=parseDateKey(todayKey);weekStart.setDate(weekStart.getDate()-currentPlanIndex());
   const weekDays=weekPlan.map((day,index)=>{
     const date=new Date(weekStart);date.setDate(weekStart.getDate()+index);
@@ -1375,6 +1424,7 @@ function home(){
    <div><span class="metric-ring recovery-ring" style="--metric-progress:${metrics.recovery}%"><strong>${metrics.recovery}</strong></span><small>Recovery</small></div>
    <div><span class="session-metric-icon">▦</span><strong>${metrics.total}</strong><small>Sessions</small></div>
  </section>
+ <section class="card home-adaptive-card"><span class="pill">ADAPTIVE COACH</span><h2>${adaptiveRecommendation.title}</h2><p>${adaptiveRecommendation.summary}</p><div class="adaptive-home-details"><span>${adaptiveRecommendation.strengthSetCap} set cap</span><span>${adaptiveRecommendation.cardioTargetMinutes} min cardio</span><span>${adaptiveRecommendation.progression==="smallIncrease"?"Progress carefully":"Hold loads"}</span></div><button class="secondary" id="openAdaptiveProfile">${state.acceptedAdaptivePlan?.id===adaptiveRecommendation.id?"View applied plan":"Review and apply"}</button></section>
  ${followingPlan?`<button class="card command-up-next" id="previewFollowingWorkout"><span class="up-next-icon">${followingPlan.icon}</span><span><small>UP NEXT • ${parseDateKey(followingSession.scheduledDate).toLocaleDateString(undefined,{weekday:"short",month:"short",day:"numeric"})}</small><strong>${followingPlan.title}</strong><em>${followingPlan.time}</em></span><b aria-hidden="true">›</b></button>`:""}
  ${latest?`<section class="card command-achievement"><span class="achievement-icon">✓</span><div><small>LATEST ACHIEVEMENT</small><strong>${latest.name||"Completed workout"}</strong><span>${v1131DateLabel(latest)} • ${latestTotals.completedSets} sets</span></div><button class="secondary" id="viewLatestAchievement">View</button></section>`:""}
  <section class="command-checkin" aria-label="Latest check-in"><div><small>WEIGHT</small><strong>${state.weight} lb</strong></div><div><small>WAIST</small><strong>${state.waist} in</strong></div></section>`;
@@ -1394,6 +1444,7 @@ function home(){
  document.querySelector("#previewSelected")?.addEventListener("click",()=>showDayPlan(nextDayIndex));
  document.querySelector("#previewNextWorkout")?.addEventListener("click",()=>showDayPlan(nextDayIndex));
  document.querySelector("#previewFollowingWorkout")?.addEventListener("click",()=>showDayPlan(followingSession.planDay));
+ document.querySelector("#openAdaptiveProfile")?.addEventListener("click",()=>{state.tab="equipment";save();render()});
  document.querySelectorAll("[data-day]").forEach(button=>{
    button.onclick=()=>{
      state.selectedDay=Number(button.dataset.day);
@@ -1522,6 +1573,7 @@ function exercise(ex,workoutData=activeWorkout()){
    ${exerciseTeachingMarkup(ex)}
    ${smithPlateCalculator(ex)}
    ${quickSettings(ex)}
+   ${state.currentSession?.adaptivePlan?`<div class="adaptive-workout-note"><small>ADAPTIVE PLAN APPLIED</small><strong>${strength?`${ex.sets} working set${ex.sets===1?"":"s"}`:`${ex.adaptiveDurationMinutes?`${ex.adaptiveDurationMinutes} minute target`:"Recovery work preserved"}`}</strong><span>${ex.adaptiveProgression==="smallIncrease"?"Use only the smallest available increase when every prescribed rep is controlled.":"Hold the current load and prioritize controlled completion."}</span></div>`:""}
    ${strength?`<div class="weight-coach-card"><h3>Weight recommendation</h3><p>${ex.weightRecommendation}</p></div>`:""}
  </section>
  ${strength?sets(ex):timed(ex)}
@@ -1958,11 +2010,14 @@ function strengthWorkoutForDay(dayIndex){
 }
 
 function workoutForDay(dayIndex=currentPlanIndex()){
-  if(dayIndex===1)return cardioMobilityWorkout();
-  if(dayIndex===3)return coreRecoveryWorkout();
-  if(dayIndex===5)return zone2CardioWorkout();
-  if(dayIndex===6)return [];
-  return strengthWorkoutForDay(dayIndex);
+  let workoutData;
+  if(dayIndex===1)workoutData=cardioMobilityWorkout();
+  else if(dayIndex===3)workoutData=coreRecoveryWorkout();
+  else if(dayIndex===5)workoutData=zone2CardioWorkout();
+  else if(dayIndex===6)workoutData=[];
+  else workoutData=strengthWorkoutForDay(dayIndex);
+  const adaptivePlan=state.currentSession?.adaptivePlan||state.acceptedAdaptivePlan;
+  return window.ROAD12_ADAPTIVE.applyRecommendation(workoutData,adaptivePlan);
 }
 
 function activeWorkout(){
@@ -1993,6 +2048,7 @@ function startNewSession(dayIndex=currentPlanIndex(),selectedSchedule=null){
    recoveredWorkout:isRecovered,
    plannedDate:isRecovered?selectedSchedule.plannedDate:null,
    originalScheduledDate:isRecovered?selectedSchedule.scheduledDate:null,
+   adaptivePlan:state.acceptedAdaptivePlan?deepCopy(state.acceptedAdaptivePlan):null,
    equipment:deepCopy(state.equipment)
  };
   state.step=0;
