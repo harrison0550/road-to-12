@@ -1,5 +1,5 @@
 /* Keep this query aligned with app-meta.js so Safari cannot reuse stale imported metadata. */
-importScripts("./app-meta.js?build=2026.08.04.2");
+importScripts("./app-meta.js?build=2026.08.04.3");
 
 const CACHE=self.ROAD12_META.serviceWorkerCache;
 const CACHE_PREFIX="road12-";
@@ -29,6 +29,9 @@ const ASSETS=[
   "./assets/exercise-library/original/arm-circles-posture.webp",
   "./assets/exercise-library/original/bodyweight-squat-posture.webp",
   "./assets/exercise-library/original/lat-pulldown-red-cage.webp",
+  "./assets/exercise-library/original/hip-flexor-mobility.webp",
+  "./assets/exercise-library/original/hamstring-mobility.webp",
+  "./assets/exercise-library/original/chest-shoulder-mobility.webp",
   "./assets/exercise-library/original/hip-hinge-posture.webp",
   "./assets/exercise-library/original/incline-cable-press-cage.webp",
   "./assets/exercise-library/original/treadmill-walk-posture.webp",

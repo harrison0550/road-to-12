@@ -26,6 +26,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Offline Arm Circles artwork showing the standing posture and circular arm path.
 - Offline two-position Bodyweight Squat artwork showing a tall start and controlled parallel-depth squat.
 - Offline two-position Lat Pulldown artwork showing the complete red Smith cage, one high front-post pulley, a center-connected cable, and a safe upper-chest finish.
+- Offline two-position illustrations for Hip Flexor Mobility, supported standing Hamstring Mobility, and Chest and Shoulder wall slides.
 
 ### Changed
 
@@ -63,6 +64,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Advanced the maintenance build to `2026.08.03.8` and rotated the offline shell cache for the clarified Smith-machine weight calculator.
 - Advanced the maintenance build to `2026.08.04.1` and rotated the offline shell cache for workout quality-of-life improvements.
 - Advanced the maintenance build to `2026.08.04.2` and rotated the offline shell cache for the Progress navigation-state fix.
+- Advanced the maintenance build to `2026.08.04.3` and rotated the offline shell cache for the three approved mobility guides.
+- Replaced the ambiguous mobility directions with one equipment-specific movement per exercise that matches its illustration.
 - Replaced developer-facing missing-media copy with concise coached-instruction guidance.
 
 ### Fixed

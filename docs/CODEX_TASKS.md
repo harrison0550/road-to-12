@@ -58,6 +58,7 @@ Copy this block for new work:
 
 ## Completed this sprint
 
+- [x] Add approved offline illustrations and matching single-movement instructions for all three Tuesday mobility exercises.
 - [x] Add an offline timer-completion sound and accessible completion announcement.
 - [x] Show the most recent completed weight during each strength exercise.
 - [x] Select the next incomplete scheduled session on Home after workout completion.

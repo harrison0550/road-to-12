@@ -6,9 +6,9 @@ Read this file at the beginning of every Codex or engineering session. It is the
 
 - Product: Road to 12%
 - Version: 13.2.0
-- Build: 2026.08.04.2
+- Build: 2026.08.04.3
 - Last updated: August 4, 2026
-- Service Worker cache: `road12-v13-2-25-shell`
+- Service Worker cache: `road12-v13-2-26-shell`
 - Runtime: static, client-only, offline-first PWA
 - Primary storage key: `road12v5`
 
@@ -92,6 +92,7 @@ See `CODEX_TASKS.md` for priority and acceptance detail.
 - Timer completion uses a locally generated Web Audio chime, vibration where supported, and an accessible status announcement; it does not require a network asset.
 - Previous-weight guidance is derived from the most recent completed set for the same exercise and never overwrites the current set entry.
 - Home's Next Workout card follows the next incomplete scheduled session; the recovery map derives recent muscle groups from immutable workout history with a legacy name-based fallback.
+- Mobility education uses one clearly named movement per exercise; the approved Hip Flexor, supported standing Hamstring, and Chest and Shoulder wall-slide illustrations are cached for offline workouts and match their written steps.
 
 ## Important implementation constraints
 

@@ -54,14 +54,14 @@ const SAFE_EXERCISE_ASSET_OVERRIDES={
  "Bodyweight Squat":"assets/placeholders/bodyweight-squat.svg",
  "Goblet Squat":"assets/placeholders/bodyweight-squat.svg",
  "Hip Hinge":"assets/placeholders/hip-hinge.svg",
- "Hip Flexor Mobility":"assets/placeholders/hip-flexor-mobility.svg",
- "Hamstring Mobility":"assets/placeholders/hamstring-mobility.svg",
+ "Hip Flexor Mobility":"assets/exercise-library/original/hip-flexor-mobility.webp",
+ "Hamstring Mobility":"assets/exercise-library/original/hamstring-mobility.webp",
  "Hip and Glute Mobility":"assets/placeholders/hip-glute-mobility.svg",
  "Hip & Glute Mobility":"assets/placeholders/hip-glute-mobility.svg",
  "Core Activation Circuit":"assets/placeholders/core-activation.svg",
  "Core Activation":"assets/placeholders/core-activation.svg",
- "Chest and Shoulder Mobility":"assets/placeholders/thoracic-shoulder-mobility.svg",
- "Thoracic and Shoulder Mobility":"assets/placeholders/thoracic-shoulder-mobility.svg",
+ "Chest and Shoulder Mobility":"assets/exercise-library/original/chest-shoulder-mobility.webp",
+ "Thoracic and Shoulder Mobility":"assets/exercise-library/original/chest-shoulder-mobility.webp",
  "Thoracic & Shoulder Mobility":"assets/placeholders/thoracic-shoulder-mobility.svg",
  "Post-Workout Stretch":"assets/placeholders/cooldown-recovery.svg",
  "Cool Down & Recovery":"assets/placeholders/cooldown-recovery.svg",
@@ -1615,46 +1615,46 @@ function cardioMobilityWorkout(){
       name:"Hip Flexor Mobility",
       duration:"2:00",
       muscles:"Hip flexors and front of the thighs",
-      setup:["Use a half-kneeling position","Hold 30 seconds per side, twice"],
+      setup:["Place the rear knee on a mat and step the opposite foot forward","Keep the front foot flat and hold 30 seconds per side, twice"],
       steps:[
-        "Kneel with one foot forward and the rear knee supported.",
-        "Tuck your pelvis slightly.",
-        "Shift forward until you feel a gentle stretch in the rear hip.",
+        "Begin tall in the half-kneeling position shown.",
+        "Gently tuck your pelvis by bringing your belt buckle toward your ribs.",
+        "Keeping your torso upright, shift your hips forward a few inches until you feel a gentle stretch in the front of the rear hip.",
         "Repeat on the opposite side."
       ],
-      cues:["Stay tall.","Do not arch your lower back."],
+      cues:["Squeeze the rear-side glute.","Stay tall and do not arch your lower back.","Use a small, pain-free shift rather than a deep lunge."],
       why:"Restores hip motion after incline walking.",
-      demoImage:"assets/placeholders/hip-flexor-mobility.svg"
+      demoImage:"assets/exercise-library/original/hip-flexor-mobility.webp"
     }),
     cloneExerciseByName("Post-Workout Stretch",{
       name:"Hamstring Mobility",
       duration:"2:00",
       muscles:"Hamstrings and calves",
-      setup:["Use a supported standing or seated position","Hold 30 seconds per side, twice"],
+      setup:["Stand facing a low bench or stable platform","Place one heel on the support with that knee nearly straight","Hold 30 seconds per side, twice"],
       steps:[
-        "Extend one leg with the heel supported.",
-        "Keep your back long.",
-        "Hinge forward gently from the hips.",
+        "Begin tall with the supported toes pointing upward.",
+        "Keep your back long and soften the standing knee.",
+        "Push your hips backward and hinge your whole torso forward until you feel a gentle stretch behind the supported thigh.",
         "Repeat on the opposite side."
       ],
-      cues:["Do not bounce.","Stop before the stretch becomes painful."],
+      cues:["Lead with your chest instead of rounding toward your knee.","Keep the supported foot relaxed and pointed straight up.","Do not bounce; stop before the stretch becomes painful."],
       why:"Reduces lower-body tightness after treadmill work.",
-      demoImage:"assets/placeholders/hamstring-mobility.svg"
+      demoImage:"assets/exercise-library/original/hamstring-mobility.webp"
     }),
     cloneExerciseByName("Arm Circles",{
       name:"Chest and Shoulder Mobility",
       duration:"3:00",
       muscles:"Chest, shoulders and upper back",
-      setup:["No equipment","Move slowly through a comfortable range"],
+      setup:["Stand with your back, head and forearms against a clear wall","Set your elbows near shoulder height in a comfortable W shape"],
       steps:[
-        "Perform controlled arm circles in both directions.",
-        "Open and close the arms across the chest.",
-        "Reach overhead without shrugging.",
-        "Finish with slow shoulder-blade squeezes."
+        "Gently draw your ribs down and keep your lower back neutral.",
+        "Slide both forearms upward along the wall toward a wide Y shape.",
+        "Stop before your shoulders shrug or your back arches.",
+        "Return slowly to the W position and repeat for the full interval."
       ],
-      cues:["Keep your ribs down.","Never force the range."],
+      cues:["Keep your ribs down.","Let the shoulder blades rotate as the arms rise.","Use only the range you can control without pain."],
       why:"Maintains upper-body mobility between strength sessions.",
-      demoImage:"assets/placeholders/thoracic-shoulder-mobility.svg"
+      demoImage:"assets/exercise-library/original/chest-shoulder-mobility.webp"
     }),
     cloneExerciseByName("Easy Treadmill Cooldown",{
       name:"Easy Cardio Cooldown",

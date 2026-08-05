@@ -298,22 +298,33 @@
       equipment: ["RitFit M1", "D-handle"],
       commonMistakes: ["Pulling only with the arms", "Twisting through the knees", "Moving too quickly to control the return"]
     }),
-    "Hip Flexor Mobility": {
-      sourceType: "licensed-community",
-      provider: "wger Workout Manager",
-      providerUrl: "https://wger.de/",
-      sourceExercise: "Hip Flexor Stretch",
-      sourceExerciseId: 1867,
-      sourceUrl: "https://wger.de/en/exercise/1867/view",
-      author: "Davidgj32",
-      media: "assets/exercise-library/wger/hip-flexor-stretch.webp",
-      mediaAlt: "Half-kneeling hip flexor stretch with an upright torso",
+    "Hip Flexor Mobility": road12Illustration({
+      sourceExercise: "Half-kneeling hip flexor mobility stretch",
+      media: "hip-flexor-mobility.webp",
+      mediaAlt: "Side-by-side illustration of a tall half-kneeling start and a small controlled forward hip shift with the rear knee supported on a mat",
       primaryMuscles: ["Hip flexors"],
       secondaryMuscles: ["Quadriceps"],
       equipment: ["Exercise mat"],
-      commonMistakes: ["Arching the lower back", "Leaning without moving the hips", "Forcing a painful range"],
-      license: wgerLicense
-    }
+      commonMistakes: ["Arching the lower back", "Leaning the torso instead of shifting the hips", "Forcing a deep or painful lunge"]
+    }),
+    "Hamstring Mobility": road12Illustration({
+      sourceExercise: "Supported standing hamstring mobility stretch",
+      media: "hamstring-mobility.webp",
+      mediaAlt: "Side-by-side illustration of a supported standing hamstring stretch, beginning tall with one heel on a low bench and finishing with a long-spine hip hinge",
+      primaryMuscles: ["Hamstrings"],
+      secondaryMuscles: ["Calves"],
+      equipment: ["Low bench or stable platform"],
+      commonMistakes: ["Rounding the back", "Bouncing into the stretch", "Locking the standing knee or forcing a painful range"]
+    }),
+    "Chest and Shoulder Mobility": road12Illustration({
+      sourceExercise: "Standing wall slide from W to Y",
+      media: "chest-shoulder-mobility.webp",
+      mediaAlt: "Side-by-side illustration of a wall slide, beginning with the arms in a W shape and finishing in a wide overhead Y without shrugging or arching the back",
+      primaryMuscles: ["Shoulders", "Upper back"],
+      secondaryMuscles: ["Chest", "Serratus anterior"],
+      equipment: ["Clear wall"],
+      commonMistakes: ["Arching the lower back", "Shrugging the shoulders", "Forcing the hands or elbows against the wall"]
+    })
   };
 
   root.ROAD12_EXERCISE_LIBRARY = Object.freeze({
