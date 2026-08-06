@@ -34,6 +34,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Changed
 
+- Advanced the maintenance build to `2026.08.05.1` and rotated the offline shell cache for guided cardio and recovery preview launches.
+- Workout previews now list the actual equipment-safe guided sequence that will launch rather than a separate summary list.
 - Advanced the maintenance build to `2026.08.04.10` and rotated the offline shell cache for the equipment-profile update.
 - Goblet Squat now explicitly uses one dumbbell and returns to the equipment-safe workout rotation.
 - Advanced the maintenance build to `2026.08.04.9` and rotated the offline shell cache for the Home next-workout correction.
@@ -83,6 +85,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Fixed
 
+- Core + Recovery, Cardio + Mobility, and Zone 2 previews now start their implemented guided workouts instead of showing an obsolete preview-only message.
 - Home now advances to the next incomplete scheduled workout after today's workout is complete, including older saved sessions whose schedule status was not updated.
 
 - Fixed Start This Workout Early launching today’s workout instead of the selected future workout, including the second handoff through the pre-workout landing screen.

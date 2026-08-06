@@ -129,6 +129,15 @@ No confirmed production defects are currently documented.
 ## Bug template
 
 ```markdown
+### BUG-014 — Cardio and recovery previews do not launch
+
+- Status: Resolved in v13.2.0 maintenance build 2026.08.05.1
+- Severity: High
+- Area: Workout Preview / Workout Engine
+- Report: Core + Recovery displayed a Start Early button but only showed an alert saying its guided timer flow would be added later, even though the guided workout already existed.
+- Resolution: Every non-check-in preview now lists the actual equipment-safe workout and launches it through the existing Workout Engine. Sunday check-in continues to open Progress.
+- Regression test: `scripts/test-guided-preview-launch.js`
+
 ### BUG-000 — Short description
 
 - Status: Reported | Confirmed | In progress | Resolved

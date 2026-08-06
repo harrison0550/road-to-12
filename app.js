@@ -479,19 +479,17 @@ function previewScheduleForDay(sessions,dayIndex,today){
 }
 function showDayPlan(dayIndex=state.selectedDay){
  const day=weekPlan[dayIndex],isToday=dayIndex===currentPlanIndex();
+ const previewItems=day.action==="progress"?day.items:workoutForDay(dayIndex).map(exercise=>exercise.name);
  app.innerHTML=`<section class="card day-preview-card"><button class="secondary" id="previewBack">Back to schedule</button><div class="preview-title"><span class="large-icon">${day.icon}</span><div><span class="pill">${day.short} PREVIEW</span><h2>${day.title}</h2><p class="muted">${day.detail}</p></div></div><div class="brief-grid"><div><small>TIME</small><strong>${day.time}</strong></div><div><small>FOCUS</small><strong>${day.focus}</strong></div><div><small>STATUS</small><strong>${isToday&&todayCompleted()?"Completed":isToday?"Today":"Preview"}</strong></div><div><small>SETUP FLOW</small><strong>${day.setup}</strong></div></div></section>
- <section class="card"><h2>Workout preview</h2><p class="muted">Previewing does not start or change your active workout.</p><ol class="preview-exercise-list">${day.items.map((item,i)=>`<li><span>${i+1}</span><strong>${item}</strong></li>`).join("")}</ol></section>
+ <section class="card"><h2>Workout preview</h2><p class="muted">Previewing does not start or change your active workout.</p><ol class="preview-exercise-list">${previewItems.map((item,i)=>`<li><span>${i+1}</span><strong>${item}</strong></li>`).join("")}</ol></section>
  ${day.action==="workout"||day.action==="upcoming"?`<section class="card setup-efficiency-card"><h3>M1 setup efficiency</h3><p>The sequence is grouped so you finish one pulley zone before moving to the next.</p><div class="setup-flow">${day.setup.split(" → ").map(x=>`<span>${x}</span>`).join("")}</div></section>`:""}
  <button class="primary" id="previewAction">${isToday?"Start today’s workout":"Start this workout early"}</button>`;
  document.querySelector("#previewBack").onclick=()=>{state.previewDay=null;save();home()};
  document.querySelector("#previewAction").onclick=()=>{
    if(day.action==="progress")return setTab("progress");
-   if(day.action==="workout"||day.action==="upcoming"){
-     if(!isToday&&!confirm(`Start ${day.title} early?`))return;
-     const selectedSchedule=previewScheduleForDay(state.workoutSessions,dayIndex,localDateKey());
-     startNewSession(dayIndex,selectedSchedule);setTab("workout");return;
-   }
-   alert(`${day.title} is available as a preview. Its guided timer flow will be added as the program expands.`);
+   if(!isToday&&!confirm(`Start ${day.title} early?`))return;
+   const selectedSchedule=previewScheduleForDay(state.workoutSessions,dayIndex,localDateKey());
+   startNewSession(dayIndex,selectedSchedule);setTab("workout");
  };
 }
 
