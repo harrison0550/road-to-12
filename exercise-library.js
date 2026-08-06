@@ -53,6 +53,15 @@
   });
 
   const entries = {
+    "Bird Dog": road12Illustration({
+      sourceExercise: "Alternating bird dog",
+      media: "bird-dog-animation.gif",
+      mediaAlt: "Animated three-position demonstration of a man beginning on hands and knees, extending the left arm with the right leg while keeping the torso level, and returning under control",
+      primaryMuscles: ["Deep core", "Glutes"],
+      secondaryMuscles: ["Shoulders", "Upper back"],
+      equipment: ["Exercise mat or comfortable floor space"],
+      commonMistakes: ["Lifting the arm or leg too high", "Rotating the hips", "Arching the lower back", "Moving too quickly"]
+    }),
     "Arm Circles": road12Illustration({
       sourceExercise: "Standing bodyweight arm circles",
       media: "arm-circles-posture.webp",

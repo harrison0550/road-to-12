@@ -90,14 +90,17 @@ if (incompatibleKeys.length) {
   fail(`unexpected versioned storage key(s): ${incompatibleKeys.join(", ")}`);
 }
 
-if (!/const ROAD12_SCHEMA_VERSION=5;/.test(app)) {
-  fail("app.js does not expose the adaptive-profile migration schema");
+if (!/const ROAD12_SCHEMA_VERSION=6;/.test(app)) {
+  fail("app.js does not expose the current equipment-profile migration schema");
 }
 if (!/version:4,[\s\S]*?bumperPlates:true[\s\S]*?value\.schemaVersion=4;/.test(app)) {
   fail("app.js does not migrate existing road12v5 profiles to available bumper plates");
 }
 if (!/bumperPlates:true,/.test(app)) {
   fail("app.js does not enable bumper plates for new profiles");
+}
+if (!/version:6,[\s\S]*?dumbbells:true,kettlebells:false[\s\S]*?value\.schemaVersion=6;/.test(app)) {
+  fail("app.js does not migrate existing road12v5 profiles to separate dumbbells and kettlebells");
 }
 if (!/matched 10–45 lb bumper plates/.test(app)) {
   fail("app.js does not document the available Smith-machine bumper-plate range");

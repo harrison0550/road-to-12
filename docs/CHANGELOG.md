@@ -8,6 +8,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Added
 
+- An approved offline Bird Dog animation with a dedicated guided exercise screen and alternating opposite-arm/opposite-leg directions.
 - Independent Dumbbells and Kettlebells controls under My Equipment, with dumbbells enabled and kettlebells disabled for the current equipment profile.
 - An offline adaptive-coaching foundation with a private on-device training profile, explainable recommendations, explicit acceptance, session-length volume caps, cardio targets, conservative progression guardrails, and backup compatibility.
 - A coach-forward Home command center with an accessible weekly status strip, focused workout card, existing adherence/recovery/session metrics, compact next-workout context, and latest check-in summary.
@@ -34,6 +35,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Changed
 
+- Advanced the maintenance build to `2026.08.05.2` and rotated the offline shell cache for the Bird Dog visual guide.
+- Split the Core Activation Circuit into Dead Bug, Bird Dog, and Side Plank from Knees while preserving its eight-minute total duration.
 - Advanced the maintenance build to `2026.08.05.1` and rotated the offline shell cache for guided cardio and recovery preview launches.
 - Workout previews now list the actual equipment-safe guided sequence that will launch rather than a separate summary list.
 - Advanced the maintenance build to `2026.08.04.10` and rotated the offline shell cache for the equipment-profile update.

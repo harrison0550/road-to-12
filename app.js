@@ -1749,18 +1749,33 @@ function coreRecoveryWorkout(){
       demoImage:"assets/phase3/treadmill-walking.jpg"
     }),
     cloneExerciseByName("Bodyweight Squat",{
-      name:"Core Activation Circuit",
-      duration:"8:00",
-      muscles:"Deep core, glutes and trunk stability",
-      setup:["Floor space","Move through dead bug, bird dog and plank positions"],
-      steps:[
-        "Perform 8 controlled dead bugs per side.",
-        "Perform 8 bird dogs per side.",
-        "Hold a plank for 20–40 seconds.",
-        "Repeat the circuit with perfect control."
-      ],
-      cues:["Keep your lower back controlled.","Stop before form breaks down."],
-      why:"Builds trunk stability while allowing the major lifting muscles to recover.",
+      name:"Dead Bug",
+      duration:"3:00",
+      muscles:"Deep core and trunk stability",
+      setup:["Lie on your back with hips and knees bent to 90 degrees","Reach both arms toward the ceiling","Gently press your lower back toward the floor"],
+      steps:["Brace your abdomen without holding your breath.","Slowly lower one arm and the opposite heel toward the floor.","Stop before your lower back lifts, then return to the start.","Alternate sides for 8 controlled repetitions per side."],
+      cues:["Keep your ribs down.","Move only as far as you can control.","Exhale as the arm and leg extend."],
+      why:"Builds core control without loading recovering joints.",
+      demoImage:"assets/placeholders/core-activation.svg"
+    }),
+    cloneExerciseByName("Bodyweight Squat",{
+      name:"Bird Dog",
+      duration:"3:00",
+      muscles:"Deep core, glutes, shoulders and trunk stability",
+      setup:["Begin on hands and knees on a comfortable mat","Place hands under shoulders and knees under hips","Keep your spine neutral and look down between your hands"],
+      steps:["Brace your abdomen while keeping your hips level.","Reach your left arm forward as your right leg extends straight behind you.","Pause without arching or rotating, then return both to the floor.","Repeat with your right arm and left leg, alternating for 8 controlled repetitions per side."],
+      cues:["Reach long instead of lifting high.","Keep both hip bones facing the floor.","Move slowly and keep breathing."],
+      why:"Trains the core to resist rotation while the opposite arm and leg move.",
+      demoImage:"assets/exercise-library/original/bird-dog-animation.gif"
+    }),
+    cloneExerciseByName("Bodyweight Squat",{
+      name:"Side Plank from Knees",
+      duration:"2:00",
+      muscles:"Obliques, glutes and shoulder stability",
+      setup:["Lie on one side with knees bent","Place your elbow directly below your shoulder","Stack your hips and keep your knees together"],
+      steps:["Brace your abdomen and press your forearm into the floor.","Lift your hips until your shoulders, hips and knees form a straight line.","Hold for 20–30 seconds while breathing normally.","Lower with control and repeat on the opposite side."],
+      cues:["Keep your shoulder away from your ear.","Do not roll the top hip backward.","Shorten the hold before form breaks down."],
+      why:"Builds side-core endurance with less load than a full side plank.",
       demoImage:"assets/placeholders/core-activation.svg"
     }),
     cloneExerciseByName("Post-Workout Stretch",{
