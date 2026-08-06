@@ -8,6 +8,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Added
 
+- Approved offline animations for Dead Bug and Side Plank from Knees, matching the existing Bird Dog visual style.
 - An approved offline Bird Dog animation with a dedicated guided exercise screen and alternating opposite-arm/opposite-leg directions.
 - Independent Dumbbells and Kettlebells controls under My Equipment, with dumbbells enabled and kettlebells disabled for the current equipment profile.
 - An offline adaptive-coaching foundation with a private on-device training profile, explainable recommendations, explicit acceptance, session-length volume caps, cardio targets, conservative progression guardrails, and backup compatibility.
@@ -35,6 +36,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Changed
 
+- Advanced the maintenance build to `2026.08.05.3` and rotated the offline shell cache for the completed Core + Recovery animation set.
 - Advanced the maintenance build to `2026.08.05.2` and rotated the offline shell cache for the Bird Dog visual guide.
 - Split the Core Activation Circuit into Dead Bug, Bird Dog, and Side Plank from Knees while preserving its eight-minute total duration.
 - Advanced the maintenance build to `2026.08.05.1` and rotated the offline shell cache for guided cardio and recovery preview launches.

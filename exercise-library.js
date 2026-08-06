@@ -53,6 +53,15 @@
   });
 
   const entries = {
+    "Dead Bug": road12Illustration({
+      sourceExercise: "Alternating dead bug",
+      media: "dead-bug-animation.gif",
+      mediaAlt: "Animated demonstration of a man lying on his back in tabletop position, extending one arm overhead with the opposite leg while keeping his trunk controlled, and returning to the start",
+      primaryMuscles: ["Deep core"],
+      secondaryMuscles: ["Hip flexors", "Shoulders"],
+      equipment: ["Exercise mat or comfortable floor space"],
+      commonMistakes: ["Allowing the lower back to lift", "Extending the same-side arm and leg", "Moving too quickly", "Holding the breath"]
+    }),
     "Bird Dog": road12Illustration({
       sourceExercise: "Alternating bird dog",
       media: "bird-dog-animation.gif",
@@ -61,6 +70,15 @@
       secondaryMuscles: ["Shoulders", "Upper back"],
       equipment: ["Exercise mat or comfortable floor space"],
       commonMistakes: ["Lifting the arm or leg too high", "Rotating the hips", "Arching the lower back", "Moving too quickly"]
+    }),
+    "Side Plank from Knees": road12Illustration({
+      sourceExercise: "Modified side plank from knees",
+      media: "side-plank-from-knees-animation.gif",
+      mediaAlt: "Animated demonstration of a man lying on his side with knees bent, lifting his hips into a straight line from shoulders through knees, and lowering under control",
+      primaryMuscles: ["Obliques", "Deep core"],
+      secondaryMuscles: ["Glutes", "Shoulder stabilizers"],
+      equipment: ["Exercise mat or comfortable floor space"],
+      commonMistakes: ["Elbow drifting away from the shoulder", "Rolling the top hip backward", "Letting the hips sag", "Holding longer than controlled form allows"]
     }),
     "Arm Circles": road12Illustration({
       sourceExercise: "Standing bodyweight arm circles",

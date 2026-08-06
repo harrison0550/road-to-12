@@ -1756,7 +1756,7 @@ function coreRecoveryWorkout(){
       steps:["Brace your abdomen without holding your breath.","Slowly lower one arm and the opposite heel toward the floor.","Stop before your lower back lifts, then return to the start.","Alternate sides for 8 controlled repetitions per side."],
       cues:["Keep your ribs down.","Move only as far as you can control.","Exhale as the arm and leg extend."],
       why:"Builds core control without loading recovering joints.",
-      demoImage:"assets/placeholders/core-activation.svg"
+      demoImage:"assets/exercise-library/original/dead-bug-animation.gif"
     }),
     cloneExerciseByName("Bodyweight Squat",{
       name:"Bird Dog",
@@ -1776,7 +1776,7 @@ function coreRecoveryWorkout(){
       steps:["Brace your abdomen and press your forearm into the floor.","Lift your hips until your shoulders, hips and knees form a straight line.","Hold for 20–30 seconds while breathing normally.","Lower with control and repeat on the opposite side."],
       cues:["Keep your shoulder away from your ear.","Do not roll the top hip backward.","Shorten the hold before form breaks down."],
       why:"Builds side-core endurance with less load than a full side plank.",
-      demoImage:"assets/placeholders/core-activation.svg"
+      demoImage:"assets/exercise-library/original/side-plank-from-knees-animation.gif"
     }),
     cloneExerciseByName("Post-Workout Stretch",{
       name:"Hip and Glute Mobility",

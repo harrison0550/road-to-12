@@ -6,9 +6,9 @@ Read this file at the beginning of every Codex or engineering session. It is the
 
 - Product: Road to 12%
 - Version: 13.2.0
-- Build: 2026.08.05.2
+- Build: 2026.08.05.3
 - Last updated: August 5, 2026
-- Service Worker cache: `road12-v13-2-35-shell`
+- Service Worker cache: `road12-v13-2-36-shell`
 - Runtime: static, client-only, offline-first PWA
 - Primary storage key: `road12v5`
 
@@ -68,7 +68,7 @@ See `CODEX_TASKS.md` for priority and acceptance detail.
 
 ## Recent design decisions
 
-- Core + Recovery presents Dead Bug, Bird Dog, and Side Plank from Knees as separate guided steps; approved original exercise animations are bundled for offline use and written coaching remains authoritative.
+- Core + Recovery presents Dead Bug, Bird Dog, and Side Plank from Knees as separate guided steps; all three use approved, stylistically consistent original animations bundled for offline use, while written coaching remains authoritative.
 - The five primary destinations are Home, Calendar, Progress, Exercises, and Profile.
 - Calendar status and workout type are independent and never color-only.
 - Calendar cells announce date, status, and workout type to assistive technology.
