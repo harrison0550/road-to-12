@@ -126,6 +126,16 @@ No confirmed production defects are currently documented.
 - Resolution: Home now resolves the earliest incomplete schedule entry for the previewed weekday and passes both its plan day and schedule record into the existing Workout Engine. The pre-workout landing screen preserves that selected session at step zero instead of falling back to the current weekday or creating today’s session over it. Today detection now uses the current weekday instead of treating Monday as the only possible today.
 - Regression test: `scripts/test-home-workout-selection.js`
 
+### BUG-015 — Confirmed dumbbell exercise is absent from workout preview
+
+- Status: Resolved
+- Severity: Medium
+- Affected build: `2026.08.12.1`
+- Resolved build: `2026.08.13.1`
+- Symptom: Friday's preview displays the former 11-step workout without Dumbbell Romanian Deadlift.
+- Cause: An older saved equipment preference could keep Dumbbells disabled after the additive workout update, causing the normal equipment resolver to filter the new exercise.
+- Regression coverage: `scripts/test-equipment-profile.js` and `scripts/test-weekly-equipment-mix.js` verify the additive v7 equipment reconciliation and the Friday accessory.
+
 ## Bug template
 
 ```markdown

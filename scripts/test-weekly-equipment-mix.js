@@ -11,6 +11,7 @@ assert.match(app, /title:"Zone 2 Cardio"[\s\S]*?Choose treadmill, rower or KICKR
 assert.match(app, /name:"Dumbbell Lateral Raise",reps:12/, "Full Body A must add the lateral raise accessory");
 assert.match(app, /name:"Dumbbell Floor Press",reps:12/, "Full Body B must add the floor press accessory");
 assert.match(app, /name:"Dumbbell Romanian Deadlift",reps:12/, "Full Body C must add the Romanian deadlift accessory");
+assert.match(app, /version:7,[\s\S]*?dumbbells:true,rower:true,kettlebells:false/, "confirmed equipment must remain enabled for existing saved profiles");
 assert.match(app, /type:"strength",sets:2,rest:60,requires:\["dumbbells"\]/, "dumbbell accessories must use two conservative sets and require dumbbells");
 assert.match(app, /combined weight of both dumbbells[\s\S]*?two 10 lb dumbbells = 20 lb/, "weight entry must explain combined dumbbell weight");
 assert.match(app, /const workoutData=dumbbellAccessory\?\[\.\.\.baseWorkout,dumbbellAccessory\]:baseWorkout;/, "accessories must be appended without replacing the existing strength workout");

@@ -6,8 +6,9 @@ const root = path.resolve(__dirname, "..");
 const app = fs.readFileSync(path.join(root, "app.js"), "utf8");
 const data = fs.readFileSync(path.join(root, "data.js"), "utf8");
 
-assert.match(app, /const ROAD12_SCHEMA_VERSION=6;/, "equipment separation must use an additive storage migration");
+assert.match(app, /const ROAD12_SCHEMA_VERSION=7;/, "confirmed equipment reconciliation must use an additive storage migration");
 assert.match(app, /version:6,[\s\S]*?dumbbells:true,kettlebells:false[\s\S]*?schemaVersion=6;/, "existing profiles must gain the user's confirmed equipment without losing saved state");
+assert.match(app, /version:7,[\s\S]*?dumbbells:true,rower:true,kettlebells:false[\s\S]*?schemaVersion=7;/, "the current device profile must restore confirmed dumbbells and rower so added exercises are not filtered from previews");
 assert.match(app, /dumbbells:true,\s*kettlebells:false,/, "new profiles must default to dumbbells available and kettlebells unavailable");
 assert.match(app, /dumbbells:"Dumbbells",\s*kettlebells:"Kettlebells"/, "equipment labels must remain independent");
 assert.match(app, /\["dumbbells","🔩","Dumbbells"/, "Profile must show a dedicated dumbbell control");

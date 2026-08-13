@@ -166,7 +166,7 @@ if(smithSquatTemplate){
 }
 /* Versioned storage boundary. Migrations must remain ordered and idempotent. */
 const ROAD12_STORAGE_KEY="road12v5";
-const ROAD12_SCHEMA_VERSION=6;
+const ROAD12_SCHEMA_VERSION=7;
 const ROAD12_MIGRATIONS=[
   {
     version:1,
@@ -222,6 +222,16 @@ const ROAD12_MIGRATIONS=[
     up(value){
       value.equipment=Object.assign({},value.equipment||{}, {dumbbells:true,kettlebells:false});
       value.schemaVersion=6;
+      return value;
+    }
+  },
+  {
+    version:7,
+    up(value){
+      /* Reconcile the confirmed equipment profile so the additive v13.2
+         exercises are not filtered from already-scheduled previews. */
+      value.equipment=Object.assign({},value.equipment||{}, {dumbbells:true,rower:true,kettlebells:false});
+      value.schemaVersion=7;
       return value;
     }
   }

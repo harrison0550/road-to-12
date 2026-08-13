@@ -38,6 +38,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Changed
 
+- Advanced the maintenance build to `2026.08.13.1` and reconciled existing device equipment profiles so the confirmed dumbbells and iFIT rower are enabled and their added exercises appear in previews.
 - Advanced the maintenance build to `2026.08.12.1` and rotated the offline shell cache for the additive rower and dumbbell workout update.
 - Advanced the maintenance build to `2026.08.05.3` and rotated the offline shell cache for the completed Core + Recovery animation set.
 - Advanced the maintenance build to `2026.08.05.2` and rotated the offline shell cache for the Bird Dog visual guide.
@@ -93,6 +94,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Fixed
 
+- Fixed the new dumbbell accessory being filtered from an already-scheduled Friday preview when an older saved equipment preference still marked Dumbbells unavailable.
 - Core + Recovery, Cardio + Mobility, and Zone 2 previews now start their implemented guided workouts instead of showing an obsolete preview-only message.
 - Home now advances to the next incomplete scheduled workout after today's workout is complete, including older saved sessions whose schedule status was not updated.
 

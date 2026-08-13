@@ -6,9 +6,9 @@ Read this file at the beginning of every Codex or engineering session. It is the
 
 - Product: Road to 12%
 - Version: 13.2.0
-- Build: 2026.08.12.1
-- Last updated: August 12, 2026
-- Service Worker cache: `road12-v13-2-37-shell`
+- Build: 2026.08.13.1
+- Last updated: August 13, 2026
+- Service Worker cache: `road12-v13-2-38-shell`
 - Runtime: static, client-only, offline-first PWA
 - Primary storage key: `road12v5`
 
@@ -50,6 +50,7 @@ Historical regressions requiring automated coverage:
 - BUG-012: Workout timer pauses while another iPhone app is active — resolved in build 2026.08.04.4.
 - BUG-013: Starting a future workout preview launches today’s workout — fully resolved in build 2026.08.04.6 after repairing both preview and step-zero landing handoffs.
 - BUG-014: Cardio and recovery previews show an obsolete preview-only alert — resolved in build 2026.08.05.1.
+- BUG-015: Confirmed dumbbell exercises are absent from a workout preview when an older equipment preference remains disabled — resolved in build 2026.08.13.1.
 
 See `KNOWN_BUGS.md` before diagnosing or fixing defects.
 
@@ -113,6 +114,7 @@ See `CODEX_TASKS.md` for priority and acceptance detail.
 - Migrations must be additive, ordered, and idempotent.
 - Equipment migration v4 enables the newly available bumper plates without changing completed workout snapshots.
 - Equipment migration v6 separates dumbbells from kettlebells, enables the user's dumbbells, and leaves kettlebells disabled without changing completed workout snapshots.
+- Equipment migration v7 reconciles the confirmed iFIT rower and dumbbell availability for existing device profiles so additive exercises are not filtered from previews; completed history remains unchanged.
 - Do not overwrite `plannedDate`.
 - Do not shift rest days or reorder completed sessions.
 - Do not make network access a requirement for core workouts.
