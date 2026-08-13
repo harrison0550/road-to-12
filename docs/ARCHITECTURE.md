@@ -10,6 +10,8 @@ Exercise media may be an official equipment reference, reviewed licensed media, 
 
 ## Workout Engine
 
+Phase 1 Foundation remains Full Body A/B/C. The progression engine derives exercise-specific PROGRESS, BUILD, HOLD, or DELOAD guidance from completed sets, reps, weight and feedback; it does not mutate workout definitions or apply a whole-workout rating uniformly. Phase readiness is a separate multi-signal projection and cannot change the schedule without a milestone review and explicit acceptance.
+
 The Workout Engine selects the appropriate program day, resolves exercises against available equipment, starts or resumes a session, tracks sets and timers, and writes a completed snapshot to workout history.
 
 Workout timers use an absolute wall-clock finish timestamp rather than counting interval callbacks. The UI reconciles remaining time when the document becomes visible, receives focus, or is restored, because iOS may suspend JavaScript while another app is active. Completion chimes are generated locally through the browser audio API so the cue remains available offline, although iOS may delay the cue until the PWA resumes. Previous-weight guidance is read from the latest completed snapshot for the same exercise and must never prefill or mutate the active set automatically.
@@ -54,6 +56,8 @@ Progress combines immutable workout history, body check-ins, exercise records, a
 Completed exercise snapshots include their muscle description. Recovery-map rendering may resolve missing muscle descriptions from matching exercise definitions for older compatible history, but it must not rewrite those historical snapshots during rendering.
 
 Changes to formulas must be documented because users may compare results across releases.
+
+Body measurements are append-only observations; current weight and waist remain compatibility summaries. Cardio history stores planned duration separately from actual duration plus optional distance, average heart rate, pace/incline, effort and notes.
 
 ## Data Storage
 

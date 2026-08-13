@@ -6,6 +6,10 @@ Road to 12% should make consistent, safe, and measurable training feel as clear 
 
 ## Long-term experience
 
+### Progressive training journey
+
+Road to 12% progresses through four meaningful, user-approved phases: Foundation, Build, Upper / Lower, and Hypertrophy / Definition. Advancement is based on balanced evidence from adherence, A/B/C exposure, exercise performance, recovery, cardio capacity, and body-composition trends—not elapsed time or workout count alone. A phase transition is a visible milestone with a reviewed plan that the user explicitly accepts.
+
 ### AI personal coach
 
 The long-term coach should interpret workout completion, recovery, readiness, available equipment, and user feedback to offer understandable recommendations. Recommendations must explain why an action is suggested, estimate its impact, and require user confirmation before changing the plan.
@@ -46,4 +50,3 @@ The app should feel native when installed on an iPhone Home Screen: fast launch,
 4. Make offline behavior a core requirement, not a fallback.
 5. Prefer incremental, backward-compatible evolution.
 6. Keep exercise instruction accurate, licensed, and equipment-specific.
-

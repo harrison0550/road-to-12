@@ -1,47 +1,46 @@
 const assert=require("assert");
 const fs=require("fs");
 const path=require("path");
-const adaptive=require("../adaptive-coaching.js");
+const coach=require("../adaptive-coaching.js");
 const root=path.resolve(__dirname,"..");
 const app=fs.readFileSync(path.join(root,"app.js"),"utf8");
 const html=fs.readFileSync(path.join(root,"index.html"),"utf8");
 const sw=fs.readFileSync(path.join(root,"sw.js"),"utf8");
 const css=fs.readFileSync(path.join(root,"app.css"),"utf8");
 
-const defaults=adaptive.normalizeProfile({});
-assert.strictEqual(defaults.goal,"fatLoss");
-assert.strictEqual(defaults.experience,"beginner");
-assert.strictEqual(defaults.sessionMinutes,60);
+assert.deepStrictEqual(coach.PHASES.map(phase=>phase.name),["Foundation","Build","Upper / Lower","Hypertrophy / Definition"]);
+assert.strictEqual(coach.normalizeProfile({}).goal,"fatLoss");
 
-const shortPlan=adaptive.buildRecommendation({profile:{sessionMinutes:30,goal:"fatLoss",experience:"beginner"},history:[],ratings:{}});
-assert.strictEqual(shortPlan.strengthSetCap,2,"short sessions should cap working sets at two");
-assert(shortPlan.cardioTargetMinutes>=20,"cardio must retain a useful minimum");
-const threeDayPlan=adaptive.buildRecommendation({profile:{trainingDays:3,targetWeight:190},currentWeight:220});
-assert(threeDayPlan.reasons.some(reason=>reason.includes("prioritize the three full-body sessions")),"available days must affect weekly priority guidance");
-assert(threeDayPlan.reasons.some(reason=>reason.includes("never used to calculate lifting loads")),"weight goals must inform emphasis without calculating lifting loads");
+const definition={name:"Smith Machine Squat",type:"strength",sets:3,reps:10};
+const completed=(weight,reps=10)=>({name:definition.name,sets:[1,2,3].map(()=>({done:true,weight,reps}))});
+assert.strictEqual(coach.exerciseRecommendation([],{},definition).action,"BUILD");
+assert.strictEqual(coach.exerciseRecommendation([{id:"one",exercises:[completed(20)]}],{one:"Good"},definition).action,"HOLD");
+assert.strictEqual(coach.exerciseRecommendation([{id:"one",exercises:[completed(20)]},{id:"two",exercises:[completed(30)]}],{two:"Good"},definition).action,"PROGRESS");
+assert.strictEqual(coach.exerciseRecommendation([{id:"one",exercises:[completed(20)]},{id:"two",exercises:[completed(20,8)]}],{two:"Good"},definition).action,"HOLD");
+assert.strictEqual(coach.exerciseRecommendation([{id:"one",exercises:[completed(20)]},{id:"two",exercises:[completed(20)]}],{two:"Too Hard"},definition).action,"DELOAD");
 
-const recoveryPlan=adaptive.buildRecommendation({profile:{sessionMinutes:60},history:[{id:"one"}],ratings:{one:"Exhausting"},latestRecovery:"Low"});
-assert.strictEqual(recoveryPlan.strengthSetCap,2,"low recovery must reduce volume");
-assert.strictEqual(recoveryPlan.progression,"hold","low recovery must never increase load");
+const history=[];
+for(let i=0;i<15;i++)history.push({id:`s${i}`,name:`Full Body ${["A","B","C"][i%3]}`,scheduleId:`p${i}`,exercises:[completed(20+i)]});
+const sessions=history.map((item,i)=>({id:`p${i}`,scheduledDate:"2026-08-01",status:"completed"}));
+const ratings=Object.fromEntries(history.map(item=>[item.id,"Good"]));
+const readiness=coach.phaseReadiness({history,ratings,sessions,today:"2026-08-13"});
+assert(readiness.score>50,"complete balanced Foundation data should raise readiness");
+assert.strictEqual(readiness.locked,true,"phase advancement must remain locked until review and acceptance exist");
+assert(readiness.score<=85,"a locked readiness model must not imply automatic graduation");
 
-const progressPlan=adaptive.buildRecommendation({profile:{experience:"intermediate"},history:[{id:"one"},{id:"two"}],ratings:{one:"Easy",two:"Easy"}});
-assert.strictEqual(progressPlan.progression,"smallIncrease","two easy sessions may permit a controlled increase");
+const source=[{name:"Lift",type:"strength",sets:3}];
+const unchanged=coach.applyRecommendation(source);
+assert.deepStrictEqual(unchanged,source,"the new coach must preserve current Foundation prescriptions");
+assert.notStrictEqual(unchanged[0],source[0],"workout definitions must remain immutable clones");
 
-const limitationPlan=adaptive.buildRecommendation({profile:{limitations:"Sensitive knee"},history:[{id:"one"},{id:"two"}],ratings:{one:"Easy",two:"Easy"}});
-assert.strictEqual(limitationPlan.progression,"hold","recorded limitations must disable automatic progression");
-assert.strictEqual(limitationPlan.requiresProfessionalReview,true);
+assert(html.includes('src="adaptive-coaching.js"'));
+assert(sw.includes('"./adaptive-coaching.js"'));
+assert(/version:8,[\s\S]*?trainingPhase[\s\S]*?measurementHistory[\s\S]*?cardioHistory[\s\S]*?schemaVersion=8;/.test(app),"new progression state needs an additive migration");
+assert(/Phase advancement is locked/.test(app),"UI must explain that readiness cannot silently change the schedule");
+assert(/plannedDurationMinutes[\s\S]*?actualDurationMinutes[\s\S]*?averageHeartRate/.test(app),"cardio must preserve planned and actual performance");
+assert(/completedWorkout\.filter[\s\S]*?sort\(\(a,b\)=>/.test(app),"cardio logging must select the main target from the completed session rather than its warm-up");
+assert(/planDay:Number\.isInteger\(state\.currentSession\?\.planDay\)/.test(app),"completed history must retain the actual selected plan day for cardio and progression analysis");
+assert(/state\.measurementHistory\.push/.test(app),"check-ins must append measurement history");
+assert(/@media\(max-width:370px\)[\s\S]*?\.cardio-log-grid/.test(css),"new progression UI must collapse safely on small iPhones");
 
-const source=[{name:"Lift",type:"strength",sets:3},{name:"Incline Treadmill Walk",type:"cardio",duration:"22:00"}];
-const adapted=adaptive.applyRecommendation(source,shortPlan);
-assert.strictEqual(adapted[0].sets,2);
-assert.strictEqual(adapted[1].duration,`${shortPlan.cardioTargetMinutes}:00`);
-assert.strictEqual(source[0].sets,3,"adaptive plans must not mutate workout definitions");
-
-assert(html.includes('src="adaptive-coaching.js"'),"adaptive module must load in the production shell");
-assert(sw.includes('"./adaptive-coaching.js"'),"adaptive module must remain available offline");
-assert(/version:5,[\s\S]*?trainingProfile[\s\S]*?value\.schemaVersion=5;/.test(app),"road12v5 data needs an additive profile migration");
-assert(/planned dates, completed workouts, or rest days/.test(app),"confirmation UI must state scheduling boundaries");
-assert(!/plannedDate\s*=\s*state\.trainingProfile/.test(app),"profile logic must never rewrite plannedDate");
-assert(/@media\(max-width:370px\)[\s\S]*?\.adaptive-profile-grid\{grid-template-columns:minmax\(0,1fr\)\}/.test(css),"adaptive profile must collapse safely on small iPhones");
-
-console.log("Adaptive coaching tests passed: profile normalization, recovery guardrails, confirmation boundaries, immutable definitions, offline support, and storage compatibility.");
+console.log("Foundation progression tests passed: phase readiness is multi-signal and locked, exercise guidance is specific, and cardio/measurement history is additive.");

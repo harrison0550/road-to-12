@@ -2125,6 +2125,26 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
   nav span{font-size:9px}
 }
 
+/* Foundation progression journey */
+.phase-readiness-card{border-color:#704c1e;background:linear-gradient(145deg,#1d1912,#11151a)}
+.phase-readiness-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.phase-readiness-heading>div{min-width:0}.phase-readiness-heading h2{margin:10px 0 0;font-size:clamp(22px,7vw,32px)}
+.phase-readiness-heading>strong{flex:0 0 auto;padding:8px 10px;border-radius:999px;background:#282119;color:#f0bd69;font-size:11px}
+.phase-readiness-track{height:12px;margin:18px 0;border:1px solid #4a3a24;border-radius:999px;background:#0d1116;overflow:hidden}
+.phase-readiness-track span{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#ef3947,#ffb84d)}
+.readiness-reasons,.exercise-progression-list{display:grid;gap:9px;margin-top:16px}
+.readiness-reasons>div,.exercise-progression-list>div{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;padding:12px;border:1px solid var(--line);border-radius:14px;background:#10151b}
+.readiness-reasons span,.exercise-progression-list>div>span{display:grid;place-items:center;align-self:start;min-width:34px;height:34px;padding:0 7px;border-radius:10px;background:#202731;color:#cbd3dc;font-weight:900;font-size:11px}
+.readiness-reasons p,.exercise-progression-list p{margin:0}.readiness-reasons small,.exercise-progression-list small{display:block;margin-top:4px;color:var(--muted);line-height:1.4}
+.readiness-reasons .positive span,.progression-progress>span{background:#153629;color:#59df9b}.readiness-reasons .hold span,.progression-deload>span{background:#3a1e20;color:#ff8991}
+.progression-build>span{background:#352912;color:#ffc462}.progression-hold>span{background:#1d2938;color:#9fc7ff}
+.phase-lock-note{display:grid;gap:4px;margin-top:14px;padding:13px;border-radius:14px;background:#151a21}.phase-lock-note span{color:var(--muted);font-size:13px;line-height:1.45}
+.phase-readiness-card.compact .phase-readiness-heading{align-items:center}.phase-readiness-card.compact p{margin-bottom:0}
+.measurement-row label{min-width:0;color:var(--muted);font-size:12px;font-weight:800}.measurement-row label input{margin-top:6px}
+.measurement-history{margin-top:18px}.measurement-history>div{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:12px;padding:10px 0;border-top:1px solid var(--line)}.measurement-history time{color:var(--muted)}
+.cardio-log-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.cardio-log-grid label{min-width:0;color:var(--muted);font-size:12px;font-weight:800}.cardio-log-grid input,.cardio-log-grid select,.cardio-log-grid textarea{width:100%;max-width:100%;min-width:0;margin-top:6px}.cardio-notes{grid-column:1/-1}.cardio-notes textarea{min-height:84px}
+@media(max-width:370px){.phase-readiness-heading{display:grid}.phase-readiness-heading>strong{justify-self:start}.cardio-log-grid{grid-template-columns:minmax(0,1fr)}.cardio-notes{grid-column:auto}.measurement-history>div{grid-template-columns:minmax(0,1fr) auto}.measurement-history>div strong:last-child{grid-column:2}}
+
 /* Version 13.2 — Concept B: Training Command Center */
 body.home-mode .shell{padding-top:calc(12px + env(safe-area-inset-top));background:radial-gradient(circle at 50% -120px,rgba(239,57,71,.08),transparent 320px)}
 body.home-mode header{min-height:68px;margin-bottom:16px;grid-template-columns:minmax(0,1fr) auto}

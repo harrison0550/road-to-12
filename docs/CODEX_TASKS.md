@@ -4,6 +4,9 @@ This file contains implementation-ready work. Move completed user-visible work t
 
 ## High priority
 
+- [ ] Validate Foundation readiness weighting against real A/B/C, recovery, cardio, and measurement history before enabling advancement.
+- [ ] Design the Phase 2 Build plan and explicit milestone review/acceptance flow without activating it.
+
 - [x] Add an offline adaptive training profile with explainable, confirm-before-apply volume, cardio, and progression recommendations.
 - [x] Add deterministic tests for recovery sequence shifting.
 - [x] Test that rest days remain fixed during every rescheduling mode.
@@ -59,6 +62,7 @@ Copy this block for new work:
 
 ## Completed this sprint
 
+- [x] Replace the unused whole-workout adaptive plan with locked phase readiness, exercise-specific guidance, actual cardio logging, and append-only body measurements while preserving Foundation A/B/C.
 - [x] Add the three approved dumbbell exercise animations with offline caching and reviewed-media metadata.
 - [x] Add conservative iFIT rowing practice and two-set 10/15 lb dumbbell accessories without removing existing workout content.
 - [x] Implement the approved Concept B Training Command Center visual refresh for Home using only existing application data and actions.

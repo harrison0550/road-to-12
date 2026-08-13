@@ -166,7 +166,7 @@ if(smithSquatTemplate){
 }
 /* Versioned storage boundary. Migrations must remain ordered and idempotent. */
 const ROAD12_STORAGE_KEY="road12v5";
-const ROAD12_SCHEMA_VERSION=7;
+const ROAD12_SCHEMA_VERSION=8;
 const ROAD12_MIGRATIONS=[
   {
     version:1,
@@ -234,6 +234,19 @@ const ROAD12_MIGRATIONS=[
       value.schemaVersion=7;
       return value;
     }
+  },
+  {
+    version:8,
+    up(value){
+      value.trainingPhase=value.trainingPhase||{id:"foundation",number:1,startedAt:localDateKey(),status:"active",advancementLocked:true};
+      value.measurementHistory=Array.isArray(value.measurementHistory)?value.measurementHistory:[];
+      if(!value.measurementHistory.length&&(value.weight||value.waist))value.measurementHistory.push({id:`measurement-${Date.now()}`,date:localDateKey(),recordedAt:new Date().toISOString(),weight:value.weight||null,waist:value.waist||null,source:"migration"});
+      value.cardioHistory=Array.isArray(value.cardioHistory)?value.cardioHistory:[];
+      value.acceptedAdaptivePlan=null;
+      value.adaptiveRecommendation=null;
+      value.schemaVersion=8;
+      return value;
+    }
   }
 ];
 const road12Storage=(()=>{
@@ -282,6 +295,9 @@ state.workoutScroll=Number.isFinite(state.workoutScroll)?state.workoutScroll:0;
 state.trainingProfile=window.ROAD12_ADAPTIVE.normalizeProfile(state.trainingProfile||{});
 state.adaptiveRecommendation=state.adaptiveRecommendation||null;
 state.acceptedAdaptivePlan=state.acceptedAdaptivePlan||null;
+state.trainingPhase=state.trainingPhase||{id:"foundation",number:1,startedAt:localDateKey(),status:"active",advancementLocked:true};
+state.measurementHistory=Array.isArray(state.measurementHistory)?state.measurementHistory:[];
+state.cardioHistory=Array.isArray(state.cardioHistory)?state.cardioHistory:[];
 state.equipment=Object.assign({
   ritfitM1:true,
   bench:true,
@@ -890,12 +906,17 @@ function escapeAdaptiveText(value){
  return String(value||"").replace(/[&<>"']/g,character=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[character]);
 }
 function currentAdaptiveRecommendation(){
- const latestCheckin=Object.keys(state.dailyCheckins||{}).sort().reverse().map(key=>state.dailyCheckins[key])[0];
- return window.ROAD12_ADAPTIVE.buildRecommendation({profile:state.trainingProfile,currentWeight:state.weight,history:state.history,ratings:state.workoutRatings,latestRecovery:latestCheckin?.recovery||"Good"});
+ return window.ROAD12_ADAPTIVE.phaseReadiness({history:state.history,ratings:state.workoutRatings,sessions:state.workoutSessions,today:localDateKey(),measurements:state.measurementHistory,cardio:state.cardioHistory});
+}
+function phaseReadinessMarkup(readiness,compact=false){
+ return `<section class="card phase-readiness-card ${compact?"compact":""}" aria-labelledby="phaseReadinessTitle"><div class="phase-readiness-heading"><div><span class="pill">FOUNDATION • PHASE 1</span><h2 id="phaseReadinessTitle">${readiness.score}% ready for Build</h2></div><strong>${readiness.locked?"Collecting data":"Review available"}</strong></div><div class="phase-readiness-track" role="progressbar" aria-label="Foundation phase readiness" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${readiness.score}"><span style="width:${readiness.score}%"></span></div><p>You're progressing toward the next training phase. Foundation A/B/C stays active while Road to 12% gathers enough quality evidence.</p>${compact?"":`<div class="readiness-reasons">${readiness.reasons.map(reason=>`<div class="${reason.status}"><span aria-hidden="true">${reason.status==="positive"?"✓":reason.status==="hold"?"!":"…"}</span><p><strong>${reason.label}</strong><small>${reason.detail}</small></p></div>`).join("")}</div><div class="phase-lock-note"><strong>Phase advancement is locked.</strong><span>No workout schedule will change until the readiness policy is mature and you explicitly accept a reviewed Phase 2 plan.</span></div>`}</section>`;
+}
+function exerciseProgressionRecommendations(){
+ const definitions=[0,2,4].flatMap(day=>strengthWorkoutForDay(day)).filter(ex=>ex.type==="strength");
+ return [...new Map(definitions.map(ex=>[ex.name,ex])).values()].map(ex=>({exercise:ex,recommendation:window.ROAD12_ADAPTIVE.exerciseRecommendation(state.history,state.workoutRatings,ex)}));
 }
 function equipment(){
  const profile=state.trainingProfile;
- const recommendation=currentAdaptiveRecommendation();
  const items=[
   ["ritfitM1","🏋️","RitFit M1 Pro","Required for cable and Smith-machine exercises."],
   ["bench","🪑","Adjustable bench","Used for seated rows, pulldowns and supported movements."],
@@ -915,7 +936,7 @@ function equipment(){
   ["rowHandle","Close-grip row handle","Used for seated cable rows."]
  ];
  app.innerHTML=`<section class="card"><h2>Profile</h2><label>What should the app call you?<input id="preferredName" value="${state.preferredName}" autocomplete="given-name"></label><button class="secondary profile-save" id="saveProfile">Save name</button></section>
- <section class="card adaptive-profile-card" aria-labelledby="trainingProfileTitle"><span class="pill">ADAPTIVE COACH</span><h2 id="trainingProfileTitle">Training profile</h2><p class="muted">These details shape training volume and recommendations. They remain on this device.</p>
+ <section class="card adaptive-profile-card" aria-labelledby="trainingProfileTitle"><span class="pill">TRAINING PROFILE</span><h2 id="trainingProfileTitle">Foundation context</h2><p class="muted">These details provide context for future progression. They remain on this device and never change the current phase automatically.</p>
    <div class="adaptive-profile-grid">
      <label>Age<input id="profileAge" type="number" inputmode="numeric" min="18" max="100" value="${profile.age||""}"></label>
      <label>Height (inches)<input id="profileHeight" type="number" inputmode="decimal" min="48" max="84" value="${profile.heightIn||""}"></label>
@@ -928,9 +949,8 @@ function equipment(){
    <label>Injuries, limitations, or movements to avoid<textarea id="profileLimitations" maxlength="500" placeholder="Leave blank if none">${escapeAdaptiveText(profile.limitations)}</textarea></label>
    <label class="adaptive-check"><input id="profileHealthClearance" type="checkbox" ${profile.healthClearance?"checked":""}><span>I have a health concern that should keep progression conservative.</span></label>
    <p class="adaptive-safety-note">This coaching system is not medical advice. Stop for chest pain, faintness, or sharp pain and seek appropriate professional guidance.</p>
-   <button class="primary" id="saveTrainingProfile">Save profile and refresh recommendation</button>
+   <button class="primary" id="saveTrainingProfile">Save training profile</button>
  </section>
- <section class="card adaptive-plan-card"><span class="pill">CURRENT RECOMMENDATION</span><h2>${recommendation.title}</h2><p>${recommendation.summary}</p><ul>${recommendation.reasons.map(reason=>`<li>${reason}</li>`).join("")}</ul><div class="adaptive-plan-stats"><div><small>STRENGTH</small><strong>Up to ${recommendation.strengthSetCap} sets</strong></div><div><small>CARDIO TARGET</small><strong>${recommendation.cardioTargetMinutes} min</strong></div><div><small>LOAD</small><strong>${recommendation.progression==="smallIncrease"?"Small increase":"Hold"}</strong></div></div>${state.acceptedAdaptivePlan?.id===recommendation.id?'<p class="adaptive-applied" role="status">✓ Applied to upcoming workouts</p>':'<button class="primary" id="applyAdaptivePlan">Apply this recommendation</button>'}<p class="muted">Applying never changes planned dates, completed workouts, or rest days.</p></section>
  <section class="card"><h2>My Equipment</h2><p class="muted">Workouts use only equipment switched on.</p><div class="equipment-toggle-list">${items.map(([key,icon,title,note])=>`<label class="equipment-toggle"><span class="equipment-symbol">${icon}</span><span class="equipment-copy"><strong>${title}</strong><small>${note}</small></span><input type="checkbox" data-equipment="${key}" ${state.equipment[key]?"checked":""}><span class="toggle-ui"></span></label>`).join("")}</div></section>
  <section class="card"><h2>Attachment Locker</h2><p class="muted">Add a close-up photo of each attachment from your actual gym. The correct photo will appear during every exercise with a bright “USE THIS ONE” label.</p><div class="attachment-locker">${attachments.map(([key,title,note])=>`<div class="locker-item">${state.attachmentPhotos[key]?`<img src="${state.attachmentPhotos[key]}" alt="${title}">`:`<div class="locker-placeholder">📷</div>`}<div class="locker-copy"><strong>${title}</strong><small>${note}</small><label class="photo-button">Choose photo<input type="file" accept="image/*" capture="environment" data-photo="${key}"></label>${state.attachmentPhotos[key]?`<button class="clear-photo" data-clear-photo="${key}">Remove</button>`:""}</div></div>`).join("")}</div></section>
  <section class="card equipment-impact"><h3>Current workout impact</h3><div class="impact-row"><span>Available exercises</span><strong>${activeWorkout().length}</strong></div><div class="impact-row"><span>Automatic substitutions</span><strong>${substitutionCount()}</strong></div><div class="impact-row"><span>Bumper-plate exercises</span><strong>${state.equipment.bumperPlates?"Enabled":"Disabled"}</strong></div><button class="primary" id="equipmentWorkout">Start equipment-safe workout</button></section>
@@ -938,9 +958,8 @@ function equipment(){
  document.querySelector("#saveProfile").onclick=()=>{state.preferredName=document.querySelector("#preferredName").value.trim()||"Andy";save();equipment()};
  document.querySelector("#saveTrainingProfile").onclick=()=>{
    state.trainingProfile=window.ROAD12_ADAPTIVE.normalizeProfile({age:document.querySelector("#profileAge").value,heightIn:document.querySelector("#profileHeight").value,targetWeight:document.querySelector("#profileTargetWeight").value,goal:document.querySelector("#profileGoal").value,experience:document.querySelector("#profileExperience").value,trainingDays:document.querySelector("#profileTrainingDays").value,sessionMinutes:document.querySelector("#profileSessionMinutes").value,limitations:document.querySelector("#profileLimitations").value,healthClearance:document.querySelector("#profileHealthClearance").checked});
-   state.adaptiveRecommendation=null;state.acceptedAdaptivePlan=null;save();equipment();
+   save();equipment();
  };
- document.querySelector("#applyAdaptivePlan")?.addEventListener("click",()=>{state.acceptedAdaptivePlan=currentAdaptiveRecommendation();save();equipment()});
  document.querySelectorAll("[data-equipment]").forEach(input=>input.onchange=()=>{state.equipment[input.dataset.equipment]=input.checked;state.step=0;save();equipment()});
  document.querySelectorAll("[data-photo]").forEach(input=>input.onchange=e=>saveAttachmentPhoto(input.dataset.photo,e.target.files?.[0]));
  document.querySelectorAll("[data-clear-photo]").forEach(btn=>btn.onclick=()=>{delete state.attachmentPhotos[btn.dataset.clearPhoto];save();equipment()});
@@ -966,7 +985,7 @@ function saveAttachmentPhoto(key,file){
 }
 function sessionDetail(session){
  const totals=sessionTotals(session);
- app.innerHTML=`<section class="card session-detail-header"><button class="secondary" id="historyBack">Back to history</button><div class="check small-check">✓</div><span class="pill">${session.recoveryIndicator?"RECOVERED WORKOUT":"COMPLETED WORKOUT"}</span><h2>${session.name}</h2><p class="muted">${session.date} • ${formatDuration(session.durationMs)}</p><div class="brief-grid"><div><small>SETS</small><strong>${totals.completedSets}</strong></div><div><small>REPS</small><strong>${totals.totalReps}</strong></div><div><small>SELECTED VOLUME</small><strong>${Math.round(totals.selectedVolume).toLocaleString()} lb</strong></div><div><small>STATUS</small><strong>Saved</strong></div></div>${session.recoveryIndicator?`<div class="recovery-note"><strong>Recovery workout</strong><br>Originally planned: ${formatHistoryDateKey(session.plannedDate||session.originalScheduledDate)}<br>Completed: ${formatHistoryDateKey(session.completedDate||session.actualCompletionDate||session.dateKey)}</div>`:""}${session.recoveredFromV74?`<div class="recovery-note">This session was recovered from Version 11.3.2. Any values still held in the old workout log are shown below.</div>`:""}</section>
+ app.innerHTML=`<section class="card session-detail-header"><button class="secondary" id="historyBack">Back to history</button><div class="check small-check">✓</div><span class="pill">${session.recoveryIndicator?"RECOVERED WORKOUT":"COMPLETED WORKOUT"}</span><h2>${session.name}</h2><p class="muted">${session.date} • ${formatDuration(session.durationMs)}</p><div class="brief-grid"><div><small>SETS</small><strong>${totals.completedSets}</strong></div><div><small>REPS</small><strong>${totals.totalReps}</strong></div><div><small>SELECTED VOLUME</small><strong>${Math.round(totals.selectedVolume).toLocaleString()} lb</strong></div><div><small>STATUS</small><strong>Saved</strong></div></div>${session.cardio?`<div class="recovery-note"><strong>Cardio performance</strong><br>Target: ${session.cardio.plannedDurationMinutes} min • Completed: ${session.cardio.actualDurationMinutes} min${session.cardio.actualDurationMinutes>session.cardio.plannedDurationMinutes?` (+${session.cardio.actualDurationMinutes-session.cardio.plannedDurationMinutes} min)`:""}${session.cardio.distance?`<br>Distance: ${session.cardio.distance}`:""}${session.cardio.averageHeartRate?` • Avg HR: ${session.cardio.averageHeartRate} bpm`:""}</div>`:""}${session.recoveryIndicator?`<div class="recovery-note"><strong>Recovery workout</strong><br>Originally planned: ${formatHistoryDateKey(session.plannedDate||session.originalScheduledDate)}<br>Completed: ${formatHistoryDateKey(session.completedDate||session.actualCompletionDate||session.dateKey)}</div>`:""}${session.recoveredFromV74?`<div class="recovery-note">This session was recovered from Version 11.3.2. Any values still held in the old workout log are shown below.</div>`:""}</section>
  <section class="card"><h2>Exercises completed</h2><div class="history-exercise-list">${(session.exercises||[]).length?(session.exercises||[]).map(ex=>`<details class="history-exercise" open><summary><span><strong>${ex.name}</strong>${ex.originalExercise?`<small>Substituted for ${ex.originalExercise}</small>`:""}</span><span>${(ex.sets||[]).filter(s=>s?.done).length} sets</span></summary><div class="history-set-head"><span>SET</span><span>${ex.weightEntry?.mode==="dual"?"LB / STACK":"WEIGHT"}</span><span>REPS</span><span>STATUS</span></div>${(ex.sets||[]).map((s,i)=>`<div class="history-set-row"><strong>${i+1}</strong><span>${s?.weight!==undefined&&s?.weight!==""?`${s.weight} lb`:"—"}${ex.weightEntry?.mode==="dual"&&s?.weight?`<small>${Number(s.weight)*2} lb combined selected</small>`:""}</span><span>${s?.reps||"—"}</span><span>${s?.done?"✓ Complete":"Not marked"}</span></div>`).join("")||'<p class="muted">No set details were stored.</p>'}<div class="history-weight-note"><strong>${ex.weightEntry?.label||"Weight used"}</strong><p>${ex.weightEntry?.help||""}</p></div></details>`).join(""):'<p class="muted">The older session record did not contain exercise details.</p>'}</div></section>
  <button class="secondary" id="repeatHistory">Repeat this workout</button>`;
  document.querySelector("#historyBack").onclick=()=>{state.historyView=null;save();progress()};
@@ -1096,7 +1115,7 @@ function summary(){
    session=state.history.find(h=>h.id===state.currentSession.completedId);
  }else{
    const endedAt=new Date(),startedAt=state.currentSession?.startedAt?new Date(state.currentSession.startedAt):endedAt;
-   session={id:state.currentSession?.id||`session-${Date.now()}`,scheduleId:state.currentSession?.scheduleId||null,date:endedAt.toLocaleDateString(),dateKey:localDateKey(endedAt),completedAt:endedAt.toISOString(),completedDate:localDateKey(endedAt),actualCompletionDate:localDateKey(endedAt),startedAt:startedAt.toISOString(),durationMs:Math.max(0,endedAt-startedAt),name:state.currentSession?.name||weekPlan[currentPlanIndex()].title,exercises:sessionExerciseSnapshot(),equipment:deepCopy(state.equipment)};
+   session={id:state.currentSession?.id||`session-${Date.now()}`,scheduleId:state.currentSession?.scheduleId||null,planDay:Number.isInteger(state.currentSession?.planDay)?state.currentSession.planDay:currentPlanIndex(),date:endedAt.toLocaleDateString(),dateKey:localDateKey(endedAt),completedAt:endedAt.toISOString(),completedDate:localDateKey(endedAt),actualCompletionDate:localDateKey(endedAt),startedAt:startedAt.toISOString(),durationMs:Math.max(0,endedAt-startedAt),name:state.currentSession?.name||weekPlan[currentPlanIndex()].title,exercises:sessionExerciseSnapshot(),equipment:deepCopy(state.equipment)};
    if(state.currentSession?.recoveredWorkout){
      session.recoveryIndicator=true;
      session.plannedDate=state.currentSession.plannedDate;
@@ -1112,8 +1131,12 @@ function summary(){
    state.sessions++;state.history.push(session);state.currentSession={completedId:session.id};state.step=0;state.setupReady=false;save();
  }
  const totals=sessionTotals(session),rating=state.workoutRatings[session.id]||"";
+ const completedWorkout=workoutForDay(Number.isInteger(session.planDay)?session.planDay:currentPlanIndex());
+ const cardioExercise=completedWorkout.filter(ex=>ex.type==="cardio"||ex.name.includes("Incline Treadmill")||ex.name.includes("Rowing")||ex.name.includes("Zone 2")).sort((a,b)=>(Number(String(b.duration||"").split(":")[0])||0)-(Number(String(a.duration||"").split(":")[0])||0))[0];
+ const plannedCardioMinutes=cardioExercise?Number(String(cardioExercise.duration||"").split(":")[0])||null:null;
  app.innerHTML=`<section class="card complete upgraded-complete"><div class="check">✓</div><span class="pill">SESSION ${state.sessions} COMPLETE</span><h2>You crushed it!</h2><p>${formatDuration(session.durationMs)} • ${totals.completedSets} sets • ${totals.totalReps} reps</p></section>
- <section class="card workout-rating"><h3>How did it feel?</h3><p>Your answer helps guide future load increases.</p><div class="rating-grid">${["Easy","Good","Tough","Exhausting"].map((x,i)=>`<button data-rating="${x}" class="${rating===x?"selected":""}"><span>${["😀","🙂","😐","😫"][i]}</span>${x}</button>`).join("")}</div><label>Workout notes<textarea id="workoutNote" placeholder="Energy, discomfort, equipment changes or wins...">${session.note||""}</textarea></label></section>
+ <section class="card workout-rating"><h3>How did it feel?</h3><p>This rating is one signal alongside completed sets, reps, weight and recovery.</p><div class="rating-grid">${["Easy","Good","Too Hard"].map((x,i)=>`<button data-rating="${x}" class="${rating===x?"selected":""}"><span>${["😀","🙂","😫"][i]}</span>${x}</button>`).join("")}</div><label>Workout notes<textarea id="workoutNote" placeholder="Energy, discomfort, equipment changes or wins...">${session.note||""}</textarea></label></section>
+ ${plannedCardioMinutes?`<section class="card cardio-log-card"><span class="pill">CARDIO PERFORMANCE</span><h3>Record what you actually completed</h3><p>Target: ${plannedCardioMinutes} min. Going longer once will not automatically change future targets.</p><div class="cardio-log-grid"><label>Actual minutes<input id="cardioActualMinutes" type="number" inputmode="decimal" min="0" value="${session.cardio?.actualDurationMinutes||plannedCardioMinutes}"></label><label>Distance<input id="cardioDistance" type="number" inputmode="decimal" min="0" step="0.01" value="${session.cardio?.distance||""}"></label><label>Average heart rate<input id="cardioHeartRate" type="number" inputmode="numeric" min="0" value="${session.cardio?.averageHeartRate||""}"></label><label>Pace / incline<input id="cardioPace" value="${escapeAdaptiveText(session.cardio?.paceIncline||"")}"></label><label>Effort<select id="cardioEffort">${["Easy","Good","Too Hard"].map(value=>`<option ${session.cardio?.effort===value?"selected":""}>${value}</option>`).join("")}</select></label><label class="cardio-notes">Cardio notes<textarea id="cardioNotes">${escapeAdaptiveText(session.cardio?.notes||"")}</textarea></label></div></section>`:""}
  ${session.recoveryIndicator&&session.recoveryDecision==="pending"?`<section class="card recovery-completion-choice" aria-labelledby="recoveryCompletionTitle">
    <span class="pill">RECOVERED WORKOUT</span>
    <h2 id="recoveryCompletionTitle">You completed a workout that was originally scheduled for yesterday.</h2>
@@ -1125,7 +1148,8 @@ function summary(){
    </div>
  </section>`:""}
  <button class="primary" id="saveFinish">Save feedback and view workout</button><button class="secondary" id="home">Return home</button>`;
- document.querySelectorAll("[data-rating]").forEach(b=>b.onclick=()=>{state.workoutRatings[session.id]=b.dataset.rating;save();summary()});
+ const captureCompletionInputs=()=>{session.note=document.querySelector("#workoutNote")?.value.trim()||session.note||"";if(plannedCardioMinutes){session.cardio={plannedDurationMinutes:plannedCardioMinutes,actualDurationMinutes:Number(document.querySelector("#cardioActualMinutes")?.value)||0,distance:Number(document.querySelector("#cardioDistance")?.value)||null,averageHeartRate:Number(document.querySelector("#cardioHeartRate")?.value)||null,paceIncline:document.querySelector("#cardioPace")?.value.trim()||"",effort:document.querySelector("#cardioEffort")?.value||"Good",notes:document.querySelector("#cardioNotes")?.value.trim()||""};}};
+ document.querySelectorAll("[data-rating]").forEach(b=>b.onclick=()=>{captureCompletionInputs();state.workoutRatings[session.id]=b.dataset.rating;save();summary()});
  document.querySelectorAll("[data-recovery-decision]").forEach(button=>button.onclick=()=>{
    const decision=button.dataset.recoveryDecision;
    window.ROAD12_SCHEDULING.completeRecoveredWorkout(
@@ -1138,8 +1162,9 @@ function summary(){
    save();
    summary();
  });
- document.querySelector("#saveFinish").onclick=()=>{session.note=document.querySelector("#workoutNote").value.trim();save();state.historyView=session.id;setTab("progress")};
- document.querySelector("#home").onclick=()=>{session.note=document.querySelector("#workoutNote").value.trim();save();setTab("home")};
+ const saveCompletionFeedback=()=>{captureCompletionInputs();if(plannedCardioMinutes){state.cardioHistory=state.cardioHistory.filter(item=>item.sessionId!==session.id);state.cardioHistory.push(Object.assign({sessionId:session.id,date:session.dateKey},session.cardio));}save();};
+ document.querySelector("#saveFinish").onclick=()=>{saveCompletionFeedback();state.historyView=session.id;setTab("progress")};
+ document.querySelector("#home").onclick=()=>{saveCompletionFeedback();setTab("home")};
 }
 
 function library(){
@@ -1348,6 +1373,9 @@ function exportV1131Backup(){
      achievements:state.achievements||{},
      trainingProfile:state.trainingProfile,
      acceptedAdaptivePlan:state.acceptedAdaptivePlan,
+     trainingPhase:state.trainingPhase,
+     measurementHistory:state.measurementHistory,
+     cardioHistory:state.cardioHistory,
      equipment:state.equipment,
      attachmentPhotos:state.attachmentPhotos||{}
    }
@@ -1376,6 +1404,9 @@ function importV1131Backup(file){
      state.achievements=Object.assign({},incoming.achievements||{},state.achievements||{});
      if(incoming.trainingProfile)state.trainingProfile=window.ROAD12_ADAPTIVE.normalizeProfile(incoming.trainingProfile);
      if(incoming.acceptedAdaptivePlan&&!state.acceptedAdaptivePlan)state.acceptedAdaptivePlan=incoming.acceptedAdaptivePlan;
+     if(incoming.trainingPhase)state.trainingPhase=Object.assign({},state.trainingPhase,incoming.trainingPhase);
+     if(Array.isArray(incoming.measurementHistory))state.measurementHistory=[...state.measurementHistory,...incoming.measurementHistory].filter((item,index,array)=>array.findIndex(candidate=>candidate.id===item.id)===index);
+     if(Array.isArray(incoming.cardioHistory))state.cardioHistory=[...state.cardioHistory,...incoming.cardioHistory].filter((item,index,array)=>array.findIndex(candidate=>candidate.sessionId===item.sessionId)===index);
      state.equipment=Object.assign({},state.equipment||{},incoming.equipment||{});
      state.attachmentPhotos=Object.assign({},state.attachmentPhotos||{},incoming.attachmentPhotos||{});
      if(incoming.weight)state.weight=incoming.weight;
@@ -1446,7 +1477,7 @@ function home(){
    <div><span class="metric-ring recovery-ring" style="--metric-progress:${metrics.recovery}%"><strong>${metrics.recovery}</strong></span><small>Recovery</small></div>
    <div><span class="session-metric-icon">▦</span><strong>${metrics.total}</strong><small>Sessions</small></div>
  </section>
- <section class="card home-adaptive-card"><span class="pill">ADAPTIVE COACH</span><h2>${adaptiveRecommendation.title}</h2><p>${adaptiveRecommendation.summary}</p><div class="adaptive-home-details"><span>${adaptiveRecommendation.strengthSetCap} set cap</span><span>${adaptiveRecommendation.cardioTargetMinutes} min cardio</span><span>${adaptiveRecommendation.progression==="smallIncrease"?"Progress carefully":"Hold loads"}</span></div><button class="secondary" id="openAdaptiveProfile">${state.acceptedAdaptivePlan?.id===adaptiveRecommendation.id?"View applied plan":"Review and apply"}</button></section>
+ ${phaseReadinessMarkup(adaptiveRecommendation,true)}
  ${followingPlan?`<button class="card command-up-next" id="previewFollowingWorkout"><span class="up-next-icon">${followingPlan.icon}</span><span><small>UP NEXT • ${parseDateKey(followingSession.scheduledDate).toLocaleDateString(undefined,{weekday:"short",month:"short",day:"numeric"})}</small><strong>${followingPlan.title}</strong><em>${followingPlan.time}</em></span><b aria-hidden="true">›</b></button>`:""}
  ${latest?`<section class="card command-achievement"><span class="achievement-icon">✓</span><div><small>LATEST ACHIEVEMENT</small><strong>${latest.name||"Completed workout"}</strong><span>${v1131DateLabel(latest)} • ${latestTotals.completedSets} sets</span></div><button class="secondary" id="viewLatestAchievement">View</button></section>`:""}
  <section class="command-checkin" aria-label="Latest check-in"><div><small>WEIGHT</small><strong>${state.weight} lb</strong></div><div><small>WAIST</small><strong>${state.waist} in</strong></div></section>`;
@@ -1466,7 +1497,6 @@ function home(){
  document.querySelector("#previewSelected")?.addEventListener("click",()=>showDayPlan(nextDayIndex));
  document.querySelector("#previewNextWorkout")?.addEventListener("click",()=>showDayPlan(nextDayIndex));
  document.querySelector("#previewFollowingWorkout")?.addEventListener("click",()=>showDayPlan(followingSession.planDay));
- document.querySelector("#openAdaptiveProfile")?.addEventListener("click",()=>{state.tab="equipment";save();render()});
  document.querySelectorAll("[data-day]").forEach(button=>{
    button.onclick=()=>{
      state.selectedDay=Number(button.dataset.day);
@@ -1494,8 +1524,11 @@ function progress(){
  const records=personalRecords().slice(0,6);
  const muscles=recentMuscles();
  const achievements=earnedAchievements();
+ const readiness=currentAdaptiveRecommendation();
+ const progression=exerciseProgressionRecommendations();
+ const measurements=state.measurementHistory.slice().sort((a,b)=>String(b.recordedAt).localeCompare(String(a.recordedAt))).slice(0,8);
 
- app.innerHTML=`<section class="card">
+ app.innerHTML=`${phaseReadinessMarkup(readiness)}<section class="card">
    <span class="pill">PROGRESS CENTER</span>
    <h2>Your Road to 12%</h2>
    <div class="brief-grid">
@@ -1505,11 +1538,14 @@ function progress(){
      <div><small>WAIST</small><strong>${state.waist} in</strong></div>
    </div>
    <div class="measurement-row">
-     <input id="w" value="${state.weight}" inputmode="decimal">
-     <input id="wa" value="${state.waist}" inputmode="decimal">
+     <label>Weight (lb)<input id="w" value="${state.weight}" inputmode="decimal"></label>
+     <label>Waist (in)<input id="wa" value="${state.waist}" inputmode="decimal"></label>
      <button class="secondary" id="saveP">Save check-in</button>
    </div>
+   ${measurements.length?`<div class="measurement-history"><h3>Measurement history</h3>${measurements.map(item=>`<div><time>${formatHistoryDateKey(item.date)}</time><strong>${item.weight??"—"} lb</strong><strong>${item.waist??"—"} in</strong></div>`).join("")}</div>`:""}
  </section>
+
+ <section class="card"><span class="pill">EXERCISE PROGRESSION</span><h2>Next-session guidance</h2><p class="muted">Recommendations use exercise-specific completed sets, reps, weight and workout feedback. Nothing changes automatically.</p><div class="exercise-progression-list">${progression.map(item=>`<div class="progression-${item.recommendation.action.toLowerCase()}"><span>${item.recommendation.action}</span><p><strong>${item.exercise.name}</strong><small>${item.recommendation.reason}</small></p></div>`).join("")}</div></section>
 
  <section class="card history-protection-card">
    <div class="section-title-row">
@@ -1552,8 +1588,10 @@ function progress(){
  </section>`;
 
  document.querySelector("#saveP").onclick=()=>{
-   state.weight=document.querySelector("#w").value;
-   state.waist=document.querySelector("#wa").value;
+   const weight=Number(document.querySelector("#w").value)||null,waist=Number(document.querySelector("#wa").value)||null;
+   if(weight!==null)state.weight=weight;
+   if(waist!==null)state.waist=waist;
+   state.measurementHistory.push({id:`measurement-${Date.now()}`,date:localDateKey(),recordedAt:new Date().toISOString(),weight,waist,source:"checkIn"});
    save();
    progress();
  };
@@ -2106,8 +2144,7 @@ function workoutForDay(dayIndex=currentPlanIndex()){
   else if(dayIndex===5)workoutData=zone2CardioWorkout();
   else if(dayIndex===6)workoutData=[];
   else workoutData=strengthWorkoutForDay(dayIndex);
-  const adaptivePlan=state.currentSession?.adaptivePlan||state.acceptedAdaptivePlan;
-  return window.ROAD12_ADAPTIVE.applyRecommendation(workoutData,adaptivePlan);
+  return window.ROAD12_ADAPTIVE.applyRecommendation(workoutData);
 }
 
 function activeWorkout(){
@@ -2138,7 +2175,7 @@ function startNewSession(dayIndex=currentPlanIndex(),selectedSchedule=null){
    recoveredWorkout:isRecovered,
    plannedDate:isRecovered?selectedSchedule.plannedDate:null,
    originalScheduledDate:isRecovered?selectedSchedule.scheduledDate:null,
-   adaptivePlan:state.acceptedAdaptivePlan?deepCopy(state.acceptedAdaptivePlan):null,
+   trainingPhase:deepCopy(state.trainingPhase),
    equipment:deepCopy(state.equipment)
  };
   state.step=0;

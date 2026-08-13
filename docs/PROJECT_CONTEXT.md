@@ -6,9 +6,9 @@ Read this file at the beginning of every Codex or engineering session. It is the
 
 - Product: Road to 12%
 - Version: 13.2.0
-- Build: 2026.08.13.2
+- Build: 2026.08.13.3
 - Last updated: August 13, 2026
-- Service Worker cache: `road12-v13-2-39-shell`
+- Service Worker cache: `road12-v13-2-40-shell`
 - Runtime: static, client-only, offline-first PWA
 - Primary storage key: `road12v5`
 
@@ -17,7 +17,7 @@ Read this file at the beginning of every Codex or engineering session. It is the
 - `index.html` is the application shell.
 - `app.js` owns screen rendering, workout flow, scheduling, recovery, and progress behavior.
 - `scheduling.js` owns pure recovery and date-shifting rules without DOM or storage access.
-- `adaptive-coaching.js` owns pure profile normalization, explainable recommendation rules, and non-mutating workout adaptation.
+- `adaptive-coaching.js` owns pure phase-readiness and exercise-progression projections without mutating workout definitions.
 - `workout-navigation.js` owns testable workout scroll capture, restoration, and intentional advancement behavior.
 - `data.js` contains workout definitions.
 - `exercise-library.js` contains reviewed exercise education metadata.
@@ -69,6 +69,9 @@ See `CODEX_TASKS.md` for priority and acceptance detail.
 
 ## Recent design decisions
 
+- Foundation A/B/C is Phase 1 of a four-phase journey: Foundation, Build, Upper / Lower, and Hypertrophy / Definition. Readiness is multi-signal, capped while validation is immature, and cannot advance the phase or replace the schedule without an explicit milestone review and acceptance.
+- Exercise guidance is PROGRESS, BUILD, HOLD, or DELOAD per movement using actual completed sets, reps, weight and feedback. Whole-workout ratings are supporting evidence only.
+- Cardio stores planned and actual duration separately with optional distance, average heart rate, pace/incline, effort and notes. Body check-ins append immutable measurement observations rather than overwriting trend history.
 - Dumbbell Lateral Raise, Dumbbell Floor Press, and Dumbbell Romanian Deadlift use user-approved, locally stored two-position animations in the established red-shirt instructional style; the written coaching remains authoritative.
 - Weekly equipment integration is additive: Tuesday includes an easy eight-minute iFIT rowing technique block, and each strength day gains one two-set dumbbell accessory using the available 10 or 15 lb pairs. Existing movements and Saturday's flexible Zone 2 modality choice remain intact.
 - Core + Recovery presents Dead Bug, Bird Dog, and Side Plank from Knees as separate guided steps; all three use approved, stylistically consistent original animations bundled for offline use, while written coaching remains authoritative.
@@ -109,13 +112,14 @@ See `CODEX_TASKS.md` for priority and acceptance detail.
 
 ## Important implementation constraints
 
-- Adaptive coaching is on-device and confirmation-based. Age supplies safety context, experience and available time shape set caps, goals shape cardio emphasis, and recent ratings/recovery govern progression versus holding. Weight remains a progress trend, not a lifting-load formula. Accepted plans are snapshotted into new sessions and never mutate planned dates, rest days, or completed history.
+- Progression analysis is on-device and advisory. Phase readiness and exercise guidance never mutate planned dates, rest days, completed history, or current Foundation definitions.
 
 - Preserve existing workout history and `road12v5` compatibility.
 - Migrations must be additive, ordered, and idempotent.
 - Equipment migration v4 enables the newly available bumper plates without changing completed workout snapshots.
 - Equipment migration v6 separates dumbbells from kettlebells, enables the user's dumbbells, and leaves kettlebells disabled without changing completed workout snapshots.
 - Equipment migration v7 reconciles the confirmed iFIT rower and dumbbell availability for existing device profiles so additive exercises are not filtered from previews; completed history remains unchanged.
+- Migration v8 initializes the locked Foundation phase, measurement history and cardio history, and retires the unused accepted whole-workout adaptive plan without altering completed sessions.
 - Do not overwrite `plannedDate`.
 - Do not shift rest days or reorder completed sessions.
 - Do not make network access a requirement for core workouts.
