@@ -166,7 +166,7 @@ if(smithSquatTemplate){
 }
 /* Versioned storage boundary. Migrations must remain ordered and idempotent. */
 const ROAD12_STORAGE_KEY="road12v5";
-const ROAD12_SCHEMA_VERSION=8;
+const ROAD12_SCHEMA_VERSION=9;
 const ROAD12_MIGRATIONS=[
   {
     version:1,
@@ -247,6 +247,15 @@ const ROAD12_MIGRATIONS=[
       value.schemaVersion=8;
       return value;
     }
+  },
+  {
+    version:9,
+    up(value){
+      value.exerciseFeedback=value.exerciseFeedback&&typeof value.exerciseFeedback==="object"?value.exerciseFeedback:{};
+      value.approvedProgressions=value.approvedProgressions&&typeof value.approvedProgressions==="object"?value.approvedProgressions:{};
+      value.schemaVersion=9;
+      return value;
+    }
   }
 ];
 const road12Storage=(()=>{
@@ -298,6 +307,8 @@ state.acceptedAdaptivePlan=state.acceptedAdaptivePlan||null;
 state.trainingPhase=state.trainingPhase||{id:"foundation",number:1,startedAt:localDateKey(),status:"active",advancementLocked:true};
 state.measurementHistory=Array.isArray(state.measurementHistory)?state.measurementHistory:[];
 state.cardioHistory=Array.isArray(state.cardioHistory)?state.cardioHistory:[];
+state.exerciseFeedback=state.exerciseFeedback&&typeof state.exerciseFeedback==="object"?state.exerciseFeedback:{};
+state.approvedProgressions=state.approvedProgressions&&typeof state.approvedProgressions==="object"?state.approvedProgressions:{};
 state.equipment=Object.assign({
   ritfitM1:true,
   bench:true,
@@ -464,7 +475,8 @@ function sessionExerciseSnapshot(){
     originalExercise:ex.originalExercise||null,
     attachmentCard:ex.attachmentCard||null,
     weightEntry:ex.weightEntry||{mode:"total",label:"Weight used"},
-    sets:deepCopy(state.logs[ex.name]||[])
+    sets:deepCopy(state.logs[ex.name]||[]),
+    feedback:deepCopy(state.exerciseFeedback[ex.name]||null)
   }));
 }
 function sessionTotals(session){
@@ -790,11 +802,22 @@ function sets(ex){
  const isSmithAddedWeight=ex.name.includes("Smith")&&entry.mode==="total";
  const displayedLabel=isSmithAddedWeight?"Total Plates — Both Sides":entry.label;
  const previous=lastCompletedWeight(ex);
+ const feedback=state.exerciseFeedback[ex.name]||{rir:"",form:"",discomfort:false};
+ const approved=state.approvedProgressions[ex.name];
  return `<section class="card timer-card"><h3>${ex.sets} sets × ${ex.reps} reps</h3>
- <div class="weight-entry-explainer"><span>${entry.mode==="dual"?"↔️":entry.mode==="single"?"1️⃣":"🏋️"}</span><div><strong>${displayedLabel}</strong><p>${entry.help}</p>${previous?`<small class="previous-weight">Last completed: <b>${previous.label}</b> on ${previous.date}</small>`:'<small class="previous-weight">No previous completed weight yet.</small>'}${entry.mode==="dual"?`<small>Example: left 20 lb + right 20 lb → enter <b>20</b>; combined selected stack weight is 40 lb.</small>`:""}</div></div>
+ ${approved?`<div class="approved-prescription"><small>APPROVED NEXT-SESSION TARGET</small><strong>${approved.summary}</strong><span>This is guidance only; enter the load you actually use.</span></div>`:""}<div class="weight-entry-explainer"><span>${entry.mode==="dual"?"↔️":entry.mode==="single"?"1️⃣":"🏋️"}</span><div><strong>${displayedLabel}</strong><p>${entry.help}</p>${previous?`<small class="previous-weight">Last completed: <b>${previous.label}</b> on ${previous.date}</small>`:'<small class="previous-weight">No previous completed weight yet.</small>'}${entry.mode==="dual"?`<small>Example: left 20 lb + right 20 lb → enter <b>20</b>; combined selected stack weight is 40 lb.</small>`:""}</div></div>
  <div class="set-table-head"><span>SET</span><span>${entry.mode==="dual"?"LB / STACK":isSmithAddedWeight?"PLATES TOTAL":"WEIGHT LB"}</span><span>REPS</span><span>DONE</span></div>
  ${state.logs[ex.name].map((v,i)=>`<div class="set-row"><strong>${i+1}</strong><input data-w="${i}" inputmode="decimal" placeholder="${entry.mode==="dual"?"per stack":isSmithAddedWeight?"both sides":"lb"}" aria-label="${displayedLabel}, set ${i+1}" value="${v?.weight||""}"><input data-r="${i}" inputmode="numeric" value="${v?.reps||ex.reps}"><button data-d="${i}" class="${v?.done?"done":""}" aria-label="${v?.done?"Mark set incomplete":"Mark set complete"}">${v?.done?"✓":"○"}</button>${entry.mode==="dual"&&v?.weight?`<small class="combined-weight">Combined selected: ${Number(v.weight)*2} lb</small>`:""}</div>`).join("")}
+ <div class="exercise-feedback"><div><small>QUICK EXERCISE FEEDBACK</small><strong>Help tune the next session</strong></div><label>Reps left in reserve<select id="exerciseRir"><option value="">Choose</option>${[0,1,2,3,4].map(value=>`<option value="${value}" ${String(feedback.rir)===String(value)?"selected":""}>${value===4?"4+":value}</option>`).join("")}</select></label><label>Form quality<select id="exerciseForm"><option value="">Choose</option><option ${feedback.form==="Clean"?"selected":""}>Clean</option><option ${feedback.form==="Breaking down"?"selected":""}>Breaking down</option></select></label><label class="feedback-check"><input id="exerciseDiscomfort" type="checkbox" ${feedback.discomfort?"checked":""}><span>Pain or discomfort was present</span></label><p>If pain is sharp, worsening, or unusual, stop the movement. This feedback can recommend a deload but does not diagnose an injury.</p></div>
  <div class="timer" id="timer" role="status" aria-live="polite">Rest ${String(Math.floor(ex.rest/60)).padStart(2,"0")}:${String(ex.rest%60).padStart(2,"0")}</div><div class="rest-coach-message" id="restCoach">Recover and prepare for your next set.</div><div class="timer-controls"><button class="secondary" id="rest">Start rest timer</button><button class="secondary" id="stopTimer">Stop timer</button></div></section>`}
+function captureExerciseFeedback(ex){
+ const rir=document.querySelector("#exerciseRir")?.value||"";
+ const form=document.querySelector("#exerciseForm")?.value||"";
+ const discomfort=!!document.querySelector("#exerciseDiscomfort")?.checked;
+ if(!rir&&!form&&!discomfort)return;
+ state.exerciseFeedback[ex.name]={rir:rir===""?null:Number(rir),form,discomfort,recordedAt:new Date().toISOString()};
+ save();
+}
 function timed(ex){return `<section class="card timer-card"><h3>${ex.duration}</h3><div class="timer" id="timer" role="status" aria-live="polite">${ex.duration.includes(":")?ex.duration:"Ready"}</div>${ex.duration.includes(":")?'<div class="timer-controls"><button class="primary" id="rest">Start timer</button><button class="secondary" id="stopTimer">Stop timer</button></div>':""}</section>`}
 function bindSets(ex){
  document.querySelectorAll("[data-w],[data-r]").forEach(input=>input.onchange=()=>{
@@ -819,6 +842,7 @@ function bindSets(ex){
    if(done)startTimer(ex.rest);
  });
  document.querySelector("#rest").onclick=()=>startTimer(ex.rest);
+ ["#exerciseRir","#exerciseForm","#exerciseDiscomfort"].forEach(selector=>{const input=document.querySelector(selector);if(input)input.onchange=()=>captureExerciseFeedback(ex);});
  const stop=document.querySelector("#stopTimer");if(stop)stop.onclick=stopTimer
 }
 function bindTimer(ex){let b=document.querySelector("#rest");if(b)b.onclick=()=>{let [m,s]=ex.duration.split(":").map(Number);startTimer(m*60+s)};const stop=document.querySelector("#stopTimer");if(stop)stop.onclick=stopTimer}
@@ -1376,6 +1400,7 @@ function exportV1131Backup(){
      trainingPhase:state.trainingPhase,
      measurementHistory:state.measurementHistory,
      cardioHistory:state.cardioHistory,
+     approvedProgressions:state.approvedProgressions,
      equipment:state.equipment,
      attachmentPhotos:state.attachmentPhotos||{}
    }
@@ -1407,6 +1432,7 @@ function importV1131Backup(file){
      if(incoming.trainingPhase)state.trainingPhase=Object.assign({},state.trainingPhase,incoming.trainingPhase);
      if(Array.isArray(incoming.measurementHistory))state.measurementHistory=[...state.measurementHistory,...incoming.measurementHistory].filter((item,index,array)=>array.findIndex(candidate=>candidate.id===item.id)===index);
      if(Array.isArray(incoming.cardioHistory))state.cardioHistory=[...state.cardioHistory,...incoming.cardioHistory].filter((item,index,array)=>array.findIndex(candidate=>candidate.sessionId===item.sessionId)===index);
+     state.approvedProgressions=Object.assign({},incoming.approvedProgressions||{},state.approvedProgressions||{});
      state.equipment=Object.assign({},state.equipment||{},incoming.equipment||{});
      state.attachmentPhotos=Object.assign({},state.attachmentPhotos||{},incoming.attachmentPhotos||{});
      if(incoming.weight)state.weight=incoming.weight;
@@ -1545,7 +1571,7 @@ function progress(){
    ${measurements.length?`<div class="measurement-history"><h3>Measurement history</h3>${measurements.map(item=>`<div><time>${formatHistoryDateKey(item.date)}</time><strong>${item.weight??"—"} lb</strong><strong>${item.waist??"—"} in</strong></div>`).join("")}</div>`:""}
  </section>
 
- <section class="card"><span class="pill">EXERCISE PROGRESSION</span><h2>Next-session guidance</h2><p class="muted">Recommendations use exercise-specific completed sets, reps, weight and workout feedback. Nothing changes automatically.</p><div class="exercise-progression-list">${progression.map(item=>`<div class="progression-${item.recommendation.action.toLowerCase()}"><span>${item.recommendation.action}</span><p><strong>${item.exercise.name}</strong><small>${item.recommendation.reason}</small></p></div>`).join("")}</div></section>
+ <section class="card"><span class="pill">EXERCISE PROGRESSION</span><h2>Next-session guidance</h2><p class="muted">Recommendations use exercise-specific completed sets, reps, weight and workout feedback. Nothing changes automatically.</p><div class="exercise-progression-list">${progression.map(item=>{const recommendation=item.recommendation,approved=state.approvedProgressions[item.exercise.name],key=encodeURIComponent(item.exercise.name);return `<div class="progression-${recommendation.action.toLowerCase()}"><span>${recommendation.action}</span><p><strong>${item.exercise.name}</strong><b>${recommendation.prescription.summary}</b><small>${recommendation.reason}</small>${recommendation.action!=="BUILD"?`<button class="${approved?.sourceSessionId===recommendation.sourceSessionId?"secondary":"primary"} progression-approval" data-approve-progression="${key}">${approved?.sourceSessionId===recommendation.sourceSessionId?"Approved for next session ✓":"Approve next-session target"}</button>`:""}</p></div>`;}).join("")}</div></section>
 
  <section class="card history-protection-card">
    <div class="section-title-row">
@@ -1607,6 +1633,14 @@ function progress(){
      progress();
    };
  });
+ document.querySelectorAll("[data-approve-progression]").forEach(button=>button.onclick=()=>{
+   const name=decodeURIComponent(button.dataset.approveProgression);
+   const item=progression.find(candidate=>candidate.exercise.name===name);
+   if(!item)return;
+   state.approvedProgressions[name]=Object.assign({exerciseName:name,approvedAt:new Date().toISOString()},item.recommendation.prescription,{action:item.recommendation.action,sourceSessionId:item.recommendation.sourceSessionId});
+   save();
+   progress();
+ });
 }
 
 function exercise(ex,workoutData=activeWorkout()){
@@ -1644,7 +1678,7 @@ function exercise(ex,workoutData=activeWorkout()){
    save();
    workout();
  };
- document.querySelector("#next").onclick=next;
+ document.querySelector("#next").onclick=()=>{if(strength)captureExerciseFeedback(ex);next();};
   document.querySelector("#openAsset")?.addEventListener("click",()=>openExerciseAsset(ex));
  const plate=document.querySelector("#plateTotal");
  if(plate)plate.oninput=()=>document.querySelector("#plateResult").textContent=calculatePlates(plate.value);
@@ -2165,6 +2199,7 @@ function startNewSession(dayIndex=currentPlanIndex(),selectedSchedule=null){
  const plan=weekPlan[sessionDay];
  if(todaySchedule&&!isRecovered&&todaySchedule.status!=="rescheduled")todaySchedule.status="inProgress";
  state.logs={};
+ state.exerciseFeedback={};
  state.currentSession={
    id:`session-${Date.now()}`,
    name:selectedSchedule?.name||plan.title,

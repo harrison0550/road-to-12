@@ -6,9 +6,9 @@ Read this file at the beginning of every Codex or engineering session. It is the
 
 - Product: Road to 12%
 - Version: 13.2.0
-- Build: 2026.08.13.3
+- Build: 2026.08.13.4
 - Last updated: August 13, 2026
-- Service Worker cache: `road12-v13-2-40-shell`
+- Service Worker cache: `road12-v13-2-41-shell`
 - Runtime: static, client-only, offline-first PWA
 - Primary storage key: `road12v5`
 
@@ -69,6 +69,8 @@ See `CODEX_TASKS.md` for priority and acceptance detail.
 
 ## Recent design decisions
 
+- Strength exercises collect optional reps-in-reserve, form-quality, and discomfort feedback. Progress then proposes a concrete next-session prescription that the user must approve; approval remains advisory and never rewrites workout definitions or completed history.
+
 - Foundation A/B/C is Phase 1 of a four-phase journey: Foundation, Build, Upper / Lower, and Hypertrophy / Definition. Readiness is multi-signal, capped while validation is immature, and cannot advance the phase or replace the schedule without an explicit milestone review and acceptance.
 - Exercise guidance is PROGRESS, BUILD, HOLD, or DELOAD per movement using actual completed sets, reps, weight and feedback. Whole-workout ratings are supporting evidence only.
 - Cardio stores planned and actual duration separately with optional distance, average heart rate, pace/incline, effort and notes. Body check-ins append immutable measurement observations rather than overwriting trend history.
@@ -120,6 +122,7 @@ See `CODEX_TASKS.md` for priority and acceptance detail.
 - Equipment migration v6 separates dumbbells from kettlebells, enables the user's dumbbells, and leaves kettlebells disabled without changing completed workout snapshots.
 - Equipment migration v7 reconciles the confirmed iFIT rower and dumbbell availability for existing device profiles so additive exercises are not filtered from previews; completed history remains unchanged.
 - Migration v8 initializes the locked Foundation phase, measurement history and cardio history, and retires the unused accepted whole-workout adaptive plan without altering completed sessions.
+- Migration v9 initializes active exercise feedback and approved next-session prescriptions without altering completed sessions.
 - Do not overwrite `plannedDate`.
 - Do not shift rest days or reorder completed sessions.
 - Do not make network access a requirement for core workouts.

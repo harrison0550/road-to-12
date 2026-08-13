@@ -8,6 +8,15 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Added
 
+- Added quick exercise-level feedback for reps in reserve, form quality, and discomfort.
+- Added concrete next-session prescriptions with explicit user approval and in-workout approved-target guidance.
+
+### Changed
+
+- Progression now holds after missed rep targets and reserves deload guidance for excessive difficulty, form breakdown, or discomfort.
+
+### Added
+
 - A four-phase training-journey foundation with multi-signal Phase 1 readiness explanations, exercise-specific PROGRESS/BUILD/HOLD/DELOAD guidance, planned-versus-actual cardio logs, and append-only measurement history.
 - Approved offline two-position animations for Dumbbell Lateral Raise, Dumbbell Floor Press, and Dumbbell Romanian Deadlift, with equipment-specific coaching metadata.
 - An eight-minute easy iFIT rowing technique block to Tuesday's existing Cardio + Mobility workout.

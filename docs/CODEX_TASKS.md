@@ -62,6 +62,7 @@ Copy this block for new work:
 
 ## Completed this sprint
 
+- [x] Add reps-in-reserve, form, and discomfort feedback plus concrete next-session prescriptions that require approval.
 - [x] Replace the unused whole-workout adaptive plan with locked phase readiness, exercise-specific guidance, actual cardio logging, and append-only body measurements while preserving Foundation A/B/C.
 - [x] Add the three approved dumbbell exercise animations with offline caching and reviewed-media metadata.
 - [x] Add conservative iFIT rowing practice and two-set 10/15 lb dumbbell accessories without removing existing workout content.

@@ -33,22 +33,52 @@
       .filter(item=>item.exercise&&completedSets(item.exercise).length)
       .slice(-3);
   }
+  function latestFeedback(item){return item?.exercise?.feedback||item?.session?.exerciseFeedback?.[item?.exercise?.name]||null;}
+  function nextLoad(current,definition){
+    const name=definition.name||"",mode=definition.weightEntry?.mode||"total";
+    if(name.includes("Dumbbell")){
+      if(current<=20)return 30;
+      return current;
+    }
+    if(name.includes("Smith"))return current+10;
+    if(mode==="dual"||mode==="single")return current+5;
+    return current+5;
+  }
+  function prescription(action,sets,definition){
+    const weights=sets.map(set=>Number(set.weight)||0).filter(weight=>weight>=0);
+    const currentWeight=weights.length?weights[weights.length-1]:0;
+    const currentReps=Number(definition.reps)||Math.max(0,...sets.map(set=>Number(set.reps)||0));
+    const currentSets=Number(definition.sets)||sets.length;
+    if(action==="PROGRESS"){
+      const weight=nextLoad(currentWeight,definition);
+      return weight>currentWeight
+        ?{sets:currentSets,reps:currentReps,weight,summary:`${currentSets} × ${currentReps} at ${weight} lb`}
+        :{sets:currentSets,reps:currentReps+2,weight:currentWeight,summary:`${currentSets} × ${currentReps+2} at ${currentWeight} lb`};
+    }
+    if(action==="DELOAD"){
+      const weight=Math.max(0,Math.round(currentWeight*.9/5)*5);
+      return {sets:Math.max(1,currentSets-1),reps:currentReps,weight,summary:`${Math.max(1,currentSets-1)} × ${currentReps} at ${weight} lb`};
+    }
+    return {sets:currentSets,reps:currentReps,weight:currentWeight,summary:`${currentSets} × ${currentReps} at ${currentWeight} lb`};
+  }
   function exerciseRecommendation(history=[],ratings={},definition={}){
     const exposures=exerciseTrend(history,definition.name);
-    if(!exposures.length)return {action:"BUILD",reason:"Establish a reliable working-weight baseline with controlled completed sets.",confidence:"collecting"};
+    if(!exposures.length)return {action:"BUILD",reason:"Establish a reliable working-weight baseline with controlled completed sets.",confidence:"collecting",prescription:{sets:Number(definition.sets)||0,reps:Number(definition.reps)||0,weight:null,summary:`${Number(definition.sets)||0} × ${Number(definition.reps)||0} • choose a controlled baseline`}};
     const latest=exposures[exposures.length-1],sets=completedSets(latest.exercise);
     const prescribed=Number(definition.sets)||sets.length;
     const target=Number(definition.reps)||0;
     const allTargets=sets.length>=prescribed&&sets.every(set=>(Number(set.reps)||0)>=target);
     const rating=ratings[latest.session.id]||"";
-    if(["Too Hard","Exhausting","Tough"].includes(rating)||sets.length<prescribed)return {action:"DELOAD",reason:"Recent difficulty or missed prescribed sets favors a temporary reduction before progressing.",confidence:"moderate"};
-    if(!allTargets)return {action:"HOLD",reason:"Repeat the current prescription until every working set reaches its rep target.",confidence:"moderate"};
-    if(exposures.length<2)return {action:"HOLD",reason:"One successful exposure is encouraging; repeat it once to confirm the result.",confidence:"collecting"};
-    const previous=completedSets(exposures[exposures.length-2].exercise);
-    const latestBest=Math.max(...sets.map(set=>Number(set.weight)||0));
-    const previousBest=Math.max(...previous.map(set=>Number(set.weight)||0));
-    if(rating==="Easy"||latestBest>previousBest)return {action:"PROGRESS",reason:"All prescribed work was completed and recent performance supports the smallest available resistance or rep increase.",confidence:"high"};
-    return {action:"HOLD",reason:"Quality work is complete; hold this prescription while the app gathers another recovery and performance signal.",confidence:"moderate"};
+    const feedback=latestFeedback(latest);
+    let action="HOLD",reason="Quality work is complete; hold this prescription while the app gathers another recovery and performance signal.",confidence="moderate";
+    if(feedback?.discomfort===true||feedback?.form==="Breaking down"||["Too Hard","Exhausting","Tough"].includes(rating)){action="DELOAD";reason=feedback?.discomfort===true?"Discomfort was recorded, so reduce the next exposure and prioritize a pain-free movement.":"Recent difficulty or form breakdown favors a temporary reduction before progressing.";}
+    else if(!allTargets){action="HOLD";reason="Repeat the current prescription until every working set reaches its rep target.";}
+    else if(exposures.length<2){action="HOLD";reason="One successful exposure is encouraging; repeat it once to confirm the result.";confidence="collecting";}
+    else if(feedback?.rir!==null&&feedback?.rir!==undefined&&feedback.rir!==""&&Number(feedback.rir)<=1){action="HOLD";reason="The target was completed near your limit. Repeat it before increasing the challenge.";}
+    else {
+      if((Number(feedback?.rir)>=3&&feedback?.form==="Clean")||(!feedback&&rating==="Easy")){action="PROGRESS";reason="All prescribed work was completed with enough reserve and clean form for the smallest available increase.";confidence="high";}
+    }
+    return {action,reason,confidence,sourceSessionId:latest.session.id,prescription:prescription(action,sets,definition)};
   }
   function phaseReadiness(input={}){
     const history=input.history||[],ratings=input.ratings||{},sessions=input.sessions||[];

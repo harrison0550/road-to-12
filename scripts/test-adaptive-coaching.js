@@ -15,9 +15,13 @@ const definition={name:"Smith Machine Squat",type:"strength",sets:3,reps:10};
 const completed=(weight,reps=10)=>({name:definition.name,sets:[1,2,3].map(()=>({done:true,weight,reps}))});
 assert.strictEqual(coach.exerciseRecommendation([],{},definition).action,"BUILD");
 assert.strictEqual(coach.exerciseRecommendation([{id:"one",exercises:[completed(20)]}],{one:"Good"},definition).action,"HOLD");
-assert.strictEqual(coach.exerciseRecommendation([{id:"one",exercises:[completed(20)]},{id:"two",exercises:[completed(30)]}],{two:"Good"},definition).action,"PROGRESS");
+const withFeedback=(weight,feedback,reps=10)=>Object.assign(completed(weight,reps),{feedback});
+const progressRecommendation=coach.exerciseRecommendation([{id:"one",exercises:[completed(20)]},{id:"two",exercises:[withFeedback(20,{rir:3,form:"Clean",discomfort:false})]}],{two:"Good"},definition);
+assert.strictEqual(progressRecommendation.action,"PROGRESS");
+assert.strictEqual(progressRecommendation.prescription.weight,30,"Smith progression should use the smallest 10 lb total plate increase");
 assert.strictEqual(coach.exerciseRecommendation([{id:"one",exercises:[completed(20)]},{id:"two",exercises:[completed(20,8)]}],{two:"Good"},definition).action,"HOLD");
 assert.strictEqual(coach.exerciseRecommendation([{id:"one",exercises:[completed(20)]},{id:"two",exercises:[completed(20)]}],{two:"Too Hard"},definition).action,"DELOAD");
+assert.strictEqual(coach.exerciseRecommendation([{id:"one",exercises:[completed(20)]},{id:"two",exercises:[withFeedback(20,{rir:2,form:"Clean",discomfort:true})]}],{two:"Good"},definition).action,"DELOAD");
 
 const history=[];
 for(let i=0;i<15;i++)history.push({id:`s${i}`,name:`Full Body ${["A","B","C"][i%3]}`,scheduleId:`p${i}`,exercises:[completed(20+i)]});
@@ -35,7 +39,9 @@ assert.notStrictEqual(unchanged[0],source[0],"workout definitions must remain im
 
 assert(html.includes('src="adaptive-coaching.js"'));
 assert(sw.includes('"./adaptive-coaching.js"'));
-assert(/version:8,[\s\S]*?trainingPhase[\s\S]*?measurementHistory[\s\S]*?cardioHistory[\s\S]*?schemaVersion=8;/.test(app),"new progression state needs an additive migration");
+assert(/version:9,[\s\S]*?exerciseFeedback[\s\S]*?approvedProgressions[\s\S]*?schemaVersion=9;/.test(app),"exercise feedback and approvals need an additive migration");
+assert(/QUICK EXERCISE FEEDBACK[\s\S]*?exerciseRir[\s\S]*?exerciseForm[\s\S]*?exerciseDiscomfort/.test(app),"strength exercises need quick exercise-specific feedback controls");
+assert(/Approve next-session target/.test(app),"concrete progression recommendations must require approval");
 assert(/Phase advancement is locked/.test(app),"UI must explain that readiness cannot silently change the schedule");
 assert(/plannedDurationMinutes[\s\S]*?actualDurationMinutes[\s\S]*?averageHeartRate/.test(app),"cardio must preserve planned and actual performance");
 assert(/completedWorkout\.filter[\s\S]*?sort\(\(a,b\)=>/.test(app),"cardio logging must select the main target from the completed session rather than its warm-up");

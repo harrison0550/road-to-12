@@ -17,6 +17,7 @@ The roadmap communicates direction rather than a guaranteed schedule. Completed 
 
 - [x] Establish the four-phase training journey and locked multi-signal Foundation readiness model
 - [x] Add exercise-specific PROGRESS / BUILD / HOLD / DELOAD guidance
+- [x] Add exercise feedback and approval-based next-session prescriptions
 - [x] Add planned-versus-actual cardio performance logging and append-only measurement history
 - [ ] Validate and mature the readiness algorithm before enabling Phase 2 review
 - [x] Add the iFIT rower and available 10/15 lb dumbbells to the weekly program without replacing existing exercises
