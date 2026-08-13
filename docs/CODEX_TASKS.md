@@ -62,6 +62,7 @@ Copy this block for new work:
 
 ## Completed this sprint
 
+- [x] Add flexible per-block cardio results, body-composition trend context, and a readiness data-quality indicator.
 - [x] Add reps-in-reserve, form, and discomfort feedback plus concrete next-session prescriptions that require approval.
 - [x] Replace the unused whole-workout adaptive plan with locked phase readiness, exercise-specific guidance, actual cardio logging, and append-only body measurements while preserving Foundation A/B/C.
 - [x] Add the three approved dumbbell exercise animations with offline caching and reviewed-media metadata.

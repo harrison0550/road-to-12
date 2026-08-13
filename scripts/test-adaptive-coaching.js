@@ -31,6 +31,9 @@ const readiness=coach.phaseReadiness({history,ratings,sessions,today:"2026-08-13
 assert(readiness.score>50,"complete balanced Foundation data should raise readiness");
 assert.strictEqual(readiness.locked,true,"phase advancement must remain locked until review and acceptance exist");
 assert(readiness.score<=85,"a locked readiness model must not imply automatic graduation");
+const quality=coach.phaseReadiness({history,ratings,sessions,today:"2026-08-13",cardio:[1,2,3,4].map((_,i)=>({name:`Cardio ${i}`,actualDurationMinutes:30})),measurements:[1,2,3,4].map((_,i)=>({weight:200-i,waist:40-i/2}))});
+assert(quality.dataQuality>=80,"balanced readiness evidence should report strong data quality");
+assert.strictEqual(quality.dataQualityItems.length,5);
 
 const source=[{name:"Lift",type:"strength",sets:3}];
 const unchanged=coach.applyRecommendation(source);
@@ -44,9 +47,12 @@ assert(/QUICK EXERCISE FEEDBACK[\s\S]*?exerciseRir[\s\S]*?exerciseForm[\s\S]*?ex
 assert(/Approve next-session target/.test(app),"concrete progression recommendations must require approval");
 assert(/Phase advancement is locked/.test(app),"UI must explain that readiness cannot silently change the schedule");
 assert(/plannedDurationMinutes[\s\S]*?actualDurationMinutes[\s\S]*?averageHeartRate/.test(app),"cardio must preserve planned and actual performance");
-assert(/completedWorkout\.filter[\s\S]*?sort\(\(a,b\)=>/.test(app),"cardio logging must select the main target from the completed session rather than its warm-up");
+assert(/cardioBlocksForWorkout[\s\S]*?Record each cardio block[\s\S]*?averagePace[\s\S]*?inclineResistance/.test(app),"every meaningful cardio block must accept full actual performance");
+assert(/previousCardioBlock[\s\S]*?Previous:/.test(app),"cardio blocks must show prior performance for comparison");
+assert(/7-DAY WEIGHT[\s\S]*?30-DAY WEIGHT[\s\S]*?30-DAY WAIST[\s\S]*?RECENT STRENGTH/.test(app),"Progress must show body-composition and strength trends");
+assert(/dataQualityItems[\s\S]*?READINESS DATA QUALITY/.test(app),"readiness must explain the quality of its evidence");
 assert(/planDay:Number\.isInteger\(state\.currentSession\?\.planDay\)/.test(app),"completed history must retain the actual selected plan day for cardio and progression analysis");
 assert(/state\.measurementHistory\.push/.test(app),"check-ins must append measurement history");
-assert(/@media\(max-width:370px\)[\s\S]*?\.cardio-log-grid/.test(css),"new progression UI must collapse safely on small iPhones");
+assert(/@media\(max-width:370px\)[\s\S]*?\.cardio-log-grid[\s\S]*?\.trend-grid/.test(css),"new progression UI must collapse safely on small iPhones");
 
 console.log("Foundation progression tests passed: phase readiness is multi-signal and locked, exercise guidance is specific, and cardio/measurement history is additive.");

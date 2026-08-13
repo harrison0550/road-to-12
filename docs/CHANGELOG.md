@@ -8,6 +8,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Added
 
+- Added separate actual-performance logging and previous-performance comparisons for every meaningful cardio block, including warm-ups and cooldowns that continue beyond their timer.
+- Added seven- and thirty-day weight trends, thirty-day waist change, recent strength direction, and scale-fluctuation context.
+- Added a readiness data-quality indicator covering A/B/C exposure, exercise baselines, workout ratings, cardio records, and measurement history.
 - Added quick exercise-level feedback for reps in reserve, form quality, and discomfort.
 - Added concrete next-session prescriptions with explicit user approval and in-workout approved-target guidance.
 

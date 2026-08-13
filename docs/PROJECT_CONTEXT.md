@@ -6,9 +6,9 @@ Read this file at the beginning of every Codex or engineering session. It is the
 
 - Product: Road to 12%
 - Version: 13.2.0
-- Build: 2026.08.13.4
+- Build: 2026.08.13.5
 - Last updated: August 13, 2026
-- Service Worker cache: `road12-v13-2-41-shell`
+- Service Worker cache: `road12-v13-2-42-shell`
 - Runtime: static, client-only, offline-first PWA
 - Primary storage key: `road12v5`
 
@@ -69,6 +69,8 @@ See `CODEX_TASKS.md` for priority and acceptance detail.
 
 ## Recent design decisions
 
+- Each meaningful cardio block stores its own planned and actual duration, distance, average heart rate, average pace, incline/resistance, and effort. Prescribed timers are cues rather than hard stops, and prior matching performance is shown for comparison.
+- Progress shows seven- and thirty-day weight direction, thirty-day waist direction, and recent strength-volume direction. Readiness reports evidence quality separately from readiness so sparse data cannot look authoritative.
 - Strength exercises collect optional reps-in-reserve, form-quality, and discomfort feedback. Progress then proposes a concrete next-session prescription that the user must approve; approval remains advisory and never rewrites workout definitions or completed history.
 
 - Foundation A/B/C is Phase 1 of a four-phase journey: Foundation, Build, Upper / Lower, and Hypertrophy / Definition. Readiness is multi-signal, capped while validation is immature, and cannot advance the phase or replace the schedule without an explicit milestone review and acceptance.

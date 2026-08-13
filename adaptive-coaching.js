@@ -81,7 +81,7 @@
     return {action,reason,confidence,sourceSessionId:latest.session.id,prescription:prescription(action,sets,definition)};
   }
   function phaseReadiness(input={}){
-    const history=input.history||[],ratings=input.ratings||{},sessions=input.sessions||[];
+    const history=input.history||[],ratings=input.ratings||{},sessions=input.sessions||[],cardio=input.cardio||[],measurements=input.measurements||[];
     const strength=history.filter(item=>/Full Body [ABC]/.test(item.name||""));
     const exposure={A:0,B:0,C:0};
     strength.forEach(item=>{const match=(item.name||"").match(/Full Body ([ABC])/);if(match)exposure[match[1]]++;});
@@ -95,6 +95,12 @@
     const consistencyScore=Math.min(1,adherence);
     const recoveryScore=recent.length?Math.max(0,(positive-difficult*.75)/recent.length):0;
     const performanceSessions=strength.filter(item=>(item.exercises||[]).some(ex=>completedSets(ex).length)).length;
+    const reliableBaselines=new Set(strength.flatMap(item=>(item.exercises||[]).filter(ex=>completedSets(ex).length).map(ex=>ex.name))).size;
+    const ratedWorkouts=history.filter(item=>ratings[item.id]).length;
+    const cardioRecords=cardio.filter(item=>Number(item.actualDurationMinutes)>0).length;
+    const measurementRecords=measurements.filter(item=>Number(item.weight)>0||Number(item.waist)>0).length;
+    const qualitySignals=[Math.min(1,(exposure.A+exposure.B+exposure.C)/9),Math.min(1,reliableBaselines/8),Math.min(1,ratedWorkouts/6),Math.min(1,cardioRecords/4),Math.min(1,measurementRecords/4)];
+    const dataQuality=Math.round(qualitySignals.reduce((sum,value)=>sum+value,0)/qualitySignals.length*100);
     const performanceScore=Math.min(1,performanceSessions/12);
     const raw=Math.round((exposureScore*.35+consistencyScore*.25+recoveryScore*.2+performanceScore*.2)*100);
     const score=Math.min(85,raw); // Phase advancement remains locked until its decision policy is mature.
@@ -104,7 +110,14 @@
       {label:"Recovery feedback",status:difficult?"hold":positive>=2?"positive":"collecting",detail:difficult?"Recent difficult ratings support holding the current phase.":positive>=2?"Recent workouts have been rated Good or Easy.":"Rate completed workouts so recovery can influence readiness."},
       {label:"Performance data",status:performanceSessions>=12?"positive":"collecting",detail:performanceSessions>=12?"Enough set and rep records exist to begin evaluating trends.":"More completed set, rep and weight records are needed."}
     ];
-    return {phase:PHASES[0],nextPhase:PHASES[1],score,locked:true,exposure,adherence:Math.round(adherence*100),reasons};
+    const dataQualityItems=[
+      {label:"A/B/C coverage",value:`A ${exposure.A} • B ${exposure.B} • C ${exposure.C}`,ready:Math.min(exposure.A,exposure.B,exposure.C)>=3},
+      {label:"Reliable exercise baselines",value:`${reliableBaselines} exercises`,ready:reliableBaselines>=8},
+      {label:"Rated workouts",value:`${ratedWorkouts} recorded`,ready:ratedWorkouts>=6},
+      {label:"Cardio records",value:`${cardioRecords} blocks`,ready:cardioRecords>=4},
+      {label:"Measurement history",value:`${measurementRecords} check-ins`,ready:measurementRecords>=4}
+    ];
+    return {phase:PHASES[0],nextPhase:PHASES[1],score,locked:true,exposure,adherence:Math.round(adherence*100),reasons,dataQuality,dataQualityLabel:dataQuality>=80?"Strong evidence":dataQuality>=50?"Building evidence":"Early data",dataQualityItems};
   }
   function applyRecommendation(exercises=[]){return exercises.map(exercise=>Object.assign({},exercise));}
   return {PHASES,DEFAULT_PROFILE,normalizeProfile,exerciseRecommendation,phaseReadiness,applyRecommendation};

@@ -59,7 +59,9 @@ Completed exercise snapshots include their muscle description. Recovery-map rend
 
 Changes to formulas must be documented because users may compare results across releases.
 
-Body measurements are append-only observations; current weight and waist remain compatibility summaries. Cardio history stores planned duration separately from actual duration plus optional distance, average heart rate, pace/incline, effort and notes.
+Body measurements are append-only observations; current weight and waist remain compatibility summaries. Trend displays use repeated seven- and thirty-day observations and pair body-composition direction with recent strength volume; one weigh-in does not independently affect readiness. Cardio history stores one record per meaningful workout block with planned duration separately from actual duration plus optional distance, average heart rate, average pace, incline/resistance, and effort. Prescribed timers are completion cues, not hard stops.
+
+Readiness exposes a separate data-quality projection covering A/B/C exposure, exercise baselines, rated workouts, cardio records, and measurement history. Data quality communicates confidence; it does not unlock a phase or alter the schedule.
 
 ## Data Storage
 
