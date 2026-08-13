@@ -8,6 +8,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Added
 
+- Approved offline two-position animations for Dumbbell Lateral Raise, Dumbbell Floor Press, and Dumbbell Romanian Deadlift, with equipment-specific coaching metadata.
 - An eight-minute easy iFIT rowing technique block to Tuesday's existing Cardio + Mobility workout.
 - Two-set dumbbell accessories to all three strength days using the available 10 and 15 lb dumbbells, without replacing existing exercises.
 - Approved offline animations for Dead Bug and Side Plank from Knees, matching the existing Bird Dog visual style.
@@ -38,6 +39,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Changed
 
+- Advanced the maintenance build to `2026.08.13.2` and rotated the offline shell cache for the approved dumbbell exercise animations.
 - Advanced the maintenance build to `2026.08.13.1` and reconciled existing device equipment profiles so the confirmed dumbbells and iFIT rower are enabled and their added exercises appear in previews.
 - Advanced the maintenance build to `2026.08.12.1` and rotated the offline shell cache for the additive rower and dumbbell workout update.
 - Advanced the maintenance build to `2026.08.05.3` and rotated the offline shell cache for the completed Core + Recovery animation set.

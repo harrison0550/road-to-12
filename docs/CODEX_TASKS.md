@@ -59,6 +59,7 @@ Copy this block for new work:
 
 ## Completed this sprint
 
+- [x] Add the three approved dumbbell exercise animations with offline caching and reviewed-media metadata.
 - [x] Add conservative iFIT rowing practice and two-set 10/15 lb dumbbell accessories without removing existing workout content.
 - [x] Implement the approved Concept B Training Command Center visual refresh for Home using only existing application data and actions.
 - [x] Launch the explicitly selected future workout from Start This Workout Early and allow missed-workout coach recommendations to be dismissed without changing the schedule.

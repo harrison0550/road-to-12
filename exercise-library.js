@@ -53,6 +53,33 @@
   });
 
   const entries = {
+    "Dumbbell Lateral Raise": road12Illustration({
+      sourceExercise: "Standing dumbbell lateral raise",
+      media: "dumbbell-lateral-raise-animation.gif",
+      mediaAlt: "Animated demonstration of a man raising two 10 pound dumbbells from beside his thighs to shoulder height with a controlled torso",
+      primaryMuscles: ["Side shoulders"],
+      secondaryMuscles: ["Upper back", "Core stabilizers"],
+      equipment: ["Two 10 lb dumbbells"],
+      commonMistakes: ["Shrugging the shoulders", "Swinging the torso", "Raising above shoulder height", "Locking the elbows"]
+    }),
+    "Dumbbell Floor Press": road12Illustration({
+      sourceExercise: "Dumbbell floor press",
+      media: "dumbbell-floor-press-animation.gif",
+      mediaAlt: "Animated demonstration of a man pressing two 10 pound dumbbells from a controlled floor position to above the chest",
+      primaryMuscles: ["Chest"],
+      secondaryMuscles: ["Front shoulders", "Triceps"],
+      equipment: ["Two 10 or 15 lb dumbbells", "Exercise mat or comfortable floor space"],
+      commonMistakes: ["Bouncing the elbows from the floor", "Letting wrists bend backward", "Letting the dumbbells collide", "Flaring the elbows too wide"]
+    }),
+    "Dumbbell Romanian Deadlift": road12Illustration({
+      sourceExercise: "Dumbbell Romanian deadlift",
+      media: "dumbbell-romanian-deadlift-animation.gif",
+      mediaAlt: "Animated demonstration of a man hinging from a tall start while keeping two 15 pound dumbbells close to his legs and his spine neutral",
+      primaryMuscles: ["Hamstrings", "Glutes"],
+      secondaryMuscles: ["Upper back", "Core", "Grip"],
+      equipment: ["Two 15 lb dumbbells"],
+      commonMistakes: ["Turning the hinge into a squat", "Rounding the back", "Letting the weights drift forward", "Leaning backward at the finish"]
+    }),
     "Dead Bug": road12Illustration({
       sourceExercise: "Alternating dead bug",
       media: "dead-bug-animation.gif",

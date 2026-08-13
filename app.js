@@ -1881,7 +1881,7 @@ function dumbbellAccessoryForDay(dayIndex){
     cues:["Lead with the elbows.","Do not swing.","Use a lower range if 10 lb challenges control."],
     why:"Adds a small amount of direct shoulder work using the available dumbbells.",
     weightRecommendation:"Use the two 10 lb dumbbells. Stop the set before shrugging or swinging begins.",
-    demoImage:"assets/placeholders/dynamic-warm-up.svg"
+    demoImage:"assets/exercise-library/original/dumbbell-lateral-raise-animation.gif"
   });
   if(dayIndex===2)return Object.assign(cloneExerciseByName("Cable Chest Press"),shared,{
     name:"Dumbbell Floor Press",reps:12,muscles:"Chest, front shoulders and triceps",
@@ -1890,7 +1890,7 @@ function dumbbellAccessoryForDay(dayIndex){
     cues:["Keep shoulders down.","Do not bounce the elbows.","Use 10 lb first; move to 15 lb only with full control."],
     why:"Adds stable free-weight pressing without requiring another machine setup.",
     weightRecommendation:"Begin with two 10 lb dumbbells. Use two 15 lb dumbbells only if every repetition remains smooth.",
-    demoImage:"assets/placeholders/bodyweight-squat.svg"
+    demoImage:"assets/exercise-library/original/dumbbell-floor-press-animation.gif"
   });
   if(dayIndex===4)return Object.assign(cloneExerciseByName("Hip Hinge"),shared,{
     name:"Dumbbell Romanian Deadlift",reps:12,muscles:"Hamstrings, glutes, upper back and grip",
@@ -1899,7 +1899,7 @@ function dumbbellAccessoryForDay(dayIndex){
     cues:["This is a hinge, not a squat.","Keep the dumbbells close.","Move slowly through the lowering phase."],
     why:"Adds a controlled free-weight hinge using the available 15 lb dumbbells.",
     weightRecommendation:"Use both 15 lb dumbbells for 30 lb combined. Reduce range before sacrificing position.",
-    demoImage:"assets/exercise-library/original/hip-hinge-posture.webp"
+    demoImage:"assets/exercise-library/original/dumbbell-romanian-deadlift-animation.gif"
   });
   return null;
 }
