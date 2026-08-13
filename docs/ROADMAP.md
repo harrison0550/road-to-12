@@ -15,6 +15,7 @@ The roadmap communicates direction rather than a guaranteed schedule. Completed 
 
 ## Next release — v13.3
 
+- [x] Add the iFIT rower and available 10/15 lb dumbbells to the weekly program without replacing existing exercises
 - [x] Refresh Home with the Concept B Training Command Center design
 - [x] Add automated scheduling regression tests
 - [ ] Add calendar filtering and faster month navigation

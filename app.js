@@ -284,11 +284,11 @@ state.equipment=Object.assign({
   olympicBarbell:false
 },state.equipment||{});
 const weekPlan=[
- {short:"MON",icon:"🏋️",title:"Full Body A",detail:"Guided strength • chest, back, quads and shoulders",action:"workout",time:"50–60 min",focus:"Full-body strength",items:["Treadmill warm-up","Mobility","Smith Machine Squat","Cable Shoulder Press","Cable Curl","Cable Chest Press","Seated Cable Row","Lat Pulldown","Rope Triceps Pushdown","Treadmill cooldown"],setup:"Low pulleys → mid pulleys → high pulleys"},
- {short:"TUE",icon:"🚶",title:"Cardio + Mobility",detail:"Incline treadmill and mobility recovery",action:"cardio",time:"30–40 min",focus:"Recovery and aerobic base",items:["5-minute easy treadmill warm-up","20–25 minute incline walk at conversational pace","Hip flexor stretch","Hamstring stretch","Chest and shoulder mobility","Easy cooldown"],setup:"Treadmill only; no M1 adjustments"},
- {short:"WED",icon:"💪",title:"Full Body B",detail:"Alternate guided full-body strength session",action:"upcoming",time:"50–60 min",focus:"Back, legs, chest and arms",items:["Treadmill warm-up","Hip hinge mobility","Smith Machine RDL","Smith Bulgarian Split Squat","Smith Machine Calf Raise","Incline Cable Press","Single Arm Cable Row","Lat Pulldown","Cable Lateral Raise","Cable Crunch","Cable Hammer Curl","Cooldown"],setup:"Smith station → low pulleys → mid pulleys → high pulleys"},
+ {short:"MON",icon:"🏋️",title:"Full Body A",detail:"Guided strength • chest, back, quads and shoulders",action:"workout",time:"55–65 min",focus:"Full-body strength",items:["Treadmill warm-up","Mobility","Smith Machine Squat","Cable Shoulder Press","Cable Curl","Cable Chest Press","Seated Cable Row","Lat Pulldown","Rope Triceps Pushdown","Dumbbell Lateral Raise","Treadmill cooldown"],setup:"Smith and cable stations → 10 lb dumbbells"},
+ {short:"TUE",icon:"🚶",title:"Cardio + Mobility",detail:"Incline treadmill, rowing technique and mobility recovery",action:"cardio",time:"45–50 min",focus:"Recovery, rowing skill and aerobic base",items:["5-minute easy treadmill warm-up","20–25 minute incline walk at conversational pace","8-minute easy iFIT rowing technique","Hip flexor stretch","Hamstring stretch","Chest and shoulder mobility","Easy cooldown"],setup:"Treadmill → iFIT rower → floor/wall mobility"},
+ {short:"WED",icon:"💪",title:"Full Body B",detail:"Alternate guided full-body strength session",action:"upcoming",time:"55–65 min",focus:"Back, legs, chest and arms",items:["Treadmill warm-up","Hip hinge mobility","Smith Machine RDL","Smith Bulgarian Split Squat","Smith Machine Calf Raise","Incline Cable Press","Single Arm Cable Row","Lat Pulldown","Cable Lateral Raise","Cable Crunch","Cable Hammer Curl","Dumbbell Floor Press","Cooldown"],setup:"Smith and cable stations → 10–15 lb dumbbells"},
  {short:"THU",icon:"🧘",title:"Core + Recovery",detail:"Core training, stretching and easy movement",action:"recovery",time:"25–35 min",focus:"Core control and mobility",items:["Easy walk or row","Dead bug","Bird dog","Side plank from knees","Hip mobility","Upper-back mobility","Slow breathing cooldown"],setup:"Floor space; optional treadmill or rower"},
- {short:"FRI",icon:"🏋️",title:"Full Body C",detail:"Third weekly guided full-body strength session",action:"upcoming",time:"50–60 min",focus:"Legs, pushing, pulling and arms",items:["Treadmill warm-up","Hip hinge mobility","Smith Machine Squat","Cable Shoulder Press","Rear Delt Cable Fly","Cable Face Pull","Cable Straight Arm Pushdown","Rope Triceps Pushdown","High to Low Cable Chop","Treadmill HIIT Intervals","Cooldown"],setup:"Smith station → low pulleys → mid pulleys → high pulleys → treadmill"},
+ {short:"FRI",icon:"🏋️",title:"Full Body C",detail:"Third weekly guided full-body strength session",action:"upcoming",time:"55–65 min",focus:"Legs, pushing, pulling and arms",items:["Treadmill warm-up","Hip hinge mobility","Smith Machine Squat","Cable Shoulder Press","Rear Delt Cable Fly","Cable Face Pull","Cable Straight Arm Pushdown","Rope Triceps Pushdown","High to Low Cable Chop","Dumbbell Romanian Deadlift","Treadmill HIIT Intervals","Cooldown"],setup:"Smith and cable stations → 15 lb dumbbells → treadmill"},
  {short:"SAT",icon:"❤️",title:"Zone 2 Cardio",detail:"Longer easy bike, rower or treadmill session",action:"cardio",time:"35–50 min",focus:"Fat-loss supporting aerobic work",items:["5-minute easy warm-up","25–40 minutes at a pace where you can speak in sentences","5-minute cooldown","Light stretching"],setup:"Choose treadmill, rower or KICKR CORE"},
  {short:"SUN",icon:"📏",title:"Recovery + Check-in",detail:"Rest, measurements and weekly review",action:"progress",time:"10–20 min",focus:"Recovery and progress review",items:["Morning body weight","Waist measurement","Optional progress photos","Review completed workouts","Plan the coming week","Full rest or gentle walk"],setup:"No gym setup required"}
 ];
@@ -893,7 +893,7 @@ function equipment(){
   ["rower","🚣","iFIT rower","Available for technique and cardio sessions."],
   ["kickrCore","🚴","Wahoo KICKR CORE","Available for cycling sessions."],
   ["bumperPlates","⚫","Olympic bumper plates","Available in weights from 10–45 lb for Smith-machine loading."],
-  ["dumbbells","🔩","Dumbbells","Available for goblet squats and future free-weight movements."],
+  ["dumbbells","🔩","Dumbbells","10 and 15 lb pairs used for the added strength-day accessories."],
   ["kettlebells","⚫","Kettlebells","Separate from dumbbells. Keep off when no kettlebells are available."],
   ["olympicBarbell","🏋️‍♂️","Free Olympic barbell","This refers to free-barbell work, not the M1 Smith bar."]
  ];
@@ -1684,6 +1684,22 @@ function cardioMobilityWorkout(){
       why:"Builds aerobic fitness and supports recovery without another heavy lifting session.",
       demoImage:"assets/phase3/treadmill-incline-walk.jpg"
     }),
+    cloneExerciseByName("Rower Technique",{
+      name:"iFIT Rowing Technique",
+      duration:"8:00",
+      muscles:"Legs, back, arms and aerobic coordination",
+      setup:["Secure both feet in the straps","Set resistance conservatively","Sit tall with the handle held lightly"],
+      steps:[
+        "Drive first with the legs while keeping the arms long.",
+        "Finish the stroke by opening the hips slightly and drawing the handle toward the lower ribs.",
+        "Return the arms first, hinge forward, then bend the knees.",
+        "Keep every stroke smooth and easy rather than chasing speed."
+      ],
+      cues:["Legs, hips, arms on the drive.","Arms, hips, legs on the return.","Relax your grip and shoulders."],
+      why:"Adds low-fatigue practice on the iFIT rower while building full-body aerobic coordination.",
+      requires:["rower"],
+      demoImage:"assets/phase3/rower-technique.jpg"
+    }),
     cloneExerciseByName("Post-Workout Stretch",{
       name:"Hip Flexor Mobility",
       duration:"2:00",
@@ -1841,6 +1857,41 @@ function zone2CardioWorkout(){
       demoImage:"assets/placeholders/cooldown-recovery.svg"
     })
   ];
+}
+
+function dumbbellAccessoryForDay(dayIndex){
+  const shared={
+    type:"strength",sets:2,rest:60,requires:["dumbbells"],substituteId:null,
+    weightEntry:{mode:"total",label:"Combined dumbbell weight",help:"Enter the combined weight of both dumbbells. Example: two 10 lb dumbbells = 20 lb."}
+  };
+  if(dayIndex===0)return Object.assign(cloneExerciseByName("Arm Circles"),shared,{
+    name:"Dumbbell Lateral Raise",reps:12,muscles:"Side shoulders and upper-body stability",
+    setup:["Use both 10 lb dumbbells","Stand tall with weights beside your thighs","Keep a soft bend in the elbows"],
+    steps:["Brace your trunk and keep your shoulders down.","Raise both dumbbells out to the sides to a controlled height.","Stop at or below shoulder level without shrugging.","Lower slowly to your thighs."],
+    cues:["Lead with the elbows.","Do not swing.","Use a lower range if 10 lb challenges control."],
+    why:"Adds a small amount of direct shoulder work using the available dumbbells.",
+    weightRecommendation:"Use the two 10 lb dumbbells. Stop the set before shrugging or swinging begins.",
+    demoImage:"assets/placeholders/dynamic-warm-up.svg"
+  });
+  if(dayIndex===2)return Object.assign(cloneExerciseByName("Cable Chest Press"),shared,{
+    name:"Dumbbell Floor Press",reps:12,muscles:"Chest, front shoulders and triceps",
+    setup:["Use the 10 or 15 lb dumbbells","Lie on your back with knees bent and feet flat","Hold one dumbbell in each hand with elbows resting lightly on the floor"],
+    steps:["Brace your ribs and keep wrists stacked above elbows.","Press both dumbbells upward until the arms are nearly straight.","Pause without letting the weights collide.","Lower slowly until the upper arms touch the floor."],
+    cues:["Keep shoulders down.","Do not bounce the elbows.","Use 10 lb first; move to 15 lb only with full control."],
+    why:"Adds stable free-weight pressing without requiring another machine setup.",
+    weightRecommendation:"Begin with two 10 lb dumbbells. Use two 15 lb dumbbells only if every repetition remains smooth.",
+    demoImage:"assets/placeholders/bodyweight-squat.svg"
+  });
+  if(dayIndex===4)return Object.assign(cloneExerciseByName("Hip Hinge"),shared,{
+    name:"Dumbbell Romanian Deadlift",reps:12,muscles:"Hamstrings, glutes, upper back and grip",
+    setup:["Use both 15 lb dumbbells","Stand with feet hip width and weights in front of the thighs","Keep knees soft and spine long"],
+    steps:["Brace your trunk and push your hips backward.","Lower the dumbbells close to your legs until the hamstrings feel loaded.","Stop before your back rounds.","Drive the hips forward and stand tall without leaning back."],
+    cues:["This is a hinge, not a squat.","Keep the dumbbells close.","Move slowly through the lowering phase."],
+    why:"Adds a controlled free-weight hinge using the available 15 lb dumbbells.",
+    weightRecommendation:"Use both 15 lb dumbbells for 30 lb combined. Reduce range before sacrificing position.",
+    demoImage:"assets/exercise-library/original/hip-hinge-posture.webp"
+  });
+  return null;
 }
 
 function fullBodyBWorkout(){
@@ -2026,7 +2077,9 @@ function fullBodyCWorkout(){
 }
 
 function strengthWorkoutForDay(dayIndex){
-  const workoutData=dayIndex===2?fullBodyBWorkout():dayIndex===4?fullBodyCWorkout():data;
+  const baseWorkout=dayIndex===2?fullBodyBWorkout():dayIndex===4?fullBodyCWorkout():data;
+  const dumbbellAccessory=dumbbellAccessoryForDay(dayIndex);
+  const workoutData=dumbbellAccessory?[...baseWorkout,dumbbellAccessory]:baseWorkout;
   const group=ex=>{
     if(ex.type==="cooldown")return 7;
     if(dayIndex===4&&ex.name==="Treadmill HIIT Intervals")return 6;

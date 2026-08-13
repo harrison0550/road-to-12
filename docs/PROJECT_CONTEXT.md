@@ -6,9 +6,9 @@ Read this file at the beginning of every Codex or engineering session. It is the
 
 - Product: Road to 12%
 - Version: 13.2.0
-- Build: 2026.08.05.3
-- Last updated: August 5, 2026
-- Service Worker cache: `road12-v13-2-36-shell`
+- Build: 2026.08.12.1
+- Last updated: August 12, 2026
+- Service Worker cache: `road12-v13-2-37-shell`
 - Runtime: static, client-only, offline-first PWA
 - Primary storage key: `road12v5`
 
@@ -68,6 +68,7 @@ See `CODEX_TASKS.md` for priority and acceptance detail.
 
 ## Recent design decisions
 
+- Weekly equipment integration is additive: Tuesday includes an easy eight-minute iFIT rowing technique block, and each strength day gains one two-set dumbbell accessory using the available 10 or 15 lb pairs. Existing movements and Saturday's flexible Zone 2 modality choice remain intact.
 - Core + Recovery presents Dead Bug, Bird Dog, and Side Plank from Knees as separate guided steps; all three use approved, stylistically consistent original animations bundled for offline use, while written coaching remains authoritative.
 - The five primary destinations are Home, Calendar, Progress, Exercises, and Profile.
 - Calendar status and workout type are independent and never color-only.
