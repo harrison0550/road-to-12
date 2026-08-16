@@ -1,0 +1,37 @@
+const assert=require("assert");
+const fs=require("fs");
+const path=require("path");
+const prescriptions=require("../workout-prescriptions.js");
+const resolve=name=>({id:name.toLowerCase().replace(/[^a-z0-9]+/g,"-")});
+const squat={name:"Smith Machine Squat",type:"strength",sets:3,reps:10,rest:90};
+const press={name:"Cable Shoulder Press",type:"strength",sets:3,reps:10,rest:75};
+const base=JSON.parse(JSON.stringify(squat));
+for(const action of ["PROGRESS","HOLD","DELOAD"]){
+  const approvals={"smith-machine-squat":{action,status:"approved",sourceSessionId:"prior",prescription:{sets:3,reps:10,weight:75,summary:`${action} target`}}};
+  const captured=prescriptions.capture([squat,press],approvals,resolve);
+  assert.deepStrictEqual(Object.keys(captured),["smith-machine-squat"]);
+  assert.equal(captured["smith-machine-squat"].action,action);
+  assert.equal(prescriptions.effective({sessionPrescriptions:captured},squat,resolve).weight,75);
+  assert.equal(prescriptions.effective({sessionPrescriptions:captured},press,resolve).weight,null);
+}
+assert.deepStrictEqual(squat,base,"base Foundation exercise was mutated");
+const target={sets:3,reps:10,weight:75};
+assert.equal(prescriptions.outcome(target,[]),"notAttempted");
+assert.equal(prescriptions.outcome(target,[{status:"skipped",skipped:true,weight:0,repetitions:0}]),"notAttempted");
+assert.equal(prescriptions.outcome(target,[{done:true,reps:10,weight:75},{done:true,reps:10,weight:75},{done:true,reps:10,weight:75}]),"followed");
+assert.equal(prescriptions.outcome(target,[{done:true,reps:10,weight:75},{done:true,reps:8,weight:75}]),"partiallyFollowed");
+assert.equal(prescriptions.outcome(target,[{weight:60,reps:8}]),"overridden");
+assert.equal(prescriptions.outcome({sets:1,reps:"8–10",weight:75},[{done:true,reps:8,weight:75}]),"followed","rep ranges must preserve their minimum target");
+const legacy=prescriptions.capture([squat],{"Smith Machine Squat":{action:"HOLD",sets:3,reps:10,weight:70}},resolve);
+assert.equal(legacy["smith-machine-squat"].prescription.weight,70,"legacy name fallback failed");
+const approval={"smith-machine-squat":{status:"approved",prescription:target}};
+const completed=prescriptions.completeApprovals(approval,{"smith-machine-squat":legacy["smith-machine-squat"]},[{exerciseId:"smith-machine-squat",sets:[]}],"session-2","now");
+assert.equal(completed["smith-machine-squat"].outcome,"notAttempted");
+assert.equal(approval["smith-machine-squat"].status,"approved","completion mutated source approvals");
+const root=path.resolve(__dirname,".."),app=fs.readFileSync(path.join(root,"app.js"),"utf8"),index=fs.readFileSync(path.join(root,"index.html"),"utf8"),sw=fs.readFileSync(path.join(root,"sw.js"),"utf8");
+assert(app.includes("sessionPrescriptions=window.ROAD12_PRESCRIPTIONS.capture"));
+assert(app.includes("ROAD12_PRESCRIPTIONS.completeApprovals"));
+assert(app.includes("prescriptionOutcome"));
+assert(index.includes('<script src="workout-prescriptions.js"></script>'));
+assert(sw.includes('"./workout-prescriptions.js"'),"prescriptions must remain available offline");
+console.log("workout prescription tests passed");

@@ -20,7 +20,7 @@ This file contains implementation-ready work. Move completed user-visible work t
 - [ ] Add calendar filters for status and workout type.
 - [ ] Improve calendar navigation for jumping to Today.
 - [ ] Document adherence and recovery-score formulas for users.
-- [ ] Add structured validation for imported backup data.
+- [x] Add structured validation for imported backup data.
 - [ ] Review coach recommendations for stale missed sessions.
 - [ ] Consolidate duplicated legacy styling where tests permit.
 
@@ -65,6 +65,9 @@ Copy this block for new work:
 ```
 
 ## Completed this sprint
+
+- [x] Modernize backup/restore with real release metadata, complete schedule and training state, pre-mutation validation, legacy compatibility, and realistic round-trip tests.
+- [x] Apply explicitly approved progression targets to the next matching exercise session, keep base and actual data separate, and record the completed target outcome.
 
 - [x] Continue cardio beyond its prescribed countdown and automatically log the measured total duration.
 - [x] Add flexible per-block cardio results, body-composition trend context, and a readiness data-quality indicator.

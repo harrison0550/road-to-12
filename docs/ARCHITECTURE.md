@@ -12,7 +12,7 @@ Exercise media may be an official equipment reference, reviewed licensed media, 
 
 Phase 1 Foundation remains Full Body A/B/C. The progression engine derives exercise-specific PROGRESS, BUILD, HOLD, or DELOAD guidance from completed sets, reps, weight and feedback; it does not mutate workout definitions or apply a whole-workout rating uniformly. Phase readiness is a separate multi-signal projection and cannot change the schedule without a milestone review and explicit acceptance.
 
-Strength feedback records optional reps in reserve, form quality, and discomfort with the completed exercise snapshot. Concrete next-session prescriptions require explicit approval and are displayed as guidance in the Workout Engine; they never prefill a set, mutate a workout definition, or rewrite history.
+Strength feedback records optional reps in reserve, form quality, and discomfort with the completed exercise snapshot. Concrete next-session prescriptions require explicit approval. `workout-prescriptions.js` snapshots an approval only into the next newly started session containing the same stable exercise ID; unrelated and already-active sessions are unaffected. The Workout Engine displays the session prescription while keeping actual set entries editable. Completion records whether the target was followed, partially followed, overridden, or not attempted. Base Foundation prescriptions remain separate and are never rewritten.
 
 The Workout Engine selects the appropriate program day, resolves exercises against available equipment, starts or resumes a session, tracks sets and timers, and writes a completed snapshot to workout history.
 
@@ -81,6 +81,8 @@ Key constraints:
 - Derive schedule activation from the device's local calendar date. Backfill boundaries through additive, idempotent migrations; never replace existing session records to repair a boundary.
 
 Optional future synchronization must not make the local store unusable offline.
+
+`backup-restore.js` defines the versioned portable backup envelope independently of UI and storage mutation. Exports include the actual application version, build, current schema, canonical schedule, structured history, active workout state, progression approvals, cardio and measurement history, equipment, attachments, and provider sync metadata already contained in those records. Imports are untrusted: the entire envelope and supported schema are validated before a merged replacement state is calculated. Only then may `app.js` update the live `road12v5` object. Older compatible backups remain readable; restore must not normalize or broadly rewrite completed history.
 
 ## External integrations
 

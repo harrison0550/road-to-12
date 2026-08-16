@@ -1,5 +1,5 @@
 /* Keep this query aligned with app-meta.js so Safari cannot reuse stale imported metadata. */
-importScripts("./app-meta.js?build=2026.08.15.2");
+importScripts("./app-meta.js?build=2026.08.15.3");
 
 const CACHE=self.ROAD12_META.serviceWorkerCache;
 const CACHE_PREFIX="road12-";
@@ -11,6 +11,8 @@ const MUTABLE_ASSETS=[
   "exercise-identity.js",
   "data.js",
   "adaptive-coaching.js",
+  "backup-restore.js",
+  "workout-prescriptions.js",
   "scheduling.js",
   "workout-navigation.js",
   "app.js",
@@ -25,6 +27,8 @@ const ASSETS=[
   "./exercise-identity.js",
   "./data.js",
   "./adaptive-coaching.js",
+  "./backup-restore.js",
+  "./workout-prescriptions.js",
   "./scheduling.js",
   "./workout-navigation.js",
   "./app.js",

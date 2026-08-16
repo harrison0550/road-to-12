@@ -6,9 +6,9 @@ Read this file at the beginning of every Codex or engineering session. It is the
 
 - Product: Road to 12%
 - Version: 13.2.0
-- Build: 2026.08.15.2
+- Build: 2026.08.15.3
 - Last updated: August 15, 2026
-- Service Worker cache: `road12-v13-2-44-shell`
+- Service Worker cache: `road12-v13-2-45-shell`
 - Runtime: static, client-only, offline-first PWA
 - Primary storage key: `road12v5`
 
@@ -18,6 +18,8 @@ Read this file at the beginning of every Codex or engineering session. It is the
 - `app.js` owns screen rendering, workout flow, scheduling, recovery, and progress behavior.
 - `scheduling.js` owns pure recovery and date-shifting rules without DOM or storage access.
 - `adaptive-coaching.js` owns pure phase-readiness and exercise-progression projections without mutating workout definitions.
+- `workout-prescriptions.js` captures an approved target into the next matching session and classifies the completed prescription outcome without mutating Foundation definitions.
+- `backup-restore.js` owns versioned backup creation, untrusted-input validation, and compatibility-preserving merge rules.
 - `workout-navigation.js` owns testable workout scroll capture, restoration, and intentional advancement behavior.
 - `data.js` contains workout definitions.
 - `exercise-library.js` contains reviewed exercise education metadata.
@@ -63,12 +65,15 @@ Next recommended goals:
 
 1. Improve calendar navigation and filtering without altering schedule truth.
 2. Document adherence and recovery-score formulas.
-3. Add structured validation for imported backup data.
-4. Preserve v13.2 behavior while gradually creating clearer module boundaries.
+3. Preserve v13.2 behavior while gradually creating clearer module boundaries.
+4. Validate prescription-outcome signals across additional real Foundation sessions before using them for automatic recommendations.
 
 See `CODEX_TASKS.md` for priority and acceptance detail.
 
 ## Recent design decisions
+
+- Backup format v2 records the actual app version, build, storage schema, authoritative schedule, active session, structured history, cardio, measurements, equipment, approved prescriptions, and provider metadata. Import validates the complete envelope before mutating live state and remains compatible with older name-keyed progression records.
+- An approved exercise target is captured only when the next session containing that stable exercise ID begins. Base Foundation prescriptions remain separate and immutable; actual sets remain user-editable, and completion records followed, partially followed, overridden, or not attempted.
 
 - Strava Strength Training is planned, not connected. New completed strength sessions preserve stable exercise IDs, prescribed-versus-actual data, discrete set results, timestamps, muscles/equipment, and provider sync metadata. OAuth secrets and tokens must live behind a secure backend/serverless boundary; local workout completion remains authoritative and offline.
 
@@ -121,6 +126,8 @@ See `CODEX_TASKS.md` for priority and acceptance detail.
 ## Important implementation constraints
 
 - Progression analysis is on-device and advisory. Phase readiness and exercise guidance never mutate planned dates, rest days, completed history, or current Foundation definitions.
+- Backup restore must validate fully before mutating `road12v5`; malformed or newer-schema files must leave existing device data untouched.
+- Stable exercise IDs own new prescription relationships, with a read-only display-name fallback for legacy approvals. Do not broadly rewrite historical records.
 
 - Preserve existing workout history and `road12v5` compatibility.
 - Migrations must be additive, ordered, and idempotent.

@@ -14,7 +14,7 @@ assert.strictEqual(identities.resolve("Future Movement").id,"road12.exercise.fut
 assert.match(app,/ROAD12_SCHEMA_VERSION=11/);
 assert.match(app,/version:11,[\s\S]*?exerciseTimings[\s\S]*?schemaVersion=11/);
 [
-  "exerciseId:identity.id","prescription:{sets:","setNumber:setIndex+1","repetitions:Number(set?.reps)",
+  "exerciseId:identity.id","basePrescription","prescription:effectivePrescription","setNumber:setIndex+1","repetitions:Number(set?.reps)",
   "weightUnit:\"lb\"","startedAt:set?.startedAt","completedAt:set?.completedAt","status:set?.done",
   "externalSync={strava:{status:\"NOT_SYNCED\"","actualPerformance=sessionTotals(session)"
 ].forEach(fragment=>assert(app.includes(fragment),`missing structured-history fragment: ${fragment}`));

@@ -498,6 +498,9 @@ function exerciseTiming(ex){
 function sessionExerciseSnapshot(){
   return activeWorkout().filter(ex=>ex.type==="strength").map((ex,exerciseOrder)=>{
     const identity=window.ROAD12_EXERCISES.resolve(ex.name),muscles=exerciseMuscleMetadata(ex),timing=exerciseTiming(ex);
+    const basePrescription=window.ROAD12_PRESCRIPTIONS.basePrescription(ex);
+    const progressionPrescription=window.ROAD12_PRESCRIPTIONS.forExercise(state.currentSession,ex,name=>window.ROAD12_EXERCISES.resolve(name));
+    const effectivePrescription=window.ROAD12_PRESCRIPTIONS.effective(state.currentSession,ex,name=>window.ROAD12_EXERCISES.resolve(name));
     const actualSets=(state.logs[ex.name]||[]).map((set,setIndex)=>Object.assign({},deepCopy(set||{}),{
       setNumber:setIndex+1,
       repetitions:Number(set?.reps)||0,
@@ -525,7 +528,10 @@ function sessionExerciseSnapshot(){
       startedAt:timing.startedAt||null,
       endedAt:timing.endedAt||null,
       durationMs:timing.startedAt&&timing.endedAt?Math.max(0,new Date(timing.endedAt)-new Date(timing.startedAt)):null,
-      prescription:{sets:Number(ex.sets)||0,reps:ex.reps||"",weightUnit:"lb",restSeconds:Number(ex.rest)||0},
+      basePrescription,
+      prescription:effectivePrescription,
+      progressionPrescription,
+      prescriptionOutcome:progressionPrescription?window.ROAD12_PRESCRIPTIONS.outcome(effectivePrescription,actualSets):null,
       externalMappings:deepCopy(identity.externalMappings),
       originalExercise:ex.originalExercise||null,
       attachmentCard:ex.attachmentCard||null,
@@ -866,11 +872,12 @@ function sets(ex){
  const displayedLabel=isSmithAddedWeight?"Total Plates — Both Sides":entry.label;
  const previous=lastCompletedWeight(ex);
  const feedback=state.exerciseFeedback[ex.name]||{rir:"",form:"",discomfort:false};
- const approved=state.approvedProgressions[ex.name];
- return `<section class="card timer-card"><h3>${ex.sets} sets × ${ex.reps} reps</h3>
- ${approved?`<div class="approved-prescription"><small>APPROVED NEXT-SESSION TARGET</small><strong>${approved.summary}</strong><span>This is guidance only; enter the load you actually use.</span></div>`:""}<div class="weight-entry-explainer"><span>${entry.mode==="dual"?"↔️":entry.mode==="single"?"1️⃣":"🏋️"}</span><div><strong>${displayedLabel}</strong><p>${entry.help}</p>${previous?`<small class="previous-weight">Last completed: <b>${previous.label}</b> on ${previous.date}</small>`:'<small class="previous-weight">No previous completed weight yet.</small>'}${entry.mode==="dual"?`<small>Example: left 20 lb + right 20 lb → enter <b>20</b>; combined selected stack weight is 40 lb.</small>`:""}</div></div>
+ const captured=window.ROAD12_PRESCRIPTIONS.forExercise(state.currentSession,ex,name=>window.ROAD12_EXERCISES.resolve(name));
+ const target=window.ROAD12_PRESCRIPTIONS.effective(state.currentSession,ex,name=>window.ROAD12_EXERCISES.resolve(name));
+ return `<section class="card timer-card"><h3>${target.sets} sets × ${target.reps} reps</h3>
+ ${captured?`<div class="approved-prescription"><small>PRESCRIBED FOR THIS SESSION · ${captured.action}</small><strong>${captured.prescription.summary||`${target.sets} sets × ${target.reps} reps${target.weight!=null?` at ${target.weight} ${target.weightUnit}`:""}`}</strong><span>Record what you actually perform below. You can override any target.</span></div>`:""}<div class="weight-entry-explainer"><span>${entry.mode==="dual"?"↔️":entry.mode==="single"?"1️⃣":"🏋️"}</span><div><strong>${displayedLabel}</strong><p>${entry.help}</p>${previous?`<small class="previous-weight">Last completed: <b>${previous.label}</b> on ${previous.date}</small>`:'<small class="previous-weight">No previous completed weight yet.</small>'}${entry.mode==="dual"?`<small>Example: left 20 lb + right 20 lb → enter <b>20</b>; combined selected stack weight is 40 lb.</small>`:""}</div></div>
  <div class="set-table-head"><span>SET</span><span>${entry.mode==="dual"?"LB / STACK":isSmithAddedWeight?"PLATES TOTAL":"WEIGHT LB"}</span><span>REPS</span><span>DONE</span></div>
- ${state.logs[ex.name].map((v,i)=>`<div class="set-row"><strong>${i+1}</strong><input data-w="${i}" inputmode="decimal" placeholder="${entry.mode==="dual"?"per stack":isSmithAddedWeight?"both sides":"lb"}" aria-label="${displayedLabel}, set ${i+1}" value="${v?.weight||""}"><input data-r="${i}" inputmode="numeric" value="${v?.reps||ex.reps}"><button data-d="${i}" class="${v?.done?"done":""}" aria-label="${v?.done?"Mark set incomplete":"Mark set complete"}">${v?.done?"✓":"○"}</button>${entry.mode==="dual"&&v?.weight?`<small class="combined-weight">Combined selected: ${Number(v.weight)*2} lb</small>`:""}</div>`).join("")}
+ ${state.logs[ex.name].map((v,i)=>`<div class="set-row"><strong>${i+1}</strong><input data-w="${i}" inputmode="decimal" placeholder="${target.weight!=null?target.weight:entry.mode==="dual"?"per stack":isSmithAddedWeight?"both sides":"lb"}" aria-label="${displayedLabel}, set ${i+1}" value="${v?.weight||""}"><input data-r="${i}" inputmode="numeric" value="${v?.reps||window.ROAD12_PRESCRIPTIONS.minimumReps(target.reps)}"><button data-d="${i}" class="${v?.done?"done":""}" aria-label="${v?.done?"Mark set incomplete":"Mark set complete"}">${v?.done?"✓":"○"}</button>${entry.mode==="dual"&&v?.weight?`<small class="combined-weight">Combined selected: ${Number(v.weight)*2} lb</small>`:""}</div>`).join("")}
  <div class="exercise-feedback"><div><small>QUICK EXERCISE FEEDBACK</small><strong>Help tune the next session</strong></div><label>Reps left in reserve<select id="exerciseRir"><option value="">Choose</option>${[0,1,2,3,4].map(value=>`<option value="${value}" ${String(feedback.rir)===String(value)?"selected":""}>${value===4?"4+":value}</option>`).join("")}</select></label><label>Form quality<select id="exerciseForm"><option value="">Choose</option><option ${feedback.form==="Clean"?"selected":""}>Clean</option><option ${feedback.form==="Breaking down"?"selected":""}>Breaking down</option></select></label><label class="feedback-check"><input id="exerciseDiscomfort" type="checkbox" ${feedback.discomfort?"checked":""}><span>Pain or discomfort was present</span></label><p>If pain is sharp, worsening, or unusual, stop the movement. This feedback can recommend a deload but does not diagnose an injury.</p></div>
  <div class="timer" id="timer" role="status" aria-live="polite">Rest ${String(Math.floor(ex.rest/60)).padStart(2,"0")}:${String(ex.rest%60).padStart(2,"0")}</div><div class="rest-coach-message" id="restCoach">Recover and prepare for your next set.</div><div class="timer-controls"><button class="secondary" id="rest">Start rest timer</button><button class="secondary" id="stopTimer">Stop timer</button></div></section>`}
 function captureExerciseFeedback(ex){
@@ -1026,6 +1033,9 @@ function phaseReadinessMarkup(readiness,compact=false){
 function exerciseProgressionRecommendations(){
  const definitions=[0,2,4].flatMap(day=>strengthWorkoutForDay(day)).filter(ex=>ex.type==="strength");
  return [...new Map(definitions.map(ex=>[ex.name,ex])).values()].map(ex=>({exercise:ex,recommendation:window.ROAD12_ADAPTIVE.exerciseRecommendation(state.history,state.workoutRatings,ex)}));
+}
+function approvedProgressionFor(exercise){
+ return window.ROAD12_PRESCRIPTIONS.findApproval(state.approvedProgressions,exercise,name=>window.ROAD12_EXERCISES.resolve(name));
 }
 function equipment(){
  const profile=state.trainingProfile;
@@ -1250,6 +1260,7 @@ function summary(){
      scheduled.completedDate=session.completedDate;
      scheduled.actualCompletionDate=session.actualCompletionDate;
    }
+   state.approvedProgressions=window.ROAD12_PRESCRIPTIONS.completeApprovals(state.approvedProgressions,state.currentSession?.sessionPrescriptions,session.exercises,session.id,session.completedAt);
    state.sessions++;state.history.push(session);state.currentSession={completedId:session.id};state.step=0;state.setupReady=false;save();
  }
  const totals=sessionTotals(session),rating=state.workoutRatings[session.id]||"";
@@ -1480,29 +1491,7 @@ function repairFalseActiveWorkout(){
  localStorage.setItem(key,"1");
 }
 function exportV1131Backup(){
- const payload={
-   app:"Road to 12%",
-   version:"11.3.1",
-   exportedAt:new Date().toISOString(),
-   state:{
-     preferredName:state.preferredName,
-     weight:state.weight,
-     waist:state.waist,
-     sessions:state.sessions,
-     history:state.history,
-     workoutRatings:state.workoutRatings||{},
-     dailyCheckins:state.dailyCheckins||{},
-     achievements:state.achievements||{},
-     trainingProfile:state.trainingProfile,
-     acceptedAdaptivePlan:state.acceptedAdaptivePlan,
-     trainingPhase:state.trainingPhase,
-     measurementHistory:state.measurementHistory,
-     cardioHistory:state.cardioHistory,
-     approvedProgressions:state.approvedProgressions,
-     equipment:state.equipment,
-     attachmentPhotos:state.attachmentPhotos||{}
-   }
- };
+ const payload=window.ROAD12_BACKUP.create(APP_META,state,ROAD12_SCHEMA_VERSION);
  const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});
  const url=URL.createObjectURL(blob);
  const a=document.createElement("a");
@@ -1518,26 +1507,13 @@ function importV1131Backup(file){
  reader.onload=()=>{
    try{
      const payload=JSON.parse(reader.result);
-     const incoming=payload.state||payload;
-     if(!Array.isArray(incoming.history))throw new Error("No workout history found.");
-     state.history=v1131NormalizeHistory([...(state.history||[]),...incoming.history]);
-     state.sessions=Math.max(Number(state.sessions)||0,Number(incoming.sessions)||0,state.history.length);
-     state.workoutRatings=Object.assign({},incoming.workoutRatings||{},state.workoutRatings||{});
-     state.dailyCheckins=Object.assign({},incoming.dailyCheckins||{},state.dailyCheckins||{});
-     state.achievements=Object.assign({},incoming.achievements||{},state.achievements||{});
-     if(incoming.trainingProfile)state.trainingProfile=window.ROAD12_ADAPTIVE.normalizeProfile(incoming.trainingProfile);
-     if(incoming.acceptedAdaptivePlan&&!state.acceptedAdaptivePlan)state.acceptedAdaptivePlan=incoming.acceptedAdaptivePlan;
-     if(incoming.trainingPhase)state.trainingPhase=Object.assign({},state.trainingPhase,incoming.trainingPhase);
-     if(Array.isArray(incoming.measurementHistory))state.measurementHistory=[...state.measurementHistory,...incoming.measurementHistory].filter((item,index,array)=>array.findIndex(candidate=>candidate.id===item.id)===index);
-     if(Array.isArray(incoming.cardioHistory))state.cardioHistory=[...state.cardioHistory,...incoming.cardioHistory].filter((item,index,array)=>array.findIndex(candidate=>candidate.sessionId===item.sessionId&&(candidate.name||"Cardio")===(item.name||"Cardio"))===index);
-     state.approvedProgressions=Object.assign({},incoming.approvedProgressions||{},state.approvedProgressions||{});
-     state.equipment=Object.assign({},state.equipment||{},incoming.equipment||{});
-     state.attachmentPhotos=Object.assign({},state.attachmentPhotos||{},incoming.attachmentPhotos||{});
-     if(incoming.weight)state.weight=incoming.weight;
-     if(incoming.waist)state.waist=incoming.waist;
-     if(incoming.preferredName)state.preferredName=incoming.preferredName;
+     const validated=window.ROAD12_BACKUP.validate(payload,ROAD12_SCHEMA_VERSION);
+     const restored=window.ROAD12_BACKUP.merge(state,validated.state);
+     if(restored.trainingProfile)restored.trainingProfile=window.ROAD12_ADAPTIVE.normalizeProfile(restored.trainingProfile);
+     Object.keys(state).forEach(key=>delete state[key]);
+     Object.assign(state,restored);
      save();
-     alert(`Backup imported. ${state.history.length} workout${state.history.length===1?"":"s"} available.`);
+     alert(`Backup imported from ${payload.appVersion||payload.version||"an earlier version"}. ${state.history.length} workout${state.history.length===1?"":"s"} available.`);
      state.historyView=null;
      progress();
    }catch(error){
@@ -1672,7 +1648,7 @@ function progress(){
 
  <section class="card composition-trends"><span class="pill">BODY-COMPOSITION TRENDS</span><h2>Direction, not one weigh-in</h2><div class="trend-grid"><div><small>7-DAY WEIGHT</small><strong>${weight7?`${weight7.change>0?"+":""}${weight7.change} lb`:"Collecting"}</strong><span>${weight7?`${weight7.count} check-ins`:"At least two check-ins needed"}</span></div><div><small>30-DAY WEIGHT</small><strong>${weight30?`${weight30.change>0?"+":""}${weight30.change} lb`:"Collecting"}</strong><span>${weight30?`${weight30.count} check-ins`:"At least two check-ins needed"}</span></div><div><small>30-DAY WAIST</small><strong>${waist30?`${waist30.change>0?"+":""}${waist30.change} in`:"Collecting"}</strong><span>${waist30?`${waist30.count} check-ins`:"At least two check-ins needed"}</span></div><div><small>RECENT STRENGTH</small><strong>${strength30===null?"Collecting":`${strength30>0?"+":""}${strength30}%`}</strong><span>Selected volume across recent A/B/C sessions</span></div></div><p class="trend-note">Daily scale weight can move temporarily because of hydration, sodium, glycogen, digestion, and creatine. Readiness uses repeated history—not a single weigh-in.</p></section>
 
- <section class="card"><span class="pill">EXERCISE PROGRESSION</span><h2>Next-session guidance</h2><p class="muted">Recommendations use exercise-specific completed sets, reps, weight and workout feedback. Nothing changes automatically.</p><div class="exercise-progression-list">${progression.map(item=>{const recommendation=item.recommendation,approved=state.approvedProgressions[item.exercise.name],key=encodeURIComponent(item.exercise.name);return `<div class="progression-${recommendation.action.toLowerCase()}"><span>${recommendation.action}</span><p><strong>${item.exercise.name}</strong><b>${recommendation.prescription.summary}</b><small>${recommendation.reason}</small>${recommendation.action!=="BUILD"?`<button class="${approved?.sourceSessionId===recommendation.sourceSessionId?"secondary":"primary"} progression-approval" data-approve-progression="${key}">${approved?.sourceSessionId===recommendation.sourceSessionId?"Approved for next session ✓":"Approve next-session target"}</button>`:""}</p></div>`;}).join("")}</div></section>
+ <section class="card"><span class="pill">EXERCISE PROGRESSION</span><h2>Next-session guidance</h2><p class="muted">Recommendations use exercise-specific completed sets, reps, weight and workout feedback. Nothing changes automatically.</p><div class="exercise-progression-list">${progression.map(item=>{const recommendation=item.recommendation,approved=approvedProgressionFor(item.exercise),key=encodeURIComponent(item.exercise.name);return `<div class="progression-${recommendation.action.toLowerCase()}"><span>${recommendation.action}</span><p><strong>${item.exercise.name}</strong><b>${recommendation.prescription.summary}</b><small>${recommendation.reason}</small>${recommendation.action!=="BUILD"?`<button class="${approved?.sourceSessionId===recommendation.sourceSessionId?"secondary":"primary"} progression-approval" data-approve-progression="${key}">${approved?.sourceSessionId===recommendation.sourceSessionId?"Approved for next session ✓":"Approve next-session target"}</button>`:""}</p></div>`;}).join("")}</div></section>
 
  <section class="card history-protection-card">
    <div class="section-title-row">
@@ -1738,7 +1714,8 @@ function progress(){
    const name=decodeURIComponent(button.dataset.approveProgression);
    const item=progression.find(candidate=>candidate.exercise.name===name);
    if(!item)return;
-   state.approvedProgressions[name]=Object.assign({exerciseName:name,approvedAt:new Date().toISOString()},item.recommendation.prescription,{action:item.recommendation.action,sourceSessionId:item.recommendation.sourceSessionId});
+   const exerciseId=window.ROAD12_PRESCRIPTIONS.exerciseIdentity(item.exercise,value=>window.ROAD12_EXERCISES.resolve(value));
+   state.approvedProgressions[exerciseId]={exerciseId,exerciseName:name,approvedAt:new Date().toISOString(),status:"approved",prescription:deepCopy(item.recommendation.prescription),action:item.recommendation.action,sourceSessionId:item.recommendation.sourceSessionId};
    save();
    progress();
  });
@@ -1747,7 +1724,8 @@ function progress(){
 function exercise(ex,workoutData=activeWorkout()){
  const pct=Math.round(state.step/workoutData.length*100);
  const strength=ex.type==="strength";
- if(strength&&!state.logs[ex.name])state.logs[ex.name]=Array(ex.sets).fill(null);
+ const prescribed=strength?window.ROAD12_PRESCRIPTIONS.effective(state.currentSession,ex,name=>window.ROAD12_EXERCISES.resolve(name)):null;
+ if(strength&&!state.logs[ex.name])state.logs[ex.name]=Array(prescribed.sets).fill(null);
  const exerciseId=window.ROAD12_EXERCISES.resolve(ex.name).id;
  if(!state.exerciseTimings[exerciseId]){state.exerciseTimings[exerciseId]={startedAt:new Date().toISOString(),endedAt:null};save();}
 
@@ -2301,6 +2279,7 @@ function startNewSession(dayIndex=currentPlanIndex(),selectedSchedule=null){
  const isRecovered=!!selectedSchedule&&selectedSchedule.scheduledDate<todayKey;
  const sessionDay=Number.isInteger(todaySchedule?.planDay)?todaySchedule.planDay:dayIndex;
  const plan=weekPlan[sessionDay];
+ const sessionPrescriptions=window.ROAD12_PRESCRIPTIONS.capture(workoutForDay(sessionDay).filter(ex=>ex.type==="strength"),state.approvedProgressions,name=>window.ROAD12_EXERCISES.resolve(name));
  if(todaySchedule&&!isRecovered&&todaySchedule.status!=="rescheduled")todaySchedule.status="inProgress";
  state.logs={};
  state.exerciseFeedback={};
@@ -2317,7 +2296,8 @@ function startNewSession(dayIndex=currentPlanIndex(),selectedSchedule=null){
    plannedDate:isRecovered?selectedSchedule.plannedDate:null,
    originalScheduledDate:isRecovered?selectedSchedule.scheduledDate:null,
    trainingPhase:deepCopy(state.trainingPhase),
-   equipment:deepCopy(state.equipment)
+   equipment:deepCopy(state.equipment),
+   sessionPrescriptions
  };
   state.step=0;
   state.setupReady=false;

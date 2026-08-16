@@ -8,6 +8,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Added
 
+- Added versioned Road to 12% backup files containing the real app version, build, data schema, authoritative schedule, complete structured history, active workout state, cardio and measurements, equipment, attachments, progression approvals, and provider metadata already stored with sessions.
+- Added session-specific approved prescriptions for the next matching stable exercise ID, with separate base targets and actual sets plus followed, partially followed, overridden, and not-attempted outcomes.
+
 - Added stable exercise identities and export-ready completed strength records with discrete actual sets, prescribed-versus-actual separation, observed timestamps, muscle/equipment context, and dormant Strava sync metadata.
 - Added a documented secure Strava Strength Training integration plan; no OAuth connection or upload behavior is enabled yet.
 - Added a Keep Going mode after cardio countdowns, with a live total-time counter and automatic actual-duration entry in the workout summary.
@@ -18,6 +21,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Added concrete next-session prescriptions with explicit user approval and in-workout approved-target guidance.
 
 ### Changed
+
+- Backup import now validates file identity, format, schema compatibility, history, scheduling, measurements, and persistent-state shapes before replacing any live device state; compatible legacy backups and name-keyed exercise approvals remain readable.
+- Approved progression guidance now becomes the visible prescription only for a newly started matching workout, while manual set overrides, existing active sessions, unrelated exercises, completed history, and Foundation A/B/C definitions remain unchanged.
 
 - Active extended-cardio timing now reconciles from persisted wall-clock time after switching iPhone apps or restoring the PWA.
 - Progression now holds after missed rep targets and reserves deload guidance for excessive difficulty, form breakdown, or discomfort.

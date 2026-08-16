@@ -21,6 +21,8 @@ The roadmap communicates direction rather than a guaranteed schedule. Completed 
 - [x] Add planned-versus-actual cardio performance logging and append-only measurement history
 - [x] Expand cardio to per-block performance, body-composition trends, and readiness evidence quality
 - [x] Add resumable Keep Going timing with automatic cardio-duration capture
+- [x] Make approved exercise prescriptions actionable in the next matching session with outcome tracking
+- [x] Add validated, versioned backup/restore for authoritative offline state
 - [ ] Validate and mature the readiness algorithm before enabling Phase 2 review
 - [x] Add the iFIT rower and available 10/15 lb dumbbells to the weekly program without replacing existing exercises
 - [x] Refresh Home with the Concept B Training Command Center design
@@ -63,5 +65,5 @@ The roadmap communicates direction rather than a guaranteed schedule. Completed 
 - [ ] Deload-week planning
 - [ ] Exportable progress reports
 - [ ] Accessibility themes and larger workout controls
-- [ ] Data portability using an open backup format
+- [x] Data portability using an open backup format
 - [ ] Optional reminders and training notifications
