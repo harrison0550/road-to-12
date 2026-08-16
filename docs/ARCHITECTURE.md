@@ -22,6 +22,8 @@ Meaningful cardio timers have two states: a prescribed countdown and an optional
 
 Session snapshots should remain stable after completion. Future changes to exercise definitions must not silently rewrite historical workout records. Active workout state may be resumed, but completed history is append-oriented.
 
+New strength snapshots use stable IDs from `exercise-identity.js`; display-name changes and aliases must not change historical identity. Prescriptions and actual performance are separate structures. Actual sets remain discrete and retain repetitions, weight, unit, completion state, and observed timestamps. Unknown active time, rest time, or set duration is stored as `null`, never inferred as fact. Legacy snapshots remain readable and are not rewritten.
+
 Workout navigation and scroll-state rules live in `workout-navigation.js`. The UI captures position before leaving a workout and restores it after returning; only an intentional next-exercise action requests smooth scrolling to the top.
 
 ## Scheduling
@@ -79,6 +81,12 @@ Key constraints:
 - Derive schedule activation from the device's local calendar date. Backfill boundaries through additive, idempotent migrations; never replace existing session records to repair a boundary.
 
 Optional future synchronization must not make the local store unusable offline.
+
+## External integrations
+
+Provider integrations are downstream consumers of the canonical completed session; they do not own workout truth. Each provider has an independent synchronization record so failures and retries cannot mutate the completed workout.
+
+The static PWA is an untrusted public client. OAuth client secrets, refresh tokens, provider upload conversion, and asynchronous status polling belong in an authenticated backend or serverless boundary. Browser code may request or display sync state but must never embed provider credentials. See `STRAVA_INTEGRATION.md` for the planned Strength Training contract and duplicate policy.
 
 ## Service Worker
 

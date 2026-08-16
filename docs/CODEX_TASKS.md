@@ -34,6 +34,10 @@ This file contains implementation-ready work. Move completed user-visible work t
 
 ## Parking lot
 
+- [x] Establish stable exercise identities and export-ready discrete strength-set history.
+- [ ] Build a secure Strava OAuth/backend boundary; never place provider secrets or refresh tokens in the PWA.
+- [ ] Convert completed strength sessions to Strava structured JSON, poll asynchronous uploads, and enforce idempotency.
+- [ ] Design explicit iFIT/Strava cardio source selection and duplicate protection.
 - [x] Define a progressive-overload recommendation data contract.
 - [ ] Research privacy-preserving optional synchronization.
 - [ ] Research Apple Health integration requirements.

@@ -166,7 +166,7 @@ if(smithSquatTemplate){
 }
 /* Versioned storage boundary. Migrations must remain ordered and idempotent. */
 const ROAD12_STORAGE_KEY="road12v5";
-const ROAD12_SCHEMA_VERSION=10;
+const ROAD12_SCHEMA_VERSION=11;
 const ROAD12_MIGRATIONS=[
   {
     version:1,
@@ -264,6 +264,15 @@ const ROAD12_MIGRATIONS=[
       value.schemaVersion=10;
       return value;
     }
+  },
+  {
+    version:11,
+    up(value){
+      /* Additive only: old workout history remains untouched and readable. */
+      value.exerciseTimings=value.exerciseTimings&&typeof value.exerciseTimings==="object"?value.exerciseTimings:{};
+      value.schemaVersion=11;
+      return value;
+    }
   }
 ];
 const road12Storage=(()=>{
@@ -302,6 +311,7 @@ const state=road12Storage.load();
 Object.assign(state,{tab:state.tab||"home",step:state.step||0,logs:state.logs||{},sessions:state.sessions||0,weight:state.weight||221,waist:state.waist||43,history:state.history||[],selectedDay:Number.isInteger(state.selectedDay)?state.selectedDay:0,coachMode:state.coachMode!==false});
 state.attachmentPhotos=state.attachmentPhotos||{};
 state.currentSession=state.currentSession||null;
+state.exerciseTimings=state.exerciseTimings&&typeof state.exerciseTimings==="object"?state.exerciseTimings:{};
 state.historyView=state.historyView||null;
 state.preferredName=state.preferredName||"Andy";
 state.previewDay=Number.isInteger(state.previewDay)?state.previewDay:null;
@@ -477,16 +487,53 @@ function formatDuration(ms){
   const mins=Math.max(1,Math.round(ms/60000));
   return `${mins} min`;
 }
+function exerciseMuscleMetadata(ex){
+  const groups=String(ex.muscles||"").split(/,|\band\b|\+/i).map(value=>value.trim()).filter(Boolean);
+  return {primaryMuscleGroup:groups[0]||"",secondaryMuscleGroups:groups.slice(1)};
+}
+function exerciseTiming(ex){
+  const identity=window.ROAD12_EXERCISES.resolve(ex.name);
+  return state.exerciseTimings[identity.id]||{};
+}
 function sessionExerciseSnapshot(){
-  return activeWorkout().filter(ex=>ex.type==="strength").map(ex=>({
-    name:ex.name,
-    muscles:ex.muscles||"",
-    originalExercise:ex.originalExercise||null,
-    attachmentCard:ex.attachmentCard||null,
-    weightEntry:ex.weightEntry||{mode:"total",label:"Weight used"},
-    sets:deepCopy(state.logs[ex.name]||[]),
-    feedback:deepCopy(state.exerciseFeedback[ex.name]||null)
-  }));
+  return activeWorkout().filter(ex=>ex.type==="strength").map((ex,exerciseOrder)=>{
+    const identity=window.ROAD12_EXERCISES.resolve(ex.name),muscles=exerciseMuscleMetadata(ex),timing=exerciseTiming(ex);
+    const actualSets=(state.logs[ex.name]||[]).map((set,setIndex)=>Object.assign({},deepCopy(set||{}),{
+      setNumber:setIndex+1,
+      repetitions:Number(set?.reps)||0,
+      weight:Number(set?.weight)||0,
+      weightUnit:"lb",
+      setType:set?.setType||"working",
+      startedAt:set?.startedAt||null,
+      completedAt:set?.completedAt||null,
+      durationSeconds:Number.isFinite(set?.durationSeconds)?set.durationSeconds:null,
+      restDurationSeconds:Number.isFinite(set?.restDurationSeconds)?set.restDurationSeconds:null,
+      completed:!!set?.done,
+      skipped:!set?.done,
+      status:set?.done?"completed":"skipped"
+    }));
+    return {
+      exerciseId:identity.id,
+      name:ex.name,
+      displayName:ex.name,
+      category:ex.type,
+      muscles:ex.muscles||"",
+      primaryMuscleGroup:muscles.primaryMuscleGroup,
+      secondaryMuscleGroups:muscles.secondaryMuscleGroups,
+      equipmentUsed:deepCopy(ex.requires||[]),
+      exerciseOrder:exerciseOrder+1,
+      startedAt:timing.startedAt||null,
+      endedAt:timing.endedAt||null,
+      durationMs:timing.startedAt&&timing.endedAt?Math.max(0,new Date(timing.endedAt)-new Date(timing.startedAt)):null,
+      prescription:{sets:Number(ex.sets)||0,reps:ex.reps||"",weightUnit:"lb",restSeconds:Number(ex.rest)||0},
+      externalMappings:deepCopy(identity.externalMappings),
+      originalExercise:ex.originalExercise||null,
+      attachmentCard:ex.attachmentCard||null,
+      weightEntry:ex.weightEntry||{mode:"total",label:"Weight used"},
+      sets:actualSets,
+      feedback:deepCopy(state.exerciseFeedback[ex.name]||null)
+    };
+  });
 }
 function durationMinutes(ex){const match=String(ex?.duration||"").match(/^(\d+):/);return match?Number(match[1]):null;}
 function isMeaningfulCardioBlock(ex){return durationMinutes(ex)!==null&&(ex.type==="cardio"||/walk|treadmill|row|bike|cardio|warm.?up|cooldown/i.test(ex.name));}
@@ -840,6 +887,7 @@ function bindSets(ex){
    const i=Number(input.dataset.w??input.dataset.r);
    const existing=state.logs[ex.name][i]||{};
    state.logs[ex.name][i]=Object.assign({},existing,{
+     startedAt:existing.startedAt||new Date().toISOString(),
      weight:document.querySelector(`[data-w="${i}"]`)?.value||"",
      reps:document.querySelector(`[data-r="${i}"]`)?.value||ex.reps
    });
@@ -850,7 +898,8 @@ function bindSets(ex){
    const w=document.querySelector(`[data-w="${i}"]`).value;
    const r=document.querySelector(`[data-r="${i}"]`).value;
    const done=!state.logs[ex.name][i]?.done;
-   state.logs[ex.name][i]={weight:w,reps:r,done};
+   const existing=state.logs[ex.name][i]||{},now=new Date().toISOString();
+   state.logs[ex.name][i]=Object.assign({},existing,{weight:w,reps:r,done,startedAt:existing.startedAt||now,completedAt:done?now:null});
    save();
    b.classList.toggle("done",done);
    b.textContent=done?"✓":"○";
@@ -938,6 +987,7 @@ window.addEventListener("pageshow",syncActiveTimer);
 window.addEventListener("focus",syncActiveTimer);
 function next(){
  const current=activeWorkout()[state.step-1];if(current&&isMeaningfulCardioBlock(current)){finalizeCardio(current);clearInterval(timerId);timerId=null;timerEndsAt=null;remaining=0;activeTimerExercise=null;}
+ if(current){const id=window.ROAD12_EXERCISES.resolve(current.name).id,timing=state.exerciseTimings[id];if(timing&&!timing.endedAt)timing.endedAt=new Date().toISOString();}
  window.ROAD12_WORKOUT_NAVIGATION.advanceExercise(
    state
  );
@@ -1179,6 +1229,15 @@ function summary(){
  }else{
    const endedAt=new Date(),startedAt=state.currentSession?.startedAt?new Date(state.currentSession.startedAt):endedAt;
    session={id:state.currentSession?.id||`session-${Date.now()}`,scheduleId:state.currentSession?.scheduleId||null,planDay:Number.isInteger(state.currentSession?.planDay)?state.currentSession.planDay:currentPlanIndex(),date:endedAt.toLocaleDateString(),dateKey:localDateKey(endedAt),completedAt:endedAt.toISOString(),completedDate:localDateKey(endedAt),actualCompletionDate:localDateKey(endedAt),startedAt:startedAt.toISOString(),durationMs:Math.max(0,endedAt-startedAt),name:state.currentSession?.name||weekPlan[currentPlanIndex()].title,exercises:sessionExerciseSnapshot(),equipment:deepCopy(state.equipment)};
+   session.endedAt=session.completedAt;
+   session.elapsedDurationMs=session.durationMs;
+   session.activeDurationMs=null;
+   session.restDurationMs=null;
+   session.workoutType=session.exercises.length?"strength":"cardio";
+   session.completionStatus="completed";
+   session.trainingPhase=deepCopy(state.currentSession?.trainingPhase||state.trainingPhase);
+   session.actualPerformance=sessionTotals(session);
+   session.externalSync={strava:{status:"NOT_SYNCED",activityId:null,uploadId:null,uploadedAt:null,lastAttemptAt:null,lastError:null,externalId:`road12-${session.id}`}};
    if(state.currentSession?.recoveredWorkout){
      session.recoveryIndicator=true;
      session.plannedDate=state.currentSession.plannedDate;
@@ -1212,7 +1271,7 @@ function summary(){
  </section>`:""}
  <button class="primary" id="saveFinish">Save feedback and view workout</button><button class="secondary" id="home">Return home</button>`;
  const captureCompletionInputs=()=>{session.note=document.querySelector("#workoutNote")?.value.trim()||session.note||"";session.cardioBlocks=cardioBlocks.map((block,index)=>{const field=document.querySelector(`[data-cardio-block="${index}"]`),value=key=>field?.querySelector(`[data-cardio="${key}"]`)?.value;return Object.assign({},block,{actualDurationMinutes:Number(value("actualDurationMinutes"))||0,distance:Number(value("distance"))||null,averageHeartRate:Number(value("averageHeartRate"))||null,averagePace:value("averagePace")?.trim()||"",inclineResistance:value("inclineResistance")?.trim()||"",effort:value("effort")||"Good"});});const main=session.cardioBlocks.slice().sort((a,b)=>b.plannedDurationMinutes-a.plannedDurationMinutes)[0];if(main)session.cardio=Object.assign({},main,{paceIncline:[main.averagePace,main.inclineResistance].filter(Boolean).join(" • ")});};
- document.querySelectorAll("[data-rating]").forEach(b=>b.onclick=()=>{captureCompletionInputs();state.workoutRatings[session.id]=b.dataset.rating;save();summary()});
+ document.querySelectorAll("[data-rating]").forEach(b=>b.onclick=()=>{captureCompletionInputs();state.workoutRatings[session.id]=b.dataset.rating;session.difficultyRating=b.dataset.rating;save();summary()});
  document.querySelectorAll("[data-recovery-decision]").forEach(button=>button.onclick=()=>{
    const decision=button.dataset.recoveryDecision;
    window.ROAD12_SCHEDULING.completeRecoveredWorkout(
@@ -1689,6 +1748,8 @@ function exercise(ex,workoutData=activeWorkout()){
  const pct=Math.round(state.step/workoutData.length*100);
  const strength=ex.type==="strength";
  if(strength&&!state.logs[ex.name])state.logs[ex.name]=Array(ex.sets).fill(null);
+ const exerciseId=window.ROAD12_EXERCISES.resolve(ex.name).id;
+ if(!state.exerciseTimings[exerciseId]){state.exerciseTimings[exerciseId]={startedAt:new Date().toISOString(),endedAt:null};save();}
 
  const currentBlock=setupBlockLabel(ex);
  const previous=workoutData[state.step-2];
@@ -1761,9 +1822,10 @@ function syncSelectedDayToCalendar(){
     /* A session created on a prior date must not make today's workout
        appear resumable. Genuine prior work remains in history/log storage. */
     if(state.currentSession && state.currentSession.dateKey!==todayKey){
-      state.currentSession=null;
-      state.step=0;
-      state.logs={};
+     state.currentSession=null;
+     state.step=0;
+     state.logs={};
+     state.exerciseTimings={};
       state.setupReady=false;
     }
     save();
@@ -2243,6 +2305,7 @@ function startNewSession(dayIndex=currentPlanIndex(),selectedSchedule=null){
  state.logs={};
  state.exerciseFeedback={};
  state.cardioTimers={};
+ state.exerciseTimings={};
  state.currentSession={
    id:`session-${Date.now()}`,
    name:selectedSchedule?.name||plan.title,

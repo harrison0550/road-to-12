@@ -47,6 +47,8 @@ The roadmap communicates direction rather than a guaranteed schedule. Completed 
 
 ### Later
 
+- [ ] Secure opt-in Strava Strength Training sync using structured sets and duplicate-safe upload status
+- [ ] Strava cardio source arbitration that avoids duplicating iFIT activities
 - [ ] Apple Health integration
 - [ ] Wearable and heart-rate integrations
 - [ ] Nutrition and protein tracking

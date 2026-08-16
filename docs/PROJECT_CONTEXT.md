@@ -6,9 +6,9 @@ Read this file at the beginning of every Codex or engineering session. It is the
 
 - Product: Road to 12%
 - Version: 13.2.0
-- Build: 2026.08.15.1
+- Build: 2026.08.15.2
 - Last updated: August 15, 2026
-- Service Worker cache: `road12-v13-2-43-shell`
+- Service Worker cache: `road12-v13-2-44-shell`
 - Runtime: static, client-only, offline-first PWA
 - Primary storage key: `road12v5`
 
@@ -21,6 +21,7 @@ Read this file at the beginning of every Codex or engineering session. It is the
 - `workout-navigation.js` owns testable workout scroll capture, restoration, and intentional advancement behavior.
 - `data.js` contains workout definitions.
 - `exercise-library.js` contains reviewed exercise education metadata.
+- `exercise-identity.js` owns stable exercise IDs and provider mappings independently of display names.
 - `app.css` contains the current responsive design system.
 - `app-meta.js` is the single source for About/version and cache metadata.
 - `localStorage` holds versioned device-local state and completed history.
@@ -68,6 +69,8 @@ Next recommended goals:
 See `CODEX_TASKS.md` for priority and acceptance detail.
 
 ## Recent design decisions
+
+- Strava Strength Training is planned, not connected. New completed strength sessions preserve stable exercise IDs, prescribed-versus-actual data, discrete set results, timestamps, muscles/equipment, and provider sync metadata. OAuth secrets and tokens must live behind a secure backend/serverless boundary; local workout completion remains authoritative and offline.
 
 - Timed cardio uses a prescribed countdown followed by an explicit Keep Going mode. Extended time is derived from wall-clock timestamps, survives iOS suspension, and automatically prefills the matching cardio block at workout completion.
 - Each meaningful cardio block stores its own planned and actual duration, distance, average heart rate, average pace, incline/resistance, and effort. Prescribed timers are cues rather than hard stops, and prior matching performance is shown for comparison.

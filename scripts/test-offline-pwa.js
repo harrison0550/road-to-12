@@ -121,7 +121,7 @@ async function dispatchFetch(url) {
 
 (async () => {
   const cacheName = context.self.ROAD12_META.serviceWorkerCache;
-  assert.strictEqual(cacheName, "road12-v13-2-43-shell");
+  assert.strictEqual(cacheName, "road12-v13-2-44-shell");
 
   await dispatchExtendable("install");
   assert.strictEqual(skipWaitingCalled, true, "new worker must activate promptly");

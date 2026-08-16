@@ -8,6 +8,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Added
 
+- Added stable exercise identities and export-ready completed strength records with discrete actual sets, prescribed-versus-actual separation, observed timestamps, muscle/equipment context, and dormant Strava sync metadata.
+- Added a documented secure Strava Strength Training integration plan; no OAuth connection or upload behavior is enabled yet.
 - Added a Keep Going mode after cardio countdowns, with a live total-time counter and automatic actual-duration entry in the workout summary.
 - Added separate actual-performance logging and previous-performance comparisons for every meaningful cardio block, including warm-ups and cooldowns that continue beyond their timer.
 - Added seven- and thirty-day weight trends, thirty-day waist change, recent strength direction, and scale-fluctuation context.
