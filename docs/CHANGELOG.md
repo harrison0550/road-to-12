@@ -8,6 +8,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Added
 
+- Added a Keep Going mode after cardio countdowns, with a live total-time counter and automatic actual-duration entry in the workout summary.
 - Added separate actual-performance logging and previous-performance comparisons for every meaningful cardio block, including warm-ups and cooldowns that continue beyond their timer.
 - Added seven- and thirty-day weight trends, thirty-day waist change, recent strength direction, and scale-fluctuation context.
 - Added a readiness data-quality indicator covering A/B/C exposure, exercise baselines, workout ratings, cardio records, and measurement history.
@@ -16,6 +17,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Changed
 
+- Active extended-cardio timing now reconciles from persisted wall-clock time after switching iPhone apps or restoring the PWA.
 - Progression now holds after missed rep targets and reserves deload guidance for excessive difficulty, form breakdown, or discomfort.
 
 ### Added

@@ -15,8 +15,10 @@ assert.strictEqual(remainingAt(70_000, 10_000), 60, "a new 60-second timer must 
 assert.strictEqual(remainingAt(70_000, 40_250), 30, "elapsed wall-clock time must be reflected after suspension");
 assert.strictEqual(remainingAt(70_000, 75_000), 0, "an expired timer must not become negative");
 assert.match(app, /timerEndsAt=Date\.now\(\)\+\(remaining\*1000\)/, "timer must store an absolute finish time");
-assert.match(app, /visibilitychange[\s\S]*document\.visibilityState==="visible"[\s\S]*syncTimer/, "timer must synchronize when the PWA becomes visible");
-assert.match(app, /window\.addEventListener\("pageshow",syncTimer\)/, "timer must synchronize when iOS restores the page");
+assert.match(app, /visibilitychange[\s\S]*document\.visibilityState==="visible"[\s\S]*syncActiveTimer/, "timer must synchronize when the PWA becomes visible");
+assert.match(app, /window\.addEventListener\("pageshow",syncActiveTimer\)/, "timer must synchronize when iOS restores the page");
 assert.match(app, /if\(timerEndsAt===null\)return;/, "completion must be guarded so the alert fires only once");
+assert.match(app, /Keep going[\s\S]*currentCardioSeconds[\s\S]*extensionStartedAt/, "cardio must offer an elapsed-time extension after the target");
+assert.match(app, /timedMinutes[\s\S]*actualDurationMinutes/, "measured cardio time must prefill the completion log");
 
 console.log("Background timer regression checks passed: elapsed wall-clock time survives app suspension.");

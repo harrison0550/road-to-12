@@ -18,6 +18,8 @@ The Workout Engine selects the appropriate program day, resolves exercises again
 
 Workout timers use an absolute wall-clock finish timestamp rather than counting interval callbacks. The UI reconciles remaining time when the document becomes visible, receives focus, or is restored, because iOS may suspend JavaScript while another app is active. Completion chimes are generated locally through the browser audio API so the cue remains available offline, although iOS may delay the cue until the PWA resumes. Previous-weight guidance is read from the latest completed snapshot for the same exercise and must never prefill or mutate the active set automatically.
 
+Meaningful cardio timers have two states: a prescribed countdown and an optional user-started Keep Going interval. Both use persisted wall-clock timestamps. Stopping the timer or advancing the workout finalizes the measured duration and prefills the matching cardio completion record; users may still correct it or add iFIT/Strava metrics before saving.
+
 Session snapshots should remain stable after completion. Future changes to exercise definitions must not silently rewrite historical workout records. Active workout state may be resumed, but completed history is append-oriented.
 
 Workout navigation and scroll-state rules live in `workout-navigation.js`. The UI captures position before leaving a workout and restores it after returning; only an intentional next-exercise action requests smooth scrolling to the top.

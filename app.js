@@ -166,7 +166,7 @@ if(smithSquatTemplate){
 }
 /* Versioned storage boundary. Migrations must remain ordered and idempotent. */
 const ROAD12_STORAGE_KEY="road12v5";
-const ROAD12_SCHEMA_VERSION=9;
+const ROAD12_SCHEMA_VERSION=10;
 const ROAD12_MIGRATIONS=[
   {
     version:1,
@@ -256,6 +256,14 @@ const ROAD12_MIGRATIONS=[
       value.schemaVersion=9;
       return value;
     }
+  },
+  {
+    version:10,
+    up(value){
+      value.cardioTimers=value.cardioTimers&&typeof value.cardioTimers==="object"?value.cardioTimers:{};
+      value.schemaVersion=10;
+      return value;
+    }
   }
 ];
 const road12Storage=(()=>{
@@ -307,6 +315,7 @@ state.acceptedAdaptivePlan=state.acceptedAdaptivePlan||null;
 state.trainingPhase=state.trainingPhase||{id:"foundation",number:1,startedAt:localDateKey(),status:"active",advancementLocked:true};
 state.measurementHistory=Array.isArray(state.measurementHistory)?state.measurementHistory:[];
 state.cardioHistory=Array.isArray(state.cardioHistory)?state.cardioHistory:[];
+state.cardioTimers=state.cardioTimers&&typeof state.cardioTimers==="object"?state.cardioTimers:{};
 state.exerciseFeedback=state.exerciseFeedback&&typeof state.exerciseFeedback==="object"?state.exerciseFeedback:{};
 state.approvedProgressions=state.approvedProgressions&&typeof state.approvedProgressions==="object"?state.approvedProgressions:{};
 state.equipment=Object.assign({
@@ -330,7 +339,7 @@ const weekPlan=[
  {short:"SUN",icon:"📏",title:"Recovery + Check-in",detail:"Rest, measurements and weekly review",action:"progress",time:"10–20 min",focus:"Recovery and progress review",items:["Morning body weight","Waist measurement","Optional progress photos","Review completed workouts","Plan the coming week","Full rest or gentle walk"],setup:"No gym setup required"}
 ];
 const app=document.querySelector("#app"), nav=[...document.querySelectorAll("nav button")];
-let timerId=null, remaining=0, timerEndsAt=null, timerAudioContext=null;
+let timerId=null, remaining=0, timerEndsAt=null, timerAudioContext=null, activeTimerExercise=null;
 const save=()=>road12Storage.write(state);
 const equipmentLabels={
   ritfitM1:"RitFit M1 Pro",
@@ -825,7 +834,7 @@ function captureExerciseFeedback(ex){
  state.exerciseFeedback[ex.name]={rir:rir===""?null:Number(rir),form,discomfort,recordedAt:new Date().toISOString()};
  save();
 }
-function timed(ex){return `<section class="card timer-card"><h3>${ex.duration}</h3><div class="timer" id="timer" role="status" aria-live="polite">${ex.duration.includes(":")?ex.duration:"Ready"}</div>${ex.duration.includes(":")?'<div class="timer-controls"><button class="primary" id="rest">Start timer</button><button class="secondary" id="stopTimer">Stop timer</button></div>':""}</section>`}
+function timed(ex){const cardio=isMeaningfulCardioBlock(ex),runtime=state.cardioTimers[ex.name];return `<section class="card timer-card"><h3>${ex.duration}</h3>${cardio?'<p class="cardio-timer-note">The countdown is your target. When it finishes, tap <strong>Keep going</strong> to continue tracking total cardio time.</p>':""}<div class="timer" id="timer" role="status" aria-live="polite">${ex.duration.includes(":")?ex.duration:"Ready"}</div>${cardio?'<div class="cardio-total" id="cardioTotal" aria-live="polite">Total cardio: 00:00</div>':""}${ex.duration.includes(":")?`<div class="timer-controls"><button class="primary" id="rest">${runtime?.status?"Restart target":"Start timer"}</button>${cardio?'<button class="primary keep-going" id="keepGoing" hidden>Keep going</button>':""}<button class="secondary" id="stopTimer">Stop timer</button></div>`:""}</section>`}
 function bindSets(ex){
  document.querySelectorAll("[data-w],[data-r]").forEach(input=>input.onchange=()=>{
    const i=Number(input.dataset.w??input.dataset.r);
@@ -852,8 +861,23 @@ function bindSets(ex){
  ["#exerciseRir","#exerciseForm","#exerciseDiscomfort"].forEach(selector=>{const input=document.querySelector(selector);if(input)input.onchange=()=>captureExerciseFeedback(ex);});
  const stop=document.querySelector("#stopTimer");if(stop)stop.onclick=stopTimer
 }
-function bindTimer(ex){let b=document.querySelector("#rest");if(b)b.onclick=()=>{let [m,s]=ex.duration.split(":").map(Number);startTimer(m*60+s)};const stop=document.querySelector("#stopTimer");if(stop)stop.onclick=stopTimer}
-function stopTimer(){clearInterval(timerId);timerId=null;timerEndsAt=null;remaining=0;}
+function bindTimer(ex){
+ const b=document.querySelector("#rest"),stop=document.querySelector("#stopTimer"),keep=document.querySelector("#keepGoing"),runtime=state.cardioTimers[ex.name];
+ if(b)b.onclick=()=>{let [m,s]=ex.duration.split(":").map(Number);isMeaningfulCardioBlock(ex)?startCardioTarget(ex,m*60+s):startTimer(m*60+s)};
+ if(stop)stop.onclick=()=>stopTimer(ex);
+ if(keep)keep.onclick=()=>continueCardio(ex);
+ if(isMeaningfulCardioBlock(ex)&&runtime){activeTimerExercise=ex.name;if(runtime.status==="target"&&runtime.targetEndsAt){timerEndsAt=runtime.targetEndsAt;syncTimer();if(timerEndsAt!==null)timerId=setInterval(syncTimer,1000);}else if(runtime.status==="targetComplete")showCardioTargetComplete(ex);else if(runtime.status==="extended"){syncCardioExtension(ex);timerId=setInterval(()=>syncCardioExtension(ex),1000);}else if(runtime.status==="stopped")showCardioStopped(runtime);}
+}
+function clockText(seconds){const total=Math.max(0,Math.floor(Number(seconds)||0)),hours=Math.floor(total/3600),minutes=Math.floor(total%3600/60),secs=total%60;return `${hours?`${String(hours).padStart(2,"0")}:`:""}${String(minutes).padStart(2,"0")}:${String(secs).padStart(2,"0")}`;}
+function currentCardioSeconds(runtime,now=Date.now()){if(!runtime)return 0;if(runtime.status==="target")return Math.min(runtime.targetSeconds,Math.max(0,Math.floor((now-runtime.targetStartedAt)/1000)));if(runtime.status==="extended")return runtime.targetSeconds+Math.max(0,Math.floor((now-runtime.extensionStartedAt)/1000));return Number(runtime.actualSeconds)||0;}
+function updateCardioTotal(runtime){const el=document.querySelector("#cardioTotal");if(el)el.textContent=`Total cardio: ${clockText(currentCardioSeconds(runtime))}`;}
+function startCardioTarget(ex,seconds){clearInterval(timerId);const now=Date.now();state.cardioTimers[ex.name]={name:ex.name,targetSeconds:seconds,targetStartedAt:now,targetEndsAt:now+seconds*1000,status:"target",actualSeconds:0};activeTimerExercise=ex.name;save();startTimer(seconds,ex.name);updateCardioTotal(state.cardioTimers[ex.name]);}
+function showCardioTargetComplete(ex){const runtime=state.cardioTimers[ex.name];const el=document.querySelector("#timer");if(el)el.textContent="Target complete";updateCardioTotal(runtime);const keep=document.querySelector("#keepGoing");if(keep)keep.hidden=false;const start=document.querySelector("#rest");if(start)start.hidden=true;}
+function continueCardio(ex){const runtime=state.cardioTimers[ex.name];if(!runtime)return;runtime.status="extended";runtime.extensionStartedAt=Date.now();runtime.actualSeconds=runtime.targetSeconds;save();const keep=document.querySelector("#keepGoing");if(keep)keep.hidden=true;const el=document.querySelector("#timer");if(el)el.textContent="Keep going";clearInterval(timerId);syncCardioExtension(ex);timerId=setInterval(()=>syncCardioExtension(ex),1000);}
+function syncCardioExtension(ex){const runtime=state.cardioTimers[ex.name];if(!runtime||runtime.status!=="extended")return;runtime.actualSeconds=currentCardioSeconds(runtime);updateCardioTotal(runtime);const el=document.querySelector("#timer");if(el)el.textContent=`Total ${clockText(runtime.actualSeconds)}`;}
+function showCardioStopped(runtime){const seconds=currentCardioSeconds(runtime),el=document.querySelector("#timer");if(el)el.textContent=`Logged ${clockText(seconds)}`;updateCardioTotal(runtime);const keep=document.querySelector("#keepGoing");if(keep)keep.hidden=true;}
+function finalizeCardio(ex){const runtime=ex&&state.cardioTimers[ex.name];if(!runtime)return;runtime.actualSeconds=currentCardioSeconds(runtime);runtime.status="stopped";runtime.stoppedAt=Date.now();save();}
+function stopTimer(ex=null){if(ex&&isMeaningfulCardioBlock(ex)){finalizeCardio(ex);showCardioStopped(state.cardioTimers[ex.name]);}clearInterval(timerId);timerId=null;timerEndsAt=null;remaining=0;activeTimerExercise=null;}
 function prepareTimerAudio(){
  const AudioContextClass=window.AudioContext||window.webkitAudioContext;
  if(!AudioContextClass)return null;
@@ -888,6 +912,9 @@ function completeTimer(){
  if(timerEndsAt===null)return;
  clearInterval(timerId);timerId=null;timerEndsAt=null;remaining=0;
  playTimerCompleteSound();navigator.vibrate?.([200,100,200]);
+ if(activeTimerExercise&&state.cardioTimers[activeTimerExercise]?.status==="target"){
+   const runtime=state.cardioTimers[activeTimerExercise];runtime.status="targetComplete";runtime.actualSeconds=runtime.targetSeconds;save();const ex=activeWorkout().find(item=>item.name===activeTimerExercise);if(ex)showCardioTargetComplete(ex);return;
+ }
  const el=document.querySelector("#timer");if(el)el.textContent="Timer complete";
  const c=document.querySelector("#restCoach");if(c)c.textContent="Rest complete. Begin when ready.";
 }
@@ -899,15 +926,18 @@ function syncTimer(){
  if(el)el.textContent=`${String(Math.floor(remaining/60)).padStart(2,"0")}:${String(remaining%60).padStart(2,"0")}`;
  const c=document.querySelector("#restCoach");if(c)c.textContent=restCoachText(remaining);
 }
-function startTimer(sec){
+function startTimer(sec,cardioName=null){
+ activeTimerExercise=cardioName;
  remaining=Math.max(0,Number(sec)||0);timerEndsAt=Date.now()+(remaining*1000);
  prepareTimerAudio();clearInterval(timerId);syncTimer();
  if(timerEndsAt!==null)timerId=setInterval(syncTimer,1000);
 }
-document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")syncTimer()});
-window.addEventListener("pageshow",syncTimer);
-window.addEventListener("focus",syncTimer);
+function syncActiveTimer(){syncTimer();if(activeTimerExercise){const ex=activeWorkout().find(item=>item.name===activeTimerExercise);if(ex&&state.cardioTimers[activeTimerExercise]?.status==="extended")syncCardioExtension(ex);}}
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")syncActiveTimer()});
+window.addEventListener("pageshow",syncActiveTimer);
+window.addEventListener("focus",syncActiveTimer);
 function next(){
+ const current=activeWorkout()[state.step-1];if(current&&isMeaningfulCardioBlock(current)){finalizeCardio(current);clearInterval(timerId);timerId=null;timerEndsAt=null;remaining=0;activeTimerExercise=null;}
  window.ROAD12_WORKOUT_NAVIGATION.advanceExercise(
    state
  );
@@ -1169,7 +1199,7 @@ function summary(){
  const savedCardioBlocks=Array.isArray(session.cardioBlocks)?session.cardioBlocks:[];
  app.innerHTML=`<section class="card complete upgraded-complete"><div class="check">✓</div><span class="pill">SESSION ${state.sessions} COMPLETE</span><h2>You crushed it!</h2><p>${formatDuration(session.durationMs)} • ${totals.completedSets} sets • ${totals.totalReps} reps</p></section>
  <section class="card workout-rating"><h3>How did it feel?</h3><p>This rating is one signal alongside completed sets, reps, weight and recovery.</p><div class="rating-grid">${["Easy","Good","Too Hard"].map((x,i)=>`<button data-rating="${x}" class="${rating===x?"selected":""}"><span>${["😀","🙂","😫"][i]}</span>${x}</button>`).join("")}</div><label>Workout notes<textarea id="workoutNote" placeholder="Energy, discomfort, equipment changes or wins...">${session.note||""}</textarea></label></section>
- ${cardioBlocks.length?`<section class="card cardio-log-card"><span class="pill">CARDIO PERFORMANCE</span><h3>Record each cardio block</h3><p>The timer is only the prescribed target. If you continued walking, running, rowing, or cooling down, enter the full time you actually completed.</p><div class="cardio-block-list">${cardioBlocks.map((block,index)=>{const saved=savedCardioBlocks.find(item=>item.name===block.name)||{},previous=previousCardioBlock(block.name,session.id);return `<fieldset class="cardio-block" data-cardio-block="${index}"><legend><strong>${block.name}</strong><small>Target: ${block.plannedDurationMinutes} min • ${block.modality}</small></legend><p class="cardio-previous">${cardioComparison(previous)}</p><div class="cardio-log-grid"><label>Actual time (min)<input data-cardio="actualDurationMinutes" type="number" inputmode="decimal" min="0" step="0.1" value="${saved.actualDurationMinutes??block.plannedDurationMinutes}"></label><label>Distance<input data-cardio="distance" type="number" inputmode="decimal" min="0" step="0.01" value="${saved.distance??""}"></label><label>Average heart rate<input data-cardio="averageHeartRate" type="number" inputmode="numeric" min="0" value="${saved.averageHeartRate??""}"></label><label>Average pace<input data-cardio="averagePace" placeholder="e.g. 18:30 / mi" value="${escapeAdaptiveText(saved.averagePace||"")}"></label><label>Incline / resistance<input data-cardio="inclineResistance" placeholder="e.g. 3% or level 5" value="${escapeAdaptiveText(saved.inclineResistance||"")}"></label><label>Effort<select data-cardio="effort">${["Easy","Good","Too Hard"].map(value=>`<option ${saved.effort===value?"selected":""}>${value}</option>`).join("")}</select></label></div></fieldset>`;}).join("")}</div></section>`:""}
+ ${cardioBlocks.length?`<section class="card cardio-log-card"><span class="pill">CARDIO PERFORMANCE</span><h3>Record each cardio block</h3><p>Your measured timer total is filled in automatically. You can still correct it or add metrics imported from iFIT or Strava.</p><div class="cardio-block-list">${cardioBlocks.map((block,index)=>{const runtime=state.cardioTimers[block.name],timedMinutes=runtime?Number((currentCardioSeconds(runtime)/60).toFixed(1)):null,saved=Object.assign({},savedCardioBlocks.find(item=>item.name===block.name)||{},timedMinutes?{actualDurationMinutes:timedMinutes}:{}),previous=previousCardioBlock(block.name,session.id);return `<fieldset class="cardio-block" data-cardio-block="${index}"><legend><strong>${block.name}</strong><small>Target: ${block.plannedDurationMinutes} min • ${block.modality}</small></legend><p class="cardio-previous">${cardioComparison(previous)}</p><div class="cardio-log-grid"><label>Actual time (min)<input data-cardio="actualDurationMinutes" type="number" inputmode="decimal" min="0" step="0.1" value="${saved.actualDurationMinutes??block.plannedDurationMinutes}"></label><label>Distance<input data-cardio="distance" type="number" inputmode="decimal" min="0" step="0.01" value="${saved.distance??""}"></label><label>Average heart rate<input data-cardio="averageHeartRate" type="number" inputmode="numeric" min="0" value="${saved.averageHeartRate??""}"></label><label>Average pace<input data-cardio="averagePace" placeholder="e.g. 18:30 / mi" value="${escapeAdaptiveText(saved.averagePace||"")}"></label><label>Incline / resistance<input data-cardio="inclineResistance" placeholder="e.g. 3% or level 5" value="${escapeAdaptiveText(saved.inclineResistance||"")}"></label><label>Effort<select data-cardio="effort">${["Easy","Good","Too Hard"].map(value=>`<option ${saved.effort===value?"selected":""}>${value}</option>`).join("")}</select></label></div></fieldset>`;}).join("")}</div></section>`:""}
  ${session.recoveryIndicator&&session.recoveryDecision==="pending"?`<section class="card recovery-completion-choice" aria-labelledby="recoveryCompletionTitle">
    <span class="pill">RECOVERED WORKOUT</span>
    <h2 id="recoveryCompletionTitle">You completed a workout that was originally scheduled for yesterday.</h2>
@@ -2212,6 +2242,7 @@ function startNewSession(dayIndex=currentPlanIndex(),selectedSchedule=null){
  if(todaySchedule&&!isRecovered&&todaySchedule.status!=="rescheduled")todaySchedule.status="inProgress";
  state.logs={};
  state.exerciseFeedback={};
+ state.cardioTimers={};
  state.currentSession={
    id:`session-${Date.now()}`,
    name:selectedSchedule?.name||plan.title,

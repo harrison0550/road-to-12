@@ -6,9 +6,9 @@ Read this file at the beginning of every Codex or engineering session. It is the
 
 - Product: Road to 12%
 - Version: 13.2.0
-- Build: 2026.08.13.5
-- Last updated: August 13, 2026
-- Service Worker cache: `road12-v13-2-42-shell`
+- Build: 2026.08.15.1
+- Last updated: August 15, 2026
+- Service Worker cache: `road12-v13-2-43-shell`
 - Runtime: static, client-only, offline-first PWA
 - Primary storage key: `road12v5`
 
@@ -69,6 +69,7 @@ See `CODEX_TASKS.md` for priority and acceptance detail.
 
 ## Recent design decisions
 
+- Timed cardio uses a prescribed countdown followed by an explicit Keep Going mode. Extended time is derived from wall-clock timestamps, survives iOS suspension, and automatically prefills the matching cardio block at workout completion.
 - Each meaningful cardio block stores its own planned and actual duration, distance, average heart rate, average pace, incline/resistance, and effort. Prescribed timers are cues rather than hard stops, and prior matching performance is shown for comparison.
 - Progress shows seven- and thirty-day weight direction, thirty-day waist direction, and recent strength-volume direction. Readiness reports evidence quality separately from readiness so sparse data cannot look authoritative.
 - Strength exercises collect optional reps-in-reserve, form-quality, and discomfort feedback. Progress then proposes a concrete next-session prescription that the user must approve; approval remains advisory and never rewrites workout definitions or completed history.
@@ -125,6 +126,7 @@ See `CODEX_TASKS.md` for priority and acceptance detail.
 - Equipment migration v7 reconciles the confirmed iFIT rower and dumbbell availability for existing device profiles so additive exercises are not filtered from previews; completed history remains unchanged.
 - Migration v8 initializes the locked Foundation phase, measurement history and cardio history, and retires the unused accepted whole-workout adaptive plan without altering completed sessions.
 - Migration v9 initializes active exercise feedback and approved next-session prescriptions without altering completed sessions.
+- Migration v10 initializes resumable active cardio-timer state without altering completed sessions or prior cardio history.
 - Do not overwrite `plannedDate`.
 - Do not shift rest days or reorder completed sessions.
 - Do not make network access a requirement for core workouts.

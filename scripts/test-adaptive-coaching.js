@@ -43,6 +43,7 @@ assert.notStrictEqual(unchanged[0],source[0],"workout definitions must remain im
 assert(html.includes('src="adaptive-coaching.js"'));
 assert(sw.includes('"./adaptive-coaching.js"'));
 assert(/version:9,[\s\S]*?exerciseFeedback[\s\S]*?approvedProgressions[\s\S]*?schemaVersion=9;/.test(app),"exercise feedback and approvals need an additive migration");
+assert(/version:10,[\s\S]*?cardioTimers[\s\S]*?schemaVersion=10;/.test(app),"active cardio timing needs an additive migration");
 assert(/QUICK EXERCISE FEEDBACK[\s\S]*?exerciseRir[\s\S]*?exerciseForm[\s\S]*?exerciseDiscomfort/.test(app),"strength exercises need quick exercise-specific feedback controls");
 assert(/Approve next-session target/.test(app),"concrete progression recommendations must require approval");
 assert(/Phase advancement is locked/.test(app),"UI must explain that readiness cannot silently change the schedule");
