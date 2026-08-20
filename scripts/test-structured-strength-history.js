@@ -18,7 +18,7 @@ assert.match(app,/version:11,[\s\S]*?exerciseTimings[\s\S]*?schemaVersion=11/);
   "weightUnit:\"lb\"","startedAt:set?.startedAt","completedAt:set?.completedAt","status:set?.done",
   "externalSync={strava:{status:\"NOT_SYNCED\"","actualPerformance=sessionTotals(session)"
 ].forEach(fragment=>assert(app.includes(fragment),`missing structured-history fragment: ${fragment}`));
-assert(index.includes('<script src="exercise-identity.js"></script>'));
+assert.match(index, /<script src="exercise-identity\.js(?:\?build=[^"]+)?"><\/script>/);
 assert(sw.includes('"./exercise-identity.js"'));
 assert(!/client_secret|STRAVA_CLIENT_SECRET|access_token\s*[:=]\s*["'][^"']+/i.test([app,index,sw].join("\n")),"browser bundle must not contain Strava credentials");
 console.log("Structured strength history tests passed.");

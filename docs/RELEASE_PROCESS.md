@@ -63,7 +63,7 @@ All checks must pass without ignored errors.
 - [ ] Exercises and Profile remain reachable.
 - [ ] Every active guided exercise opens with its still motion poster.
 - [ ] Focused exercise animations start automatically, Pause/Play works, and enlarged media, Close, and Escape do not lose workout state.
-- [ ] Reduce Motion starts focused exercise media from its still storyboard without removing the explicit Play option.
+- [ ] Pause animation returns focused exercise media to its still storyboard and Play resumes it.
 - [ ] Only the approved primary demonstration appears on exercise screens; retained official or reviewed references remain credited in Image Sources & Licenses.
 
 ### Responsive and accessibility

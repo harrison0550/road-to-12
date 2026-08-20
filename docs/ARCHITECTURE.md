@@ -14,7 +14,7 @@ Exercise media may be an official equipment reference, reviewed licensed media, 
 
 The current Foundation audit maps all 47 active guided names to 40 distinct Road to 12% animations: 34 added by the August 2026 audit and six previously approved originals. The visible Library-only Stationary Bike Setup uses a reviewed static equipment guide. Scope and exact names are recorded in `EXERCISE_MEDIA_AUDIT.md`. The registry must not pre-create or map speculative media for later training phases whose workout definitions are not approved.
 
-Focused exercise surfaces are animation-first. The reviewed GIF starts when the workout or enlarged exercise view opens and can be paused back to its static WebP storyboard. When the operating system requests reduced motion, the static storyboard renders first and motion remains available through an explicit Play action. Exercise-library grids continue using still previews so dozens of GIFs do not animate simultaneously. Larger media views reuse the same state model inside a labelled, focus-managed dialog.
+Focused exercise surfaces are animation-first. The reviewed GIF always starts when the workout or enlarged exercise view opens and can be paused back to its static WebP storyboard. Exercise-library grids continue using still previews so dozens of GIFs do not animate simultaneously. Larger media views reuse the same state model inside a labelled, focus-managed dialog.
 
 When a new app-created animation supplements an existing official or reviewed source, the earlier reference remains nested in the registry and credited in the centralized Image Sources & Licenses screen. Do not repeat legacy reference imagery beneath the reviewed animation, and do not erase source provenance merely because the primary instructional surface changes.
 
@@ -102,7 +102,7 @@ The static PWA is an untrusted public client. OAuth client secrets, refresh toke
 
 ## Service Worker
 
-The Service Worker separates the small application shell from the larger exercise-media cache. Installation atomically caches only the core shell, so a missing animation cannot block activation of a new app build. After activation, the application requests a bounded, best-effort media warm-up: still posters and exact retained references are fetched before GIFs, with no more than four requests in flight. Media opened earlier is cached on demand. Mutable shell files use a network-first strategy with cached fallback; reviewed media remains cache-first.
+The Service Worker separates the small application shell from the larger exercise-media cache. Installation atomically caches only the core shell, so a missing animation cannot block activation of a new app build. After activation, the application requests a bounded, best-effort media warm-up: still posters and exact retained references are fetched before GIFs, with no more than four requests in flight. Media opened earlier is cached on demand. Mutable shell files use a no-store network-first strategy with cached fallback, the Service Worker URL is keyed by build, and versioned HTML entry points prevent Safari from silently retaining an older PWA shell; reviewed media remains cache-first.
 
 During an update, an older versioned media cache remains available as an offline fallback. It is removed only after the current media cache warms with zero failures. `app-meta.js` owns the cache version. Each release that changes cached production files must rotate the cache name and update the `app-meta.js` import query in `sw.js` so installed iOS PWAs receive fresh metadata.
 

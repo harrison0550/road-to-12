@@ -18,7 +18,7 @@ This audit covers the exercise names that can appear in the current Foundation A
 Each active guided exercise resolves by its exact display name through `ROAD12_EXERCISE_LIBRARY` in `exercise-library.js`. A movement-animation entry includes:
 
 - A local, still WebP motion poster shown first.
-- A local animated GIF that starts automatically in focused exercise views unless the operating system requests reduced motion.
+- A local animated GIF that always starts automatically in focused exercise views.
 - Movement-specific alternative text.
 - A media type and review date.
 - A retained reviewed, licensed, or official reference when it is an exact, non-conflicting match.
@@ -109,11 +109,11 @@ Full Body C also reuses Treadmill Walk, Hip Hinge, Cable Shoulder Press, Rope Tr
 ## Interaction and accessibility review
 
 - Motion posters load without animation or surprise movement.
-- **Play animation** and **Pause animation** are explicit, labelled controls with a minimum 44px touch target; focused views begin in the playing state unless Reduce Motion is enabled.
+- **Play animation** and **Pause animation** are explicit, labelled controls with a minimum 44px touch target; focused views begin in the playing state.
 - The control exposes its state semantically and does not rely on color.
 - Opening a larger media view uses a labelled modal, manages focus, supports Escape dismissal, and returns focus to the invoking control.
 - Meaningful alternative text describes the demonstrated movement, equipment orientation, and safety-relevant posture.
-- `prefers-reduced-motion` removes nonessential CSS motion and makes the still poster the initial exercise visual until the user explicitly chooses Play.
+- `prefers-reduced-motion` continues to remove nonessential decorative CSS motion. Reviewed instructional GIFs start automatically and provide an explicit Pause control that returns to the still storyboard.
 - Focused exercise screens contain one primary reviewed demonstration. Retained legacy references remain attributed in Image Sources & Licenses and are not rendered as repetitive secondary cards.
 - Retained official or reviewed reference imagery remains identifiable and credited separately from app-created animation.
 
@@ -121,7 +121,7 @@ Full Body C also reuses Treadmill Walk, Hip Hinge, Cable Shoulder Press, Rope Tr
 
 The Service Worker keeps its small versioned shell cache separate from its versioned exercise-media cache. Shell installation and activation do not wait on the 40 GIF downloads, so one unavailable media file cannot strand an iPhone on the previous app build. After the new worker is active, the app requests a bounded background warm-up that caches still posters and exact retained references before GIFs, with no more than four media requests in flight. A media file opened before warm-up completes is cached on demand.
 
-Older media caches remain available as an offline fallback during an update and are removed only after the new media cache warms without failures. After one successful online warm-up, still posters, animated GIFs, and retained local references remain available offline. Focused exercise screens use the cached GIF immediately; library grids and Reduce Motion users use the lighter still posters.
+Older media caches remain available as an offline fallback during an update and are removed only after the new media cache warms without failures. After one successful online warm-up, still posters, animated GIFs, and retained local references remain available offline. Focused exercise screens use the cached GIF immediately; library grids use the lighter still posters.
 
 Every release that changes an animation, poster, mapping, or retained reference must rotate the Service Worker cache and update the build-keyed `app-meta.js` import in `sw.js`.
 

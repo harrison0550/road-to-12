@@ -40,7 +40,7 @@ const unchanged=coach.applyRecommendation(source);
 assert.deepStrictEqual(unchanged,source,"the new coach must preserve current Foundation prescriptions");
 assert.notStrictEqual(unchanged[0],source[0],"workout definitions must remain immutable clones");
 
-assert(html.includes('src="adaptive-coaching.js"'));
+assert.match(html, /src="adaptive-coaching\.js(?:\?build=[^"]+)?"/);
 assert(sw.includes('"./adaptive-coaching.js"'));
 assert(/version:9,[\s\S]*?exerciseFeedback[\s\S]*?approvedProgressions[\s\S]*?schemaVersion=9;/.test(app),"exercise feedback and approvals need an additive migration");
 assert(/version:10,[\s\S]*?cardioTimers[\s\S]*?schemaVersion=10;/.test(app),"active cardio timing needs an additive migration");

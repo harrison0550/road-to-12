@@ -43,6 +43,7 @@ const html = read("index.html");
 const htmlReferences = [
   ...html.matchAll(/<(?:script|link)\b[^>]*?\b(?:src|href)=["']([^"']+)["']/gi),
 ].map((match) => match[1]);
+const normalizedHtmlReferences = htmlReferences.map((reference) => reference.replace(/[?#].*$/, ""));
 
 for (const reference of htmlReferences) {
   requireFile(reference, "index.html");
@@ -60,7 +61,7 @@ const expectedEntryPoints = [
   "app.js",
 ];
 for (const entryPoint of expectedEntryPoints) {
-  if (!htmlReferences.includes(entryPoint)) {
+  if (!normalizedHtmlReferences.includes(entryPoint)) {
     fail(`index.html is missing production entry point: ${entryPoint}`);
   }
 }

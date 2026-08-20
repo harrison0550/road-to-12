@@ -80,8 +80,8 @@ assert.match(
 );
 assert.match(
   app,
-  /const motionPlaying=isAnimation&&!prefersReducedMotion\(\)/,
-  "the exercise screen must start reviewed motion unless Reduce Motion is enabled",
+  /const motionPlaying=isAnimation;/,
+  "the exercise screen must start every reviewed animation automatically",
 );
 assert.match(
   app,
@@ -105,14 +105,10 @@ assert.match(
 );
 assert.match(
   app,
-  /data-motion-toggle aria-pressed="\$\{motionPlaying\}">\$\{motionPlaying\?"Pause animation":"Play animation"\}<\/button>/,
-  "the motion control must begin in the correct labelled state",
+  /data-motion-toggle aria-pressed="true">Pause animation<\/button>/,
+  "the motion control must begin in the playing state",
 );
-assert.match(
-  app,
-  /function prefersReducedMotion\(\)\{return window\.matchMedia\?\.\("\(prefers-reduced-motion: reduce\)"\)\?\.matches===true\}/,
-  "Reduce Motion must suppress automatic GIF playback",
-);
+assert(!app.includes("function prefersReducedMotion()"), "operating-system motion settings must not silently return the requested animation to Play-first mode");
 assert.match(
   app,
   /<img class="exercise-asset-image"[^>]+alt="\$\{entry\.mediaAlt\}"/,
@@ -211,5 +207,5 @@ assert.match(
 assert(!app.includes("No reviewed free demonstration yet"));
 
 console.log(
-  "Exercise media UI tests passed: animations start automatically, Reduce Motion is respected, legacy reference cards stay off workout screens, and accessible media dialogs remain intact.",
+  "Exercise media UI tests passed: animations always start automatically, Pause remains available, legacy reference cards stay off workout screens, and accessible media dialogs remain intact.",
 );

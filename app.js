@@ -76,7 +76,6 @@ function exerciseAsset(ex){
  return entryDisplayAsset(entry);
 }
 function entryDisplayAsset(entry){return entry?.mediaType==="animation"&&entry.motionPoster?entry.motionPoster:entry?.media||null}
-function prefersReducedMotion(){return window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches===true}
 function listMarkup(items,emptyText){
  return items?.length?`<ul>${items.map(item=>`<li>${item}</li>`).join("")}</ul>`:`<p class="muted">${emptyText}</p>`;
 }
@@ -118,7 +117,7 @@ function licensedMediaMarkup(ex){
    </section>`;
  }
  const isAnimation=entry.mediaType==="animation"&&entry.motionPoster;
- const motionPlaying=isAnimation&&!prefersReducedMotion();
+ const motionPlaying=isAnimation;
  const displayAsset=motionPlaying?entry.media:(isAnimation?entry.motionPoster:entry.media);
  return `<section class="exercise-media-card" data-motion-container>
    <div class="exercise-media-heading">
@@ -129,7 +128,7 @@ function licensedMediaMarkup(ex){
      <span class="motion-media-viewport"><img class="exercise-asset-image" width="600" height="600" src="${displayAsset}" alt="${entry.mediaAlt}" data-motion-image data-poster-src="${isAnimation?entry.motionPoster:displayAsset}" data-animation-src="${isAnimation?entry.media:""}"></span>
      <span>Tap to enlarge</span>
    </button>
-   ${isAnimation?`<div class="motion-controls"><button type="button" class="secondary" data-motion-toggle aria-pressed="${motionPlaying}">${motionPlaying?"Pause animation":"Play animation"}</button><small>${motionPlaying?"Animation plays automatically. Pause it at any time.":"Motion is paused because Reduce Motion is enabled."}</small></div>`:""}
+   ${isAnimation?`<div class="motion-controls"><button type="button" class="secondary" data-motion-toggle aria-pressed="true">Pause animation</button><small>Animation plays automatically. Pause it at any time.</small></div>`:""}
  </section>`;
 }
 
@@ -869,7 +868,7 @@ function openExerciseAsset(ex){
  const entry=exerciseLibraryEntry(ex);
  if(!entry)return;
  const poster=entry.mediaType==="animation"&&entry.motionPoster?entry.motionPoster:entry.media;
- const motionPlaying=entry.mediaType==="animation"&&!prefersReducedMotion();
+ const motionPlaying=entry.mediaType==="animation";
  const displayAsset=motionPlaying?entry.media:poster;
  const previousFocus=document.activeElement;
  const background=document.querySelector(".shell");
@@ -879,7 +878,7 @@ function openExerciseAsset(ex){
  overlay.setAttribute("role","dialog");
  overlay.setAttribute("aria-modal","true");
  overlay.setAttribute("aria-labelledby","exerciseAssetTitle");
- overlay.innerHTML=`<div class="asset-overlay-panel" data-motion-container><button class="asset-close" type="button">Close</button><h2 id="exerciseAssetTitle">${ex.name}</h2><div class="motion-media-viewport asset-motion-viewport"><img width="600" height="600" data-motion-image data-poster-src="${poster}" data-animation-src="${entry.mediaType==="animation"?entry.media:""}" src="${displayAsset}" alt="${entry.mediaAlt}"></div>${entry.mediaType==="animation"?`<div class="motion-controls"><button type="button" class="secondary" data-motion-toggle aria-pressed="${motionPlaying}">${motionPlaying?"Pause animation":"Play animation"}</button></div>`:""}<p>Use this visual together with the setup and movement instructions.</p></div>`;
+ overlay.innerHTML=`<div class="asset-overlay-panel" data-motion-container><button class="asset-close" type="button">Close</button><h2 id="exerciseAssetTitle">${ex.name}</h2><div class="motion-media-viewport asset-motion-viewport"><img width="600" height="600" data-motion-image data-poster-src="${poster}" data-animation-src="${entry.mediaType==="animation"?entry.media:""}" src="${displayAsset}" alt="${entry.mediaAlt}"></div>${entry.mediaType==="animation"?`<div class="motion-controls"><button type="button" class="secondary" data-motion-toggle aria-pressed="true">Pause animation</button></div>`:""}<p>Use this visual together with the setup and movement instructions.</p></div>`;
  document.body.appendChild(overlay);
  document.body.classList.add("modal-open");
  if(background&&!backgroundWasInert)background.setAttribute("inert","");
@@ -2842,9 +2841,8 @@ if("serviceWorker" in navigator){
          location.reload();
        }
      });
-     let registration=await navigator.serviceWorker.getRegistration("./");
-     if(registration)await registration.update();
-     else registration=await navigator.serviceWorker.register("./sw.js",{scope:"./",updateViaCache:"none"});
+     const registration=await navigator.serviceWorker.register(`./sw.js?build=${APP_META.build}`,{scope:"./",updateViaCache:"none"});
+     await registration.update();
      const readyRegistration=await navigator.serviceWorker.ready;
      (readyRegistration.active||registration.active)?.postMessage({type:"CACHE_EXERCISE_MEDIA"});
    }catch(error){

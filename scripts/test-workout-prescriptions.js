@@ -32,6 +32,6 @@ const root=path.resolve(__dirname,".."),app=fs.readFileSync(path.join(root,"app.
 assert(app.includes("sessionPrescriptions=window.ROAD12_PRESCRIPTIONS.capture"));
 assert(app.includes("ROAD12_PRESCRIPTIONS.completeApprovals"));
 assert(app.includes("prescriptionOutcome"));
-assert(index.includes('<script src="workout-prescriptions.js"></script>'));
+assert.match(index, /<script src="workout-prescriptions\.js(?:\?build=[^"]+)?"><\/script>/);
 assert(sw.includes('"./workout-prescriptions.js"'),"prescriptions must remain available offline");
 console.log("workout prescription tests passed");

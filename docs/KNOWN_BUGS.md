@@ -191,6 +191,16 @@ No confirmed production behavior defects are currently documented.
 - Resolution: Focused views now start the reviewed animation automatically, retain an accessible Pause control and Reduce Motion fallback, and move retained-reference presentation to the centralized Image Sources & Licenses screen.
 - Regression test: `scripts/test-exercise-imagery.js`
 
+### BUG-021 — Installed PWA remains on Play-first animation screen
+
+- Status: Resolved in v13.2.0 maintenance build 2026.08.20.3
+- Severity: High
+- Area: PWA Updates / Exercise Guides
+- Report: The published source contained automatic animation playback, but an installed iPhone PWA continued showing the previous Play animation control.
+- Cause: Safari could reuse unversioned JavaScript from its HTTP cache during a service-worker transition; an operating-system Reduce Motion preference could also return the new view to Play-first mode.
+- Resolution: App-shell entry points and Service Worker registration are keyed by build, mutable shell network requests bypass the HTTP cache, and focused instructional animations always begin in the playing state with Pause available.
+- Regression tests: `scripts/test-offline-pwa.js`, `scripts/test-exercise-imagery.js`, and `scripts/validate-foundation.js`
+
 ## Bug template
 
 ```markdown

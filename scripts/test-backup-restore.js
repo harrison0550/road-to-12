@@ -22,6 +22,6 @@ assert.equal(JSON.stringify(state),untouched,"invalid validation mutated live da
 const app=fs.readFileSync(path.join(root,"app.js"),"utf8"),index=fs.readFileSync(path.join(root,"index.html"),"utf8"),sw=fs.readFileSync(path.join(root,"sw.js"),"utf8");
 assert(!app.includes('version:"11.3.1"'),"backup export must not hardcode an obsolete version");
 assert(app.includes("ROAD12_BACKUP.validate(payload,ROAD12_SCHEMA_VERSION)"));
-assert(index.includes('<script src="backup-restore.js"></script>'));
+assert.match(index, /<script src="backup-restore\.js(?:\?build=[^"]+)?"><\/script>/);
 assert(sw.includes('"./backup-restore.js"'),"backup module must work offline");
 console.log("backup restore tests passed");

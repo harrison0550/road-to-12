@@ -25,6 +25,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Changed
 
+- Advanced the maintenance build to `2026.08.20.3` and rotated the offline caches for reliable iPhone PWA activation.
+- Focused exercise animations now always begin in the playing state and retain a labelled Pause control.
+- Mutable app-shell requests bypass Safari's HTTP cache, Service Worker registration is keyed to the app build, and HTML entry points use build queries so installed PWAs cannot silently reuse older JavaScript.
 - Advanced the maintenance build to `2026.08.20.2` and rotated the offline caches for the streamlined exercise-animation experience.
 - Focused workout and enlarged exercise views now start the approved animation automatically, while Reduce Motion users continue to receive the still storyboard first.
 - Exercise screens now show one primary demonstration; older comparison illustrations and repeated source copy remain available through Image Sources & Licenses instead of appearing beneath every workout.
@@ -132,6 +135,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Fixed
 
+- Fixed installed iPhone PWAs continuing to show the prior Play-first animation screen after a new build was published.
 - Fixed Attachment Locker photo controls forcing the iPhone camera; the native image picker can now offer Photo Library, Take Photo, and Files.
 - Fixed active guided exercises falling back to missing-media or approximate legacy imagery because their exact display name had no reviewed animation mapping.
 - Fixed exercise GIFs beginning motion without an explicit Play/Pause control or a still reduced-motion default.

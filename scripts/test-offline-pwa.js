@@ -216,6 +216,16 @@ async function dispatchFetch(url) {
     /postMessage\(\{type:"CACHE_EXERCISE_MEDIA"\}\)/,
     "the app must request best-effort media warming after Service Worker readiness",
   );
+  assert.match(
+    fs.readFileSync(path.join(root, "app.js"), "utf8"),
+    /register\(`\.\/sw\.js\?build=\$\{APP_META\.build\}`,[^\n]+updateViaCache:"none"/,
+    "each app build must register a cache-busted Service Worker URL",
+  );
+  assert.match(
+    swSource,
+    /fetch\(event\.request,\{cache:"no-store"\}\)/,
+    "mutable shell files must bypass Safari's HTTP cache during update checks",
+  );
 
   // Media is deliberately unavailable here. Installation must still succeed
   // because only the lightweight shell is part of the atomic install.

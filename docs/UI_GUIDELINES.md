@@ -117,7 +117,7 @@ Workout actions may use dedicated in-flow controls, but users must always have a
 ### Exercise movement media
 
 - Show the still motion poster first. Exercise GIFs must not autoplay when an exercise card, workout step, library tile, or enlarged view opens.
-- Start the reviewed animation automatically in a focused exercise view and place an explicit, labelled **Pause animation** control beside or beneath it. When paused, the same control becomes **Play animation** and exposes its pressed state semantically. If the operating system requests reduced motion, start from the still storyboard and **Play animation** state instead.
+- Always start the reviewed animation automatically in a focused exercise view and place an explicit, labelled **Pause animation** control beside or beneath it. When paused, the same control becomes **Play animation** and exposes its pressed state semantically.
 - Pause returns to the still poster. Reopening an exercise starts from the poster rather than silently preserving movement.
 - Keep Play/Pause controls at least 44px high, full-width where space is constrained, and inside the media container at 320px.
 - Reserve one stable square viewport for both the still poster and animated GIF, with `object-fit: contain`, so Play/Pause never changes card height or scroll position.
