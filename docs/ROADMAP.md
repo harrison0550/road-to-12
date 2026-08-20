@@ -39,13 +39,14 @@ The roadmap communicates direction rather than a guaranteed schedule. Completed 
 ### v13.4
 
 - [x] Deterministic adaptive training profile and explainable recommendation foundation
-- [ ] Exercise animations where accurate licensed media is available
+- [x] Complete poster-first movement-animation coverage for all 47 active Foundation guided exercise names while retaining exact, non-conflicting reviewed source references
 - [ ] Expanded equipment setup guides
 - [ ] Explainable AI training recommendations
 - [ ] Exercise search and filtering
 - [x] Progressive-overload recommendation foundation
 - [ ] Phase 2 Build workout definitions and milestone acceptance experience
 - [ ] Cardio trend-based progression using repeated performance patterns
+- [ ] Review and approve Phase 2 Build exercise media only after its workout definitions and milestone plan are accepted
 
 ### Later
 
@@ -57,6 +58,7 @@ The roadmap communicates direction rather than a guaranteed schedule. Completed 
 - [ ] Readiness and sleep trends
 - [ ] Secure optional synchronization across devices
 - [ ] Coach-generated weekly reviews
+- [ ] Create Phase 3 and Phase 4 exercise media after those training structures are approved
 
 ## Ideas
 

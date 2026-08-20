@@ -1,4 +1,5 @@
 (function (root) {
+  const mediaReviewDate = "2026-08-15";
   const wgerLicense = Object.freeze({
     shortName: "CC-BY-SA 4.0",
     fullName: "Creative Commons Attribution-ShareAlike 4.0",
@@ -27,6 +28,8 @@
     secondaryMuscles,
     equipment,
     commonMistakes,
+    mediaType: "still",
+    reviewedOn: mediaReviewDate,
     rightsNote: "Official equipment poster supplied by the user for this personal, private training app."
   });
 
@@ -49,6 +52,8 @@
     secondaryMuscles,
     equipment,
     commonMistakes,
+    mediaType: "still",
+    reviewedOn: mediaReviewDate,
     rightsNote: "App-created instructional illustration. Written setup and movement cues remain the authoritative coaching guide."
   });
 
@@ -144,12 +149,12 @@
       commonMistakes: ["Setting the pulleys too high", "Shrugging the shoulders", "Overarching the lower back"]
     }),
     "Lat Pulldown": road12Illustration({
-      sourceExercise: "Seated lat pulldown on a red cage-style Smith machine",
+      sourceExercise: "Single-cable seated lat pulldown on a red cage-style Smith machine",
       media: "lat-pulldown-red-cage.webp",
-      mediaAlt: "Start and finish positions for a seated lat pulldown on a red cage-style Smith machine, using both high front-post pulleys and bringing the wide bar toward the upper chest",
+      mediaAlt: "Start and finish positions for a seated lat pulldown facing one red front post, with one high cable connected to the center of the wide bar",
       primaryMuscles: ["Lats", "Upper back"],
       secondaryMuscles: ["Biceps"],
-      equipment: ["Red cage-style Smith machine", "Two high front-post pulleys", "Wide lat bar", "Upright bench"],
+      equipment: ["Red cage-style Smith machine", "One high front-post pulley", "One cable connected to the center of the wide lat bar", "Upright bench"],
       commonMistakes: ["Pulling the bar behind the neck", "Swinging the torso backward", "Shrugging the shoulders"]
     }),
     "Hip Hinge": road12Illustration({
@@ -193,10 +198,10 @@
       sourceExercise: "Seated Row",
       sourceDocument: "BPC06 Workout Poster",
       media: "seated-cable-row.webp",
-      mediaAlt: "RitFit seated cable row start and finish positions",
+      mediaAlt: "RitFit seated cable row start and finish positions using a close-grip row handle",
       primaryMuscles: ["Mid-back", "Lats"],
       secondaryMuscles: ["Rear shoulders", "Biceps"],
-      equipment: ["RitFit cable station", "Row handle", "Bench"],
+      equipment: ["RitFit cable station", "One low front-post pulley", "Close-grip row handle", "Bench"],
       commonMistakes: ["Rounding the back", "Leaning far backward", "Pulling with shrugged shoulders"]
     }),
     "Cable Shoulder Press": ritfit({
@@ -378,13 +383,304 @@
       secondaryMuscles: ["Chest", "Serratus anterior"],
       equipment: ["Clear wall"],
       commonMistakes: ["Arching the lower back", "Shrugging the shoulders", "Forcing the hands or elbows against the wall"]
-    })
+    }),
+    "Stationary Bike Setup": {
+      sourceType: "app-original",
+      provider: "Road to 12%",
+      providerUrl: "",
+      sourceExercise: "KICKR CORE stationary bike setup",
+      author: "Road to 12%",
+      media: "assets/phase3/kickr-core-bike-setup.jpg",
+      mediaAlt: "KICKR CORE bike setup guide showing a slight knee bend at the bottom of the pedal stroke, a gentle forward hip hinge, soft elbows, and the ball of the foot over the pedal spindle",
+      mediaType: "still",
+      reviewedOn: mediaReviewDate,
+      primaryMuscles: ["Legs", "Cardiovascular system"],
+      secondaryMuscles: ["Core", "Postural muscles"],
+      equipment: ["KICKR CORE", "Bicycle", "Trainer"],
+      commonMistakes: ["Setting the saddle too high or too low", "Locking the elbows", "Rounding the back", "Placing the foot too far forward or backward on the pedal"],
+      rightsNote: "App-created equipment setup reference. Written setup and movement cues remain the authoritative coaching guide."
+    }
   };
 
+  const existingAnimations = {
+    "Dumbbell Lateral Raise": "dumbbell-lateral-raise-motion-guide.webp",
+    "Dumbbell Floor Press": "dumbbell-floor-press-motion-guide.webp",
+    "Dumbbell Romanian Deadlift": "dumbbell-romanian-deadlift-motion-guide.webp",
+    "Dead Bug": "dead-bug-motion-guide.webp",
+    "Bird Dog": "bird-dog-motion-guide.webp",
+    "Side Plank from Knees": "side-plank-from-knees-motion-guide.webp"
+  };
+
+  Object.entries(existingAnimations).forEach(([name, motionPoster]) => {
+    Object.assign(entries[name], {
+      mediaType: "animation",
+      motionPoster: `assets/exercise-library/original/${motionPoster}`,
+      reviewedOn: mediaReviewDate
+    });
+  });
+
+  function generatedReference(media, mediaAlt, sourceExercise) {
+    return Object.freeze({
+      sourceType: "app-original",
+      provider: "Road to 12%",
+      author: "Road to 12%",
+      sourceExercise,
+      media,
+      mediaAlt,
+      mediaType: "still",
+      reviewedOn: mediaReviewDate,
+      rightsNote: "App-created setup reference. Written setup and movement cues remain the authoritative coaching guide."
+    });
+  }
+
+  function registerAnimation(name, config) {
+    const previous = entries[name] || {};
+    let reference = config.reference || null;
+    if (config.retainPreviousReference !== false && !reference && previous.media && previous.mediaType !== "animation" && !/\.gif(?:$|\?)/i.test(previous.media)) {
+      reference = Object.freeze(Object.assign({}, previous, { mediaType: "still" }));
+    }
+    entries[name] = Object.assign({}, previous, {
+      sourceType: "app-original",
+      provider: "Road to 12%",
+      providerUrl: "",
+      sourceExercise: config.sourceExercise || previous.sourceExercise || name,
+      author: "Road to 12%",
+      media: `assets/exercise-library/generated/${config.slug}.gif`,
+      motionPoster: `assets/exercise-library/generated/${config.slug}-motion-guide.webp`,
+      mediaAlt: config.mediaAlt,
+      mediaType: "animation",
+      reviewedOn: mediaReviewDate,
+      primaryMuscles: config.primaryMuscles || previous.primaryMuscles || [],
+      secondaryMuscles: config.secondaryMuscles || previous.secondaryMuscles || [],
+      equipment: config.equipment || previous.equipment || [],
+      commonMistakes: config.commonMistakes || previous.commonMistakes || [],
+      reference,
+      rightsNote: "App-created movement animation assembled from reviewed positions. Written setup and movement cues remain the authoritative coaching guide."
+    });
+  }
+
+  const animationConfigs = {
+    "Arm Circles": {
+      slug: "arm-circles",
+      mediaAlt: "Movement animation of the red-shirt trainer standing tall with both arms at shoulder height and making controlled forward and backward circles"
+    },
+    "Bodyweight Squat": {
+      slug: "bodyweight-squat",
+      mediaAlt: "Movement animation of the red-shirt trainer moving from a tall stance into a controlled squat with heels planted and knees tracking over the toes"
+    },
+    "Hip Hinge": {
+      slug: "hip-hinge",
+      mediaAlt: "Movement animation of the red-shirt trainer pushing the hips backward with soft knees and a long neutral spine before returning to stand"
+    },
+    "Goblet Squat": {
+      slug: "goblet-squat",
+      sourceExercise: "Goblet squat with one dumbbell",
+      mediaAlt: "Movement animation of the red-shirt trainer holding one dumbbell vertically at the chest while squatting with heels planted and standing under control",
+      primaryMuscles: ["Quadriceps", "Glutes"],
+      secondaryMuscles: ["Hamstrings", "Core"],
+      equipment: ["One 10 or 15 lb dumbbell"],
+      commonMistakes: ["Letting the knees collapse inward", "Lifting the heels", "Holding the dumbbell away from the chest", "Forcing excessive depth"]
+    },
+    "Treadmill Walk": {
+      slug: "treadmill-easy-walk",
+      mediaAlt: "Movement animation of the red-shirt trainer walking upright on a level treadmill through a long stride and mid-stance while the safety clip remains attached"
+    },
+    "Easy Treadmill Cooldown": {
+      slug: "treadmill-easy-walk",
+      mediaAlt: "Movement animation of the red-shirt trainer walking at an easy upright pace on a level treadmill with relaxed shoulders and the safety clip attached"
+    },
+    "Incline Treadmill Walk": {
+      slug: "treadmill-incline-walk",
+      sourceExercise: "Incline treadmill walk",
+      mediaAlt: "Movement animation of the red-shirt trainer walking uphill on an inclined treadmill through stride and mid-stance without holding the rails",
+      primaryMuscles: ["Glutes", "Hamstrings", "Calves"],
+      secondaryMuscles: ["Core", "Cardiovascular system"],
+      equipment: ["Treadmill", "Safety clip"],
+      commonMistakes: ["Holding the rails continuously", "Bending forward at the waist", "Taking overly long steps", "Choosing an incline that prevents conversation"]
+    },
+    "Treadmill HIIT Intervals": {
+      slug: "treadmill-hiit-interval",
+      sourceExercise: "Controlled treadmill running intervals",
+      mediaAlt: "Movement animation of the red-shirt trainer running with a compact stride beneath the hips and reciprocal arm drive while the treadmill safety clip stays attached",
+      primaryMuscles: ["Legs", "Cardiovascular system"],
+      secondaryMuscles: ["Core", "Arms"],
+      equipment: ["Treadmill", "Safety clip"],
+      commonMistakes: ["Overstriding", "Holding the rails", "Sprinting beyond control", "Skipping the recovery pace"]
+    },
+    "iFIT Rowing Technique": {
+      slug: "ifit-rowing-technique",
+      sourceExercise: "Indoor rowing catch, drive, finish and recovery",
+      mediaAlt: "Four-position movement animation of the red-shirt trainer progressing through the rowing catch, leg-led drive, controlled finish and arms-first recovery",
+      primaryMuscles: ["Quadriceps", "Glutes", "Back"],
+      secondaryMuscles: ["Hamstrings", "Arms", "Core", "Cardiovascular system"],
+      equipment: ["iFIT rowing machine"],
+      commonMistakes: ["Pulling with the arms before driving the legs", "Rounding the lower back", "Leaning too far backward", "Bending the knees before the handle clears them"],
+      reference: generatedReference("assets/phase3/rower-technique.jpg", "Four-position Road to 12% rowing technique reference covering catch, drive, finish and recovery", "Indoor rowing technique")
+    },
+    "Hip Flexor Mobility": {
+      slug: "hip-flexor-mobility",
+      mediaAlt: "Movement animation of the red-shirt trainer moving from a tall half-kneeling position into a small forward hip shift while keeping the torso upright"
+    },
+    "Hamstring Mobility": {
+      slug: "hamstring-mobility",
+      mediaAlt: "Movement animation of the red-shirt trainer beginning tall with one heel on a bench and hinging forward with a long spine for a gentle hamstring stretch"
+    },
+    "Chest and Shoulder Mobility": {
+      slug: "chest-shoulder-mobility",
+      mediaAlt: "Movement animation of the red-shirt trainer sliding both arms along a wall from a controlled W position into a wide overhead Y without shrugging"
+    },
+    "Hip and Glute Mobility": {
+      slug: "hip-glute-mobility",
+      sourceExercise: "Seated figure-four hip and glute stretch",
+      mediaAlt: "Three-position movement animation of the red-shirt trainer sitting tall, crossing one ankle over the opposite thigh and hinging forward with a neutral spine",
+      primaryMuscles: ["Glutes", "Outer hips"],
+      secondaryMuscles: ["Lower back"],
+      equipment: ["Stable bench"],
+      commonMistakes: ["Pressing forcefully on the raised knee", "Rounding the back", "Letting the raised foot relax inward", "Forcing a painful range"]
+    },
+    "Slow Breathing Cooldown": {
+      slug: "slow-breathing-cooldown",
+      sourceExercise: "Seated diaphragmatic breathing cooldown",
+      mediaAlt: "Three-position movement animation of the red-shirt trainer seated comfortably with hands on the lower ribs through a gentle inhale and longer relaxed exhale",
+      primaryMuscles: ["Diaphragm"],
+      secondaryMuscles: ["Intercostals", "Postural muscles"],
+      equipment: ["Exercise mat or comfortable seat"],
+      commonMistakes: ["Shrugging during the inhale", "Forcing the breath", "Holding the breath", "Tensing the jaw or shoulders"]
+    },
+    "Post-Workout Stretch": {
+      slug: "post-workout-stretch",
+      sourceExercise: "Post-workout chest, lat, quadriceps and hip-flexor stretching",
+      mediaAlt: "Four-position movement guide of the red-shirt trainer performing gentle doorway chest, supported lat, standing quadriceps and half-kneeling hip-flexor stretches",
+      primaryMuscles: ["Chest", "Lats", "Quadriceps", "Hip flexors"],
+      secondaryMuscles: ["Shoulders", "Glutes"],
+      equipment: ["Doorway or wall", "Stable bench", "Exercise mat"],
+      commonMistakes: ["Bouncing", "Forcing a painful range", "Arching the lower back", "Twisting a supported knee"]
+    },
+    "Zone 2 Cardio": {
+      slug: "zone-2-cardio",
+      sourceExercise: "KICKR CORE example for steady conversational-pace Zone 2 cardio",
+      mediaAlt: "Movement animation of the red-shirt trainer maintaining a smooth steady cycling cadence on the KICKR CORE option; the written setup also offers treadmill and rower choices",
+      primaryMuscles: ["Cardiovascular system", "Legs"],
+      secondaryMuscles: ["Core", "Postural muscles"],
+      equipment: ["Treadmill, iFIT rower or KICKR CORE"],
+      commonMistakes: ["Letting effort rise above conversational pace", "Starting too hard", "Holding unnecessary tension", "Skipping gradual warm-up and cooldown"]
+    },
+    "Cable Chest Press": {
+      slug: "cable-chest-press",
+      mediaAlt: "Movement animation of the red-shirt trainer pressing two cable handles forward from chest height on the red RitFit cage while keeping the torso braced"
+    },
+    "Seated Cable Row": {
+      slug: "seated-cable-row",
+      mediaAlt: "Movement animation of the red-shirt trainer using both hands to row one close-grip handle on one low cable toward the lower ribs with a tall torso and controlled return"
+    },
+    "Lat Pulldown": {
+      slug: "lat-pulldown",
+      mediaAlt: "Movement animation of the red-shirt trainer seated facing the red cage, pulling a centered single-cable lat bar toward the upper chest and returning overhead"
+    },
+
+    "Cable Shoulder Press": {
+      slug: "cable-shoulder-press",
+      mediaAlt: "Movement animation of the red-shirt trainer seated facing away from the red cage and pressing two separate cable handles overhead with cables outside the arms",
+      retainPreviousReference: false
+    },
+    "Rope Triceps Pushdown": {
+      slug: "rope-triceps-pushdown",
+      mediaAlt: "Movement animation of the red-shirt trainer pressing a rope attachment down from a high cable while the elbows stay pinned beside the ribs"
+    },
+    "Cable Curl": {
+      slug: "cable-curl",
+      mediaAlt: "Movement animation of the red-shirt trainer facing one low cable and curling a short straight bar with an underhand grip while the elbows remain still"
+    },
+    "Smith Machine RDL": {
+      slug: "smith-machine-rdl",
+      mediaAlt: "Movement animation of the red-shirt trainer hinging with the Smith bar close to the thighs and shins while keeping a neutral spine",
+      retainPreviousReference: false
+    },
+    "Smith Bulgarian Split Squat": {
+      slug: "smith-bulgarian-split-squat",
+      mediaAlt: "Movement animation of the red-shirt trainer lowering and standing in a Smith split squat with the rear foot supported and front knee tracking over the toes",
+      retainPreviousReference: false
+    },
+    "Smith Machine Calf Raise": {
+      slug: "smith-machine-calf-raise",
+      mediaAlt: "Movement animation of the red-shirt trainer raising and lowering both heels under the Smith bar through a controlled calf-raise range",
+      retainPreviousReference: false
+    },
+    "Smith Machine Squat": {
+      slug: "smith-machine-squat",
+      mediaAlt: "Movement animation of the red-shirt trainer descending and standing under the Smith bar with heels planted and knees tracking over the toes",
+      retainPreviousReference: false
+    },
+    "Incline Cable Press": {
+      slug: "incline-cable-press",
+      mediaAlt: "Movement animation of the red-shirt trainer pressing two handles upward from a low incline bench while both cables run from the red cage front-post pulleys"
+    },
+    "Single Arm Cable Row": {
+      slug: "single-arm-cable-row",
+      mediaAlt: "Movement animation of the red-shirt trainer rowing one cable handle toward the ribs without twisting the torso"
+    },
+    "Cable Lateral Raise": {
+      slug: "cable-lateral-raise",
+      mediaAlt: "Movement animation of the red-shirt trainer standing side-on and raising one low-cable D-handle from the opposite hip to shoulder height with a soft elbow and still torso",
+      equipment: ["RitFit M1 cable station", "One low front-post pulley", "One D-handle"],
+      retainPreviousReference: false
+    },
+    "Cable Crunch": {
+      slug: "cable-crunch",
+      mediaAlt: "Movement animation of the red-shirt trainer kneeling beneath a high rope cable and curling the ribs toward the pelvis without sitting the hips backward"
+    },
+    "Cable Hammer Curl": {
+      slug: "cable-hammer-curl",
+      mediaAlt: "Movement animation of the red-shirt trainer facing one red front post and curling a low rope attachment with a neutral grip and fixed elbows"
+    },
+    "Rear Delt Cable Fly": {
+      slug: "rear-delt-cable-fly",
+      mediaAlt: "Movement animation of the red-shirt trainer opening two cable handles into a reverse fly while keeping the shoulders down and elbows softly bent"
+    },
+    "Cable Face Pull": {
+      slug: "cable-face-pull",
+      mediaAlt: "Movement animation of the red-shirt trainer pulling a high rope cable toward the face with elbows opening outward and shoulders kept down"
+    },
+    "Cable Straight Arm Pushdown": {
+      slug: "cable-straight-arm-pushdown",
+      mediaAlt: "Movement animation of the red-shirt trainer sweeping a high cable bar from shoulder height toward the thighs with nearly straight arms"
+    },
+    "High to Low Cable Chop": {
+      slug: "high-to-low-cable-chop",
+      mediaAlt: "Movement animation of the red-shirt trainer guiding one high cable handle diagonally across the body while hips and torso rotate together under control"
+    }
+  };
+
+  Object.entries(animationConfigs).forEach(([name, config]) => registerAnimation(name, config));
+
+  function aliasAnimation(alias, canonical, sourceExercise = alias) {
+    entries[alias] = Object.assign({}, entries[canonical], { sourceExercise });
+  }
+
+  aliasAnimation("Easy Treadmill Warm-Up", "Treadmill Walk", "Easy treadmill warm-up");
+  aliasAnimation("Easy Cardio Cooldown", "Easy Treadmill Cooldown", "Easy treadmill cardio cooldown");
+  aliasAnimation("Easy Recovery Walk", "Treadmill Walk", "Easy recovery treadmill walk");
+  aliasAnimation("Zone 2 Warm-Up", "Treadmill Walk", "Zone 2 treadmill warm-up");
+  aliasAnimation("Zone 2 Cooldown", "Easy Treadmill Cooldown", "Zone 2 treadmill cooldown");
+  aliasAnimation("Thoracic and Shoulder Mobility", "Chest and Shoulder Mobility", "Thoracic and shoulder wall-slide mobility");
+  aliasAnimation("Rower Technique", "iFIT Rowing Technique", "Indoor rowing technique");
+  aliasAnimation("Treadmill Walking", "Treadmill Walk", "Treadmill walking");
+  aliasAnimation("Treadmill Incline Walk", "Incline Treadmill Walk", "Incline treadmill walking");
+  aliasAnimation("Treadmill HIIT", "Treadmill HIIT Intervals", "Treadmill interval running");
+  aliasAnimation("Hip & Glute Mobility", "Hip and Glute Mobility", "Seated figure-four hip and glute stretch");
+  aliasAnimation("Thoracic & Shoulder Mobility", "Chest and Shoulder Mobility", "Thoracic and shoulder wall-slide mobility");
+  aliasAnimation("Cool Down & Recovery", "Post-Workout Stretch", "Post-workout stretching and recovery");
+  aliasAnimation("Cooldown", "Post-Workout Stretch", "Post-workout stretching and recovery");
+
+  Object.values(entries).forEach(entry => {
+    if (!entry.mediaType) entry.mediaType = /\.gif(?:$|\?)/i.test(entry.media || "") ? "animation" : "still";
+    if (!entry.reviewedOn) entry.reviewedOn = mediaReviewDate;
+  });
+
   root.ROAD12_EXERCISE_LIBRARY = Object.freeze({
-    provider: "RitFit official posters with reviewed wger fallbacks",
+    provider: "Road to 12% animations with retained official and reviewed setup references",
     providerUrl: "https://www.ritfitsports.com/",
-    reviewedOn: "2026-07-29",
+    reviewedOn: mediaReviewDate,
     entries: Object.freeze(entries)
   });
 })(typeof self !== "undefined" ? self : window);

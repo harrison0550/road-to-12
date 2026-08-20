@@ -42,6 +42,9 @@ Before a release:
 ```powershell
 node scripts/validate-foundation.js
 node scripts/validate-exercise-library.js
+node scripts/test-exercise-animation-coverage.js
+node scripts/test-exercise-imagery.js
+node scripts/test-offline-pwa.js
 git diff --check
 ```
 
@@ -75,8 +78,8 @@ Older versioned JavaScript and CSS files are retained as historical artifacts. N
 - `ROADMAP.md` — release sequence and future ideas
 - `ARCHITECTURE.md` — system boundaries and data flow
 - `UI_GUIDELINES.md` — visual and interaction standards
+- `EXERCISE_MEDIA_AUDIT.md` — exact active-program and visible-library media coverage, accessibility, provenance, and offline validation
 - `CODEX_TASKS.md` — prioritized sprint backlog
 - `CHANGELOG.md` — user-visible release history
 - `KNOWN_BUGS.md` — active and resolved defect records
 - `RELEASE_PROCESS.md` — release and verification procedure
-

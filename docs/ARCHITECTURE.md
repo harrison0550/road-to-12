@@ -6,7 +6,17 @@ Road to 12% is a client-only, offline-first PWA. `index.html` loads version meta
 
 The current architecture favors reliability and portability: no application server is required, no account is required, and the installed app remains useful without connectivity.
 
-Exercise media may be an official equipment reference, reviewed licensed media, or a clearly identified app-created posture illustration. App-created artwork supplements but never replaces the written setup, execution, and safety cues. All production exercise media is locally stored and precached.
+Exercise media may be an official equipment reference, reviewed licensed media, or a clearly identified app-created movement animation. App-created artwork supplements but never replaces the written setup, execution, and safety cues. All production exercise media is locally stored and becomes offline-ready after the bounded media-cache warm-up.
+
+## Exercise media
+
+`exercise-library.js` is the canonical media registry. Active guided exercises resolve by their exact display name to a reviewed entry containing media type, motion-poster path, animation path, meaningful alternative text, review date, and any retained source reference. Alias entries may share an exact movement asset, but the Workout Engine keeps each exercise's written prescription and identity separate.
+
+The current Foundation audit maps all 47 active guided names to 40 distinct Road to 12% animations: 34 added by the August 2026 audit and six previously approved originals. The visible Library-only Stationary Bike Setup uses a reviewed static equipment guide. Scope and exact names are recorded in `EXERCISE_MEDIA_AUDIT.md`. The registry must not pre-create or map speculative media for later training phases whose workout definitions are not approved.
+
+Exercise surfaces are poster-first. A static WebP renders on initial load; the corresponding GIF is substituted only after an explicit Play action and can be paused back to the poster. Larger media views reuse the same state model inside a labelled, focus-managed dialog. This boundary prevents unexpected motion, reduces initial decoding work, and gives reduced-motion users a useful default without making the animation unavailable when they intentionally request it.
+
+When a new app-created animation supplements an existing official or reviewed source, the earlier reference remains nested in the registry and is displayed and credited separately. Do not erase source provenance merely because the primary instructional surface changes.
 
 ## Workout Engine
 
@@ -92,9 +102,11 @@ The static PWA is an untrusted public client. OAuth client secrets, refresh toke
 
 ## Service Worker
 
-The Service Worker precaches the application shell and required exercise media. `app-meta.js` owns the cache version. Mutable shell files use a network-first strategy with cached fallback; reviewed media remains cache-first. Each release that changes cached production files must rotate the cache name and update the `app-meta.js` import query in `sw.js` so installed iOS PWAs receive fresh metadata.
+The Service Worker separates the small application shell from the larger exercise-media cache. Installation atomically caches only the core shell, so a missing animation cannot block activation of a new app build. After activation, the application requests a bounded, best-effort media warm-up: still posters and exact retained references are fetched before GIFs, with no more than four requests in flight. Media opened earlier is cached on demand. Mutable shell files use a network-first strategy with cached fallback; reviewed media remains cache-first.
 
-Offline validation must cover first installation, cached relaunch, update activation, and missing-network behavior. The Service Worker must not conceal stale application code indefinitely.
+During an update, an older versioned media cache remains available as an offline fallback. It is removed only after the current media cache warms with zero failures. `app-meta.js` owns the cache version. Each release that changes cached production files must rotate the cache name and update the `app-meta.js` import query in `sw.js` so installed iOS PWAs receive fresh metadata.
+
+Offline validation must cover first installation, cached relaunch, update activation, missing-network behavior, and poster-to-animation playback after connectivity is removed. The Service Worker must not conceal stale application code indefinitely.
 
 ## Future AI modules
 

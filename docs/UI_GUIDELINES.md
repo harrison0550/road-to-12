@@ -114,11 +114,25 @@ Workout actions may use dedicated in-flow controls, but users must always have a
 - Restore a workout’s prior scroll position when resuming the same exercise.
 - Respect `prefers-reduced-motion` and avoid essential information that depends on animation.
 
+### Exercise movement media
+
+- Show the still motion poster first. Exercise GIFs must not autoplay when an exercise card, workout step, library tile, or enlarged view opens.
+- Place an explicit, labelled **Play animation** control beside or beneath the poster. While motion is active, the same control becomes **Pause animation** and exposes its pressed state semantically.
+- Pause returns to the still poster. Reopening an exercise starts from the poster rather than silently preserving movement.
+- Keep Play/Pause controls at least 44px high, full-width where space is constrained, and inside the media container at 320px.
+- Reserve one stable square viewport for both the still poster and animated GIF, with `object-fit: contain`, so Play/Pause never changes card height or scroll position.
+- Enlarged media dialogs must use safe-area-aware padding, a `100dvh`-bounded panel, a minimum 44px Close control, background isolation, focus trapping, Escape dismissal, and focus return.
+- With `prefers-reduced-motion`, remove nonessential interface animation and retain the still poster by default. A user may still explicitly choose Play.
+- Never make form, timing, direction, or safety information available only in moving frames; repeat essential instruction in the written guide.
+- Identify app-created media as a movement animation or illustration. Display retained official or reviewed references and their attribution separately.
+
 ## Accessibility
 
 Adaptive recommendations use amber coach styling, show a plain-language rationale, and require a labelled Apply action. Applied state must be conveyed with text and an icon rather than green alone. Profile health and limitation fields must never imply diagnosis or replace professional care.
 
 Exercise illustrations require meaningful alternative text. App-created artwork must be labelled as an illustration and must not imply that it is licensed footage or a substitute for written coaching.
+
+Exercise animation alternative text should name the movement, important equipment orientation, and safety-relevant start/finish relationship without narrating decorative details. Play/Pause labels must describe the current action, not only show an icon.
 
 - Use semantic headings in a logical hierarchy.
 - Every icon-only control requires an accessible name.

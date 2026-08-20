@@ -72,12 +72,15 @@ function exerciseLibraryEntry(ex){
  return LICENSED_EXERCISE_LIBRARY.entries?.[ex?.name]||null;
 }
 function exerciseAsset(ex){
- return exerciseLibraryEntry(ex)?.media||null;
+ const entry=exerciseLibraryEntry(ex);
+ return entryDisplayAsset(entry);
 }
+function entryDisplayAsset(entry){return entry?.mediaType==="animation"&&entry.motionPoster?entry.motionPoster:entry?.media||null}
 function listMarkup(items,emptyText){
  return items?.length?`<ul>${items.map(item=>`<li>${item}</li>`).join("")}</ul>`:`<p class="muted">${emptyText}</p>`;
 }
 function mediaStatus(entry){
+ if(entry.mediaType==="animation")return "MOVEMENT ANIMATION";
  if(entry.sourceType==="official-manual")return "OFFICIAL RITFIT GUIDE";
  if(entry.sourceType==="app-original")return "POSTURE ILLUSTRATION";
  return "REVIEWED LICENSED MEDIA";
@@ -87,7 +90,15 @@ function mediaChip(entry){
  if(entry.sourceType==="app-original")return "ROAD TO 12%";
  return entry.license?.shortName||"REVIEWED";
 }
+function libraryMediaLabel(entry){
+ if(!entry)return "No reviewed image";
+ if(entry.mediaType==="animation")return "App-created animation";
+ if(entry.sourceType==="official-manual")return "Official RitFit guide";
+ if(entry.sourceType==="app-original")return "App-created guide";
+ return "Reviewed licensed guide";
+}
 function mediaCredit(entry){
+ if(!entry)return "";
  if(entry.sourceType==="app-original"){
    return `${entry.rightsNote}`;
  }
@@ -95,6 +106,16 @@ function mediaCredit(entry){
    return `Source: ${entry.sourceDocument}, exercise “${entry.sourceExercise},” by <a href="${entry.providerUrl}" target="_blank" rel="noopener">${entry.provider}</a>. Used as the machine-specific reference in Andy’s personal app.`;
  }
  return `Source: <a href="${entry.sourceUrl}" target="_blank" rel="noopener">${entry.sourceExercise}</a> by ${entry.author}, via <a href="${entry.providerUrl}" target="_blank" rel="noopener">${entry.provider}</a>. <a href="${entry.license.url}" target="_blank" rel="noopener">${entry.license.fullName}</a>.`;
+}
+function exerciseReferenceMarkup(entry){
+ const reference=entry.reference;
+ if(!reference?.media)return "";
+ const label=reference.sourceType==="official-manual"?"OFFICIAL SETUP REFERENCE":reference.sourceType==="licensed-community"?"REVIEWED FORM REFERENCE":"SETUP REFERENCE";
+ return `<aside class="exercise-reference-card">
+   <div><span class="media-status">${label}</span><h4>Compare setup and key positions</h4></div>
+   <img src="${reference.media}" alt="${reference.mediaAlt}" loading="lazy">
+   <p class="media-credit">${mediaCredit(reference)}</p>
+ </aside>`;
 }
 function licensedMediaMarkup(ex){
  const entry=exerciseLibraryEntry(ex);
@@ -105,18 +126,35 @@ function licensedMediaMarkup(ex){
      <p>Use the setup, execution, and coaching cues below. A visual will appear here only after it has been reviewed for this exact exercise.</p>
    </section>`;
  }
- return `<section class="exercise-media-card">
+ const isAnimation=entry.mediaType==="animation"&&entry.motionPoster;
+ const displayAsset=isAnimation?entry.motionPoster:entry.media;
+ return `<section class="exercise-media-card" data-motion-container>
    <div class="exercise-media-heading">
      <div><span class="media-status">${mediaStatus(entry)}</span><h3>Demonstration</h3></div>
      <span class="license-chip">${mediaChip(entry)}</span>
    </div>
-   <button class="exercise-asset-button ${entry.sourceType==="app-original"?"original-asset-button":"licensed-asset-button"}" id="openAsset">
-     <img class="exercise-asset-image" src="${entry.media}" alt="${entry.mediaAlt}">
+   <button type="button" class="exercise-asset-button ${entry.sourceType==="app-original"?"original-asset-button":"licensed-asset-button"}" id="openAsset">
+     <span class="motion-media-viewport"><img class="exercise-asset-image" width="600" height="600" src="${displayAsset}" alt="${entry.mediaAlt}" data-motion-image data-poster-src="${displayAsset}" data-animation-src="${isAnimation?entry.media:""}"></span>
      <span>Tap to enlarge</span>
    </button>
+   ${isAnimation?`<div class="motion-controls"><button type="button" class="secondary" data-motion-toggle aria-pressed="false">Play animation</button><small>Starts only when you choose. The still storyboard contains every key position.</small></div>`:""}
    <p class="media-credit">${mediaCredit(entry)}</p>
+   ${exerciseReferenceMarkup(entry)}
  </section>`;
 }
+
+document.addEventListener("click",event=>{
+ const button=event.target.closest("[data-motion-toggle]");
+ if(!button)return;
+ const container=button.closest("[data-motion-container]");
+ const image=container?.querySelector("[data-motion-image]");
+ if(!image)return;
+ const playing=button.getAttribute("aria-pressed")==="true";
+ image.src=playing?image.dataset.posterSrc:image.dataset.animationSrc;
+ button.setAttribute("aria-pressed",String(!playing));
+ button.textContent=playing?"Play animation":"Pause animation";
+ container.classList.toggle("is-motion-playing",!playing);
+});
 function exerciseTeachingMarkup(ex){
  const entry=exerciseLibraryEntry(ex);
  const primary=entry?.primaryMuscles?.length?entry.primaryMuscles:(ex.muscles||"").split(",").map(x=>x.trim()).filter(Boolean);
@@ -838,15 +876,35 @@ function openVisualLibraries(){
 }
 
 function openExerciseAsset(ex){
- const image=exerciseAsset(ex);
- if(!image)return;
+ const entry=exerciseLibraryEntry(ex);
+ if(!entry)return;
+ const poster=entry.mediaType==="animation"&&entry.motionPoster?entry.motionPoster:entry.media;
+ const previousFocus=document.activeElement;
+ const background=document.querySelector(".shell");
+ const backgroundWasInert=background?.hasAttribute("inert")||false;
  const overlay=document.createElement("div");
  overlay.className="asset-overlay";
- overlay.innerHTML=`<div class="asset-overlay-panel"><button class="asset-close">Close</button><h2>${ex.name}</h2><img src="${image}" alt="${ex.name} visual guide"><p>Use this visual together with the setup and movement instructions.</p></div>`;
+ overlay.setAttribute("role","dialog");
+ overlay.setAttribute("aria-modal","true");
+ overlay.setAttribute("aria-labelledby","exerciseAssetTitle");
+ overlay.innerHTML=`<div class="asset-overlay-panel" data-motion-container><button class="asset-close" type="button">Close</button><h2 id="exerciseAssetTitle">${ex.name}</h2><div class="motion-media-viewport asset-motion-viewport"><img width="600" height="600" data-motion-image data-poster-src="${poster}" data-animation-src="${entry.mediaType==="animation"?entry.media:""}" src="${poster}" alt="${entry.mediaAlt}"></div>${entry.mediaType==="animation"?`<div class="motion-controls"><button type="button" class="secondary" data-motion-toggle aria-pressed="false">Play animation</button><small>The complete still storyboard remains available when motion is paused.</small></div>`:""}<p>Use this visual together with the setup and movement instructions.</p>${exerciseReferenceMarkup(entry)}</div>`;
  document.body.appendChild(overlay);
- const close=()=>overlay.remove();
+ document.body.classList.add("modal-open");
+ if(background&&!backgroundWasInert)background.setAttribute("inert","");
+ const close=()=>{document.removeEventListener("keydown",onKeydown);overlay.remove();document.body.classList.remove("modal-open");if(background&&!backgroundWasInert)background.removeAttribute("inert");previousFocus?.focus?.()};
+ const onKeydown=event=>{
+   if(event.key==="Escape"){event.preventDefault();close();return}
+   if(event.key!=="Tab")return;
+   const focusable=[...overlay.querySelectorAll("button,[href],input,select,textarea,[tabindex]:not([tabindex='-1'])")].filter(node=>!node.disabled);
+   if(!focusable.length)return;
+   const first=focusable[0],last=focusable[focusable.length-1];
+   if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus()}
+   else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus()}
+ };
+ document.addEventListener("keydown",onKeydown);
  overlay.querySelector(".asset-close").onclick=close;
  overlay.onclick=e=>{if(e.target===overlay)close()};
+ overlay.querySelector(".asset-close").focus();
 }
 
 function lastCompletedWeight(ex){
@@ -1015,8 +1073,13 @@ function showLibraryExercise(ex){
  document.querySelector("#openAsset")?.addEventListener("click",()=>openExerciseAsset(ex));
 }
 function imageLicenses(){
- const namedEntries=Object.entries(LICENSED_EXERCISE_LIBRARY.entries||{}).filter(([,entry])=>entry.sourceType!=="app-original");
- app.innerHTML=`<section class="card"><button class="secondary" id="licensesBack">Back to Equipment</button><span class="pill">ABOUT</span><h2>Image Sources & Licenses</h2><p>RitFit poster illustrations are the primary reference for cable, Smith and bench exercises in this personal app. Reviewed Creative Commons media remains only where an official poster does not provide a clear match.</p></section>
+ const sourceRows=[];
+ Object.entries(LICENSED_EXERCISE_LIBRARY.entries||{}).forEach(([usedFor,entry])=>{
+   if(entry.sourceType!=="app-original")sourceRows.push([usedFor,entry]);
+   if(entry.reference?.sourceType&&entry.reference.sourceType!=="app-original")sourceRows.push([usedFor,entry.reference]);
+ });
+ const namedEntries=[...new Map(sourceRows.map(row=>[row[1].media,row])).values()];
+ app.innerHTML=`<section class="card"><button class="secondary" id="licensesBack">Back to Equipment</button><span class="pill">ABOUT</span><h2>Image Sources & Licenses</h2><p>Road to 12% movement animations and still storyboards are the primary in-app demonstrations. The sources below are retained setup or form references used to review equipment geometry and coaching accuracy.</p></section>
  <section class="license-list">${namedEntries.map(([usedFor,entry])=>`<article class="card license-entry"><img src="${entry.media}" alt="${entry.mediaAlt}"><div><h3>${entry.sourceExercise}</h3><p><strong>Used for:</strong> ${usedFor}</p><p><strong>Source:</strong> ${entry.sourceType==="official-manual"?entry.sourceDocument:entry.provider}</p><p><strong>Author:</strong> ${entry.author}</p>${entry.sourceType==="official-manual"?`<p><strong>Use:</strong> ${entry.rightsNote}</p><p><a href="${entry.providerUrl}" target="_blank" rel="noopener">RitFit website</a></p>`:`<p><strong>License:</strong> <a href="${entry.license.url}" target="_blank" rel="noopener">${entry.license.fullName}</a></p><p><a href="${entry.sourceUrl}" target="_blank" rel="noopener">wger record</a>${entry.originalSourceUrl?` · <a href="${entry.originalSourceUrl}" target="_blank" rel="noopener">original source</a>`:""}</p>`}</div></article>`).join("")}</section>`;
  document.querySelector("#licensesBack").onclick=equipment;
 }
@@ -1301,18 +1364,21 @@ function summary(){
 }
 
 function library(){
- const extras=window.EXTRA_LIBRARY_DATA||[],all=[...data,...extras];
+ const extras=window.EXTRA_LIBRARY_DATA||[];
+ const scheduled=[0,1,2,3,4,5].flatMap(day=>workoutForDay(day));
+ const all=[...new Map([...data,...extras,...scheduled].map(ex=>[ex.name,ex])).values()];
  const category=state.libraryCategory;
  let content="";
+ const mediaTiles=items=>`<div class="exercise-library-grid">${items.map(x=>{const entry=exerciseLibraryEntry(x),asset=entryDisplayAsset(entry);return `<button class="exercise-library-tile professional-library-tile" data-lib-name="${x.name}">${asset?`<img src="${asset}" alt="${entry.mediaAlt}" loading="lazy">`:`<div class="library-no-media">Written guide</div>`}<span class="tag">${libraryMediaLabel(entry)}</span><strong>${x.name}</strong><small>${x.muscles||"Guided movement"}</small></button>`}).join("")}</div>`;
  if(category==="strength"){
    const strength=all.filter(x=>x.type==="strength");
-    content=`<div class="exercise-library-grid">${strength.map(x=>{const entry=exerciseLibraryEntry(x);return `<button class="exercise-library-tile professional-library-tile" data-lib-name="${x.name}">${entry?`<img src="${entry.media}" alt="${entry.mediaAlt}">`:`<div class="library-no-media">Written guide</div>`}<span class="tag">${entry?(entry.sourceType==="official-manual"?"Official RitFit guide":"Licensed fallback"):"No reviewed image"}</span><strong>${x.name}</strong><small>${x.muscles||"Strength"}</small></button>`}).join("")}</div>`;
+    content=mediaTiles(strength);
  }else if(category==="cardio"){
-   const cards=["Treadmill Walking","Treadmill Incline Walk","Treadmill HIIT Intervals","Rower Technique","KICKR CORE Endurance Ride","KICKR CORE HIIT Ride"];
-   content=`<div class="text-guide-grid">${cards.map(name=>`<article><span class="tag">Written guide</span><strong>${name}</strong><small>Equipment setup, technique and coaching cues remain available in the guided workout.</small></article>`).join("")}</div>`;
+   const cardio=all.filter(ex=>ex.type==="cardio"||ex.type==="warmup"||/Treadmill|Rowing|Zone 2/.test(ex.name));
+   content=mediaTiles(cardio);
  }else if(category==="mobility"){
-   const cards=["Dynamic Warm-Up","Hip & Glute Mobility","Thoracic & Shoulder Mobility","Core Activation","Cool Down & Recovery"];
-   content=`<div class="text-guide-grid">${cards.map(name=>`<article><span class="tag">${name.includes("Hip")?"Licensed media in workout":"Written guide"}</span><strong>${name}</strong><small>Generated artwork has been removed from the active library.</small></article>`).join("")}</div>`;
+   const mobility=all.filter(ex=>ex.type==="mobility"||ex.type==="cooldown"||/Mobility|Stretch|Breathing|Dead Bug|Bird Dog|Side Plank/.test(ex.name));
+   content=mediaTiles(mobility);
  }else if(category==="setup"){
    const cards=["M1 Attachment Reference","M1 Setup Guide","Smith Machine Setup","KICKR CORE Bike Setup"];
    content=`<div class="text-guide-grid">${cards.map(name=>`<article><span class="tag">Setup guide</span><strong>${name}</strong><small>Use the exact setup, pin and attachment instructions shown during each workout.</small></article>`).join("")}</div>`;
@@ -1962,13 +2028,31 @@ function coreRecoveryWorkout(){
       name:"Hip and Glute Mobility",
       duration:"6:00",
       muscles:"Hips, glutes and lower back",
-      demoImage:"assets/placeholders/hip-glute-mobility.svg"
+      setup:["Sit near the front edge of a stable bench","Place both feet flat with knees near 90 degrees","Keep your spine tall before crossing the leg"],
+      steps:[
+        "Place one ankle gently across the opposite thigh just above the knee.",
+        "Flex the raised foot and keep the shin supported without pressing on the knee.",
+        "Hinge forward from the hips with a long spine until you feel a gentle glute stretch.",
+        "Return tall, switch sides and repeat without forcing the range."
+      ],
+      cues:["Keep the raised foot flexed.","Lead with the chest instead of rounding.","Stop if the knee or hip feels pinched."],
+      why:"Restores comfortable hip rotation and gently stretches the glutes between strength sessions.",
+      demoImage:"assets/exercise-library/generated/hip-glute-mobility-motion-guide.webp"
     }),
     cloneExerciseByName("Arm Circles",{
       name:"Thoracic and Shoulder Mobility",
       duration:"5:00",
       muscles:"Upper back and shoulders",
-      demoImage:"assets/placeholders/thoracic-shoulder-mobility.svg"
+      setup:["Stand with your back and head against a clear wall","Set elbows near shoulder height in a comfortable W position","Keep feet slightly forward and knees soft"],
+      steps:[
+        "Gently draw your ribs down and keep your lower back neutral.",
+        "Slide both forearms upward along the wall toward a wide Y position.",
+        "Stop before your shoulders shrug or your back arches.",
+        "Return slowly to the W position and repeat."
+      ],
+      cues:["Keep your ribs down.","Let the shoulder blades rotate as the arms rise.","Use only a pain-free range."],
+      why:"Maintains upper-back and shoulder mobility without adding training fatigue.",
+      demoImage:"assets/exercise-library/generated/chest-shoulder-mobility-motion-guide.webp"
     }),
     cloneExerciseByName("Post-Workout Stretch",{
       name:"Slow Breathing Cooldown",
@@ -2766,9 +2850,11 @@ if("serviceWorker" in navigator){
          location.reload();
        }
      });
-     const registration=await navigator.serviceWorker.getRegistration("./");
+     let registration=await navigator.serviceWorker.getRegistration("./");
      if(registration)await registration.update();
-     else await navigator.serviceWorker.register("./sw.js",{scope:"./",updateViaCache:"none"});
+     else registration=await navigator.serviceWorker.register("./sw.js",{scope:"./",updateViaCache:"none"});
+     const readyRegistration=await navigator.serviceWorker.ready;
+     (readyRegistration.active||registration.active)?.postMessage({type:"CACHE_EXERCISE_MEDIA"});
    }catch(error){
      console.warn("Road to 12% service worker was not available.",error);
    }

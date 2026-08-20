@@ -66,15 +66,37 @@ for (const entryPoint of expectedEntryPoints) {
 }
 
 const sw = read("sw.js");
-const assetListMatch = sw.match(/\bASSETS\s*=\s*(\[[\s\S]*?\])/);
-if (!assetListMatch) {
-  fail("sw.js does not define an ASSETS array");
-} else {
+const serviceWorkerAssets = {};
+for (const listName of ["CORE_ASSETS", "MEDIA_ASSETS"]) {
+  const assetListMatch = sw.match(new RegExp(`\\b${listName}\\s*=\\s*(\\[[\\s\\S]*?\\])`));
+  if (!assetListMatch) {
+    fail(`sw.js does not define a ${listName} array`);
+    continue;
+  }
   try {
     const assets = JSON.parse(assetListMatch[1]);
+    serviceWorkerAssets[listName] = assets;
+    if (new Set(assets).size !== assets.length) {
+      fail(`sw.js ${listName} contains duplicate paths`);
+    }
     for (const asset of assets) requireFile(asset, "sw.js");
   } catch (error) {
-    fail(`sw.js ASSETS is not a JSON-compatible string array: ${error.message}`);
+    fail(`sw.js ${listName} is not a JSON-compatible string array: ${error.message}`);
+  }
+}
+if (serviceWorkerAssets.CORE_ASSETS && serviceWorkerAssets.MEDIA_ASSETS) {
+  const overlap = serviceWorkerAssets.CORE_ASSETS.filter((asset) =>
+    serviceWorkerAssets.MEDIA_ASSETS.includes(asset),
+  );
+  if (overlap.length) fail(`shell and media cache manifests overlap: ${overlap.join(", ")}`);
+  const requiredCoreAssets = ["./", "./index.html", ...expectedEntryPoints.map((entryPoint) => `./${entryPoint}`)];
+  for (const cachePath of requiredCoreAssets) {
+    if (!serviceWorkerAssets.CORE_ASSETS.includes(cachePath)) {
+      fail(`CORE_ASSETS is missing production entry point: ${cachePath}`);
+    }
+  }
+  if (!serviceWorkerAssets.MEDIA_ASSETS.length) {
+    fail("MEDIA_ASSETS must list the reviewed offline exercise media");
   }
 }
 
@@ -125,5 +147,5 @@ if (failures.length) {
 }
 
 console.log(
-  `Foundation validation passed: JavaScript syntax, ${htmlReferences.length} HTML references, service-worker assets, and road12v5 compatibility.`,
+  `Foundation validation passed: JavaScript syntax, ${htmlReferences.length} HTML references, ${serviceWorkerAssets.CORE_ASSETS.length} atomic shell assets, ${serviceWorkerAssets.MEDIA_ASSETS.length} best-effort media assets, and road12v5 compatibility.`,
 );

@@ -8,6 +8,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Added
 
+- Completed the active Foundation exercise-media audit: all 47 guided exercise names now resolve to 40 distinct poster-first movement animations, including 34 new Road to 12% animations and six previously approved originals.
+- Added reviewed static media for the visible Library-only Stationary Bike Setup, completing media coverage beyond the active workout schedule.
+- Added a durable exercise-media manifest covering exact-name mappings, accessibility, retained references, offline caching, and release validation.
 - Added versioned Road to 12% backup files containing the real app version, build, data schema, authoritative schedule, complete structured history, active workout state, cardio and measurements, equipment, attachments, progression approvals, and provider metadata already stored with sessions.
 - Added session-specific approved prescriptions for the next matching stable exercise ID, with separate base targets and actual sets plus followed, partially followed, overridden, and not-attempted outcomes.
 
@@ -22,6 +25,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Changed
 
+- Exercise movement media now opens on a still poster and moves only after an explicit Play action; Pause returns to the poster, enlarged views use accessible dialog behavior, and reduced-motion users receive a motion-free default.
+- Only exact, non-conflicting reviewed references remain available and credited alongside the new app-created animations; mismatched free-barbell and cable-setup references are excluded.
+- Exercise media now uses a separate versioned cache that warms posters before GIFs without blocking a new shell installation, retains the previous media cache on partial failure, and cleans it up only after a complete warm-up.
+- Lat Pulldown and Seated Cable Row now use one active pulley and one cable in both their saved setup data and reviewed animation metadata.
+- Advanced the maintenance build to `2026.08.15.4`, rotated the offline shell cache to `road12-v13-2-46-shell`, and introduced `road12-v13-2-46-media` for the complete exercise-media set.
 - Backup import now validates file identity, format, schema compatibility, history, scheduling, measurements, and persistent-state shapes before replacing any live device state; compatible legacy backups and name-keyed exercise approvals remain readable.
 - Approved progression guidance now becomes the visible prescription only for a newly started matching workout, while manual set overrides, existing active sessions, unrelated exercises, completed history, and Foundation A/B/C definitions remain unchanged.
 
@@ -120,6 +128,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Fixed
 
+- Fixed active guided exercises falling back to missing-media or approximate legacy imagery because their exact display name had no reviewed animation mapping.
+- Fixed exercise GIFs beginning motion without an explicit Play/Pause control or a still reduced-motion default.
 - Fixed the new dumbbell accessory being filtered from an already-scheduled Friday preview when an older saved equipment preference still marked Dumbbells unavailable.
 - Core + Recovery, Cardio + Mobility, and Zone 2 previews now start their implemented guided workouts instead of showing an obsolete preview-only message.
 - Home now advances to the next incomplete scheduled workout after today's workout is complete, including older saved sessions whose schedule status was not updated.

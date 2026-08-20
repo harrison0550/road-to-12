@@ -32,6 +32,7 @@ Build identifiers use `YYYY.MM.DD.N`, where `N` increments for multiple builds o
 6. Update `PROJECT_CONTEXT.md`.
 7. Update completed roadmap and sprint items.
 8. Update the About screen only through its metadata source; do not hard-code a second version value.
+9. When guided exercise names or media change, update `EXERCISE_MEDIA_AUDIT.md` and verify every exact active name before rotating the cache.
 
 ## Automated checks
 
@@ -40,6 +41,9 @@ Run from the repository root:
 ```powershell
 node scripts/validate-foundation.js
 node scripts/validate-exercise-library.js
+node scripts/test-exercise-animation-coverage.js
+node scripts/test-exercise-imagery.js
+node scripts/test-offline-pwa.js
 git diff --check
 ```
 
@@ -57,6 +61,9 @@ All checks must pass without ignored errors.
 - [ ] Progress check-ins save correctly.
 - [ ] Backup export and import work with representative data.
 - [ ] Exercises and Profile remain reachable.
+- [ ] Every active guided exercise opens with its still motion poster.
+- [ ] Play animation, Pause animation, enlarged media, Close, and Escape work without losing workout state.
+- [ ] Retained official or reviewed references remain visible and credited.
 
 ### Responsive and accessibility
 
@@ -71,12 +78,17 @@ All checks must pass without ignored errors.
 - [ ] Status is not communicated by color alone.
 - [ ] Keyboard focus and VoiceOver labels are meaningful.
 - [ ] Reduced-motion behavior remains usable.
+- [ ] Exercise media controls remain inside their card and at least 44px tall at 320px.
+- [ ] Movement, equipment orientation, and safety-relevant posture are understandable from the alternative text and written guide without animation.
 
 ### PWA and offline
 
 - [ ] Manifest loads without errors.
 - [ ] Service Worker installs on a clean origin.
-- [ ] Required shell and media assets cache successfully.
+- [ ] The core shell installs and activates even when an exercise-media request fails.
+- [ ] The background media warm-up caches posters and references before GIFs, limits concurrent requests, and reports failures without blocking the shell.
+- [ ] A failed media warm-up retains the previous media cache; a zero-failure warm-up removes superseded media caches.
+- [ ] Still posters, animated GIFs, and retained local exercise references play or open after connectivity is removed.
 - [ ] App relaunches offline after one online visit.
 - [ ] Existing installation receives the new cache after update.
 - [ ] Startup time shows no material regression.

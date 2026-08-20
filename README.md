@@ -1,5 +1,26 @@
 # Road to 12% — Version 13
 
+## Current guided exercise media
+
+Build `2026.08.15.4` completes the active Foundation media audit. All 47 exact guided exercise names resolve to 40 distinct, locally bundled movement animations: 34 new Road to 12% animations and six previously approved originals.
+
+Exercise screens are poster-first. A still WebP appears initially, and movement starts only after the user chooses **Play animation**; **Pause animation** returns to the still poster. This keeps motion explicit, gives reduced-motion users a stable default, and avoids unnecessary GIF decoding during normal navigation. Written setup, execution, and safety guidance remain authoritative.
+
+Exact, non-conflicting reviewed references are retained and credited alongside app-created guidance. The visible Exercise Library is also covered: its one setup-only entry, Stationary Bike Setup, uses a reviewed static guide rather than artificial motion. After the app's bounded background media warm-up completes, still posters, animations, and retained local references remain available offline. See [`docs/EXERCISE_MEDIA_AUDIT.md`](docs/EXERCISE_MEDIA_AUDIT.md) for the exact active manifest, library boundary, accessibility contract, and manual review checklist.
+
+The repository still contains user-supplied RitFit poster crops whose recorded note covers this personal app but does not document public redistribution permission. Treat that as a release checkpoint; see the audit before publishing or redistributing those source references.
+
+Validate current media and offline coverage with:
+
+```powershell
+node scripts/validate-exercise-library.js
+node scripts/test-exercise-animation-coverage.js
+node scripts/test-exercise-imagery.js
+node scripts/test-offline-pwa.js
+```
+
+The sections below preserve earlier Version 13 media history and source-rebuild notes.
+
 ## Version 13.1 RitFit-specific exercise library
 
 Version 13.1 uses individual crops from Andy's official RitFit M1-C, BPC06,
@@ -35,19 +56,17 @@ Validate the media files, source metadata, and offline-cache coverage with:
 node scripts/validate-exercise-library.js
 ```
 
-## Version 13 exercise media
+## Earlier Version 13 exercise-media baseline
 
-Version 13 replaces generated workout artwork in the active exercise flow with a
+The original Version 13 media pass replaced generated workout artwork with a
 quality-gated, locally bundled subset of the wger exercise library. Only exact or
 close equipment matches that were visually reviewed and marked non-AI by wger are
-included. Exercises without a reviewed free match intentionally display the written
+included. Exercises without a reviewed free match intentionally displayed the written
 setup and form guide without an image.
 
 Every bundled asset has author, source, original-source (when supplied), and
 Creative Commons license metadata in `exercise-library.js`. The same information is
 available in the app under **Equipment → About → Image Sources & Licenses**.
-
-Upload all files in this folder to the same GitHub repository folder.
 
 ## Production foundation
 

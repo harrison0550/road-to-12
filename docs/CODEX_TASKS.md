@@ -14,6 +14,7 @@ This file contains implementation-ready work. Move completed user-visible work t
 - [x] Add regression coverage for BUG-002 small-iPhone check-in layout.
 - [x] Add offline install, update, and relaunch smoke tests.
 - [x] Audit Calendar and recovery dialogs with VoiceOver.
+- [x] Audit every active Foundation exercise and visible Exercise Library entry for exact, accessible, offline-capable media.
 
 ## Medium priority
 
@@ -43,6 +44,8 @@ This file contains implementation-ready work. Move completed user-visible work t
 - [ ] Research Apple Health integration requirements.
 - [ ] Research wearable and heart-rate data sources.
 - [ ] Define nutrition feature boundaries and safety language.
+- [ ] Create and approve Phase 2–4 exercise media only after the corresponding workout definitions exist.
+- [ ] Avoid re-downloading unchanged exercise media on cache rotations by introducing content-hashed or shared immutable media caching.
 
 ## Future task template
 
@@ -66,6 +69,7 @@ Copy this block for new work:
 
 ## Completed this sprint
 
+- [x] Audit every active guided exercise name and deliver 47-of-47 poster-first animation coverage with explicit motion controls, retained references, offline caching, and automated validation.
 - [x] Modernize backup/restore with real release metadata, complete schedule and training state, pre-mutation validation, legacy compatibility, and realistic round-trip tests.
 - [x] Apply explicitly approved progression targets to the next matching exercise session, keep base and actual data separate, and record the completed target outcome.
 

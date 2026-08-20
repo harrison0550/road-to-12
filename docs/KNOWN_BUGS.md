@@ -4,7 +4,16 @@ Use this file as the durable defect tracker. Do not delete resolved records; upd
 
 ## Active
 
-No confirmed production defects are currently documented.
+No confirmed production behavior defects are currently documented.
+
+### RISK-001 — Public redistribution permission is not recorded for RitFit crops
+
+- Status: Open release checkpoint
+- Severity: Medium
+- Area: Exercise Media / Distribution
+- Report: The repository contains user-supplied RitFit poster crops with attribution and a personal-app use note, but no recorded grant of public redistribution permission.
+- Required before public redistribution: Record explicit permission, replace the crops with app-original exact references or link-only citations, or keep the affected source assets private.
+- Tracking document: `docs/EXERCISE_MEDIA_AUDIT.md`
 
 ## Resolved
 
@@ -135,6 +144,33 @@ No confirmed production defects are currently documented.
 - Symptom: Friday's preview displays the former 11-step workout without Dumbbell Romanian Deadlift.
 - Cause: An older saved equipment preference could keep Dumbbells disabled after the additive workout update, causing the normal equipment resolver to filter the new exercise.
 - Regression coverage: `scripts/test-equipment-profile.js` and `scripts/test-weekly-equipment-mix.js` verify the additive v7 equipment reconciliation and the Friday accessory.
+
+### BUG-016 — Active guided exercise has no exact movement animation
+
+- Status: Resolved in v13.2.0 maintenance build 2026.08.15.4
+- Severity: Medium
+- Area: Workout Engine / Exercise Education
+- Report: Several active Foundation strength, cardio, mobility, and recovery names could resolve only to written guidance, an approximate legacy image, or no movement media.
+- Resolution: The active program was inventoried by exact guided name. All 47 names now resolve through the canonical exercise library to 40 distinct reviewed, locally bundled animations with still posters; shared aliases reuse only an accurate matching movement.
+- Regression test: `scripts/test-exercise-animation-coverage.js`
+
+### BUG-017 — Exercise animation starts without user control
+
+- Status: Resolved in v13.2.0 maintenance build 2026.08.15.4
+- Severity: Medium
+- Area: Exercise Education / Accessibility
+- Report: Animated GIF demonstrations could begin moving as soon as they rendered, without a consistent pause control or motion-free default for reduced-motion users.
+- Resolution: Exercise media now renders its still motion poster first and switches to the animated GIF only after an explicit Play action. The same control pauses back to the poster, exposes its state semantically, and is available in the enlarged focus-managed dialog.
+- Regression tests: `scripts/test-exercise-imagery.js` and `scripts/test-exercise-animation-coverage.js`
+
+### BUG-018 — Exercise-media download can block a Service Worker update
+
+- Status: Resolved before release in v13.2.0 maintenance build 2026.08.15.4
+- Severity: High
+- Area: Service Worker / Offline Media
+- Report: Atomically installing the complete exercise-media bundle would allow one unavailable file or interrupted 26 MB download to prevent a new app shell from activating.
+- Resolution: Core shell installation is independent. A bounded background job warms a separate poster-first media cache, retains the previous media cache after partial failure, and removes old media only after a zero-failure warm-up.
+- Regression test: `scripts/test-offline-pwa.js`
 
 ## Bug template
 
