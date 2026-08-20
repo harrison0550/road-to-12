@@ -178,6 +178,22 @@
     return true;
   }
 
+  function programAdherence(sessions, today, baselineDate) {
+    const relevant = (sessions || []).filter(
+      (item) => {
+        const plannedDate = item.plannedDate || item.scheduledDate;
+        return (
+          item.status !== "restDay" &&
+          ["completed", "missed"].includes(item.status) &&
+          plannedDate <= today &&
+          (!baselineDate || plannedDate >= baselineDate)
+        );
+      },
+    );
+    const completed = relevant.filter((item) => item.status === "completed").length;
+    return relevant.length ? Math.round((completed / relevant.length) * 100) : 100;
+  }
+
   root.ROAD12_SCHEDULING = Object.freeze({
     addCalendarDays,
     completeRecoveredWorkout,
@@ -185,6 +201,7 @@
     moveWorkout,
     nextAvailableTrainingDates,
     nextTrainingDates,
+    programAdherence,
     recoverWorkoutToday,
     rescheduleWorkout,
     scheduleActivationDate,

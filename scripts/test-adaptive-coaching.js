@@ -22,6 +22,10 @@ assert.strictEqual(progressRecommendation.prescription.weight,30,"Smith progress
 assert.strictEqual(coach.exerciseRecommendation([{id:"one",exercises:[completed(20)]},{id:"two",exercises:[completed(20,8)]}],{two:"Good"},definition).action,"HOLD");
 assert.strictEqual(coach.exerciseRecommendation([{id:"one",exercises:[completed(20)]},{id:"two",exercises:[completed(20)]}],{two:"Too Hard"},definition).action,"DELOAD");
 assert.strictEqual(coach.exerciseRecommendation([{id:"one",exercises:[completed(20)]},{id:"two",exercises:[withFeedback(20,{rir:2,form:"Clean",discomfort:true})]}],{two:"Good"},definition).action,"DELOAD");
+const dumbbellDefinition={name:"Dumbbell Floor Press",type:"strength",sets:2,reps:12,requires:["dumbbells"],weightEntry:{mode:"total",paired:true}};
+const dumbbellCompleted=weight=>({name:dumbbellDefinition.name,sets:[1,2].map(()=>({done:true,weight,reps:12})),feedback:{rir:3,form:"Clean",discomfort:false}});
+const dumbbellProgress=coach.exerciseRecommendation([{id:"db1",exercises:[dumbbellCompleted(30)]},{id:"db2",exercises:[dumbbellCompleted(30)]}],{db2:"Good"},dumbbellDefinition);
+assert.strictEqual(dumbbellProgress.prescription.weight,40,"dumbbell progression must move from the 15 lb pair to the available 20 lb pair");
 
 const history=[];
 for(let i=0;i<15;i++)history.push({id:`s${i}`,name:`Full Body ${["A","B","C"][i%3]}`,scheduleId:`p${i}`,exercises:[completed(20+i)]});
@@ -34,6 +38,9 @@ assert(readiness.score<=85,"a locked readiness model must not imply automatic gr
 const quality=coach.phaseReadiness({history,ratings,sessions,today:"2026-08-13",cardio:[1,2,3,4].map((_,i)=>({name:`Cardio ${i}`,actualDurationMinutes:30})),measurements:[1,2,3,4].map((_,i)=>({weight:200-i,waist:40-i/2}))});
 assert(quality.dataQuality>=80,"balanced readiness evidence should report strong data quality");
 assert.strictEqual(quality.dataQualityItems.length,5);
+const resetReadiness=coach.phaseReadiness({history:[],ratings:{},sessions:[{id:"old-miss",plannedDate:"2026-08-17",scheduledDate:"2026-08-17",status:"missed"},{id:"today",plannedDate:"2026-08-20",scheduledDate:"2026-08-20",status:"scheduled"}],today:"2026-08-20",adherenceBaselineDate:"2026-08-20"});
+assert.strictEqual(resetReadiness.adherence,100,"readiness consistency must honor the fresh adherence baseline and ignore unresolved workouts");
+assert(resetReadiness.reasons.some(reason=>reason.label==="Consistency"&&reason.status==="positive"));
 
 const source=[{name:"Lift",type:"strength",sets:3}];
 const unchanged=coach.applyRecommendation(source);
@@ -45,6 +52,8 @@ assert(sw.includes('"./adaptive-coaching.js"'));
 assert(/version:9,[\s\S]*?exerciseFeedback[\s\S]*?approvedProgressions[\s\S]*?schemaVersion=9;/.test(app),"exercise feedback and approvals need an additive migration");
 assert(/version:10,[\s\S]*?cardioTimers[\s\S]*?schemaVersion=10;/.test(app),"active cardio timing needs an additive migration");
 assert(/version:11,[\s\S]*?exerciseTimings[\s\S]*?schemaVersion=11;/.test(app),"structured exercise timing needs an additive migration");
+assert(/version:12,[\s\S]*?adherenceBaselineDate[\s\S]*?schemaVersion=12;/.test(app),"the adherence reset needs an additive migration that preserves workout history");
+assert(/version:13,[\s\S]*?dumbbellPairWeights:\[10,15,20,25\][\s\S]*?schemaVersion=13;/.test(app),"confirmed dumbbell sizes need an additive equipment migration");
 assert(/QUICK EXERCISE FEEDBACK[\s\S]*?exerciseRir[\s\S]*?exerciseForm[\s\S]*?exerciseDiscomfort/.test(app),"strength exercises need quick exercise-specific feedback controls");
 assert(/Approve next-session target/.test(app),"concrete progression recommendations must require approval");
 assert(/Phase advancement is locked/.test(app),"UI must explain that readiness cannot silently change the schedule");

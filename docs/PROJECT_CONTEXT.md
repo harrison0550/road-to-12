@@ -6,10 +6,10 @@ Read this file at the beginning of every Codex or engineering session. It is the
 
 - Product: Road to 12%
 - Version: 13.2.0
-- Build: 2026.08.20.3
+- Build: 2026.08.20.5
 - Last updated: August 20, 2026
-- Service Worker cache: `road12-v13-2-49-shell`
-- Exercise media cache: `road12-v13-2-49-media`
+- Service Worker cache: `road12-v13-2-51-shell`
+- Exercise media cache: `road12-v13-2-51-media`
 - Runtime: static, client-only, offline-first PWA
 - Primary storage key: `road12v5`
 
@@ -61,6 +61,8 @@ Historical regressions requiring automated coverage:
 - BUG-020: Exercise guides show a still storyboard first and repeat an older reference illustration beneath the approved animation — resolved in build 2026.08.20.2.
 - BUG-021: Installed iPhone PWA remains on stale shell files or returns animations to Play-first mode — resolved in build 2026.08.20.3.
 
+- BUG-022: Development-era incomplete sessions reduce Program Adherence — resolved in build 2026.08.20.4 with a non-destructive August 20 adherence baseline.
+
 See `KNOWN_BUGS.md` before diagnosing or fixing defects.
 
 ## Active sprint goals
@@ -79,6 +81,7 @@ See `CODEX_TASKS.md` for priority and acceptance detail.
 
 ## Recent design decisions
 
+- Program Adherence starts from the saved August 20, 2026 baseline for the current installation. Earlier development-era sessions remain visible in Calendar and history but do not affect the metric. Only resolved completed or missed training sessions on or after the baseline count; an unresolved scheduled workout never lowers adherence.
 - The current active Foundation program has complete exact-name media coverage: 47 guided names resolve to 40 distinct movement animations. This audit adds 34 Road to 12% originals and retains six earlier approved originals. Shared warm-up, cooldown, recovery, and alias names may reuse one accurate movement asset while keeping their written prescriptions distinct. The visible Library-only Stationary Bike Setup uses a reviewed static setup guide.
 - Exercise animations always run automatically in focused workout and enlarged exercise views, with a labelled Pause control that returns to the still storyboard. Older official or licensed references remain recorded and credited in Image Sources & Licenses, but are not repeated beneath the approved Road to 12% demonstration.
 - The Service Worker installs the core shell independently, then warms a separate media cache poster-first with bounded concurrency. Older media remains an offline fallback until the new cache completes without failures. See `EXERCISE_MEDIA_AUDIT.md` for the current manifest and validation procedure.
@@ -97,7 +100,7 @@ See `CODEX_TASKS.md` for priority and acceptance detail.
 - Exercise guidance is PROGRESS, BUILD, HOLD, or DELOAD per movement using actual completed sets, reps, weight and feedback. Whole-workout ratings are supporting evidence only.
 - Cardio stores planned and actual duration separately with optional distance, average heart rate, pace/incline, effort and notes. Body check-ins append immutable measurement observations rather than overwriting trend history.
 - Dumbbell Lateral Raise, Dumbbell Floor Press, and Dumbbell Romanian Deadlift use user-approved, locally stored two-position animations in the established red-shirt instructional style; the written coaching remains authoritative.
-- Weekly equipment integration is additive: Tuesday includes an easy eight-minute iFIT rowing technique block, and each strength day gains one two-set dumbbell accessory using the available 10 or 15 lb pairs. Existing movements and Saturday's flexible Zone 2 modality choice remain intact.
+- Weekly equipment integration is additive: Tuesday includes an easy eight-minute iFIT rowing technique block, and each strength day gains one two-set dumbbell accessory using the available 10, 15, 20, or 25 lb pairs. Existing movements and Saturday's flexible Zone 2 modality choice remain intact.
 - Core + Recovery presents Dead Bug, Bird Dog, and Side Plank from Knees as separate guided steps; all three use approved, stylistically consistent original animations bundled for offline use, while written coaching remains authoritative.
 - The five primary destinations are Home, Calendar, Progress, Exercises, and Profile.
 - Calendar status and workout type are independent and never color-only.
@@ -123,7 +126,7 @@ See `CODEX_TASKS.md` for priority and acceptance detail.
 - App-created exercise illustrations are identified as posture illustrations; written setup and movement cues remain authoritative.
 - Exercise artwork is previewed for user approval before it replaces an application asset; the approved Lat Pulldown guide shows the full cage with one center-connected cable on the facing front post.
 - Olympic bumper plates from 10–45 lb are available and enabled; existing Smith-machine squat, hinge, split-squat, and calf-raise programming may use progressive added plate weight.
-- Dumbbells are available and enabled independently from kettlebells; kettlebells remain unavailable. Goblet Squat may therefore use one dumbbell in the equipment-safe rotation.
+- Dumbbells are available and enabled independently from kettlebells; fixed pairs of 10, 15, 20, and 25 lb are recorded, while kettlebells remain unavailable. Goblet Squat may therefore use one dumbbell in the equipment-safe rotation. Progression may recommend only the next owned dumbbell size and still requires explicit approval.
 - Smith set entries store total added plate weight across both sides for backward compatibility; the calculator divides that load per side and adds the official 33 lb M1 Pro Smith bar to show working weight.
 - Timer completion uses a locally generated Web Audio chime, vibration where supported, and an accessible status announcement; it does not require a network asset.
 - Active timers use an absolute wall-clock finish time and reconcile on foreground restoration so iOS suspension does not pause elapsed time; completion audio may be delayed until the PWA resumes because of platform restrictions.

@@ -36,9 +36,13 @@
   function latestFeedback(item){return item?.exercise?.feedback||item?.session?.exerciseFeedback?.[item?.exercise?.name]||null;}
   function nextLoad(current,definition){
     const name=definition.name||"",mode=definition.weightEntry?.mode||"total";
-    if(name.includes("Dumbbell")){
-      if(current<=20)return 30;
-      return current;
+    if(definition.weightEntry?.paired||name.includes("Dumbbell")){
+      const availablePairTotals=[20,30,40,50];
+      return availablePairTotals.find(weight=>weight>current)||current;
+    }
+    if((definition.requires||[]).includes("dumbbells")){
+      const availableSingleWeights=[10,15,20,25];
+      return availableSingleWeights.find(weight=>weight>current)||current;
     }
     if(name.includes("Smith"))return current+10;
     if(mode==="dual"||mode==="single")return current+5;
@@ -85,10 +89,10 @@
     const strength=history.filter(item=>/Full Body [ABC]/.test(item.name||""));
     const exposure={A:0,B:0,C:0};
     strength.forEach(item=>{const match=(item.name||"").match(/Full Body ([ABC])/);if(match)exposure[match[1]]++;});
-    const planned=sessions.filter(item=>item.status!=="restDay"&&item.scheduledDate<=input.today);
     const completedIds=new Set(history.map(item=>item.scheduleId).filter(Boolean));
+    const planned=sessions.filter(item=>item.status!=="restDay"&&(["completed","missed"].includes(item.status)||completedIds.has(item.id))&&item.scheduledDate<=input.today&&(!input.adherenceBaselineDate||(item.plannedDate||item.scheduledDate)>=input.adherenceBaselineDate));
     const completed=planned.filter(item=>item.status==="completed"||completedIds.has(item.id)).length;
-    const adherence=planned.length?completed/planned.length:0;
+    const adherence=planned.length?completed/planned.length:1;
     const recent=strength.slice(-6),positive=recent.filter(item=>["Easy","Good"].includes(ratings[item.id])).length;
     const difficult=recent.filter(item=>["Too Hard","Exhausting","Tough"].includes(ratings[item.id])).length;
     const exposureScore=Math.min(1,(Math.min(exposure.A,4)+Math.min(exposure.B,4)+Math.min(exposure.C,4))/12);

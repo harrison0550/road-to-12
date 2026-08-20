@@ -6,12 +6,14 @@ const root = path.resolve(__dirname, "..");
 const app = fs.readFileSync(path.join(root, "app.js"), "utf8");
 const data = fs.readFileSync(path.join(root, "data.js"), "utf8");
 
-assert.match(app, /const ROAD12_SCHEMA_VERSION=11;/, "progression architecture must preserve the additive storage migration chain");
+assert.match(app, /const ROAD12_SCHEMA_VERSION=13;/, "progression architecture must preserve the additive storage migration chain");
 assert.match(app, /version:6,[\s\S]*?dumbbells:true,kettlebells:false[\s\S]*?schemaVersion=6;/, "existing profiles must gain the user's confirmed equipment without losing saved state");
 assert.match(app, /version:7,[\s\S]*?dumbbells:true,rower:true,kettlebells:false[\s\S]*?schemaVersion=7;/, "the current device profile must restore confirmed dumbbells and rower so added exercises are not filtered from previews");
-assert.match(app, /dumbbells:true,\s*kettlebells:false,/, "new profiles must default to dumbbells available and kettlebells unavailable");
+assert.match(app, /version:13,[\s\S]*?dumbbellPairWeights:\[10,15,20,25\][\s\S]*?schemaVersion=13;/, "existing profiles must gain the confirmed 20 and 25 lb dumbbell pairs additively");
+assert.match(app, /dumbbells:true,[\s\S]*?dumbbellPairWeights:\[10,15,20,25\],[\s\S]*?kettlebells:false,/, "new profiles must default to every confirmed dumbbell pair and keep kettlebells unavailable");
 assert.match(app, /dumbbells:"Dumbbells",\s*kettlebells:"Kettlebells"/, "equipment labels must remain independent");
 assert.match(app, /\["dumbbells","🔩","Dumbbells"/, "Profile must show a dedicated dumbbell control");
+assert.match(app, /Available fixed pairs: 10, 15, 20 and 25 lb/, "Profile must list every confirmed dumbbell pair");
 assert.match(app, /\["kettlebells","⚫","Kettlebells"/, "Profile must show a dedicated kettlebell control");
 assert.match(app, /gobletSquatTemplate\.setup=\["Equipment: one dumbbell"/, "Goblet Squat instructions must match the available dumbbell");
 assert.match(data, /"name":"Goblet Squat"[\s\S]*?"requires":\["dumbbells"\]/, "Goblet Squat must enter the workout only when dumbbells are enabled");

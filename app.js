@@ -193,7 +193,8 @@ if(smithSquatTemplate){
 }
 /* Versioned storage boundary. Migrations must remain ordered and idempotent. */
 const ROAD12_STORAGE_KEY="road12v5";
-const ROAD12_SCHEMA_VERSION=11;
+const ROAD12_SCHEMA_VERSION=13;
+const ADHERENCE_RESET_DATE="2026-08-20";
 const ROAD12_MIGRATIONS=[
   {
     version:1,
@@ -300,6 +301,26 @@ const ROAD12_MIGRATIONS=[
       value.schemaVersion=11;
       return value;
     }
+  },
+  {
+    version:12,
+    up(value){
+      /* Preserve early development history while beginning trustworthy
+         adherence scoring from the requested clean baseline. */
+      value.adherenceBaselineDate=value.adherenceBaselineDate||ADHERENCE_RESET_DATE;
+      value.schemaVersion=12;
+      return value;
+    }
+  },
+  {
+    version:13,
+    up(value){
+      /* Record the confirmed fixed dumbbell pairs without changing completed
+         history or automatically increasing an active prescription. */
+      value.equipment=Object.assign({},value.equipment||{}, {dumbbells:true,dumbbellPairWeights:[10,15,20,25]});
+      value.schemaVersion=13;
+      return value;
+    }
   }
 ];
 const road12Storage=(()=>{
@@ -345,6 +366,7 @@ state.previewDay=Number.isInteger(state.previewDay)?state.previewDay:null;
 state.workoutSessions=Array.isArray(state.workoutSessions)?state.workoutSessions:[];
 state.calendarMonth=state.calendarMonth||null;
 state.scheduleActivatedDate=state.scheduleActivatedDate||localDateKey();
+state.adherenceBaselineDate=state.adherenceBaselineDate||ADHERENCE_RESET_DATE;
 state.workoutScroll=Number.isFinite(state.workoutScroll)?state.workoutScroll:0;
 state.trainingProfile=window.ROAD12_ADAPTIVE.normalizeProfile(state.trainingProfile||{});
 state.adaptiveRecommendation=state.adaptiveRecommendation||null;
@@ -363,6 +385,7 @@ state.equipment=Object.assign({
   kickrCore:true,
   bumperPlates:true,
   dumbbells:true,
+  dumbbellPairWeights:[10,15,20,25],
   kettlebells:false,
   olympicBarbell:false
 },state.equipment||{});
@@ -1078,7 +1101,7 @@ function escapeAdaptiveText(value){
  return String(value||"").replace(/[&<>"']/g,character=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[character]);
 }
 function currentAdaptiveRecommendation(){
- return window.ROAD12_ADAPTIVE.phaseReadiness({history:state.history,ratings:state.workoutRatings,sessions:state.workoutSessions,today:localDateKey(),measurements:state.measurementHistory,cardio:state.cardioHistory});
+ return window.ROAD12_ADAPTIVE.phaseReadiness({history:state.history,ratings:state.workoutRatings,sessions:state.workoutSessions,today:localDateKey(),adherenceBaselineDate:state.adherenceBaselineDate,measurements:state.measurementHistory,cardio:state.cardioHistory});
 }
 function phaseReadinessMarkup(readiness,compact=false){
  const quality=readiness.dataQualityItems||[];
@@ -1100,7 +1123,7 @@ function equipment(){
   ["rower","🚣","iFIT rower","Available for technique and cardio sessions."],
   ["kickrCore","🚴","Wahoo KICKR CORE","Available for cycling sessions."],
   ["bumperPlates","⚫","Olympic bumper plates","Available in weights from 10–45 lb for Smith-machine loading."],
-  ["dumbbells","🔩","Dumbbells","10 and 15 lb pairs used for the added strength-day accessories."],
+  ["dumbbells","🔩","Dumbbells","Available fixed pairs: 10, 15, 20 and 25 lb."],
   ["kettlebells","⚫","Kettlebells","Separate from dumbbells. Keep off when no kettlebells are available."],
   ["olympicBarbell","🏋️‍♂️","Free Olympic barbell","This refers to free-barbell work, not the M1 Smith bar."]
  ];
@@ -2101,7 +2124,7 @@ function zone2CardioWorkout(){
 function dumbbellAccessoryForDay(dayIndex){
   const shared={
     type:"strength",sets:2,rest:60,requires:["dumbbells"],substituteId:null,
-    weightEntry:{mode:"total",label:"Combined dumbbell weight",help:"Enter the combined weight of both dumbbells. Example: two 10 lb dumbbells = 20 lb."}
+    weightEntry:{mode:"total",paired:true,label:"Combined dumbbell weight",help:"Enter the combined weight of both dumbbells. Available pairs are 10, 15, 20 and 25 lb per hand."}
   };
   if(dayIndex===0)return Object.assign(cloneExerciseByName("Arm Circles"),shared,{
     name:"Dumbbell Lateral Raise",reps:12,muscles:"Side shoulders and upper-body stability",
@@ -2720,9 +2743,8 @@ function openWorkoutDatePicker(id){
 }
 function v42Metrics(){
  ensureWorkoutSchedule();
- const relevant=state.workoutSessions.filter(item=>item.status!=="restDay"&&item.plannedDate<=localDateKey());
- const completed=relevant.filter(item=>item.status==="completed").length;
- const adherence=relevant.length?Math.round(completed/relevant.length*100):100;
+ const relevant=state.workoutSessions.filter(item=>{const plannedDate=item.plannedDate||item.scheduledDate;return item.status!=="restDay"&&["completed","missed"].includes(item.status)&&plannedDate<=localDateKey()&&plannedDate>=state.adherenceBaselineDate;});
+ const adherence=window.ROAD12_SCHEDULING.programAdherence(state.workoutSessions,localDateKey(),state.adherenceBaselineDate);
  const recent=state.workoutSessions.filter(item=>item.status!=="restDay"&&item.scheduledDate<=localDateKey()&&item.scheduledDate>=addCalendarDays(localDateKey(),-7));
  const recovery=Math.max(0,Math.min(100,100-recent.filter(item=>item.status==="missed").length*15));
  let streak=0;

@@ -9,7 +9,7 @@
     "schemaVersion","preferredName","weight","waist","sessions","history","workoutRatings",
     "dailyCheckins","achievements","trainingProfile","adaptiveRecommendation","acceptedAdaptivePlan",
     "trainingPhase","measurementHistory","cardioHistory","approvedProgressions","equipment",
-    "attachmentPhotos","workoutSessions","scheduleActivatedDate","currentSession","logs",
+    "attachmentPhotos","workoutSessions","scheduleActivatedDate","adherenceBaselineDate","currentSession","logs",
     "exerciseFeedback","cardioTimers","exerciseTimings","selectedDay","previewDay","coachMode",
     "tab","step","setupReady","historyView","calendarMonth","workoutScroll"
   ]);

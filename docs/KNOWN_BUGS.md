@@ -201,6 +201,16 @@ No confirmed production behavior defects are currently documented.
 - Resolution: App-shell entry points and Service Worker registration are keyed by build, mutable shell network requests bypass the HTTP cache, and focused instructional animations always begin in the playing state with Pause available.
 - Regression tests: `scripts/test-offline-pwa.js`, `scripts/test-exercise-imagery.js`, and `scripts/validate-foundation.js`
 
+### BUG-022 — Development-era incomplete sessions reduce Program Adherence
+
+- Status: Resolved in v13.2.0 maintenance build 2026.08.20.4
+- Severity: Medium
+- Area: Progress / Program Adherence
+- Report: Early workouts created while the application and schedule were still being built appear incomplete and reduce Program Adherence even though the user did not miss them.
+- Cause: The metric counted every non-rest session through today, including unresolved scheduled workouts and development-era schedule records.
+- Resolution: Store an additive August 20, 2026 adherence baseline without deleting history, and calculate adherence only from completed or missed sessions on or after that baseline. Scheduled sessions do not affect the percentage until resolved.
+- Regression tests: `scripts/test-scheduling.js`, `scripts/test-adaptive-coaching.js`, and `scripts/test-backup-restore.js`
+
 ## Bug template
 
 ```markdown

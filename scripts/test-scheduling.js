@@ -289,6 +289,26 @@ assert.deepStrictEqual(
   "training dates must skip Sunday deterministically",
 );
 
+{
+  const sessions = [
+    { plannedDate: "2026-08-17", status: "missed" },
+    { plannedDate: "2026-08-20", status: "scheduled" },
+  ];
+  assert.strictEqual(
+    scheduling.programAdherence(sessions, "2026-08-20", "2026-08-20"),
+    100,
+    "development-era misses and unresolved current workouts must not reduce a fresh adherence baseline",
+  );
+  sessions[1].status = "completed";
+  assert.strictEqual(scheduling.programAdherence(sessions, "2026-08-20", "2026-08-20"), 100);
+  sessions.push({ plannedDate: "2026-08-21", status: "missed" });
+  assert.strictEqual(
+    scheduling.programAdherence(sessions, "2026-08-21", "2026-08-20"),
+    50,
+    "resolved workouts after the baseline must drive adherence normally",
+  );
+}
+
 console.log(
-  "Scheduling tests passed: local-date activation, recovery order, plannedDate immutability, completed-session protection, and rest-day preservation.",
+  "Scheduling tests passed: local-date activation, recovery order, adherence baseline, plannedDate immutability, completed-session protection, and rest-day preservation.",
 );

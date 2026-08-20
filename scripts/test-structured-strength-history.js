@@ -11,7 +11,7 @@ assert.strictEqual(identities.resolve("Smith Machine Squat").id,"road12.squat.sm
 assert.strictEqual(identities.resolve("Lat Pull Down").id,"road12.pull.lat-pulldown");
 assert.strictEqual(identities.resolve("Cable Hammer Curl").externalMappings.strava.exerciseType,"CABLE_HAMMER_CURL");
 assert.strictEqual(identities.resolve("Future Movement").id,"road12.exercise.future-movement");
-assert.match(app,/ROAD12_SCHEMA_VERSION=11/);
+assert.match(app,/ROAD12_SCHEMA_VERSION=13/);
 assert.match(app,/version:11,[\s\S]*?exerciseTimings[\s\S]*?schemaVersion=11/);
 [
   "exerciseId:identity.id","basePrescription","prescription:effectivePrescription","setNumber:setIndex+1","repetitions:Number(set?.reps)",

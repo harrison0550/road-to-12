@@ -69,6 +69,8 @@ A fresh application launch initializes the Calendar viewport to the device's cur
 
 Progress combines immutable workout history, body check-ins, exercise records, adherence, recovery indicators, and aggregate session counts. Calculated metrics should be derived from saved facts whenever possible rather than stored redundantly.
 
+Program Adherence is derived only from resolved completed or missed training sessions on or after the saved adherence baseline. The baseline is additive metadata: resetting the metric must never delete or rewrite earlier Calendar sessions or completed history. Scheduled and in-progress workouts are unresolved and do not lower adherence.
+
 Completed exercise snapshots include their muscle description. Recovery-map rendering may resolve missing muscle descriptions from matching exercise definitions for older compatible history, but it must not rewrite those historical snapshots during rendering.
 
 Changes to formulas must be documented because users may compare results across releases.
@@ -84,6 +86,7 @@ Application state is stored in browser `localStorage` behind a versioned storage
 Key constraints:
 
 - Never change the production storage key without an explicit migration plan.
+- Record fixed-weight equipment as additive inventory metadata so progression can select an owned increment without rewriting completed history or automatically changing an active prescription.
 - Never overwrite completed history during routine rendering.
 - Treat imports as untrusted input and validate their structure.
 - Keep backup export compatibility across releases.

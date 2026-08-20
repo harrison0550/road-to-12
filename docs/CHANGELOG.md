@@ -25,6 +25,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Changed
 
+- Advanced the maintenance build to `2026.08.20.5`, rotated the offline caches, and expanded the home-gym dumbbell inventory to 10, 15, 20, and 25 lb pairs.
+- Dumbbell progression recommendations now advance through owned fixed pairs only; existing active prescriptions and completed workout history remain unchanged.
+- Advanced the maintenance build to `2026.08.20.4`, rotated the offline caches, and established a non-destructive August 20 adherence baseline while preserving earlier Calendar and workout history.
+- Program Adherence now uses only resolved completed or missed workouts from the saved baseline forward; a scheduled workout no longer lowers the percentage before its outcome is known.
 - Advanced the maintenance build to `2026.08.20.3` and rotated the offline caches for reliable iPhone PWA activation.
 - Focused exercise animations now always begin in the playing state and retain a labelled Pause control.
 - Mutable app-shell requests bypass Safari's HTTP cache, Service Worker registration is keyed to the app build, and HTML entry points use build queries so installed PWAs cannot silently reuse older JavaScript.

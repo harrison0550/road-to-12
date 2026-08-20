@@ -24,7 +24,7 @@ The roadmap communicates direction rather than a guaranteed schedule. Completed 
 - [x] Make approved exercise prescriptions actionable in the next matching session with outcome tracking
 - [x] Add validated, versioned backup/restore for authoritative offline state
 - [ ] Validate and mature the readiness algorithm before enabling Phase 2 review
-- [x] Add the iFIT rower and available 10/15 lb dumbbells to the weekly program without replacing existing exercises
+- [x] Add the iFIT rower and available 10/15/20/25 lb dumbbells to the weekly program without replacing existing exercises
 - [x] Refresh Home with the Concept B Training Command Center design
 - [x] Add automated scheduling regression tests
 - [ ] Add calendar filtering and faster month navigation

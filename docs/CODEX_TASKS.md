@@ -78,7 +78,7 @@ Copy this block for new work:
 - [x] Add reps-in-reserve, form, and discomfort feedback plus concrete next-session prescriptions that require approval.
 - [x] Replace the unused whole-workout adaptive plan with locked phase readiness, exercise-specific guidance, actual cardio logging, and append-only body measurements while preserving Foundation A/B/C.
 - [x] Add the three approved dumbbell exercise animations with offline caching and reviewed-media metadata.
-- [x] Add conservative iFIT rowing practice and two-set 10/15 lb dumbbell accessories without removing existing workout content.
+- [x] Add conservative iFIT rowing practice and two-set dumbbell accessories using the available 10/15/20/25 lb pairs without removing existing workout content.
 - [x] Implement the approved Concept B Training Command Center visual refresh for Home using only existing application data and actions.
 - [x] Launch the explicitly selected future workout from Start This Workout Early and allow missed-workout coach recommendations to be dismissed without changing the schedule.
 - [x] Keep workout timers accurate while the iPhone PWA is suspended behind another app.
