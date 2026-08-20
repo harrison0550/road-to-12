@@ -172,6 +172,25 @@ No confirmed production behavior defects are currently documented.
 - Resolution: Core shell installation is independent. A bounded background job warms a separate poster-first media cache, retains the previous media cache after partial failure, and removes old media only after a zero-failure warm-up.
 - Regression test: `scripts/test-offline-pwa.js`
 
+### BUG-019 — Attachment Locker forces the camera
+
+- Status: Resolved in v13.2.0 maintenance build 2026.08.20.1
+- Severity: Medium
+- Area: Profile / Attachment Locker
+- Report: Tapping Choose Photo on iPhone opened only the camera and did not allow selecting an existing Photo Library image.
+- Resolution: Removed the camera-only `capture="environment"` hint while retaining `accept="image/*"`, allowing iOS to present its native image-source choices.
+- Regression test: `scripts/test-equipment-profile.js`
+
+### BUG-020 — Exercise media is repetitive and requires an extra Play action
+
+- Status: Resolved in v13.2.0 maintenance build 2026.08.20.2
+- Severity: Medium
+- Area: Workout / Exercise Guides
+- Report: Focused exercise screens show the still storyboard first, require a separate Play action, and can repeat an older comparison illustration below the approved animation.
+- Cause: The first media audit intentionally used poster-first playback and rendered retained references inline on every exercise screen.
+- Resolution: Focused views now start the reviewed animation automatically, retain an accessible Pause control and Reduce Motion fallback, and move retained-reference presentation to the centralized Image Sources & Licenses screen.
+- Regression test: `scripts/test-exercise-imagery.js`
+
 ## Bug template
 
 ```markdown

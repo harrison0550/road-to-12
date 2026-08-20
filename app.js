@@ -76,6 +76,7 @@ function exerciseAsset(ex){
  return entryDisplayAsset(entry);
 }
 function entryDisplayAsset(entry){return entry?.mediaType==="animation"&&entry.motionPoster?entry.motionPoster:entry?.media||null}
+function prefersReducedMotion(){return window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches===true}
 function listMarkup(items,emptyText){
  return items?.length?`<ul>${items.map(item=>`<li>${item}</li>`).join("")}</ul>`:`<p class="muted">${emptyText}</p>`;
 }
@@ -107,16 +108,6 @@ function mediaCredit(entry){
  }
  return `Source: <a href="${entry.sourceUrl}" target="_blank" rel="noopener">${entry.sourceExercise}</a> by ${entry.author}, via <a href="${entry.providerUrl}" target="_blank" rel="noopener">${entry.provider}</a>. <a href="${entry.license.url}" target="_blank" rel="noopener">${entry.license.fullName}</a>.`;
 }
-function exerciseReferenceMarkup(entry){
- const reference=entry.reference;
- if(!reference?.media)return "";
- const label=reference.sourceType==="official-manual"?"OFFICIAL SETUP REFERENCE":reference.sourceType==="licensed-community"?"REVIEWED FORM REFERENCE":"SETUP REFERENCE";
- return `<aside class="exercise-reference-card">
-   <div><span class="media-status">${label}</span><h4>Compare setup and key positions</h4></div>
-   <img src="${reference.media}" alt="${reference.mediaAlt}" loading="lazy">
-   <p class="media-credit">${mediaCredit(reference)}</p>
- </aside>`;
-}
 function licensedMediaMarkup(ex){
  const entry=exerciseLibraryEntry(ex);
  if(!entry){
@@ -127,19 +118,18 @@ function licensedMediaMarkup(ex){
    </section>`;
  }
  const isAnimation=entry.mediaType==="animation"&&entry.motionPoster;
- const displayAsset=isAnimation?entry.motionPoster:entry.media;
+ const motionPlaying=isAnimation&&!prefersReducedMotion();
+ const displayAsset=motionPlaying?entry.media:(isAnimation?entry.motionPoster:entry.media);
  return `<section class="exercise-media-card" data-motion-container>
    <div class="exercise-media-heading">
      <div><span class="media-status">${mediaStatus(entry)}</span><h3>Demonstration</h3></div>
      <span class="license-chip">${mediaChip(entry)}</span>
    </div>
    <button type="button" class="exercise-asset-button ${entry.sourceType==="app-original"?"original-asset-button":"licensed-asset-button"}" id="openAsset">
-     <span class="motion-media-viewport"><img class="exercise-asset-image" width="600" height="600" src="${displayAsset}" alt="${entry.mediaAlt}" data-motion-image data-poster-src="${displayAsset}" data-animation-src="${isAnimation?entry.media:""}"></span>
+     <span class="motion-media-viewport"><img class="exercise-asset-image" width="600" height="600" src="${displayAsset}" alt="${entry.mediaAlt}" data-motion-image data-poster-src="${isAnimation?entry.motionPoster:displayAsset}" data-animation-src="${isAnimation?entry.media:""}"></span>
      <span>Tap to enlarge</span>
    </button>
-   ${isAnimation?`<div class="motion-controls"><button type="button" class="secondary" data-motion-toggle aria-pressed="false">Play animation</button><small>Starts only when you choose. The still storyboard contains every key position.</small></div>`:""}
-   <p class="media-credit">${mediaCredit(entry)}</p>
-   ${exerciseReferenceMarkup(entry)}
+   ${isAnimation?`<div class="motion-controls"><button type="button" class="secondary" data-motion-toggle aria-pressed="${motionPlaying}">${motionPlaying?"Pause animation":"Play animation"}</button><small>${motionPlaying?"Animation plays automatically. Pause it at any time.":"Motion is paused because Reduce Motion is enabled."}</small></div>`:""}
  </section>`;
 }
 
@@ -879,6 +869,8 @@ function openExerciseAsset(ex){
  const entry=exerciseLibraryEntry(ex);
  if(!entry)return;
  const poster=entry.mediaType==="animation"&&entry.motionPoster?entry.motionPoster:entry.media;
+ const motionPlaying=entry.mediaType==="animation"&&!prefersReducedMotion();
+ const displayAsset=motionPlaying?entry.media:poster;
  const previousFocus=document.activeElement;
  const background=document.querySelector(".shell");
  const backgroundWasInert=background?.hasAttribute("inert")||false;
@@ -887,7 +879,7 @@ function openExerciseAsset(ex){
  overlay.setAttribute("role","dialog");
  overlay.setAttribute("aria-modal","true");
  overlay.setAttribute("aria-labelledby","exerciseAssetTitle");
- overlay.innerHTML=`<div class="asset-overlay-panel" data-motion-container><button class="asset-close" type="button">Close</button><h2 id="exerciseAssetTitle">${ex.name}</h2><div class="motion-media-viewport asset-motion-viewport"><img width="600" height="600" data-motion-image data-poster-src="${poster}" data-animation-src="${entry.mediaType==="animation"?entry.media:""}" src="${poster}" alt="${entry.mediaAlt}"></div>${entry.mediaType==="animation"?`<div class="motion-controls"><button type="button" class="secondary" data-motion-toggle aria-pressed="false">Play animation</button><small>The complete still storyboard remains available when motion is paused.</small></div>`:""}<p>Use this visual together with the setup and movement instructions.</p>${exerciseReferenceMarkup(entry)}</div>`;
+ overlay.innerHTML=`<div class="asset-overlay-panel" data-motion-container><button class="asset-close" type="button">Close</button><h2 id="exerciseAssetTitle">${ex.name}</h2><div class="motion-media-viewport asset-motion-viewport"><img width="600" height="600" data-motion-image data-poster-src="${poster}" data-animation-src="${entry.mediaType==="animation"?entry.media:""}" src="${displayAsset}" alt="${entry.mediaAlt}"></div>${entry.mediaType==="animation"?`<div class="motion-controls"><button type="button" class="secondary" data-motion-toggle aria-pressed="${motionPlaying}">${motionPlaying?"Pause animation":"Play animation"}</button></div>`:""}<p>Use this visual together with the setup and movement instructions.</p></div>`;
  document.body.appendChild(overlay);
  document.body.classList.add("modal-open");
  if(background&&!backgroundWasInert)background.setAttribute("inert","");
@@ -1137,7 +1129,7 @@ function equipment(){
    <button class="primary" id="saveTrainingProfile">Save training profile</button>
  </section>
  <section class="card"><h2>My Equipment</h2><p class="muted">Workouts use only equipment switched on.</p><div class="equipment-toggle-list">${items.map(([key,icon,title,note])=>`<label class="equipment-toggle"><span class="equipment-symbol">${icon}</span><span class="equipment-copy"><strong>${title}</strong><small>${note}</small></span><input type="checkbox" data-equipment="${key}" ${state.equipment[key]?"checked":""}><span class="toggle-ui"></span></label>`).join("")}</div></section>
- <section class="card"><h2>Attachment Locker</h2><p class="muted">Add a close-up photo of each attachment from your actual gym. The correct photo will appear during every exercise with a bright “USE THIS ONE” label.</p><div class="attachment-locker">${attachments.map(([key,title,note])=>`<div class="locker-item">${state.attachmentPhotos[key]?`<img src="${state.attachmentPhotos[key]}" alt="${title}">`:`<div class="locker-placeholder">📷</div>`}<div class="locker-copy"><strong>${title}</strong><small>${note}</small><label class="photo-button">Choose photo<input type="file" accept="image/*" capture="environment" data-photo="${key}"></label>${state.attachmentPhotos[key]?`<button class="clear-photo" data-clear-photo="${key}">Remove</button>`:""}</div></div>`).join("")}</div></section>
+ <section class="card"><h2>Attachment Locker</h2><p class="muted">Add a close-up photo of each attachment from your actual gym. The correct photo will appear during every exercise with a bright “USE THIS ONE” label.</p><div class="attachment-locker">${attachments.map(([key,title,note])=>`<div class="locker-item">${state.attachmentPhotos[key]?`<img src="${state.attachmentPhotos[key]}" alt="${title}">`:`<div class="locker-placeholder">📷</div>`}<div class="locker-copy"><strong>${title}</strong><small>${note}</small><label class="photo-button">Choose photo<input type="file" accept="image/*" data-photo="${key}"></label>${state.attachmentPhotos[key]?`<button class="clear-photo" data-clear-photo="${key}">Remove</button>`:""}</div></div>`).join("")}</div></section>
  <section class="card equipment-impact"><h3>Current workout impact</h3><div class="impact-row"><span>Available exercises</span><strong>${activeWorkout().length}</strong></div><div class="impact-row"><span>Automatic substitutions</span><strong>${substitutionCount()}</strong></div><div class="impact-row"><span>Bumper-plate exercises</span><strong>${state.equipment.bumperPlates?"Enabled":"Disabled"}</strong></div><button class="primary" id="equipmentWorkout">Start equipment-safe workout</button></section>
  <section class="card about-card"><span class="pill">ABOUT</span><h2>Road to 12%</h2><div class="about-grid"><div><small>VERSION</small><strong>${APP_META.version}</strong></div><div><small>BUILD</small><strong>${APP_META.build}</strong></div><div><small>LAST UPDATED</small><strong>${APP_META.lastUpdated}</strong></div><div><small>GIT COMMIT</small><strong>${APP_META.gitCommit||"Not embedded"}</strong></div><div><small>SERVICE WORKER</small><strong>${APP_META.serviceWorkerCache}</strong></div></div><button class="secondary about-license-button" id="imageLicenses">Image Sources & Licenses</button></section>`;
  document.querySelector("#saveProfile").onclick=()=>{state.preferredName=document.querySelector("#preferredName").value.trim()||"Andy";save();equipment()};

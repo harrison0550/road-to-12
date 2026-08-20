@@ -69,7 +69,7 @@ Copy this block for new work:
 
 ## Completed this sprint
 
-- [x] Audit every active guided exercise name and deliver 47-of-47 poster-first animation coverage with explicit motion controls, retained references, offline caching, and automated validation.
+- [x] Audit every active guided exercise name and deliver 47-of-47 animation coverage with automatic focused playback, reduced-motion fallback, centralized retained-reference attribution, offline caching, and automated validation.
 - [x] Modernize backup/restore with real release metadata, complete schedule and training state, pre-mutation validation, legacy compatibility, and realistic round-trip tests.
 - [x] Apply explicitly approved progression targets to the next matching exercise session, keep base and actual data separate, and record the completed target outcome.
 

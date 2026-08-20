@@ -6,10 +6,10 @@ Read this file at the beginning of every Codex or engineering session. It is the
 
 - Product: Road to 12%
 - Version: 13.2.0
-- Build: 2026.08.15.4
-- Last updated: August 15, 2026
-- Service Worker cache: `road12-v13-2-46-shell`
-- Exercise media cache: `road12-v13-2-46-media`
+- Build: 2026.08.20.2
+- Last updated: August 20, 2026
+- Service Worker cache: `road12-v13-2-48-shell`
+- Exercise media cache: `road12-v13-2-48-media`
 - Runtime: static, client-only, offline-first PWA
 - Primary storage key: `road12v5`
 
@@ -23,7 +23,7 @@ Read this file at the beginning of every Codex or engineering session. It is the
 - `backup-restore.js` owns versioned backup creation, untrusted-input validation, and compatibility-preserving merge rules.
 - `workout-navigation.js` owns testable workout scroll capture, restoration, and intentional advancement behavior.
 - `data.js` contains workout definitions.
-- `exercise-library.js` contains reviewed exercise education metadata plus poster-first animation and retained-reference mappings.
+- `exercise-library.js` contains reviewed exercise education metadata plus animation, reduced-motion poster, and retained-reference mappings.
 - `exercise-identity.js` owns stable exercise IDs and provider mappings independently of display names.
 - `app.css` contains the current responsive design system.
 - `app-meta.js` is the single source for About/version and cache metadata.
@@ -57,6 +57,8 @@ Historical regressions requiring automated coverage:
 - BUG-015: Confirmed dumbbell exercises are absent from a workout preview when an older equipment preference remains disabled — resolved in build 2026.08.13.1.
 - BUG-016: Active guided exercises lack an exact movement-animation mapping — resolved in build 2026.08.15.4.
 - BUG-017: Exercise GIFs begin moving without an explicit motion control — resolved in build 2026.08.15.4.
+- BUG-019: Attachment Locker forces the camera instead of offering Photo Library — resolved in build 2026.08.20.1.
+- BUG-020: Exercise guides show a still storyboard first and repeat an older reference illustration beneath the approved animation — resolved in build 2026.08.20.2.
 
 See `KNOWN_BUGS.md` before diagnosing or fixing defects.
 
@@ -76,8 +78,8 @@ See `CODEX_TASKS.md` for priority and acceptance detail.
 
 ## Recent design decisions
 
-- The current active Foundation program has complete exact-name media coverage: 47 guided names resolve to 40 distinct poster-first movement animations. This audit adds 34 Road to 12% originals and retains six earlier approved originals. Shared warm-up, cooldown, recovery, and alias names may reuse one accurate movement asset while keeping their written prescriptions distinct. The visible Library-only Stationary Bike Setup uses a reviewed static setup guide.
-- Exercise animation is opt-in. A still motion poster renders first, Play/Pause controls expose state in text and semantics, and reduced-motion users receive no automatic GIF movement. Only exact, non-conflicting reviewed references remain available and credited alongside app-created guidance.
+- The current active Foundation program has complete exact-name media coverage: 47 guided names resolve to 40 distinct movement animations. This audit adds 34 Road to 12% originals and retains six earlier approved originals. Shared warm-up, cooldown, recovery, and alias names may reuse one accurate movement asset while keeping their written prescriptions distinct. The visible Library-only Stationary Bike Setup uses a reviewed static setup guide.
+- Exercise animations run automatically in focused workout and enlarged exercise views, with a labelled Pause control. Users who enable Reduce Motion receive the still storyboard first and may explicitly start the animation. Older official or licensed references remain recorded and credited in Image Sources & Licenses, but are not repeated beneath the approved Road to 12% demonstration.
 - The Service Worker installs the core shell independently, then warms a separate media cache poster-first with bounded concurrency. Older media remains an offline fallback until the new cache completes without failures. See `EXERCISE_MEDIA_AUDIT.md` for the current manifest and validation procedure.
 
 - Backup format v2 records the actual app version, build, storage schema, authoritative schedule, active session, structured history, cardio, measurements, equipment, approved prescriptions, and provider metadata. Import validates the complete envelope before mutating live state and remains compatible with older name-keyed progression records.
@@ -152,7 +154,7 @@ See `CODEX_TASKS.md` for priority and acceptance detail.
 - Keep iPhone safe areas, 320px layouts, and standalone PWA behavior working.
 - Do not rely on color alone for meaning.
 - Use reviewed, licensed, or official exercise media only.
-- Preserve the poster-first exercise-media contract, explicit motion controls, meaningful alternative text, retained source attribution, and offline cache coverage.
+- Preserve the animation-first focused exercise experience, Reduce Motion fallback, explicit motion controls, meaningful alternative text, centralized source attribution, and offline cache coverage.
 - Do not create or map speculative Phase 2–4 exercise assets until the corresponding workout definitions and transition experience are approved.
 - Avoid broad production refactors without dedicated tests and an approved task.
 

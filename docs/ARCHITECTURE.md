@@ -14,9 +14,9 @@ Exercise media may be an official equipment reference, reviewed licensed media, 
 
 The current Foundation audit maps all 47 active guided names to 40 distinct Road to 12% animations: 34 added by the August 2026 audit and six previously approved originals. The visible Library-only Stationary Bike Setup uses a reviewed static equipment guide. Scope and exact names are recorded in `EXERCISE_MEDIA_AUDIT.md`. The registry must not pre-create or map speculative media for later training phases whose workout definitions are not approved.
 
-Exercise surfaces are poster-first. A static WebP renders on initial load; the corresponding GIF is substituted only after an explicit Play action and can be paused back to the poster. Larger media views reuse the same state model inside a labelled, focus-managed dialog. This boundary prevents unexpected motion, reduces initial decoding work, and gives reduced-motion users a useful default without making the animation unavailable when they intentionally request it.
+Focused exercise surfaces are animation-first. The reviewed GIF starts when the workout or enlarged exercise view opens and can be paused back to its static WebP storyboard. When the operating system requests reduced motion, the static storyboard renders first and motion remains available through an explicit Play action. Exercise-library grids continue using still previews so dozens of GIFs do not animate simultaneously. Larger media views reuse the same state model inside a labelled, focus-managed dialog.
 
-When a new app-created animation supplements an existing official or reviewed source, the earlier reference remains nested in the registry and is displayed and credited separately. Do not erase source provenance merely because the primary instructional surface changes.
+When a new app-created animation supplements an existing official or reviewed source, the earlier reference remains nested in the registry and credited in the centralized Image Sources & Licenses screen. Do not repeat legacy reference imagery beneath the reviewed animation, and do not erase source provenance merely because the primary instructional surface changes.
 
 ## Workout Engine
 

@@ -76,17 +76,17 @@ for (const name of ["Smith Machine Squat", "Smith Machine RDL", "Smith Machine C
 assert.match(
   app,
   /function entryDisplayAsset\(entry\)\{return entry\?\.mediaType==="animation"&&entry\.motionPoster\?entry\.motionPoster:/,
-  "animation cards must choose the non-moving poster by default",
+  "exercise library tiles must retain lightweight still previews",
 );
 assert.match(
   app,
-  /const displayAsset=isAnimation\?entry\.motionPoster:entry\.media/,
-  "the exercise screen must render an animation poster before playback",
+  /const motionPlaying=isAnimation&&!prefersReducedMotion\(\)/,
+  "the exercise screen must start reviewed motion unless Reduce Motion is enabled",
 );
 assert.match(
   app,
-  /data-motion-toggle aria-pressed="false">Play animation<\/button>/,
-  "motion must start from an explicit, stateful Play animation button",
+  /const displayAsset=motionPlaying\?entry\.media:\(isAnimation\?entry\.motionPoster:entry\.media\)/,
+  "the exercise screen must render the reviewed animation by default",
 );
 assert.match(
   app,
@@ -102,6 +102,16 @@ assert.match(
   app,
   /button\.setAttribute\("aria-pressed",String\(!playing\)\)/,
   "the motion control must announce its pressed state",
+);
+assert.match(
+  app,
+  /data-motion-toggle aria-pressed="\$\{motionPlaying\}">\$\{motionPlaying\?"Pause animation":"Play animation"\}<\/button>/,
+  "the motion control must begin in the correct labelled state",
+);
+assert.match(
+  app,
+  /function prefersReducedMotion\(\)\{return window\.matchMedia\?\.\("\(prefers-reduced-motion: reduce\)"\)\?\.matches===true\}/,
+  "Reduce Motion must suppress automatic GIF playback",
 );
 assert.match(
   app,
@@ -130,7 +140,14 @@ assert.match(
 assert.match(
   app,
   /const mediaTiles=items=>[\s\S]*entryDisplayAsset\(entry\)/,
-  "the exercise library must also use poster-first media resolution",
+  "the exercise library must use efficient still previews instead of starting every GIF at once",
+);
+
+assert(!app.includes("function exerciseReferenceMarkup(entry)"), "legacy reference cards must not render beneath the reviewed animation");
+assert(!app.includes("${exerciseReferenceMarkup(entry)}"), "workout and enlarged media views must contain one primary demonstration only");
+assert(
+  entries["Treadmill Walk"].reference,
+  "the treadmill source reference must remain recorded for provenance even though it is not repeated on the workout screen",
 );
 
 assert(
@@ -194,5 +211,5 @@ assert.match(
 assert(!app.includes("No reviewed free demonstration yet"));
 
 console.log(
-  "Exercise media UI tests passed: exact references, poster-first playback, stable square viewports, accessible controls, inert/focus restoration, safe areas, and reduced motion are present.",
+  "Exercise media UI tests passed: animations start automatically, Reduce Motion is respected, legacy reference cards stay off workout screens, and accessible media dialogs remain intact.",
 );

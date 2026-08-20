@@ -8,7 +8,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Added
 
-- Completed the active Foundation exercise-media audit: all 47 guided exercise names now resolve to 40 distinct poster-first movement animations, including 34 new Road to 12% animations and six previously approved originals.
+- Completed the active Foundation exercise-media audit: all 47 guided exercise names now resolve to 40 distinct reviewed movement animations, including 34 new Road to 12% animations and six previously approved originals.
 - Added reviewed static media for the visible Library-only Stationary Bike Setup, completing media coverage beyond the active workout schedule.
 - Added a durable exercise-media manifest covering exact-name mappings, accessibility, retained references, offline caching, and release validation.
 - Added versioned Road to 12% backup files containing the real app version, build, data schema, authoritative schedule, complete structured history, active workout state, cardio and measurements, equipment, attachments, progression approvals, and provider metadata already stored with sessions.
@@ -25,7 +25,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Changed
 
-- Exercise movement media now opens on a still poster and moves only after an explicit Play action; Pause returns to the poster, enlarged views use accessible dialog behavior, and reduced-motion users receive a motion-free default.
+- Advanced the maintenance build to `2026.08.20.2` and rotated the offline caches for the streamlined exercise-animation experience.
+- Focused workout and enlarged exercise views now start the approved animation automatically, while Reduce Motion users continue to receive the still storyboard first.
+- Exercise screens now show one primary demonstration; older comparison illustrations and repeated source copy remain available through Image Sources & Licenses instead of appearing beneath every workout.
+- Advanced the maintenance build to `2026.08.20.1` and rotated the offline caches for the Attachment Locker photo-picker correction.
+- Still storyboards remain available as the Pause state and as the motion-free default for users who enable Reduce Motion; enlarged views retain accessible dialog behavior.
 - Only exact, non-conflicting reviewed references remain available and credited alongside the new app-created animations; mismatched free-barbell and cable-setup references are excluded.
 - Exercise media now uses a separate versioned cache that warms posters before GIFs without blocking a new shell installation, retains the previous media cache on partial failure, and cleans it up only after a complete warm-up.
 - Lat Pulldown and Seated Cable Row now use one active pulley and one cable in both their saved setup data and reviewed animation metadata.
@@ -128,6 +132,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Fixed
 
+- Fixed Attachment Locker photo controls forcing the iPhone camera; the native image picker can now offer Photo Library, Take Photo, and Files.
 - Fixed active guided exercises falling back to missing-media or approximate legacy imagery because their exact display name had no reviewed animation mapping.
 - Fixed exercise GIFs beginning motion without an explicit Play/Pause control or a still reduced-motion default.
 - Fixed the new dumbbell accessory being filtered from an already-scheduled Friday preview when an older saved equipment preference still marked Dumbbells unavailable.

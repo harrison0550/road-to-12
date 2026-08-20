@@ -117,14 +117,14 @@ Workout actions may use dedicated in-flow controls, but users must always have a
 ### Exercise movement media
 
 - Show the still motion poster first. Exercise GIFs must not autoplay when an exercise card, workout step, library tile, or enlarged view opens.
-- Place an explicit, labelled **Play animation** control beside or beneath the poster. While motion is active, the same control becomes **Pause animation** and exposes its pressed state semantically.
+- Start the reviewed animation automatically in a focused exercise view and place an explicit, labelled **Pause animation** control beside or beneath it. When paused, the same control becomes **Play animation** and exposes its pressed state semantically. If the operating system requests reduced motion, start from the still storyboard and **Play animation** state instead.
 - Pause returns to the still poster. Reopening an exercise starts from the poster rather than silently preserving movement.
 - Keep Play/Pause controls at least 44px high, full-width where space is constrained, and inside the media container at 320px.
 - Reserve one stable square viewport for both the still poster and animated GIF, with `object-fit: contain`, so Play/Pause never changes card height or scroll position.
 - Enlarged media dialogs must use safe-area-aware padding, a `100dvh`-bounded panel, a minimum 44px Close control, background isolation, focus trapping, Escape dismissal, and focus return.
 - With `prefers-reduced-motion`, remove nonessential interface animation and retain the still poster by default. A user may still explicitly choose Play.
 - Never make form, timing, direction, or safety information available only in moving frames; repeat essential instruction in the written guide.
-- Identify app-created media as a movement animation or illustration. Display retained official or reviewed references and their attribution separately.
+- Identify app-created media as a movement animation or illustration. Show one primary demonstration per exercise screen; keep retained official or reviewed reference attribution in the centralized Image Sources & Licenses view rather than repeating secondary illustrations beneath every workout.
 
 ## Accessibility
 

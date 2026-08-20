@@ -2034,10 +2034,6 @@ header .reset,#reset,.reset-button{display:none!important}
 .motion-controls .secondary{width:auto;min-width:150px;min-height:48px;margin:0;padding:12px 16px}
 .motion-controls small{color:var(--muted);line-height:1.45}
 .is-motion-playing .motion-controls .secondary{border-color:#ff5260;color:#fff;background:rgba(239,57,71,.14)}
-.exercise-reference-card{display:grid;gap:10px;margin-top:16px;padding-top:16px;border-top:1px solid var(--line)}
-.exercise-reference-card h4{margin:4px 0 0}
-.exercise-reference-card img{display:block;width:100%;max-height:520px;object-fit:contain;border:1px solid #38434f;border-radius:14px;background:#fff}
-.asset-overlay .exercise-reference-card img{max-height:50vh}
 .modal-open{overflow:hidden}
 .media-credit{margin:12px 2px 0;color:var(--muted);font-size:12px;line-height:1.5}
 .media-credit a,.license-entry a{color:#9ccfff}

@@ -6,7 +6,7 @@
 - Release target: version 13.2.0, build `2026.08.15.4`
 - Active guided exercise names mapped: 47 of 47
 - Visible Library-only setup entries mapped: 1 of 1
-- Distinct poster-first movement animations: 40
+- Distinct reviewed movement animations: 40
 - New Road to 12% animations in this audit: 34
 - Previously approved Road to 12% animations retained: 6
 - Offline cache targets: `road12-v13-2-46-shell` and `road12-v13-2-46-media`
@@ -18,7 +18,7 @@ This audit covers the exercise names that can appear in the current Foundation A
 Each active guided exercise resolves by its exact display name through `ROAD12_EXERCISE_LIBRARY` in `exercise-library.js`. A movement-animation entry includes:
 
 - A local, still WebP motion poster shown first.
-- A local animated GIF loaded only after the user chooses **Play animation**.
+- A local animated GIF that starts automatically in focused exercise views unless the operating system requests reduced motion.
 - Movement-specific alternative text.
 - A media type and review date.
 - A retained reviewed, licensed, or official reference when it is an exact, non-conflicting match.
@@ -109,18 +109,19 @@ Full Body C also reuses Treadmill Walk, Hip Hinge, Cable Shoulder Press, Rope Tr
 ## Interaction and accessibility review
 
 - Motion posters load without animation or surprise movement.
-- **Play animation** and **Pause animation** are explicit, labelled controls with a minimum 44px touch target.
+- **Play animation** and **Pause animation** are explicit, labelled controls with a minimum 44px touch target; focused views begin in the playing state unless Reduce Motion is enabled.
 - The control exposes its state semantically and does not rely on color.
 - Opening a larger media view uses a labelled modal, manages focus, supports Escape dismissal, and returns focus to the invoking control.
 - Meaningful alternative text describes the demonstrated movement, equipment orientation, and safety-relevant posture.
-- `prefers-reduced-motion` removes nonessential CSS motion. GIF movement remains opt-in, so a user who requests reduced motion sees the still poster unless they explicitly choose Play.
+- `prefers-reduced-motion` removes nonessential CSS motion and makes the still poster the initial exercise visual until the user explicitly chooses Play.
+- Focused exercise screens contain one primary reviewed demonstration. Retained legacy references remain attributed in Image Sources & Licenses and are not rendered as repetitive secondary cards.
 - Retained official or reviewed reference imagery remains identifiable and credited separately from app-created animation.
 
 ## Offline and performance review
 
 The Service Worker keeps its small versioned shell cache separate from its versioned exercise-media cache. Shell installation and activation do not wait on the 40 GIF downloads, so one unavailable media file cannot strand an iPhone on the previous app build. After the new worker is active, the app requests a bounded background warm-up that caches still posters and exact retained references before GIFs, with no more than four media requests in flight. A media file opened before warm-up completes is cached on demand.
 
-Older media caches remain available as an offline fallback during an update and are removed only after the new media cache warms without failures. After one successful online warm-up, still posters, animated GIFs, and retained local references remain available offline. Posters are the default surface, so an exercise screen does not decode or animate a GIF until the user requests it.
+Older media caches remain available as an offline fallback during an update and are removed only after the new media cache warms without failures. After one successful online warm-up, still posters, animated GIFs, and retained local references remain available offline. Focused exercise screens use the cached GIF immediately; library grids and Reduce Motion users use the lighter still posters.
 
 Every release that changes an animation, poster, mapping, or retained reference must rotate the Service Worker cache and update the build-keyed `app-meta.js` import in `sw.js`.
 
@@ -143,7 +144,7 @@ The validators should confirm:
 - Retained reference metadata remains valid and inexact legacy references remain excluded.
 - All local posters, animations, and references exist in the media manifest.
 - Core installation remains independent of media availability; background warming is poster-first, bounded, retryable, and preserves the previous media cache until complete.
-- The UI remains poster-first with explicit Play/Pause behavior and accessible media dialogs.
+- Focused exercise views are animation-first, library grids remain still, and explicit Play/Pause behavior plus accessible media dialogs remain covered.
 
 Manual release review must also sample every generated storyboard for exercise accuracy, cable path and pulley placement, start/finish posture, equipment identity, text-free framing, and small-iPhone legibility. Automated existence checks cannot establish biomechanical accuracy.
 

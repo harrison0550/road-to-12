@@ -62,8 +62,9 @@ All checks must pass without ignored errors.
 - [ ] Backup export and import work with representative data.
 - [ ] Exercises and Profile remain reachable.
 - [ ] Every active guided exercise opens with its still motion poster.
-- [ ] Play animation, Pause animation, enlarged media, Close, and Escape work without losing workout state.
-- [ ] Retained official or reviewed references remain visible and credited.
+- [ ] Focused exercise animations start automatically, Pause/Play works, and enlarged media, Close, and Escape do not lose workout state.
+- [ ] Reduce Motion starts focused exercise media from its still storyboard without removing the explicit Play option.
+- [ ] Only the approved primary demonstration appears on exercise screens; retained official or reviewed references remain credited in Image Sources & Licenses.
 
 ### Responsive and accessibility
 
