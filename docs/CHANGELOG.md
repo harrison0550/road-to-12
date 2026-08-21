@@ -26,6 +26,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Changed
 
+- Corrected the Cable Shoulder Press animation so the athlete faces away from the machine and both cables originate from the low pulleys mounted on the cage's two front uprights.
+- Advanced the maintenance build to `2026.08.21.1` and rotated the offline caches for the corrected exercise media.
 - Advanced the maintenance build to `2026.08.20.6` and rotated the offline caches for interactive exercise details from Workout Preview.
 - Advanced the maintenance build to `2026.08.20.5`, rotated the offline caches, and expanded the home-gym dumbbell inventory to 10, 15, 20, and 25 lb pairs.
 - Dumbbell progression recommendations now advance through owned fixed pairs only; existing active prescriptions and completed workout history remain unchanged.
