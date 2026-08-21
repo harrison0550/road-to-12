@@ -64,6 +64,7 @@ Standard cards have approximately 14px bottom separation. Avoid nested cards unl
 
 ## Buttons and touch targets
 
+- Workout Preview exercise rows are full-width buttons with a visible disclosure indicator. Their detail pages remain read-only, reuse the approved exercise-animation presentation, and provide clear Back actions without changing the active workout.
 - Primary and secondary buttons are full-width inside their content container by default.
 - Standard button radius: 17px.
 - Standard vertical padding: 16px.

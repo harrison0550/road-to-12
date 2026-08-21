@@ -6,10 +6,10 @@ Read this file at the beginning of every Codex or engineering session. It is the
 
 - Product: Road to 12%
 - Version: 13.2.0
-- Build: 2026.08.20.5
+- Build: 2026.08.20.6
 - Last updated: August 20, 2026
-- Service Worker cache: `road12-v13-2-51-shell`
-- Exercise media cache: `road12-v13-2-51-media`
+- Service Worker cache: `road12-v13-2-52-shell`
+- Exercise media cache: `road12-v13-2-52-media`
 - Runtime: static, client-only, offline-first PWA
 - Primary storage key: `road12v5`
 
@@ -81,6 +81,7 @@ See `CODEX_TASKS.md` for priority and acceptance detail.
 
 ## Recent design decisions
 
+- Workout-preview exercise rows are interactive, non-mutating entry points to a full exercise guide. The preview detail reuses the reviewed automatic animation, setup and execution guidance, equipment-specific coaching, prescription summary, and historical performance lookup without creating or changing an active workout. Returning restores the preview list position.
 - Program Adherence starts from the saved August 20, 2026 baseline for the current installation. Earlier development-era sessions remain visible in Calendar and history but do not affect the metric. Only resolved completed or missed training sessions on or after the baseline count; an unresolved scheduled workout never lowers adherence.
 - The current active Foundation program has complete exact-name media coverage: 47 guided names resolve to 40 distinct movement animations. This audit adds 34 Road to 12% originals and retains six earlier approved originals. Shared warm-up, cooldown, recovery, and alias names may reuse one accurate movement asset while keeping their written prescriptions distinct. The visible Library-only Stationary Bike Setup uses a reviewed static setup guide.
 - Exercise animations always run automatically in focused workout and enlarged exercise views, with a labelled Pause control that returns to the still storyboard. Older official or licensed references remain recorded and credited in Image Sources & Licenses, but are not repeated beneath the approved Road to 12% demonstration.

@@ -69,6 +69,7 @@ Copy this block for new work:
 
 ## Completed this sprint
 
+- [x] Open a read-only, animation-first exercise guide with setup and previous performance when an exercise is selected from Workout Preview.
 - [x] Audit every active guided exercise name and deliver 47-of-47 animation coverage with automatic focused playback, explicit Pause/Play controls, centralized retained-reference attribution, offline caching, and automated validation.
 - [x] Modernize backup/restore with real release metadata, complete schedule and training state, pre-mutation validation, legacy compatibility, and realistic round-trip tests.
 - [x] Apply explicitly approved progression targets to the next matching exercise session, keep base and actual data separate, and record the completed target outcome.

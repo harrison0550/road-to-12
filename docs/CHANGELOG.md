@@ -8,6 +8,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Added
 
+- Added tappable Workout Preview exercise rows that open a read-only detail page with the approved automatic animation, setup, coaching, target, and most recent recorded performance.
 - Completed the active Foundation exercise-media audit: all 47 guided exercise names now resolve to 40 distinct reviewed movement animations, including 34 new Road to 12% animations and six previously approved originals.
 - Added reviewed static media for the visible Library-only Stationary Bike Setup, completing media coverage beyond the active workout schedule.
 - Added a durable exercise-media manifest covering exact-name mappings, accessibility, retained references, offline caching, and release validation.
@@ -25,6 +26,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Changed
 
+- Advanced the maintenance build to `2026.08.20.6` and rotated the offline caches for interactive exercise details from Workout Preview.
 - Advanced the maintenance build to `2026.08.20.5`, rotated the offline caches, and expanded the home-gym dumbbell inventory to 10, 15, 20, and 25 lb pairs.
 - Dumbbell progression recommendations now advance through owned fixed pairs only; existing active prescriptions and completed workout history remain unchanged.
 - Advanced the maintenance build to `2026.08.20.4`, rotated the offline caches, and established a non-destructive August 20 adherence baseline while preserving earlier Calendar and workout history.

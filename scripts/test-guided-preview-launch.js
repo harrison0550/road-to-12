@@ -6,7 +6,7 @@ const app = fs.readFileSync(path.resolve(__dirname, "..", "app.js"), "utf8");
 const previewSource = app.match(/function showDayPlan\([\s\S]*?\n}/)?.[0];
 
 assert(previewSource, "showDayPlan must exist");
-assert.match(previewSource, /workoutForDay\(dayIndex\)\.map\(exercise=>exercise\.name\)/, "preview steps must come from the actual guided workout");
+assert.match(previewSource, /previewExercises=day\.action==="progress"\?\[\]:workoutForDay\(dayIndex\)[\s\S]*?previewExercises\.map\(exercise=>exercise\.name\)/, "preview steps and tappable details must come from the actual guided workout");
 assert.doesNotMatch(previewSource, /guided timer flow will be added/, "implemented cardio and recovery workouts must not show the obsolete preview-only alert");
 assert.match(previewSource, /if\(day\.action==="progress"\)return setTab\("progress"\);/, "Sunday check-in must continue to open Progress");
 assert.match(previewSource, /startNewSession\(dayIndex,selectedSchedule\);setTab\("workout"\);/, "every other scheduled program day must launch through the existing workout engine");

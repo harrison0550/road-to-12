@@ -634,14 +634,33 @@ function previewScheduleForDay(sessions,dayIndex,today){
    .filter(item=>item.planDay===dayIndex&&item.scheduledDate>=today&&!['completed','restDay'].includes(item.status))
    .sort((a,b)=>a.scheduledDate.localeCompare(b.scheduledDate))[0]||null;
 }
+let previewReturnScroll=0;
+function previewPerformanceMarkup(ex){
+ const strength=ex.type==="strength";
+ const previousWeight=strength?lastCompletedWeight(ex):null;
+ const previousCardio=!strength?previousCardioBlock(ex.name,null):null;
+ const lastPerformance=strength
+   ?previousWeight?`${previousWeight.label} · ${previousWeight.date}`:"No previous completed weight yet"
+   :previousCardio?`${previousCardio.actualDurationMinutes} min${previousCardio.distance?` · ${previousCardio.distance}`:""}`:"No previous performance logged yet";
+ return `<section class="card preview-performance-card" aria-labelledby="previewPerformanceTitle"><h3 id="previewPerformanceTitle">Workout details</h3>${quickSettings(ex)}<div class="preview-last-performance"><small>${strength?"LAST WEIGHT USED":"LAST PERFORMANCE"}</small><strong>${lastPerformance}</strong></div>${strength?`<div class="weight-coach-card"><h3>Weight recommendation</h3><p>${ex.weightRecommendation||"Choose a load that keeps every prescribed repetition controlled."}</p></div>`:""}</section>`;
+}
+function showPreviewExerciseDetails(ex,dayIndex){
+ app.innerHTML=`<section class="card workout-card professional-exercise-detail preview-exercise-detail"><button class="secondary" data-preview-detail-back>Back to workout preview</button><span class="pill">EXERCISE GUIDE</span><h2>${ex.name}</h2><p class="muted workout-subtitle">${ex.muscles}</p><div class="why-card"><h3>Why this exercise?</h3><p>${ex.why||"Builds strength, control and confidence."}</p></div>${attachmentPhotoMarkup(ex)}${ex.m1?m1SetupCoach(ex):""}${exerciseTeachingMarkup(ex)}</section>${previewPerformanceMarkup(ex)}<button class="secondary preview-detail-bottom-back" data-preview-detail-back>Back to workout preview</button>`;
+ const back=()=>{showDayPlan(dayIndex);requestAnimationFrame(()=>window.scrollTo({top:previewReturnScroll,behavior:"auto"}))};
+ document.querySelectorAll("[data-preview-detail-back]").forEach(button=>button.onclick=back);
+ document.querySelector("#openAsset")?.addEventListener("click",()=>openExerciseAsset(ex));
+ window.scrollTo({top:0,behavior:"auto"});
+}
 function showDayPlan(dayIndex=state.selectedDay){
  const day=weekPlan[dayIndex],isToday=dayIndex===currentPlanIndex();
- const previewItems=day.action==="progress"?day.items:workoutForDay(dayIndex).map(exercise=>exercise.name);
+ const previewExercises=day.action==="progress"?[]:workoutForDay(dayIndex);
+ const previewItems=day.action==="progress"?day.items:previewExercises.map(exercise=>exercise.name);
  app.innerHTML=`<section class="card day-preview-card"><button class="secondary" id="previewBack">Back to schedule</button><div class="preview-title"><span class="large-icon">${day.icon}</span><div><span class="pill">${day.short} PREVIEW</span><h2>${day.title}</h2><p class="muted">${day.detail}</p></div></div><div class="brief-grid"><div><small>TIME</small><strong>${day.time}</strong></div><div><small>FOCUS</small><strong>${day.focus}</strong></div><div><small>STATUS</small><strong>${isToday&&todayCompleted()?"Completed":isToday?"Today":"Preview"}</strong></div><div><small>SETUP FLOW</small><strong>${day.setup}</strong></div></div></section>
- <section class="card"><h2>Workout preview</h2><p class="muted">Previewing does not start or change your active workout.</p><ol class="preview-exercise-list">${previewItems.map((item,i)=>`<li><span>${i+1}</span><strong>${item}</strong></li>`).join("")}</ol></section>
+ <section class="card"><h2>Workout preview</h2><p class="muted">Tap an exercise to review its animation, setup and previous performance. Previewing does not start or change your active workout.</p><ol class="preview-exercise-list">${previewItems.map((item,i)=>previewExercises[i]?`<li><button type="button" class="preview-exercise-button" data-preview-exercise="${i}" aria-label="View ${item} exercise details"><span>${i+1}</span><strong>${item}</strong><b aria-hidden="true">›</b></button></li>`:`<li class="preview-static-item"><span>${i+1}</span><strong>${item}</strong></li>`).join("")}</ol></section>
  ${day.action==="workout"||day.action==="upcoming"?`<section class="card setup-efficiency-card"><h3>M1 setup efficiency</h3><p>The sequence is grouped so you finish one pulley zone before moving to the next.</p><div class="setup-flow">${day.setup.split(" → ").map(x=>`<span>${x}</span>`).join("")}</div></section>`:""}
  <button class="primary" id="previewAction">${isToday?"Start today’s workout":"Start this workout early"}</button>`;
  document.querySelector("#previewBack").onclick=()=>{state.previewDay=null;save();home()};
+ document.querySelectorAll("[data-preview-exercise]").forEach(button=>button.onclick=()=>{previewReturnScroll=window.scrollY;showPreviewExerciseDetails(previewExercises[Number(button.dataset.previewExercise)],dayIndex)});
  document.querySelector("#previewAction").onclick=()=>{
    if(day.action==="progress")return setTab("progress");
    if(!isToday&&!confirm(`Start ${day.title} early?`))return;
