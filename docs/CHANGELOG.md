@@ -26,6 +26,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Changed
 
+- Reworked the High-to-Low Cable Chop animation to show a front-facing athlete, one high cable travelling across the front of the torso, and a controlled finish beside the opposite knee.
+- Advanced the maintenance build to `2026.08.21.2` and rotated the offline caches for the two corrected cable-exercise animations.
 - Corrected the Cable Shoulder Press animation so the athlete faces away from the machine and both cables originate from the low pulleys mounted on the cage's two front uprights.
 - Advanced the maintenance build to `2026.08.21.1` and rotated the offline caches for the corrected exercise media.
 - Advanced the maintenance build to `2026.08.20.6` and rotated the offline caches for interactive exercise details from Workout Preview.

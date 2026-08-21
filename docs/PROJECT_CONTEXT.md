@@ -6,10 +6,10 @@ Read this file at the beginning of every Codex or engineering session. It is the
 
 - Product: Road to 12%
 - Version: 13.2.0
-- Build: 2026.08.21.1
+- Build: 2026.08.21.2
 - Last updated: August 21, 2026
-- Service Worker cache: `road12-v13-2-53-shell`
-- Exercise media cache: `road12-v13-2-53-media`
+- Service Worker cache: `road12-v13-2-54-shell`
+- Exercise media cache: `road12-v13-2-54-media`
 - Runtime: static, client-only, offline-first PWA
 - Primary storage key: `road12v5`
 
