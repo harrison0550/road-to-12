@@ -6,10 +6,10 @@ Read this file at the beginning of every Codex or engineering session. It is the
 
 - Product: Road to 12%
 - Version: 13.2.0
-- Build: 2026.08.21.2
-- Last updated: August 21, 2026
-- Service Worker cache: `road12-v13-2-54-shell`
-- Exercise media cache: `road12-v13-2-54-media`
+- Build: 2026.08.23.1
+- Last updated: August 23, 2026
+- Service Worker cache: `road12-v13-2-55-shell`
+- Exercise media cache: `road12-v13-2-55-media`
 - Runtime: static, client-only, offline-first PWA
 - Primary storage key: `road12v5`
 
@@ -76,6 +76,7 @@ Next recommended goals:
 3. Preserve v13.2 behavior while gradually creating clearer module boundaries.
 4. Validate prescription-outcome signals across additional real Foundation sessions before using them for automatic recommendations.
 5. Re-audit active exercise media when Foundation prescriptions change; keep future-phase media deferred until those workout definitions are approved.
+6. Evaluate the completed four-session lower-ab block before choosing its long-term maintenance or progression path.
 
 See `CODEX_TASKS.md` for priority and acceptance detail.
 
@@ -83,7 +84,9 @@ See `CODEX_TASKS.md` for priority and acceptance detail.
 
 - Workout-preview exercise rows are interactive, non-mutating entry points to a full exercise guide. The preview detail reuses the reviewed automatic animation, setup and execution guidance, equipment-specific coaching, prescription summary, and historical performance lookup without creating or changing an active workout. Returning restores the preview list position.
 - Program Adherence starts from the saved August 20, 2026 baseline for the current installation. Earlier development-era sessions remain visible in Calendar and history but do not affect the metric. Only resolved completed or missed training sessions on or after the baseline count; an unresolved scheduled workout never lowers adherence.
-- The current active Foundation program has complete exact-name media coverage: 47 guided names resolve to 40 distinct movement animations. This audit adds 34 Road to 12% originals and retains six earlier approved originals. Shared warm-up, cooldown, recovery, and alias names may reuse one accurate movement asset while keeping their written prescriptions distinct. The visible Library-only Stationary Bike Setup uses a reviewed static setup guide.
+- The current Phase 1 Foundation program has complete exact-name media coverage: 57 currently active guided names resolve to 50 distinct movement animations. Three review-gated lower-ab Phase 2 movements are also approved and cached, bringing the registry to 53 distinct GIFs across 68 exact-name mappings. Shared warm-up, cooldown, recovery, pelvic-mobility, and alias names may reuse one accurate movement asset while keeping written prescriptions distinct. The visible Library-only Stationary Bike Setup uses a reviewed static setup guide.
+- Full Body A adds two sets of Alternating Dumbbell Curl and Full Body C adds two sets of Behind-the-Back Single-Arm Cable Curl. These are additive accessories and do not replace existing Foundation work.
+- Core + Recovery owns a separate four-session lower-ab track. Phase 1 remains active for two completed Thursday sessions; the app then requires explicit review and acceptance before substituting the three Phase 2 movements. Calendar time alone never advances it. Tuesday and Saturday include the same five-minute pelvic-floor relaxation/mobility sequence.
 - Exercise animations always run automatically in focused workout and enlarged exercise views, with a labelled Pause control that returns to the still storyboard. Older official or licensed references remain recorded and credited in Image Sources & Licenses, but are not repeated beneath the approved Road to 12% demonstration.
 - The Service Worker installs the core shell independently, then warms a separate media cache poster-first with bounded concurrency. Older media remains an offline fallback until the new cache completes without failures. See `EXERCISE_MEDIA_AUDIT.md` for the current manifest and validation procedure.
 

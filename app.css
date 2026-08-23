@@ -2281,3 +2281,15 @@ body.home-mode nav button.active{color:#ff4e5b}
   .adaptive-profile-grid{grid-template-columns:minmax(0,1fr)}
   .adaptive-plan-stats{grid-template-columns:minmax(0,1fr)}
 }
+.bodyweight-load{
+  display:flex;
+  align-items:center;
+  min-height:44px;
+  color:var(--muted);
+  font-weight:800;
+}
+.lower-abs-program-card .phase-readiness-track{margin:18px 0}
+.lower-abs-movement-list{display:grid;gap:10px;margin:16px 0}
+.lower-abs-movement-list div{display:flex;align-items:center;gap:10px;padding:12px 14px;border:1px solid var(--line);border-radius:14px;background:var(--card2)}
+.lower-abs-movement-list span{color:var(--red);font-size:1.35rem;font-weight:900}
+.lower-abs-program-card>small{display:block;margin-top:10px;color:var(--muted)}

@@ -4,21 +4,21 @@ const path=require("path");
 const backup=require("../backup-restore.js");
 const root=path.resolve(__dirname,"..");
 
-const state={schemaVersion:13,preferredName:"Andy",weight:210,waist:40,sessions:1,tab:"progress",step:2,history:[{id:"session-1",name:"Full Body A",completedAt:"2026-08-15T12:00:00.000Z",exercises:[{exerciseId:"smith-machine-squat",prescription:{sets:3,reps:10},sets:[{setNumber:1,repetitions:10,weight:70,completed:true}],externalMappings:{strava:{sportType:"WeightTraining"}}}],externalSync:{strava:{status:"NOT_SYNCED"}}}],workoutRatings:{"session-1":"Good"},dailyCheckins:{},achievements:{},trainingProfile:{age:40},trainingPhase:{id:"foundation"},measurementHistory:[{id:"m-1",date:"2026-08-15",weight:210,waist:40}],cardioHistory:[{id:"c-1",sessionId:"session-1",name:"Warm-up",actualDurationMinutes:8}],approvedProgressions:{"smith-machine-squat":{exerciseId:"smith-machine-squat",status:"approved",prescription:{sets:3,reps:10,weight:75}}},equipment:{dumbbells:true,dumbbellPairWeights:[10,15,20,25]},attachmentPhotos:{},workoutSessions:[{id:"scheduled-1",plannedDate:"2026-08-15",scheduledDate:"2026-08-16",status:"rescheduled"}],scheduleActivatedDate:"2026-08-01",adherenceBaselineDate:"2026-08-20",currentSession:{id:"active-1",sessionPrescriptions:{}},logs:{},exerciseFeedback:{},cardioTimers:{},exerciseTimings:{}};
-const payload=backup.create({version:"13.2.0",build:"2026.08.15.3"},state,13);
+const state={schemaVersion:14,preferredName:"Andy",weight:210,waist:40,sessions:1,tab:"progress",step:2,history:[{id:"session-1",name:"Full Body A",completedAt:"2026-08-15T12:00:00.000Z",exercises:[{exerciseId:"smith-machine-squat",prescription:{sets:3,reps:10},sets:[{setNumber:1,repetitions:10,weight:70,completed:true}],externalMappings:{strava:{sportType:"WeightTraining"}}}],externalSync:{strava:{status:"NOT_SYNCED"}}}],workoutRatings:{"session-1":"Good"},dailyCheckins:{},achievements:{},trainingProfile:{age:40},trainingPhase:{id:"foundation"},measurementHistory:[{id:"m-1",date:"2026-08-15",weight:210,waist:40}],cardioHistory:[{id:"c-1",sessionId:"session-1",name:"Warm-up",actualDurationMinutes:8}],approvedProgressions:{"smith-machine-squat":{exerciseId:"smith-machine-squat",status:"approved",prescription:{sets:3,reps:10,weight:75}}},lowerAbsProgram:{version:1,phase:1,status:"active",completedSessionIds:[],phase2ReadyAt:null,phase2AcceptedAt:null,completedAt:null},equipment:{dumbbells:true,dumbbellPairWeights:[10,15,20,25]},attachmentPhotos:{},workoutSessions:[{id:"scheduled-1",plannedDate:"2026-08-15",scheduledDate:"2026-08-16",status:"rescheduled"}],scheduleActivatedDate:"2026-08-01",adherenceBaselineDate:"2026-08-20",currentSession:{id:"active-1",sessionPrescriptions:{}},logs:{},exerciseFeedback:{},cardioTimers:{},exerciseTimings:{}};
+const payload=backup.create({version:"13.2.0",build:"2026.08.23.1"},state,14);
 assert.equal(payload.appVersion,"13.2.0");
-assert.equal(payload.build,"2026.08.15.3");
-assert.equal(payload.schemaVersion,13);
+assert.equal(payload.build,"2026.08.23.1");
+assert.equal(payload.schemaVersion,14);
 assert.equal(payload.state.adherenceBaselineDate,"2026-08-20");
-const validated=backup.validate(JSON.parse(JSON.stringify(payload)),13);
+const validated=backup.validate(JSON.parse(JSON.stringify(payload)),14);
 const restored=backup.merge({},validated.state);
 backup.STATE_KEYS.forEach(key=>{if(state[key]!==undefined)assert.deepStrictEqual(restored[key],state[key],`round trip changed ${key}`);});
-assert.throws(()=>backup.validate({...payload,state:{...payload.state,history:"bad"}},13),/history/i);
-assert.throws(()=>backup.validate({...payload,schemaVersion:14,state:{...payload.state,schemaVersion:14}},13),/newer/i);
-assert.throws(()=>backup.validate({...payload,format:"other-app-backup"},13),/unknown backup format/i);
-assert.throws(()=>backup.validate({...payload,build:null},13),/release metadata/i);
+assert.throws(()=>backup.validate({...payload,state:{...payload.state,history:"bad"}},14),/history/i);
+assert.throws(()=>backup.validate({...payload,schemaVersion:15,state:{...payload.state,schemaVersion:15}},14),/newer/i);
+assert.throws(()=>backup.validate({...payload,format:"other-app-backup"},14),/unknown backup format/i);
+assert.throws(()=>backup.validate({...payload,build:null},14),/release metadata/i);
 const untouched=JSON.stringify(state);
-try{backup.validate({state:{history:null}},13);}catch(_error){}
+try{backup.validate({state:{history:null}},14);}catch(_error){}
 assert.equal(JSON.stringify(state),untouched,"invalid validation mutated live data");
 const app=fs.readFileSync(path.join(root,"app.js"),"utf8"),index=fs.readFileSync(path.join(root,"index.html"),"utf8"),sw=fs.readFileSync(path.join(root,"sw.js"),"utf8");
 assert(!app.includes('version:"11.3.1"'),"backup export must not hardcode an obsolete version");

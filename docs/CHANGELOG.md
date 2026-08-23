@@ -8,6 +8,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Added
 
+- Added two additive arm accessories: Alternating Dumbbell Curl on Full Body A and Behind-the-Back Single-Arm Cable Curl on Full Body C, without replacing the existing program.
+- Added a four-session lower-ab progression to Core + Recovery. Two completed Phase 1 sessions unlock a review-and-accept milestone before Phase 2 can begin; completed exposure is stored independently from calendar time.
+- Added five-minute pelvic-floor relaxation and hip-mobility blocks to Tuesday and Saturday, framed as breathing and mobility rather than medical treatment.
+- Added 13 approved, locally bundled exercise animations with still pause-state guides and offline caching for every new arm, lower-ab, and pelvic-mobility movement.
+- Added schema-14 persistence, backup coverage, and Progress tracking for the lower-ab program milestone.
 - Added tappable Workout Preview exercise rows that open a read-only detail page with the approved automatic animation, setup, coaching, target, and most recent recorded performance.
 - Completed the active Foundation exercise-media audit: all 47 guided exercise names now resolve to 40 distinct reviewed movement animations, including 34 new Road to 12% animations and six previously approved originals.
 - Added reviewed static media for the visible Library-only Stationary Bike Setup, completing media coverage beyond the active workout schedule.
@@ -26,6 +31,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Changed
 
+- Advanced the maintenance build to `2026.08.23.1` and rotated the offline shell/media caches for the additive training expansion.
 - Reworked the High-to-Low Cable Chop animation to show a front-facing athlete, one high cable travelling across the front of the torso, and a controlled finish beside the opposite knee.
 - Advanced the maintenance build to `2026.08.21.2` and rotated the offline caches for the two corrected cable-exercise animations.
 - Corrected the Cable Shoulder Press animation so the athlete faces away from the machine and both cables originate from the low pulleys mounted on the cage's two front uprights.

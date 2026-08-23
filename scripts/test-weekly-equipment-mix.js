@@ -14,7 +14,7 @@ assert.match(app, /name:"Dumbbell Romanian Deadlift",reps:12/, "Full Body C must
 assert.match(app, /version:7,[\s\S]*?dumbbells:true,rower:true,kettlebells:false/, "confirmed equipment must remain enabled for existing saved profiles");
 assert.match(app, /type:"strength",sets:2,rest:60,requires:\["dumbbells"\]/, "dumbbell accessories must use two conservative sets and require dumbbells");
 assert.match(app, /combined weight of both dumbbells[\s\S]*?Available pairs are 10, 15, 20 and 25 lb per hand/, "weight entry must explain combined dumbbell weight and every available pair");
-assert.match(app, /const workoutData=dumbbellAccessory\?\[\.\.\.baseWorkout,dumbbellAccessory\]:baseWorkout;/, "accessories must be appended without replacing the existing strength workout");
+assert.match(app, /const workoutData=\[\.\.\.baseWorkout,\.\.\.\[dumbbellAccessory,armAccessory\]\.filter\(Boolean\)\];/, "accessories must be appended without replacing the existing strength workout");
 assert.match(app, /if\(ex\.type==="cooldown"\)return 7;/, "cooldowns must remain ordered after added accessories");
 
 console.log("Weekly equipment mix checks passed: rowing and two-set dumbbell accessories are additive and cooldowns remain last.");

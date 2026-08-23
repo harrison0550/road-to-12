@@ -2,22 +2,23 @@
 
 ## Status
 
-- Audit date: August 15, 2026
-- Release target: version 13.2.0, build `2026.08.15.4`
-- Active guided exercise names mapped: 47 of 47
+- Audit date: August 23, 2026
+- Release target: version 13.2.0, build `2026.08.23.1`
+- Active guided exercise names mapped: 57 of 57
+- Review-gated lower-ab Phase 2 names mapped: 3 of 3
 - Visible Library-only setup entries mapped: 1 of 1
-- Distinct reviewed movement animations: 40
-- New Road to 12% animations in this audit: 34
+- Distinct reviewed movement animations: 53
+- New Road to 12% animations in the August 23 expansion: 13
 - Previously approved Road to 12% animations retained: 6
-- Offline cache targets: `road12-v13-2-46-shell` and `road12-v13-2-46-media`
+- Offline cache targets: `road12-v13-2-55-shell` and `road12-v13-2-55-media`
 
-This audit covers the exercise names that can appear in the current Foundation A/B/C, Cardio + Mobility, Core + Recovery, and Zone 2 guided flows, plus the Stationary Bike Setup entry visible only in the Exercise Library. The setup entry uses a reviewed static equipment guide because it teaches fit and position rather than a repeated movement. This audit does not approve or create media for unimplemented Build, Upper / Lower, or Hypertrophy / Definition workouts.
+This audit covers the exercise names that can appear in the current Foundation A/B/C, Cardio + Mobility, Core + Recovery, and Zone 2 guided flows; the three explicitly approved movements gated behind the lower-ab Phase 2 review; and the Stationary Bike Setup entry visible only in the Exercise Library. It does not approve media for unimplemented Build, Upper / Lower, or Hypertrophy / Definition workouts.
 
 ## Media contract
 
 Each active guided exercise resolves by its exact display name through `ROAD12_EXERCISE_LIBRARY` in `exercise-library.js`. A movement-animation entry includes:
 
-- A local, still WebP motion poster shown first.
+- A local, still WebP motion poster used when paused or Reduce Motion is enabled.
 - A local animated GIF that always starts automatically in focused exercise views.
 - Movement-specific alternative text.
 - A media type and review date.
@@ -25,13 +26,17 @@ Each active guided exercise resolves by its exact display name through `ROAD12_E
 
 The written setup, execution, cues, and safety guidance remain authoritative. App-created movement artwork supplements those instructions; it must not be presented as licensed footage or as a substitute for the written coaching.
 
-Several exact workout names intentionally share one accurate animation. For example, easy treadmill warm-ups, cooldowns, and recovery walks use the same easy-walk movement asset, while their written prescriptions remain distinct. This is why 47 active names map to 40 distinct animations.
+Several exact workout names intentionally share one accurate animation. Easy treadmill warm-ups, cooldowns, and recovery walks use the same easy-walk asset, while their written prescriptions remain distinct. The current 57 active names therefore map to 50 distinct animations; the three gated Phase 2 movements bring the reviewed set to 53 distinct animations.
+
+## August 23 training expansion
+
+The audit adds exact-name animation and pause-state poster pairs for Alternating Dumbbell Curl, Behind-the-Back Single-Arm Cable Curl, Reverse Crunch, Lying Leg Raise, Forearm Plank with Posterior Pelvic Tilt, Hanging Knee Raise, Decline Bench Reverse Crunch, Hanging Garhammer Raise, Supine Diaphragmatic Breathing, Wide-Knee Child's Pose Breathing, Supported Deep Squat Breathing, Happy Baby Pelvic Floor Stretch, and 90/90 Hip Switch. All files are locally bundled and included in the versioned media cache.
 
 An older reference is deliberately omitted when it contradicts the active prescription. The prior Cable Shoulder Press crop did not clearly preserve the two-handle, cables-outside-the-arms path; the Cable Lateral Raise crop demonstrated a different two-handle variation; the licensed Smith split-squat GIF did not show the rear-foot-elevated Bulgarian variation; and the older squat, Romanian-deadlift, and calf-raise diagrams showed free-barbell setups instead of the prescribed Smith rails. Their reviewed Road to 12% animations and written instructions remain the active guides.
 
 ## Active Foundation coverage
 
-The following 47 exact names were checked against the current equipment-safe guided sequences.
+The following 57 exact names were checked against the current equipment-safe guided sequences.
 
 ### Full Body A
 
@@ -102,13 +107,34 @@ Full Body C also reuses Treadmill Walk, Hip Hinge, Cable Shoulder Press, Rope Tr
 46. Zone 2 Cardio
 47. Zone 2 Cooldown
 
+### August 23 active additions
+
+48. Alternating Dumbbell Curl
+49. Behind-the-Back Single-Arm Cable Curl
+50. Reverse Crunch
+51. Lying Leg Raise
+52. Forearm Plank with Posterior Pelvic Tilt
+53. Supine Diaphragmatic Breathing
+54. Wide-Knee Child's Pose Breathing
+55. Supported Deep Squat Breathing
+56. Happy Baby Pelvic Floor Stretch
+57. 90/90 Hip Switch
+
+### Review-gated lower-ab Phase 2
+
+These movements are locally ready but do not enter the workout until two Phase 1 sessions are completed and the user explicitly accepts the transition.
+
+58. Hanging Knee Raise
+59. Decline Bench Reverse Crunch
+60. Hanging Garhammer Raise
+
 ## Visible Library-only setup coverage
 
 - Stationary Bike Setup — reviewed static KICKR CORE fit and position guide; animation is intentionally not required for this equipment-setup entry.
 
 ## Interaction and accessibility review
 
-- Motion posters load without animation or surprise movement.
+- Exercise Library grids use motion posters without surprise movement; focused exercise views start the approved animation automatically.
 - **Play animation** and **Pause animation** are explicit, labelled controls with a minimum 44px touch target; focused views begin in the playing state.
 - The control exposes its state semantically and does not rely on color.
 - Opening a larger media view uses a labelled modal, manages focus, supports Escape dismissal, and returns focus to the invoking control.
@@ -119,7 +145,7 @@ Full Body C also reuses Treadmill Walk, Hip Hinge, Cable Shoulder Press, Rope Tr
 
 ## Offline and performance review
 
-The Service Worker keeps its small versioned shell cache separate from its versioned exercise-media cache. Shell installation and activation do not wait on the 40 GIF downloads, so one unavailable media file cannot strand an iPhone on the previous app build. After the new worker is active, the app requests a bounded background warm-up that caches still posters and exact retained references before GIFs, with no more than four media requests in flight. A media file opened before warm-up completes is cached on demand.
+The Service Worker keeps its small versioned shell cache separate from its versioned exercise-media cache. Shell installation and activation do not wait on the 53 GIF downloads, so one unavailable media file cannot strand an iPhone on the previous app build. After the new worker is active, the app requests a bounded background warm-up that caches still posters and exact retained references before GIFs, with no more than four media requests in flight. A media file opened before warm-up completes is cached on demand.
 
 Older media caches remain available as an offline fallback during an update and are removed only after the new media cache warms without failures. After one successful online warm-up, still posters, animated GIFs, and retained local references remain available offline. Focused exercise screens use the cached GIF immediately; library grids use the lighter still posters.
 
@@ -138,7 +164,7 @@ node scripts/test-offline-pwa.js
 
 The validators should confirm:
 
-- All 47 active guided names resolve to reviewed animation metadata.
+- All 57 active guided names and all three review-gated lower-ab Phase 2 names resolve to reviewed animation metadata.
 - Every visible Library-only exercise or setup name resolves to reviewed media; movement entries require animation, while setup-only entries may use an accurate still guide.
 - Every animation has a still poster, meaningful alternative text, and a valid multi-frame GIF.
 - Retained reference metadata remains valid and inexact legacy references remain excluded.

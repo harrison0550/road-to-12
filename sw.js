@@ -1,5 +1,5 @@
 /* Keep this query aligned with app-meta.js so Safari cannot reuse stale imported metadata. */
-importScripts("./app-meta.js?build=2026.08.21.2");
+importScripts("./app-meta.js?build=2026.08.23.1");
 
 const CACHE=self.ROAD12_META.serviceWorkerCache;
 const MEDIA_CACHE=CACHE.endsWith("-shell")?`${CACHE.slice(0,-6)}-media`:`${CACHE}-media`;
@@ -40,6 +40,19 @@ const CORE_ASSETS=[
 ];
 
 const MEDIA_ASSETS=[
+  "./assets/exercise-library/generated/alternating-dumbbell-curl-motion-guide.webp",
+  "./assets/exercise-library/generated/behind-the-back-single-arm-cable-curl-motion-guide.webp",
+  "./assets/exercise-library/generated/decline-bench-reverse-crunch-motion-guide.webp",
+  "./assets/exercise-library/generated/forearm-plank-posterior-pelvic-tilt-motion-guide.webp",
+  "./assets/exercise-library/generated/hanging-garhammer-raise-motion-guide.webp",
+  "./assets/exercise-library/generated/hanging-knee-raise-motion-guide.webp",
+  "./assets/exercise-library/generated/happy-baby-pelvic-floor-stretch-motion-guide.webp",
+  "./assets/exercise-library/generated/lying-leg-raise-motion-guide.webp",
+  "./assets/exercise-library/generated/ninety-ninety-hip-switch-motion-guide.webp",
+  "./assets/exercise-library/generated/reverse-crunch-motion-guide.webp",
+  "./assets/exercise-library/generated/supine-diaphragmatic-breathing-motion-guide.webp",
+  "./assets/exercise-library/generated/supported-deep-squat-breathing-motion-guide.webp",
+  "./assets/exercise-library/generated/wide-knee-childs-pose-breathing-motion-guide.webp",
   "./assets/exercise-library/generated/arm-circles-motion-guide.webp",
   "./assets/exercise-library/generated/bodyweight-squat-motion-guide.webp",
   "./assets/exercise-library/generated/cable-chest-press-motion-guide.webp",
@@ -102,6 +115,19 @@ const MEDIA_ASSETS=[
   "./assets/exercise-library/wger/triceps-pushdown.webp",
   "./assets/phase3/kickr-core-bike-setup.jpg",
   "./assets/phase3/rower-technique.jpg",
+  "./assets/exercise-library/generated/alternating-dumbbell-curl.gif",
+  "./assets/exercise-library/generated/behind-the-back-single-arm-cable-curl.gif",
+  "./assets/exercise-library/generated/decline-bench-reverse-crunch.gif",
+  "./assets/exercise-library/generated/forearm-plank-posterior-pelvic-tilt.gif",
+  "./assets/exercise-library/generated/hanging-garhammer-raise.gif",
+  "./assets/exercise-library/generated/hanging-knee-raise.gif",
+  "./assets/exercise-library/generated/happy-baby-pelvic-floor-stretch.gif",
+  "./assets/exercise-library/generated/lying-leg-raise.gif",
+  "./assets/exercise-library/generated/ninety-ninety-hip-switch.gif",
+  "./assets/exercise-library/generated/reverse-crunch.gif",
+  "./assets/exercise-library/generated/supine-diaphragmatic-breathing.gif",
+  "./assets/exercise-library/generated/supported-deep-squat-breathing.gif",
+  "./assets/exercise-library/generated/wide-knee-childs-pose-breathing.gif",
   "./assets/exercise-library/generated/arm-circles.gif",
   "./assets/exercise-library/generated/bodyweight-squat.gif",
   "./assets/exercise-library/generated/cable-chest-press.gif",

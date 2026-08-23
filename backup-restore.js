@@ -8,7 +8,7 @@
   const STATE_KEYS=Object.freeze([
     "schemaVersion","preferredName","weight","waist","sessions","history","workoutRatings",
     "dailyCheckins","achievements","trainingProfile","adaptiveRecommendation","acceptedAdaptivePlan",
-    "trainingPhase","measurementHistory","cardioHistory","approvedProgressions","equipment",
+    "trainingPhase","measurementHistory","cardioHistory","approvedProgressions","lowerAbsProgram","equipment",
     "attachmentPhotos","workoutSessions","scheduleActivatedDate","adherenceBaselineDate","currentSession","logs",
     "exerciseFeedback","cardioTimers","exerciseTimings","selectedDay","previewDay","coachMode",
     "tab","step","setupReady","historyView","calendarMonth","workoutScroll"
@@ -16,7 +16,7 @@
   const ARRAY_KEYS=Object.freeze(["history","measurementHistory","cardioHistory","workoutSessions"]);
   const OBJECT_KEYS=Object.freeze([
     "workoutRatings","dailyCheckins","achievements","trainingProfile","trainingPhase","approvedProgressions",
-    "equipment","attachmentPhotos","logs","exerciseFeedback","cardioTimers","exerciseTimings"
+    "lowerAbsProgram","equipment","attachmentPhotos","logs","exerciseFeedback","cardioTimers","exerciseTimings"
   ]);
   const clone=value=>value===undefined?undefined:JSON.parse(JSON.stringify(value));
   const isObject=value=>!!value&&typeof value==="object"&&!Array.isArray(value);

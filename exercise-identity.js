@@ -12,6 +12,8 @@
     ["road12.press.cable-shoulder","Cable Shoulder Press","SHOULDER_PRESS_GENERIC",[]],
     ["road12.triceps.rope-pushdown","Rope Triceps Pushdown","CABLE_TRICEPS_PUSHDOWN",[]],
     ["road12.curl.cable","Cable Curl","CABLE_BICEPS_CURL",[]],
+    ["road12.curl.dumbbell-alternating","Alternating Dumbbell Curl","BICEPS_CURL",[]],
+    ["road12.curl.cable-behind-back-single-arm","Behind-the-Back Single-Arm Cable Curl","CABLE_BICEPS_CURL",[]],
     ["road12.deadlift.smith-rdl","Smith Machine RDL","ROMANIAN_DEADLIFTS",[]],
     ["road12.lunge.smith-bulgarian","Smith Bulgarian Split Squat","SMITH_MACHINE_LUNGE",[]],
     ["road12.calf-raise.smith","Smith Machine Calf Raise","STANDING_CALF_RAISE",[]],
@@ -26,7 +28,13 @@
     ["road12.fly.cable-rear-delt","Rear Delt Cable Fly","CABLE_REAR_DELT_FLY",[]],
     ["road12.pull.cable-face","Cable Face Pull","FACE_PULL",[]],
     ["road12.pull.cable-straight-arm","Cable Straight Arm Pushdown","STRAIGHT_ARM_PULLDOWN",[]],
-    ["road12.rotation.cable-high-low","High to Low Cable Chop","UP_TO_DOWN_CABLE_TWIST",[]]
+    ["road12.rotation.cable-high-low","High to Low Cable Chop","UP_TO_DOWN_CABLE_TWIST",[]],
+    ["road12.core.reverse-crunch","Reverse Crunch","CRUNCH",[]],
+    ["road12.core.lying-leg-raise","Lying Leg Raise","LEG_RAISE",[]],
+    ["road12.core.forearm-plank-posterior-tilt","Forearm Plank with Posterior Pelvic Tilt","PLANK",[]],
+    ["road12.core.hanging-knee-raise","Hanging Knee Raise","HANGING_KNEE_RAISE",[]],
+    ["road12.core.decline-reverse-crunch","Decline Bench Reverse Crunch","CRUNCH",[]],
+    ["road12.core.hanging-garhammer","Hanging Garhammer Raise","HANGING_KNEE_RAISE",[]]
   ].map(([id,name,stravaExerciseType,aliases])=>Object.freeze({id,name,aliases:Object.freeze(aliases),externalMappings:Object.freeze({strava:Object.freeze({exerciseType:stravaExerciseType})})}));
   const normalize=value=>String(value||"").trim().toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
   const byName=new Map();

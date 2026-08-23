@@ -1,5 +1,5 @@
 (function (root) {
-  const mediaReviewDate = "2026-08-15";
+  const mediaReviewDate = "2026-08-23";
   const wgerLicense = Object.freeze({
     shortName: "CC-BY-SA 4.0",
     fullName: "Creative Commons Attribution-ShareAlike 4.0",
@@ -449,7 +449,7 @@
       motionPoster: `assets/exercise-library/generated/${config.slug}-motion-guide.webp`,
       mediaAlt: config.mediaAlt,
       mediaType: "animation",
-      reviewedOn: mediaReviewDate,
+      reviewedOn: config.reviewedOn || mediaReviewDate,
       primaryMuscles: config.primaryMuscles || previous.primaryMuscles || [],
       secondaryMuscles: config.secondaryMuscles || previous.secondaryMuscles || [],
       equipment: config.equipment || previous.equipment || [],
@@ -648,6 +648,92 @@
     "High to Low Cable Chop": {
       slug: "high-to-low-cable-chop",
       mediaAlt: "Movement animation of the red-shirt trainer guiding one high cable handle diagonally across the body while hips and torso rotate together under control"
+    },
+    "Alternating Dumbbell Curl": {
+      slug: "alternating-dumbbell-curl",
+      reviewedOn: "2026-08-23",
+      sourceExercise: "Standing alternating dumbbell curl",
+      mediaAlt: "Movement animation of the red-shirt trainer standing tall while curling one dumbbell toward the shoulder as the opposite arm remains controlled at the side",
+      primaryMuscles: ["Biceps"],
+      secondaryMuscles: ["Brachialis", "Forearms"],
+      equipment: ["Owned matching dumbbell pair"],
+      commonMistakes: ["Swinging the torso", "Letting the elbow travel forward", "Curling both arms when alternating", "Bending the wrist"]
+    },
+    "Behind-the-Back Single-Arm Cable Curl": {
+      slug: "behind-the-back-single-arm-cable-curl",
+      reviewedOn: "2026-08-23",
+      sourceExercise: "Behind-the-back one-arm cable curl",
+      mediaAlt: "Side-view movement animation of the red-shirt trainer facing away from the red cage and curling one D-handle from the low front-post pulley while the elbow remains behind the torso",
+      primaryMuscles: ["Biceps"],
+      secondaryMuscles: ["Brachialis", "Forearms"],
+      equipment: ["RitFit M1 cable station", "One low front-post pulley", "One D-handle"],
+      commonMistakes: ["Turning toward the machine", "Letting the elbow drift forward", "Using torso momentum", "Choosing too much resistance"]
+    },
+    "Reverse Crunch": {
+      slug: "reverse-crunch", reviewedOn: "2026-08-23",
+      mediaAlt: "Side-view movement animation of the red-shirt trainer curling the pelvis a few inches from the mat while keeping bent knees controlled and the upper back grounded",
+      primaryMuscles: ["Lower abdominals", "Deep core"], secondaryMuscles: ["Hip flexors"], equipment: ["Exercise mat"],
+      commonMistakes: ["Swinging the legs", "Lifting into a shoulder stand", "Using momentum", "Dropping the hips"]
+    },
+    "Lying Leg Raise": {
+      slug: "lying-leg-raise", reviewedOn: "2026-08-23",
+      mediaAlt: "Side-view movement animation of the red-shirt trainer lowering both straight legs together while keeping the lower back pressed into the mat",
+      primaryMuscles: ["Lower abdominals", "Deep core"], secondaryMuscles: ["Hip flexors"], equipment: ["Exercise mat"],
+      commonMistakes: ["Arching the lower back", "Lowering beyond a controlled range", "Dropping the legs quickly", "Separating the legs"]
+    },
+    "Forearm Plank with Posterior Pelvic Tilt": {
+      slug: "forearm-plank-posterior-pelvic-tilt", reviewedOn: "2026-08-23",
+      mediaAlt: "Side-view movement animation of the red-shirt trainer holding a forearm plank and gently tucking the tailbone without lifting or sagging the hips",
+      primaryMuscles: ["Deep core", "Lower abdominals"], secondaryMuscles: ["Glutes", "Shoulders"], equipment: ["Exercise mat"],
+      commonMistakes: ["Piking the hips", "Letting the hips sag", "Holding the breath", "Shrugging into the shoulders"]
+    },
+    "Hanging Knee Raise": {
+      slug: "hanging-knee-raise", reviewedOn: "2026-08-23",
+      mediaAlt: "Movement animation of the red-shirt trainer hanging from the red cage pull-up bar and drawing both knees toward the chest with a controlled pelvic curl",
+      primaryMuscles: ["Lower abdominals", "Deep core"], secondaryMuscles: ["Hip flexors", "Grip"], equipment: ["RitFit M1 pull-up bar"],
+      commonMistakes: ["Swinging", "Stopping without curling the pelvis", "Hanging passively from the shoulders", "Dropping the legs"]
+    },
+    "Decline Bench Reverse Crunch": {
+      slug: "decline-bench-reverse-crunch", reviewedOn: "2026-08-23",
+      mediaAlt: "Side-view movement animation of the red-shirt trainer performing a small controlled reverse crunch on a slightly declined adjustable bench",
+      primaryMuscles: ["Lower abdominals", "Deep core"], secondaryMuscles: ["Hip flexors"], equipment: ["Adjustable bench at a slight decline"],
+      commonMistakes: ["Using a steep decline too soon", "Swinging the legs", "Lifting into a shoulder stand", "Dropping the hips"]
+    },
+    "Hanging Garhammer Raise": {
+      slug: "hanging-garhammer-raise", reviewedOn: "2026-08-23",
+      mediaAlt: "Movement animation of the red-shirt trainer beginning with hips and knees at 90 degrees beneath the red cage pull-up bar and curling the pelvis to draw the knees toward the chest",
+      primaryMuscles: ["Lower abdominals", "Deep core"], secondaryMuscles: ["Hip flexors", "Grip"], equipment: ["RitFit M1 pull-up bar"],
+      commonMistakes: ["Starting with straight legs", "Swinging", "Changing the knee angle", "Dropping below the 90-degree start"]
+    },
+    "Supine Diaphragmatic Breathing": {
+      slug: "supine-diaphragmatic-breathing", reviewedOn: "2026-08-23",
+      mediaAlt: "Slow movement animation of the red-shirt trainer lying with knees bent while the lower ribs and belly gently expand and settle during relaxed diaphragmatic breathing",
+      primaryMuscles: ["Diaphragm"], secondaryMuscles: ["Intercostals", "Pelvic floor"], equipment: ["Exercise mat"],
+      commonMistakes: ["Forcing the breath", "Shrugging the shoulders", "Bracing the abdomen", "Holding the breath"]
+    },
+    "Wide-Knee Child's Pose Breathing": {
+      slug: "wide-knee-childs-pose-breathing", reviewedOn: "2026-08-23",
+      mediaAlt: "Slow movement animation of the red-shirt trainer relaxing in a wide-knee Child's Pose while breathing into the back and side ribs",
+      primaryMuscles: ["Pelvic floor", "Hips"], secondaryMuscles: ["Lower back", "Breathing muscles"], equipment: ["Exercise mat"],
+      commonMistakes: ["Forcing the hips toward the heels", "Holding the breath", "Tensing the shoulders", "Using a painful knee position"]
+    },
+    "Supported Deep Squat Breathing": {
+      slug: "supported-deep-squat-breathing", reviewedOn: "2026-08-23",
+      mediaAlt: "Slow movement animation of the red-shirt trainer holding the red cage uprights for balance in a comfortable deep squat with heels planted and relaxed breathing",
+      primaryMuscles: ["Pelvic floor", "Hips"], secondaryMuscles: ["Adductors", "Ankles"], equipment: ["RitFit M1 cage for support"],
+      commonMistakes: ["Forcing depth", "Lifting the heels", "Letting the knees collapse inward", "Bouncing"]
+    },
+    "Happy Baby Pelvic Floor Stretch": {
+      slug: "happy-baby-pelvic-floor-stretch", reviewedOn: "2026-08-23",
+      mediaAlt: "Slow movement animation of the red-shirt trainer lying on a mat with knees wide and gently holding the feet while the sacrum remains grounded",
+      primaryMuscles: ["Pelvic floor", "Inner thighs"], secondaryMuscles: ["Hips", "Lower back"], equipment: ["Exercise mat"],
+      commonMistakes: ["Pulling forcefully", "Lifting the sacrum", "Rocking aggressively", "Straining to hold the feet"]
+    },
+    "90/90 Hip Switch": {
+      slug: "ninety-ninety-hip-switch", reviewedOn: "2026-08-23",
+      mediaAlt: "Movement animation of the red-shirt trainer sitting tall and rotating both bent knees under control between mirrored 90/90 hip positions",
+      primaryMuscles: ["Hip rotators", "Glutes"], secondaryMuscles: ["Pelvic stabilizers"], equipment: ["Exercise mat"],
+      commonMistakes: ["Forcing the knees to the floor", "Moving too quickly", "Twisting through knee discomfort", "Collapsing the torso"]
     }
   };
 

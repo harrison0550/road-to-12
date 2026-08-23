@@ -193,7 +193,7 @@ if(smithSquatTemplate){
 }
 /* Versioned storage boundary. Migrations must remain ordered and idempotent. */
 const ROAD12_STORAGE_KEY="road12v5";
-const ROAD12_SCHEMA_VERSION=13;
+const ROAD12_SCHEMA_VERSION=14;
 const ADHERENCE_RESET_DATE="2026-08-20";
 const ROAD12_MIGRATIONS=[
   {
@@ -321,6 +321,28 @@ const ROAD12_MIGRATIONS=[
       value.schemaVersion=13;
       return value;
     }
+  },
+  {
+    version:14,
+    up(value){
+      /* Add the approved four-week lower-ab track without rewriting prior
+         Core + Recovery sessions or advancing phases by calendar time alone. */
+      value.lowerAbsProgram=Object.assign({
+        version:1,
+        startedOn:localDateKey(),
+        phase:1,
+        status:"active",
+        completedSessionIds:[],
+        phase2ReadyAt:null,
+        phase2AcceptedAt:null,
+        completedAt:null
+      },value.lowerAbsProgram||{});
+      value.lowerAbsProgram.completedSessionIds=Array.isArray(value.lowerAbsProgram.completedSessionIds)
+        ?value.lowerAbsProgram.completedSessionIds
+        :[];
+      value.schemaVersion=14;
+      return value;
+    }
   }
 ];
 const road12Storage=(()=>{
@@ -377,6 +399,8 @@ state.cardioHistory=Array.isArray(state.cardioHistory)?state.cardioHistory:[];
 state.cardioTimers=state.cardioTimers&&typeof state.cardioTimers==="object"?state.cardioTimers:{};
 state.exerciseFeedback=state.exerciseFeedback&&typeof state.exerciseFeedback==="object"?state.exerciseFeedback:{};
 state.approvedProgressions=state.approvedProgressions&&typeof state.approvedProgressions==="object"?state.approvedProgressions:{};
+state.lowerAbsProgram=Object.assign({version:1,startedOn:localDateKey(),phase:1,status:"active",completedSessionIds:[],phase2ReadyAt:null,phase2AcceptedAt:null,completedAt:null},state.lowerAbsProgram||{});
+state.lowerAbsProgram.completedSessionIds=Array.isArray(state.lowerAbsProgram.completedSessionIds)?state.lowerAbsProgram.completedSessionIds:[];
 state.equipment=Object.assign({
   ritfitM1:true,
   bench:true,
@@ -398,6 +422,35 @@ const weekPlan=[
  {short:"SAT",icon:"❤️",title:"Zone 2 Cardio",detail:"Longer easy bike, rower or treadmill session",action:"cardio",time:"35–50 min",focus:"Fat-loss supporting aerobic work",items:["5-minute easy warm-up","25–40 minutes at a pace where you can speak in sentences","5-minute cooldown","Light stretching"],setup:"Choose treadmill, rower or KICKR CORE"},
  {short:"SUN",icon:"📏",title:"Recovery + Check-in",detail:"Rest, measurements and weekly review",action:"progress",time:"10–20 min",focus:"Recovery and progress review",items:["Morning body weight","Waist measurement","Optional progress photos","Review completed workouts","Plan the coming week","Full rest or gentle walk"],setup:"No gym setup required"}
 ];
+Object.assign(weekPlan[0],{
+  detail:"Guided strength - chest, back, quads, shoulders and arms",
+  time:"60\u201370 min",
+  items:[...weekPlan[0].items,"Alternating Dumbbell Curl"],
+  setup:"Smith and cable stations \u2192 10 lb dumbbells"
+});
+Object.assign(weekPlan[1],{
+  detail:"Incline treadmill, rowing technique, mobility and pelvic-floor relaxation",
+  time:"50\u201355 min",
+  items:[...weekPlan[1].items.slice(0,-1),"5-minute pelvic-floor relaxation",weekPlan[1].items.at(-1)]
+});
+Object.assign(weekPlan[3],{
+  detail:"Core training, phased lower-ab work, stretching and easy movement",
+  time:"40\u201350 min",
+  items:[...weekPlan[3].items.slice(0,4),"Lower Abs Progression",...weekPlan[3].items.slice(4)],
+  setup:"Floor space, bench and M1 pull-up bar; optional treadmill"
+});
+Object.assign(weekPlan[4],{
+  detail:"Third weekly guided full-body strength session with added biceps work",
+  time:"60\u201370 min",
+  items:[...weekPlan[4].items.slice(0,8),"Behind-the-Back Single-Arm Cable Curl",...weekPlan[4].items.slice(8)]
+});
+Object.assign(weekPlan[5],{
+  detail:"Longer easy bike, rower or treadmill session plus pelvic-floor relaxation",
+  time:"40\u201355 min",
+  items:[...weekPlan[5].items.slice(0,-1),"5-minute pelvic-floor relaxation",weekPlan[5].items.at(-1)],
+  setup:"Choose treadmill, rower or KICKR CORE \u2192 floor space"
+});
+
 const app=document.querySelector("#app"), nav=[...document.querySelectorAll("nav button")];
 let timerId=null, remaining=0, timerEndsAt=null, timerAudioContext=null, activeTimerExercise=null;
 const save=()=>road12Storage.write(state);
@@ -838,7 +891,7 @@ function bindAnimationControls(){
 function quickSettings(ex){
   const values = ex.type==="strength"
     ? [
-        ["Target",`${ex.sets} × ${ex.reps}`],
+        ["Target",`${ex.sets} × ${ex.reps}${ex.repUnit==="seconds"?" sec":""}`],
         ["Rest",`${ex.rest} sec`],
         ["Focus","Controlled form"]
       ]
@@ -960,15 +1013,18 @@ function lastCompletedWeight(ex){
 function sets(ex){
  const entry=ex.weightEntry||{mode:"total",label:"Weight used",help:"Enter the weight used for this set."};
  const isSmithAddedWeight=ex.name.includes("Smith")&&entry.mode==="total";
+ const isBodyweight=entry.mode==="bodyweight";
+ const repLabel=ex.repUnit==="seconds"?"SECONDS":"REPS";
+ const targetUnit=ex.repUnit==="seconds"?" sec":" reps";
  const displayedLabel=isSmithAddedWeight?"Total Plates — Both Sides":entry.label;
  const previous=lastCompletedWeight(ex);
  const feedback=state.exerciseFeedback[ex.name]||{rir:"",form:"",discomfort:false};
  const captured=window.ROAD12_PRESCRIPTIONS.forExercise(state.currentSession,ex,name=>window.ROAD12_EXERCISES.resolve(name));
  const target=window.ROAD12_PRESCRIPTIONS.effective(state.currentSession,ex,name=>window.ROAD12_EXERCISES.resolve(name));
- return `<section class="card timer-card"><h3>${target.sets} sets × ${target.reps} reps</h3>
+ return `<section class="card timer-card"><h3>${target.sets} sets × ${target.reps}${targetUnit}</h3>
  ${captured?`<div class="approved-prescription"><small>PRESCRIBED FOR THIS SESSION · ${captured.action}</small><strong>${captured.prescription.summary||`${target.sets} sets × ${target.reps} reps${target.weight!=null?` at ${target.weight} ${target.weightUnit}`:""}`}</strong><span>Record what you actually perform below. You can override any target.</span></div>`:""}<div class="weight-entry-explainer"><span>${entry.mode==="dual"?"↔️":entry.mode==="single"?"1️⃣":"🏋️"}</span><div><strong>${displayedLabel}</strong><p>${entry.help}</p>${previous?`<small class="previous-weight">Last completed: <b>${previous.label}</b> on ${previous.date}</small>`:'<small class="previous-weight">No previous completed weight yet.</small>'}${entry.mode==="dual"?`<small>Example: left 20 lb + right 20 lb → enter <b>20</b>; combined selected stack weight is 40 lb.</small>`:""}</div></div>
- <div class="set-table-head"><span>SET</span><span>${entry.mode==="dual"?"LB / STACK":isSmithAddedWeight?"PLATES TOTAL":"WEIGHT LB"}</span><span>REPS</span><span>DONE</span></div>
- ${state.logs[ex.name].map((v,i)=>`<div class="set-row"><strong>${i+1}</strong><input data-w="${i}" inputmode="decimal" placeholder="${target.weight!=null?target.weight:entry.mode==="dual"?"per stack":isSmithAddedWeight?"both sides":"lb"}" aria-label="${displayedLabel}, set ${i+1}" value="${v?.weight||""}"><input data-r="${i}" inputmode="numeric" value="${v?.reps||window.ROAD12_PRESCRIPTIONS.minimumReps(target.reps)}"><button data-d="${i}" class="${v?.done?"done":""}" aria-label="${v?.done?"Mark set incomplete":"Mark set complete"}">${v?.done?"✓":"○"}</button>${entry.mode==="dual"&&v?.weight?`<small class="combined-weight">Combined selected: ${Number(v.weight)*2} lb</small>`:""}</div>`).join("")}
+ <div class="set-table-head"><span>SET</span><span>${isBodyweight?"LOAD":entry.mode==="dual"?"LB / STACK":isSmithAddedWeight?"PLATES TOTAL":"WEIGHT LB"}</span><span>${repLabel}</span><span>DONE</span></div>
+ ${state.logs[ex.name].map((v,i)=>`<div class="set-row"><strong>${i+1}</strong>${isBodyweight?`<span class="bodyweight-load">Bodyweight</span>`:`<input data-w="${i}" inputmode="decimal" placeholder="${target.weight!=null?target.weight:entry.mode==="dual"?"per stack":isSmithAddedWeight?"both sides":"lb"}" aria-label="${displayedLabel}, set ${i+1}" value="${v?.weight||""}">`}<input data-r="${i}" inputmode="numeric" aria-label="${repLabel.toLowerCase()}, set ${i+1}" value="${v?.reps||window.ROAD12_PRESCRIPTIONS.minimumReps(target.reps)}"><button data-d="${i}" class="${v?.done?"done":""}" aria-label="${v?.done?"Mark set incomplete":"Mark set complete"}">${v?.done?"✓":"○"}</button>${entry.mode==="dual"&&v?.weight?`<small class="combined-weight">Combined selected: ${Number(v.weight)*2} lb</small>`:""}</div>`).join("")}
  <div class="exercise-feedback"><div><small>QUICK EXERCISE FEEDBACK</small><strong>Help tune the next session</strong></div><label>Reps left in reserve<select id="exerciseRir"><option value="">Choose</option>${[0,1,2,3,4].map(value=>`<option value="${value}" ${String(feedback.rir)===String(value)?"selected":""}>${value===4?"4+":value}</option>`).join("")}</select></label><label>Form quality<select id="exerciseForm"><option value="">Choose</option><option ${feedback.form==="Clean"?"selected":""}>Clean</option><option ${feedback.form==="Breaking down"?"selected":""}>Breaking down</option></select></label><label class="feedback-check"><input id="exerciseDiscomfort" type="checkbox" ${feedback.discomfort?"checked":""}><span>Pain or discomfort was present</span></label><p>If pain is sharp, worsening, or unusual, stop the movement. This feedback can recommend a deload but does not diagnose an injury.</p></div>
  <div class="timer" id="timer" role="status" aria-live="polite">Rest ${String(Math.floor(ex.rest/60)).padStart(2,"0")}:${String(ex.rest%60).padStart(2,"0")}</div><div class="rest-coach-message" id="restCoach">Recover and prepare for your next set.</div><div class="timer-controls"><button class="secondary" id="rest">Start rest timer</button><button class="secondary" id="stopTimer">Stop timer</button></div></section>`}
 function captureExerciseFeedback(ex){
@@ -986,14 +1042,14 @@ function bindSets(ex){
    const existing=state.logs[ex.name][i]||{};
    state.logs[ex.name][i]=Object.assign({},existing,{
      startedAt:existing.startedAt||new Date().toISOString(),
-     weight:document.querySelector(`[data-w="${i}"]`)?.value||"",
+     weight:document.querySelector(`[data-w="${i}"]`)?.value||(ex.weightEntry?.mode==="bodyweight"?0:""),
      reps:document.querySelector(`[data-r="${i}"]`)?.value||ex.reps
    });
    save();
  });
  document.querySelectorAll("[data-d]").forEach(b=>b.onclick=()=>{
    const i=+b.dataset.d;
-   const w=document.querySelector(`[data-w="${i}"]`).value;
+   const w=document.querySelector(`[data-w="${i}"]`)?.value||(ex.weightEntry?.mode==="bodyweight"?0:"");
    const r=document.querySelector(`[data-r="${i}"]`).value;
    const done=!state.logs[ex.name][i]?.done;
    const existing=state.logs[ex.name][i]||{},now=new Date().toISOString();
@@ -1356,6 +1412,7 @@ function summary(){
      scheduled.completedDate=session.completedDate;
      scheduled.actualCompletionDate=session.actualCompletionDate;
    }
+   recordLowerAbsCompletion(session);
    state.approvedProgressions=window.ROAD12_PRESCRIPTIONS.completeApprovals(state.approvedProgressions,state.currentSession?.sessionPrescriptions,session.exercises,session.id,session.completedAt);
    state.sessions++;state.history.push(session);state.currentSession={completedId:session.id};state.step=0;state.setupReady=false;save();
  }
@@ -1713,6 +1770,24 @@ function home(){
 }
 
 
+function lowerAbsProgramMarkup(){
+ const status=lowerAbsProgramStatus();
+ const phase1=["Reverse Crunch","Lying Leg Raise","Forearm Plank with Posterior Pelvic Tilt"];
+ const phase2=["Hanging Knee Raise","Decline Bench Reverse Crunch","Hanging Garhammer Raise"];
+ const movements=status.phase===1?phase1:phase2;
+ const completed=status.phase===1?status.phase1Count:status.phase2Count;
+ const heading=status.complete?"Four-week lower-ab block complete":status.readyForPhase2?"Phase 2 is ready for review":`Phase ${status.phase} - Week ${status.week}`;
+ return `<section class="card lower-abs-program-card" aria-labelledby="lowerAbsProgramTitle">
+   <span class="pill">LOWER ABS PROGRESSION</span>
+   <h2 id="lowerAbsProgramTitle">${heading}</h2>
+   <p>${status.phase===1?"Foundation emphasizes controlled pelvic motion and a flat lower back.":"Intensity increases only after two completed Foundation exposures and your approval."}</p>
+   <div class="phase-readiness-track" role="progressbar" aria-label="Four-week lower-ab program progress" aria-valuemin="0" aria-valuemax="4" aria-valuenow="${Math.min(4,status.phase1Count+status.phase2Count)}"><span style="width:${Math.min(100,(status.phase1Count+status.phase2Count)/4*100)}%"></span></div>
+   <div class="lower-abs-movement-list">${movements.map(name=>`<div><span aria-hidden="true">${status.complete?"✓":"•"}</span><strong>${name}</strong></div>`).join("")}</div>
+   <p class="muted">${completed} of 2 Phase ${status.phase} Core + Recovery sessions completed.</p>
+   ${status.readyForPhase2?`<button class="primary" id="acceptLowerAbsPhase2">Review complete - begin Phase 2 next Thursday</button><small>Nothing changes until you accept. Your prior Phase 1 history remains preserved.</small>`:""}
+ </section>`;
+}
+
 function progress(){
  if(state.historyView){
    const session=state.history.find(h=>h.id===state.historyView);
@@ -1728,7 +1803,7 @@ function progress(){
  const measurements=state.measurementHistory.slice().sort((a,b)=>String(b.recordedAt).localeCompare(String(a.recordedAt))).slice(0,8);
  const weight7=measurementTrend(7,"weight"),weight30=measurementTrend(30,"weight"),waist30=measurementTrend(30,"waist"),strength30=strengthTrend();
 
- app.innerHTML=`${phaseReadinessMarkup(readiness)}<section class="card">
+ app.innerHTML=`${phaseReadinessMarkup(readiness)}${lowerAbsProgramMarkup()}<section class="card">
    <span class="pill">PROGRESS CENTER</span>
    <h2>Your Road to 12%</h2>
    <div class="brief-grid">
@@ -1797,6 +1872,12 @@ function progress(){
    save();
    progress();
  };
+ document.querySelector("#acceptLowerAbsPhase2")?.addEventListener("click",()=>{
+   state.lowerAbsProgram.phase=2;
+   state.lowerAbsProgram.phase2AcceptedAt=new Date().toISOString();
+   save();
+   progress();
+ });
  document.querySelector("#exportHistory").onclick=exportV1131Backup;
  document.querySelector("#importHistory").onchange=e=>{
    const file=e.target.files?.[0];
@@ -1915,6 +1996,149 @@ function cloneExerciseByName(name,overrides={}){
   return Object.assign({},deepCopy(source),overrides);
 }
 
+function currentLowerAbsPhase(){
+  return state.lowerAbsProgram.phase2AcceptedAt?2:1;
+}
+
+function lowerAbsProgramStatus(){
+  const completedIds=new Set(state.lowerAbsProgram.completedSessionIds||[]);
+  const sessions=state.history.filter(session=>completedIds.has(session.id)&&session.lowerAbsProgram);
+  const phase1Count=sessions.filter(session=>session.lowerAbsProgram.phase===1).length;
+  const phase2Count=sessions.filter(session=>session.lowerAbsProgram.phase===2).length;
+  return {
+    phase:currentLowerAbsPhase(),
+    phase1Count,
+    phase2Count,
+    readyForPhase2:phase1Count>=2&&!state.lowerAbsProgram.phase2AcceptedAt,
+    complete:phase2Count>=2,
+    week:currentLowerAbsPhase()===1?Math.min(2,phase1Count+1):Math.min(4,phase2Count+3)
+  };
+}
+
+function recordLowerAbsCompletion(session){
+  if(session.planDay!==3)return;
+  const program=state.lowerAbsProgram;
+  if(!program.completedSessionIds.includes(session.id))program.completedSessionIds.push(session.id);
+  const statusBefore=lowerAbsProgramStatus();
+  session.lowerAbsProgram={phase:currentLowerAbsPhase(),week:statusBefore.week,programVersion:program.version};
+  const projectedPhase1=statusBefore.phase1Count+(session.lowerAbsProgram.phase===1?1:0);
+  const projectedPhase2=statusBefore.phase2Count+(session.lowerAbsProgram.phase===2?1:0);
+  if(projectedPhase1>=2&&!program.phase2ReadyAt)program.phase2ReadyAt=session.completedAt;
+  if(projectedPhase2>=2){
+    program.status="completed";
+    program.completedAt=program.completedAt||session.completedAt;
+  }
+}
+
+function lowerAbsProgramExercises(){
+  const bodyweight={
+    type:"strength",
+    rest:45,
+    requires:["bodyweight"],
+    substituteId:null,
+    weightEntry:{mode:"bodyweight",label:"Bodyweight",help:"No external weight is needed. Record the repetitions or hold time you actually complete."}
+  };
+  if(currentLowerAbsPhase()===2)return [
+    Object.assign(cloneExerciseByName("Bodyweight Squat"),bodyweight,{
+      name:"Hanging Knee Raise",sets:3,reps:"10-12",muscles:"Lower abdominals, deep core and grip",
+      setup:["Use the M1 front pull-up bar","Take a shoulder-width overhand grip","Begin in a still active hang"],
+      steps:["Brace and stop any swinging.","Lift both knees toward the chest.","Curl the pelvis upward at the top rather than stopping at hip height.","Lower slowly to a still hang before repeating."],
+      cues:["Keep the shoulders active.","Move without swinging.","Stop before grip or trunk control fails."],
+      why:"Progresses the lower-ab pattern from the floor to a controlled hanging position.",
+      weightRecommendation:"Use bodyweight and shorten the range before using momentum.",
+      requires:["ritfitM1"],demoImage:"assets/exercise-library/generated/hanging-knee-raise-motion-guide.webp"
+    }),
+    Object.assign(cloneExerciseByName("Bodyweight Squat"),bodyweight,{
+      name:"Decline Bench Reverse Crunch",sets:3,reps:12,muscles:"Lower abdominals and deep core",
+      setup:["Set the adjustable bench to a slight decline","Lie with your head toward the higher end","Hold the bench lightly for stability"],
+      steps:["Begin with hips and knees bent about 90 degrees.","Press the lower back into the bench.","Curl the pelvis and knees toward the ribs without swinging.","Lower slowly until the hips are supported again."],
+      cues:["Use a small pelvic curl.","Keep the upper back supported.","Do not turn the movement into a leg swing."],
+      why:"Increases the resistance of the reverse-crunch pattern without adding external weight.",
+      weightRecommendation:"Use only a slight decline and control every lowering phase for 2-3 seconds.",
+      requires:["bench"],demoImage:"assets/exercise-library/generated/decline-bench-reverse-crunch-motion-guide.webp"
+    }),
+    Object.assign(cloneExerciseByName("Bodyweight Squat"),bodyweight,{
+      name:"Hanging Garhammer Raise",sets:3,reps:15,muscles:"Lower abdominals, deep core and grip",
+      setup:["Use the M1 front pull-up bar","Begin with hips and knees already bent to 90 degrees","Keep the shoulders active and body still"],
+      steps:["Hold the 90-degree starting position without swinging.","Keep the knees bent and curl the pelvis upward.","Draw the knees closer to the chest using the abdominals.","Lower only to the 90-degree start and pause before repeating."],
+      cues:["Start at 90 degrees, not with straight legs.","Curl the tailbone toward the ribs.","Reduce repetitions before momentum appears."],
+      why:"Uses a shortened hanging range to emphasize the pelvic curl and reduce hip-flexor dominance.",
+      weightRecommendation:"Use bodyweight only. Stop the set if the 90-degree start cannot be held without swinging.",
+      requires:["ritfitM1"],demoImage:"assets/exercise-library/generated/hanging-garhammer-raise-motion-guide.webp"
+    })
+  ];
+  return [
+    Object.assign(cloneExerciseByName("Bodyweight Squat"),bodyweight,{
+      name:"Reverse Crunch",sets:3,reps:"12-15",muscles:"Lower abdominals and deep core",
+      setup:["Lie on your back on a mat","Bend hips and knees to about 90 degrees","Place arms beside you with palms down"],
+      steps:["Press your lower back gently into the floor.","Curl your pelvis toward your ribs and lift the hips only a few inches.","Pause without swinging the legs.","Lower slowly until the hips touch the mat."],
+      cues:["Lead with the pelvis, not the feet.","Keep the movement small and controlled.","Exhale as the hips lift."],
+      why:"Builds the pelvic-curl pattern needed for stronger lower-ab training.",
+      weightRecommendation:"Use bodyweight and a 2-3 second lowering phase.",
+      demoImage:"assets/exercise-library/generated/reverse-crunch-motion-guide.webp"
+    }),
+    Object.assign(cloneExerciseByName("Bodyweight Squat"),bodyweight,{
+      name:"Lying Leg Raise",sets:3,reps:"10-12",muscles:"Lower abdominals, deep core and hip flexors",
+      setup:["Lie on your back with both legs together","Place arms beside you with palms down","Press the lower back flat before moving"],
+      steps:["Begin with both legs raised above the hips.","Lower both legs together for 2-3 seconds.","Stop before the lower back begins to arch.","Return under control without using momentum."],
+      cues:["Shorten the range if the back lifts.","Keep the legs together.","Move slowly through the negative."],
+      why:"Develops controlled lower-ab tension through a gradually increasing lever.",
+      weightRecommendation:"Use bodyweight and prioritize a flat lower back over a lower leg position.",
+      demoImage:"assets/exercise-library/generated/lying-leg-raise-motion-guide.webp"
+    }),
+    Object.assign(cloneExerciseByName("Bodyweight Squat"),bodyweight,{
+      name:"Forearm Plank with Posterior Pelvic Tilt",sets:3,reps:"30-45",repUnit:"seconds",muscles:"Deep core, lower abdominals and glutes",
+      setup:["Place forearms on a mat with elbows below shoulders","Extend both legs into a straight plank","Set feet about hip width"],
+      steps:["Begin in a straight forearm plank.","Squeeze the glutes and gently tuck the tailbone toward the ribs.","Hold the tucked position while breathing normally.","End the set before the hips sag or pike."],
+      cues:["Tuck; do not lift the hips.","Keep the ribs down.","Breathe throughout the hold."],
+      why:"Teaches the posterior pelvic tilt that keeps lower-ab work out of the lower back.",
+      weightRecommendation:"Use bodyweight and begin with 30 controlled seconds per set.",
+      demoImage:"assets/exercise-library/generated/forearm-plank-posterior-pelvic-tilt-motion-guide.webp"
+    })
+  ];
+}
+
+function pelvicFloorRelaxationBlock(){
+  const shared={type:"mobility",duration:"1:00",rest:0,requires:["bodyweight"],substituteId:null};
+  return [
+    Object.assign(cloneExerciseByName("Post-Workout Stretch"),shared,{
+      name:"Supine Diaphragmatic Breathing",muscles:"Diaphragm, lower ribs and pelvic-floor relaxation",
+      setup:["Lie on your back with knees bent and feet flat","Place one hand on the upper chest and one on the lower ribs or belly"],
+      steps:["Relax the jaw and shoulders.","Inhale gently into the lower ribs and belly.","Let the pelvic area soften rather than bracing.","Exhale slowly without forcing the breath."],
+      cues:["Keep the upper chest quiet.","Never strain or hold your breath."],
+      why:"Coordinates relaxed diaphragmatic breathing with pelvic-floor lengthening.",demoImage:"assets/exercise-library/generated/supine-diaphragmatic-breathing-motion-guide.webp"
+    }),
+    Object.assign(cloneExerciseByName("Post-Workout Stretch"),shared,{
+      name:"Wide-Knee Child's Pose Breathing",muscles:"Pelvic floor, hips, lower back and breathing muscles",
+      setup:["Kneel on a mat with knees comfortably wide","Bring the big toes near each other","Reach the arms forward and let the hips move toward the heels"],
+      steps:["Settle into a pain-free Child's Pose.","Breathe into the back and side ribs.","Let the hips grow heavy toward the heels on each exhale.","Remain relaxed rather than pushing deeper."],
+      cues:["Support the forehead if needed.","Do not force the knees or hips."],
+      why:"Uses supported hip opening and breathing to reduce unnecessary pelvic tension.",demoImage:"assets/exercise-library/generated/wide-knee-childs-pose-breathing-motion-guide.webp"
+    }),
+    Object.assign(cloneExerciseByName("Bodyweight Squat"),shared,{
+      name:"Supported Deep Squat Breathing",muscles:"Pelvic floor, hips, adductors and ankles",
+      setup:["Face the M1 cage and hold the front uprights lightly","Take a comfortable wide stance with toes turned slightly out","Keep both heels planted"],
+      steps:["Use the cage for balance as you settle into a comfortable squat.","Keep the knees tracking with the toes.","Breathe into the lower ribs and belly.","Let the hips relax only as far as comfortable."],
+      cues:["This is a supported hold, not a loaded squat.","Do not bounce or force depth."],
+      why:"Combines supported hip mobility with relaxed breathing.",requires:["ritfitM1"],demoImage:"assets/exercise-library/generated/supported-deep-squat-breathing-motion-guide.webp"
+    }),
+    Object.assign(cloneExerciseByName("Post-Workout Stretch"),shared,{
+      name:"Happy Baby Pelvic Floor Stretch",muscles:"Pelvic floor, inner thighs, hips and lower back",
+      setup:["Lie on your back on a mat","Bring the knees wide toward the sides of the ribs","Hold the outside of the feet or lower shins gently"],
+      steps:["Keep the head, shoulders and sacrum relaxed on the mat.","Stack the ankles roughly above the knees.","Allow the knees to settle slightly wider on the exhale.","Hold without rocking or pulling forcefully."],
+      cues:["Keep the sacrum grounded.","Use the shins instead of the feet if that is more comfortable."],
+      why:"Provides a gentle pelvic-floor and inner-hip relaxation position.",demoImage:"assets/exercise-library/generated/happy-baby-pelvic-floor-stretch-motion-guide.webp"
+    }),
+    Object.assign(cloneExerciseByName("Post-Workout Stretch"),shared,{
+      name:"90/90 Hip Switch",muscles:"Hip rotators, glutes and pelvic mobility",
+      setup:["Sit on a mat with hands lightly behind you","Bend both knees and place the feet wider than the hips","Keep the chest tall"],
+      steps:["Lower both knees together toward one side.","Move only through a comfortable hip range.","Rotate both knees through the center.","Lower them toward the opposite side and continue slowly."],
+      cues:["Do not force the knees to the floor.","Keep the movement controlled and pain free."],
+      why:"Builds gentle hip rotation that supports comfortable pelvic movement.",demoImage:"assets/exercise-library/generated/ninety-ninety-hip-switch-motion-guide.webp"
+    })
+  ];
+}
+
 function cardioMobilityWorkout(){
   return [
     cloneExerciseByName("Treadmill Walk",{
@@ -2008,6 +2232,7 @@ function cardioMobilityWorkout(){
       why:"Maintains upper-body mobility between strength sessions.",
       demoImage:"assets/exercise-library/original/chest-shoulder-mobility.webp"
     }),
+    ...pelvicFloorRelaxationBlock(),
     cloneExerciseByName("Easy Treadmill Cooldown",{
       name:"Easy Cardio Cooldown",
       duration:"5:00",
@@ -2057,6 +2282,7 @@ function coreRecoveryWorkout(){
       why:"Builds side-core endurance with less load than a full side plank.",
       demoImage:"assets/exercise-library/original/side-plank-from-knees-animation.gif"
     }),
+    ...lowerAbsProgramExercises(),
     cloneExerciseByName("Post-Workout Stretch",{
       name:"Hip and Glute Mobility",
       duration:"6:00",
@@ -2132,6 +2358,7 @@ function zone2CardioWorkout(){
       why:"Builds aerobic capacity while supporting fat loss and recovery.",
       demoImage:"assets/phase3/kickr-core-endurance-ride.jpg"
     }),
+    ...pelvicFloorRelaxationBlock(),
     cloneExerciseByName("Easy Treadmill Cooldown",{
       name:"Zone 2 Cooldown",
       duration:"5:00",
@@ -2173,6 +2400,29 @@ function dumbbellAccessoryForDay(dayIndex){
     demoImage:"assets/exercise-library/original/dumbbell-romanian-deadlift-animation.gif"
   });
   return null;
+}
+
+function armAccessoryForDay(dayIndex){
+  if(dayIndex!==0)return null;
+  return Object.assign(cloneExerciseByName("Cable Curl"),{
+    name:"Alternating Dumbbell Curl",
+    type:"strength",
+    sets:2,
+    reps:"10-12",
+    rest:60,
+    muscles:"Biceps, brachialis and forearms",
+    setup:["Begin with the owned 10 lb dumbbell pair","Stand tall with one dumbbell in each hand","Keep the elbows beside the ribs and shoulders relaxed"],
+    steps:["Curl one dumbbell toward the shoulder while the other arm stays long.","Rotate the working palm naturally toward the shoulder.","Keep the elbow pinned and torso still.","Lower under control, then repeat on the other side."],
+    cues:["Alternate arms without rushing.","Do not swing or lean back.","Keep the wrists straight."],
+    why:"Adds free-weight biceps work while preserving the existing cable-curl stimulus.",
+    weightRecommendation:"Begin with the two 10 lb dumbbells. Progress only through the owned 15, 20 and 25 lb pairs when every repetition stays controlled.",
+    requires:["dumbbells"],
+    substituteId:null,
+    attachmentCard:null,
+    m1:null,
+    weightEntry:{mode:"total",paired:true,label:"Combined dumbbell weight",help:"Enter the combined weight of both dumbbells. Available pairs are 10, 15, 20 and 25 lb per hand."},
+    demoImage:"assets/exercise-library/generated/alternating-dumbbell-curl-motion-guide.webp"
+  });
 }
 
 function fullBodyBWorkout(){
@@ -2331,6 +2581,19 @@ function fullBodyCWorkout(){
       demoImage:"assets/phase2/cable-straight-arm-pushdown.jpg"
     }),
     cloneExerciseByName("Rope Triceps Pushdown"),
+    cloneExerciseByName("Cable Curl",{
+      name:"Behind-the-Back Single-Arm Cable Curl",sets:2,reps:"12-15",
+      muscles:"Biceps, brachialis and forearms",
+      setup:["Set one front-post pulley to the lowest position","Attach one D-handle","Stand outside the cage with your back to the active post","Take one small step forward into a staggered stance"],
+      steps:["Hold the handle in the working hand with the palm facing forward.","Let the upper arm trail slightly behind the torso while maintaining cable tension.","Keep the elbow fixed behind the body and curl the handle toward the shoulder.","Pause briefly, then lower slowly before switching arms."],
+      cues:["Face away from the machine.","Keep the elbow behind the torso.","Use a light load and no body swing."],
+      m1:{pinLeft:1,pinRight:null,attachment:"One D-handle",bench:"No bench",facing:"Face away from the active front post",stance:"Staggered stance one small step forward",start:"Working arm nearly straight just behind the hip",finish:"Curl the handle toward the shoulder while the elbow stays behind the torso",view:"Strict side view",pinNote:"Use one front-post pulley at position 1."},
+      why:"Adds a lengthened-position biceps movement without replacing Friday's existing pulling or arm work.",
+      weightRecommendation:"Start with the lightest practical selector setting and keep the shoulder and torso completely still.",
+      requires:["ritfitM1"],attachmentCard:{key:"dHandles",name:"One D-handle",qty:1},
+      weightEntry:{mode:"single",label:"Weight selected on the active stack",help:"Enter the selector setting on the one low cable stack used for this exercise."},
+      correctedGuide:null,demoImage:"assets/exercise-library/generated/behind-the-back-single-arm-cable-curl-motion-guide.webp"
+    }),
     cloneExerciseByName("Rope Triceps Pushdown",{
       name:"High to Low Cable Chop",sets:2,reps:10,
       muscles:"Obliques, abdominals, shoulders and hips",
@@ -2360,7 +2623,8 @@ function fullBodyCWorkout(){
 function strengthWorkoutForDay(dayIndex){
   const baseWorkout=dayIndex===2?fullBodyBWorkout():dayIndex===4?fullBodyCWorkout():data;
   const dumbbellAccessory=dumbbellAccessoryForDay(dayIndex);
-  const workoutData=dumbbellAccessory?[...baseWorkout,dumbbellAccessory]:baseWorkout;
+  const armAccessory=armAccessoryForDay(dayIndex);
+  const workoutData=[...baseWorkout,...[dumbbellAccessory,armAccessory].filter(Boolean)];
   const group=ex=>{
     if(ex.type==="cooldown")return 7;
     if(dayIndex===4&&ex.name==="Treadmill HIIT Intervals")return 6;

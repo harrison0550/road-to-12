@@ -111,10 +111,14 @@ function generateLiveFoundationWorkouts() {
     "setupGroup",
     "deepCopy",
     "cloneExerciseByName",
+    "currentLowerAbsPhase",
+    "lowerAbsProgramExercises",
+    "pelvicFloorRelaxationBlock",
     "cardioMobilityWorkout",
     "coreRecoveryWorkout",
     "zone2CardioWorkout",
     "dumbbellAccessoryForDay",
+    "armAccessoryForDay",
     "fullBodyBWorkout",
     "fullBodyCWorkout",
     "strengthWorkoutForDay",
@@ -134,7 +138,7 @@ function generateLiveFoundationWorkouts() {
   };
   const harness = `
     const data=window.WORKOUT_DATA;
-    const state={equipment:{ritfitM1:true,bench:true,treadmill:true,rower:true,kickrCore:true,bumperPlates:true,dumbbells:true,kettlebells:false,olympicBarbell:false}};
+    const state={history:[],lowerAbsProgram:{phase2AcceptedAt:null,completedSessionIds:[]},equipment:{ritfitM1:true,bench:true,treadmill:true,rower:true,kickrCore:true,bumperPlates:true,dumbbells:true,kettlebells:false,olympicBarbell:false}};
     const equipmentLabels={};
     ${workoutFunctionNames.map((name) => extractFunction(appSource, name)).join("\n")}
     this.__foundationWorkouts=[0,1,2,3,4,5].map(day=>workoutForDay(day));
@@ -161,6 +165,7 @@ const activeFoundationExercises = [
   "Easy Treadmill Cooldown",
   "Post-Workout Stretch",
   "Dumbbell Lateral Raise",
+  "Alternating Dumbbell Curl",
   "Easy Treadmill Warm-Up",
   "Incline Treadmill Walk",
   "iFIT Rowing Technique",
@@ -185,12 +190,21 @@ const activeFoundationExercises = [
   "Hip and Glute Mobility",
   "Thoracic and Shoulder Mobility",
   "Slow Breathing Cooldown",
+  "Reverse Crunch",
+  "Lying Leg Raise",
+  "Forearm Plank with Posterior Pelvic Tilt",
+  "Supine Diaphragmatic Breathing",
+  "Wide-Knee Child's Pose Breathing",
+  "Supported Deep Squat Breathing",
+  "Happy Baby Pelvic Floor Stretch",
+  "90/90 Hip Switch",
   "Smith Machine Squat",
   "Rear Delt Cable Fly",
   "Cable Face Pull",
   "Cable Straight Arm Pushdown",
   "High to Low Cable Chop",
   "Dumbbell Romanian Deadlift",
+  "Behind-the-Back Single-Arm Cable Curl",
   "Treadmill HIIT Intervals",
   "Zone 2 Warm-Up",
   "Zone 2 Cardio",
@@ -199,8 +213,8 @@ const activeFoundationExercises = [
 
 assert.strictEqual(
   new Set(activeFoundationExercises).size,
-  47,
-  "the active Foundation media audit must cover 47 distinct exercise names",
+  57,
+  "the active Foundation media audit must cover 57 distinct exercise names",
 );
 
 const liveFoundationWorkouts = generateLiveFoundationWorkouts();
@@ -327,10 +341,14 @@ assert(seatedRowEntry.equipment.some((item) => /close-grip row handle/i.test(ite
 
 assert.strictEqual(
   new Set(activeFoundationExercises.map((name) => library.entries[name].media)).size,
-  40,
-  "the audit should resolve the 47 active names to 40 distinct reviewed animations",
+  50,
+  "the audit should resolve the 57 active names to 50 distinct reviewed animations",
 );
 
+for (const name of ["Hanging Knee Raise", "Decline Bench Reverse Crunch", "Hanging Garhammer Raise"]) {
+  assert.strictEqual(library.entries[name]?.mediaType, "animation", `${name} must be ready before Phase 2 is accepted`);
+}
+
 console.log(
-  "Foundation animation coverage passed: live workoutForDay(0..5) output matches all 47 audited names, resolves to 40 reviewed animations, and preserves the single-cable Lat Pulldown and Seated Cable Row setups.",
+  "Foundation animation coverage passed: live workoutForDay(0..5) output matches all 57 audited names, resolves to 50 reviewed animations, and all three review-gated Phase 2 movements are ready.",
 );

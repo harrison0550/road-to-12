@@ -69,6 +69,7 @@ Copy this block for new work:
 
 ## Completed this sprint
 
+- [x] Add the approved biceps accessories, four-session lower-ab progression with explicit Phase 2 acceptance, and twice-weekly pelvic-floor relaxation/mobility sequence, including 13 offline animations and schema-14 tracking.
 - [x] Open a read-only, animation-first exercise guide with setup and previous performance when an exercise is selected from Workout Preview.
 - [x] Audit every active guided exercise name and deliver 47-of-47 animation coverage with automatic focused playback, explicit Pause/Play controls, centralized retained-reference attribution, offline caching, and automated validation.
 - [x] Modernize backup/restore with real release metadata, complete schedule and training state, pre-mutation validation, legacy compatibility, and realistic round-trip tests.

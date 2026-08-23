@@ -25,6 +25,7 @@ The roadmap communicates direction rather than a guaranteed schedule. Completed 
 - [x] Add validated, versioned backup/restore for authoritative offline state
 - [ ] Validate and mature the readiness algorithm before enabling Phase 2 review
 - [x] Add the iFIT rower and available 10/15/20/25 lb dumbbells to the weekly program without replacing existing exercises
+- [x] Add targeted biceps accessories, a review-gated four-session lower-ab progression, and pelvic-floor relaxation/mobility without replacing Foundation A/B/C
 - [x] Refresh Home with the Concept B Training Command Center design
 - [x] Add automated scheduling regression tests
 - [ ] Add calendar filtering and faster month navigation
@@ -39,7 +40,7 @@ The roadmap communicates direction rather than a guaranteed schedule. Completed 
 ### v13.4
 
 - [x] Deterministic adaptive training profile and explainable recommendation foundation
-- [x] Complete movement-animation coverage for all 47 active Foundation guided exercise names, with automatic focused playback, explicit Pause/Play controls, and centralized retained-reference attribution
+- [x] Complete movement-animation coverage for all 57 active Foundation guided exercise names and all three review-gated lower-ab Phase 2 movements, with automatic focused playback and offline caching
 - [ ] Expanded equipment setup guides
 - [ ] Explainable AI training recommendations
 - [ ] Exercise search and filtering

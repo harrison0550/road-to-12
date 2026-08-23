@@ -12,7 +12,7 @@ Exercise media may be an official equipment reference, reviewed licensed media, 
 
 `exercise-library.js` is the canonical media registry. Active guided exercises resolve by their exact display name to a reviewed entry containing media type, motion-poster path, animation path, meaningful alternative text, review date, and any retained source reference. Alias entries may share an exact movement asset, but the Workout Engine keeps each exercise's written prescription and identity separate.
 
-The current Foundation audit maps all 47 active guided names to 40 distinct Road to 12% animations: 34 added by the August 2026 audit and six previously approved originals. The visible Library-only Stationary Bike Setup uses a reviewed static equipment guide. Scope and exact names are recorded in `EXERCISE_MEDIA_AUDIT.md`. The registry must not pre-create or map speculative media for later training phases whose workout definitions are not approved.
+The current Foundation audit maps all 57 active guided names to 50 distinct Road to 12% animations. Three explicitly approved, review-gated lower-ab Phase 2 movements are also registered, for 53 distinct GIFs across 68 exact-name mappings. The visible Library-only Stationary Bike Setup uses a reviewed static equipment guide. Scope and exact names are recorded in `EXERCISE_MEDIA_AUDIT.md`. The registry must not pre-create or map speculative media for later training phases whose workout definitions are not approved.
 
 Focused exercise surfaces are animation-first. The reviewed GIF always starts when the workout or enlarged exercise view opens and can be paused back to its static WebP storyboard. Exercise-library grids continue using still previews so dozens of GIFs do not animate simultaneously. Larger media views reuse the same state model inside a labelled, focus-managed dialog.
 
@@ -21,6 +21,8 @@ When a new app-created animation supplements an existing official or reviewed so
 ## Workout Engine
 
 Phase 1 Foundation remains Full Body A/B/C. The progression engine derives exercise-specific PROGRESS, BUILD, HOLD, or DELOAD guidance from completed sets, reps, weight and feedback; it does not mutate workout definitions or apply a whole-workout rating uniformly. Phase readiness is a separate multi-signal projection and cannot change the schedule without a milestone review and explicit acceptance.
+
+The lower-ab track is a bounded subprogram inside Thursday Core + Recovery, not a change to the global Foundation phase. Schema-14 state records its completed session IDs, readiness timestamp, explicit Phase 2 acceptance, and completion timestamp. Only completed Thursday sessions count. Two Phase 1 exposures create a review milestone; elapsed weeks do not advance the exercise selection. Tuesday and Saturday pelvic-floor content is a relaxation/mobility block and must not be presented as diagnosis or medical treatment.
 
 Strength feedback records optional reps in reserve, form quality, and discomfort with the completed exercise snapshot. Concrete next-session prescriptions require explicit approval. `workout-prescriptions.js` snapshots an approval only into the next newly started session containing the same stable exercise ID; unrelated and already-active sessions are unaffected. The Workout Engine displays the session prescription while keeping actual set entries editable. Completion records whether the target was followed, partially followed, overridden, or not attempted. Base Foundation prescriptions remain separate and are never rewritten.
 
