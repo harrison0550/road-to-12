@@ -178,13 +178,14 @@ const activeFoundationExercises = [
   "Easy Cardio Cooldown",
   "Hip Hinge",
   "Smith Machine RDL",
-  "Smith Bulgarian Split Squat",
+  "Smith Machine Single-Leg Squat",
   "Smith Machine Calf Raise",
   "Low-Incline Dumbbell Press",
   "Single Arm Cable Row",
   "Cable Lateral Raise",
   "Cable Crunch",
   "Cable Hammer Curl",
+  "V-Bar Triceps Pushdown",
   "Dumbbell Floor Press",
   "Easy Recovery Walk",
   "Dead Bug",
@@ -216,8 +217,8 @@ const activeFoundationExercises = [
 
 assert.strictEqual(
   new Set(activeFoundationExercises).size,
-  57,
-  "the active Foundation media audit must cover 57 distinct exercise names",
+  58,
+  "the active Foundation media audit must cover 58 distinct exercise names",
 );
 
 const liveFoundationWorkouts = generateLiveFoundationWorkouts();
@@ -350,22 +351,43 @@ assert.strictEqual(seatedRows.length, 1, "Full Body A must contain one Seated Ca
 const seatedRow = seatedRows[0];
 assert.strictEqual(seatedRow.m1?.pinLeft, 1);
 assert.strictEqual(seatedRow.m1?.pinRight, null);
-assert.match(seatedRow.m1?.attachment || "", /one close-grip row handle on one low cable/i);
+assert.match(seatedRow.m1?.attachment || "", /rotating close-grip double-D row handle on one low cable/i);
 assert.match(seatedRow.m1?.start || "", /both arms/i);
 assert.strictEqual(seatedRow.weightEntry?.mode, "single");
 assert.match(seatedRow.weightEntry?.label || "", /active stack/i);
 assert.match(seatedRow.weightEntry?.help || "", /one low cable stack/i);
 const seatedRowEntry = library.entries["Seated Cable Row"];
 assert.match(seatedRowEntry.mediaAlt, /both hands/i);
-assert.match(seatedRowEntry.mediaAlt, /one close-grip handle/i);
+assert.match(seatedRowEntry.mediaAlt, /rotating close-grip double-D handle/i);
 assert.match(seatedRowEntry.mediaAlt, /one low cable/i);
 assert(seatedRowEntry.equipment.some((item) => /one low front-post pulley/i.test(item)));
-assert(seatedRowEntry.equipment.some((item) => /close-grip row handle/i.test(item)));
+assert(seatedRowEntry.equipment.some((item) => /close-grip double-D row handle/i.test(item)));
+
+const singleLegSquat=liveExercises.find((exercise)=>exercise.name==="Smith Machine Single-Leg Squat");
+assert(singleLegSquat,"Full Body B must schedule the approved no-bench Smith single-leg squat");
+assert.deepStrictEqual(Array.from(singleLegSquat.requires),["ritfitM1"]);
+assert(singleLegSquat.setup.some((item)=>/facing forward/i.test(item)));
+assert(singleLegSquat.setup.some((item)=>/hovers behind/i.test(item)));
+assert(singleLegSquat.cues.some((item)=>/no bench/i.test(item)));
+const singleLegEntry=library.entries["Smith Machine Single-Leg Squat"];
+assert.match(singleLegEntry.mediaAlt,/foot hovers unsupported behind/i);
+assert(!singleLegEntry.equipment.some((item)=>/bench/i.test(item)));
+
+const vBarPushdown=liveExercises.find((exercise)=>exercise.name==="V-Bar Triceps Pushdown");
+assert(vBarPushdown,"Full Body B must include the approved V-bar triceps addition");
+assert.strictEqual(vBarPushdown.sets,2);
+assert.strictEqual(vBarPushdown.m1?.pinLeft,13);
+assert.strictEqual(vBarPushdown.m1?.pinRight,null);
+assert.match(vBarPushdown.m1?.attachment||"",/angled V-bar on one high cable/i);
+assert.strictEqual(vBarPushdown.attachmentCard?.key,"vBar");
+const vBarEntry=library.entries["V-Bar Triceps Pushdown"];
+assert.match(vBarEntry.mediaAlt,/angled V-bar/i);
+assert(vBarEntry.equipment.some((item)=>/angled V-bar pressdown attachment/i.test(item)));
 
 assert.strictEqual(
   new Set(activeFoundationExercises.map((name) => library.entries[name].media)).size,
-  50,
-  "the audit should resolve the 57 active names to 50 distinct reviewed animations",
+  51,
+  "the audit should resolve the 58 active names to 51 distinct reviewed animations",
 );
 
 for (const name of ["Hanging Knee Raise", "Decline Bench Reverse Crunch", "Hanging Garhammer Raise"]) {
@@ -373,5 +395,5 @@ for (const name of ["Hanging Knee Raise", "Decline Bench Reverse Crunch", "Hangi
 }
 
 console.log(
-  "Foundation animation coverage passed: live workoutForDay(0..5) output matches all 57 audited names, resolves to 50 reviewed animations, and all three review-gated Phase 2 movements are ready.",
+  "Foundation animation coverage passed: live workoutForDay(0..5) output matches all 58 audited names, resolves to 51 reviewed animations, and all three review-gated Phase 2 movements are ready.",
 );

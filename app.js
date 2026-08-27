@@ -36,6 +36,7 @@ const PHASE2_ASSET_MAP={
  "Smith Romanian Deadlift":"assets/phase2/smith-machine-rdl.jpg",
  "Bulgarian Split Squat":"assets/phase2/smith-bulgarian-split-squat.jpg",
  "Smith Bulgarian Split Squat":"assets/phase2/smith-bulgarian-split-squat.jpg",
+ "Smith Machine Single-Leg Squat":"assets/exercise-library/generated/smith-bulgarian-split-squat-motion-guide.webp",
  "Smith Machine Calf Raise":"assets/phase2/smith-machine-calf-raise.jpg",
  "Cable Crunch":"assets/phase2/cable-crunch.jpg",
  "Cable Straight Arm Pushdown":"assets/phase2/cable-straight-arm-pushdown.jpg"
@@ -416,13 +417,13 @@ state.equipment=Object.assign({
 const weekPlan=[
  {short:"MON",icon:"🏋️",title:"Full Body A",detail:"Guided strength • chest, back, quads and shoulders",action:"workout",time:"55–65 min",focus:"Full-body strength",items:["Treadmill warm-up","Mobility","Smith Machine Squat","Cable Shoulder Press","Cable Curl","Smith Machine Bench Press","Seated Cable Row","Lat Pulldown","Rope Triceps Pushdown","Dumbbell Lateral Raise","Treadmill cooldown"],setup:"Smith and cable stations → 10 lb dumbbells"},
  {short:"TUE",icon:"🚶",title:"Cardio + Mobility",detail:"Incline treadmill, rowing technique and mobility recovery",action:"cardio",time:"45–50 min",focus:"Recovery, rowing skill and aerobic base",items:["5-minute easy treadmill warm-up","20–25 minute incline walk at conversational pace","8-minute easy iFIT rowing technique","Hip flexor stretch","Hamstring stretch","Chest and shoulder mobility","Easy cooldown"],setup:"Treadmill → iFIT rower → floor/wall mobility"},
- {short:"WED",icon:"💪",title:"Full Body B",detail:"Alternate guided full-body strength session",action:"upcoming",time:"55–65 min",focus:"Back, legs, chest and arms",items:["Treadmill warm-up","Hip hinge mobility","Smith Machine RDL","Smith Bulgarian Split Squat","Smith Machine Calf Raise","Low-Incline Dumbbell Press","Single Arm Cable Row","Lat Pulldown","Cable Lateral Raise","Cable Crunch","Cable Hammer Curl","Dumbbell Floor Press","Cooldown"],setup:"Smith station → low-incline bench and dumbbells → cable stations"},
+ {short:"WED",icon:"💪",title:"Full Body B",detail:"Alternate guided full-body strength session",action:"upcoming",time:"60–70 min",focus:"Back, legs, chest and arms",items:["Treadmill warm-up","Hip hinge mobility","Smith Machine RDL","Smith Machine Single-Leg Squat","Smith Machine Calf Raise","Low-Incline Dumbbell Press","Single Arm Cable Row","Lat Pulldown","V-Bar Triceps Pushdown","Cable Lateral Raise","Cable Crunch","Cable Hammer Curl","Dumbbell Floor Press","Cooldown"],setup:"Smith station → low-incline bench and dumbbells → cable stations"},
  {short:"THU",icon:"🧘",title:"Core + Recovery",detail:"Core training, stretching and easy movement",action:"recovery",time:"25–35 min",focus:"Core control and mobility",items:["Easy walk or row","Dead bug","Bird dog","Side plank from knees","Hip mobility","Upper-back mobility","Slow breathing cooldown"],setup:"Floor space; optional treadmill or rower"},
  {short:"FRI",icon:"🏋️",title:"Full Body C",detail:"Third weekly guided full-body strength session",action:"upcoming",time:"55–65 min",focus:"Legs, pushing, pulling and arms",items:["Treadmill warm-up","Hip hinge mobility","Smith Machine Squat","Cable Shoulder Press","Rear Delt Cable Fly","Cable Face Pull","Cable Straight Arm Pushdown","Rope Triceps Pushdown","High to Low Cable Chop","Dumbbell Romanian Deadlift","Treadmill HIIT Intervals","Cooldown"],setup:"Smith and cable stations → 15 lb dumbbells → treadmill"},
  {short:"SAT",icon:"❤️",title:"Zone 2 Cardio",detail:"Longer easy bike, rower or treadmill session",action:"cardio",time:"35–50 min",focus:"Fat-loss supporting aerobic work",items:["5-minute easy warm-up","25–40 minutes at a pace where you can speak in sentences","5-minute cooldown","Light stretching"],setup:"Choose treadmill, rower or KICKR CORE"},
  {short:"SUN",icon:"📏",title:"Recovery + Check-in",detail:"Rest, measurements and weekly review",action:"progress",time:"10–20 min",focus:"Recovery and progress review",items:["Morning body weight","Waist measurement","Optional progress photos","Review completed workouts","Plan the coming week","Full rest or gentle walk"],setup:"No gym setup required"}
 ];
-const CHEST_PROGRAM_REVISION="foundation-chest-2026-08-26";
+const FOUNDATION_PROGRAM_REVISION="foundation-attachments-2026-08-26";
 Object.assign(weekPlan[0],{
   detail:"Guided strength - chest, back, quads, shoulders and arms",
   time:"60\u201370 min",
@@ -1252,7 +1253,8 @@ function equipment(){
   ["straightBar","Short straight curl bar","Used for the corrected cable curl."],
   ["rope","Triceps rope","Used for rope pushdowns."],
   ["latBar","Lat pulldown bar","Used for lat pulldowns."],
-  ["rowHandle","Close-grip row handle","Used for seated cable rows."]
+  ["rowHandle","Rotating close-grip double-D row handle","Used for seated cable rows."],
+  ["vBar","Angled V-bar pressdown attachment","Used for V-bar triceps pushdowns."]
  ];
  app.innerHTML=`<section class="card"><h2>Profile</h2><label>What should the app call you?<input id="preferredName" value="${state.preferredName}" autocomplete="given-name"></label><button class="secondary profile-save" id="saveProfile">Save name</button></section>
  <section class="card adaptive-profile-card" aria-labelledby="trainingProfileTitle"><span class="pill">TRAINING PROFILE</span><h2 id="trainingProfileTitle">Foundation context</h2><p class="muted">These details provide context for future progression. They remain on this device and never change the current phase automatically.</p>
@@ -2491,7 +2493,15 @@ function legacyInclineCablePressExercise(){
 }
 
 function fullBodyAWorkout(){
-  return data.map(ex=>ex.name==="Cable Chest Press"?smithMachineBenchPressExercise():ex);
+  return data.map(ex=>{
+    if(ex.name==="Cable Chest Press")return smithMachineBenchPressExercise();
+    if(ex.name==="Seated Cable Row")return cloneExerciseByName("Seated Cable Row",{
+      setup:ex.setup.map(item=>item.includes("close-grip row handle")?"Attachment: rotating close-grip double-D row handle":item),
+      m1:Object.assign({},ex.m1,{attachment:"Rotating close-grip double-D row handle on one low cable"}),
+      attachmentCard:{key:"rowHandle",name:"Rotating close-grip double-D row handle",qty:1}
+    });
+    return ex;
+  });
 }
 
 function dumbbellAccessoryForDay(dayIndex){
@@ -2552,7 +2562,7 @@ function armAccessoryForDay(dayIndex){
   });
 }
 
-function fullBodyBWorkout(useLegacyChest=false){
+function fullBodyBWorkout(useLegacyChest=false,includeVBar=true){
   const smithWeightEntry={
     mode:"total",
     label:"Total plate weight across both sides",
@@ -2574,16 +2584,16 @@ function fullBodyBWorkout(useLegacyChest=false){
       demoImage:"assets/phase2/smith-machine-rdl.jpg",weightEntry:smithWeightEntry
     }),
     cloneExerciseByName("Goblet Squat",{
-      name:"Smith Bulgarian Split Squat",sets:2,reps:10,
+      name:"Smith Machine Single-Leg Squat",sets:2,reps:10,
       muscles:"Quads, glutes, hamstrings and core",
-      setup:["Place the bench behind you","Set the Smith bar around upper-chest height","Place one foot forward and rest the other foot on the bench","Set the safety stops for a comfortable bottom position"],
-      steps:["Unrack the bar with your front foot fully planted.","Lower straight down under control.","Keep the front knee tracking with the toes.","Drive through the front foot to stand.","Complete both sides before resting."],
-      cues:["Use a short, stable range first.","Keep most of the load on the front leg.","Hold the rack while positioning if needed."],
+      setup:["Stand inside the Smith cage facing forward","Set the bar across the upper back at a comfortable unrack height","Plant one working foot slightly in front of the bar path","Bend the non-working leg so its foot hovers behind you","Set the safety stops for a controlled single-leg depth"],
+      steps:["Unrack with the working foot fully planted and the other foot lifted behind you.","Lower under control on the planted leg while the rear foot remains unsupported.","Keep the working knee tracking with the toes and the heel flat.","Drive through the planted foot to stand without pushing from the rear leg.","Re-rack securely, then repeat on the other side."],
+      cues:["Face forward for the entire set.","No bench and no rear-foot support.","Keep the free foot hovering.","Use a short, stable range first."],
       rest:90,
-      why:"Provides unilateral squat work to balance the bilateral Smith squat used in Full Body A.",
-      weightRecommendation:"Practice body position with the empty Smith bar before adding plates.",
-      requires:["ritfitM1","bench"],substituteId:null,
-      demoImage:"assets/phase2/smith-bulgarian-split-squat.jpg",weightEntry:smithWeightEntry
+      why:"Provides supported unilateral leg work without requiring a bench or assistance from the non-working leg.",
+      weightRecommendation:"Practice the balance and depth with the empty Smith bar before adding plates.",
+      requires:["ritfitM1"],substituteId:null,
+      demoImage:"assets/exercise-library/generated/smith-bulgarian-split-squat-motion-guide.webp",weightEntry:smithWeightEntry
     }),
     cloneExerciseByName("Goblet Squat",{
       name:"Smith Machine Calf Raise",sets:2,reps:15,
@@ -2611,6 +2621,19 @@ function fullBodyBWorkout(useLegacyChest=false){
       demoImage:"assets/phase2/single-arm-cable-row.jpg"
     }),
     cloneExerciseByName("Lat Pulldown"),
+    ...(includeVBar?[cloneExerciseByName("Rope Triceps Pushdown",{
+      name:"V-Bar Triceps Pushdown",sets:2,reps:12,
+      muscles:"Triceps and elbow stability",
+      setup:["Set one front-post pulley to the highest position","Attach the angled V-bar by its centered cable eye","Stand facing the M1 with a stable tall stance"],
+      steps:["Grip the textured handles with palms facing inward.","Pin both elbows beside your ribs with the forearms bent.","Press the V-bar down until the arms are nearly straight.","Pause without shrugging, then return slowly while the elbows stay fixed."],
+      cues:["Keep the elbows pinned.","Use the centered cable connection.","Do not swing or lean over the bar."],
+      m1:{pinLeft:13,pinRight:null,attachment:"Angled V-bar on one high cable",bench:"No bench",facing:"Face the M1",stance:"Tall stable stance with ribs stacked",start:"V-bar near the lower chest with elbows beside the ribs",finish:"Handles beside the upper thighs with arms nearly straight",view:"Front-side view",pinNote:"Use one front-post pulley at position 13."},
+      why:"Adds direct triceps work to Full Body B using the newly available angled V-bar without removing any existing movement.",
+      weightRecommendation:"Begin with a light selector setting that keeps the upper arms still for every repetition.",
+      requires:["ritfitM1"],attachmentCard:{key:"vBar",name:"Angled V-bar pressdown attachment",qty:1},
+      weightEntry:{mode:"single",label:"Weight selected on the active stack",help:"Enter the selector setting on the one high cable stack used for this exercise."},
+      demoImage:"assets/exercise-library/generated/v-bar-triceps-pushdown-motion-guide.webp"
+    })]:[]),
     cloneExerciseByName("Cable Shoulder Press",{
       name:"Cable Lateral Raise",sets:2,reps:12,
       muscles:"Side shoulders and upper-body stability",
@@ -2738,8 +2761,10 @@ function fullBodyCWorkout(){
 }
 
 function strengthWorkoutForDay(dayIndex){
-  const preserveActiveDefinition=!!state.currentSession&&!state.currentSession.completedId&&state.currentSession.planDay===dayIndex&&!state.currentSession.programRevision;
-  const baseWorkout=dayIndex===0?(preserveActiveDefinition?data:fullBodyAWorkout()):dayIndex===2?fullBodyBWorkout(preserveActiveDefinition):dayIndex===4?fullBodyCWorkout():data;
+  const activeSession=!!state.currentSession&&!state.currentSession.completedId&&state.currentSession.planDay===dayIndex;
+  const preservePreChestDefinition=activeSession&&!state.currentSession.programRevision;
+  const includeCurrentAttachments=!activeSession||state.currentSession.programRevision===FOUNDATION_PROGRAM_REVISION;
+  const baseWorkout=dayIndex===0?(preservePreChestDefinition?data:fullBodyAWorkout()):dayIndex===2?fullBodyBWorkout(preservePreChestDefinition,includeCurrentAttachments):dayIndex===4?fullBodyCWorkout():data;
   const dumbbellAccessory=dumbbellAccessoryForDay(dayIndex);
   const armAccessory=armAccessoryForDay(dayIndex);
   const workoutData=[...baseWorkout,...[dumbbellAccessory,armAccessory].filter(Boolean)];
@@ -2795,7 +2820,7 @@ function startNewSession(dayIndex=currentPlanIndex(),selectedSchedule=null){
    plannedDate:isRecovered?selectedSchedule.plannedDate:null,
    originalScheduledDate:isRecovered?selectedSchedule.scheduledDate:null,
    trainingPhase:deepCopy(state.trainingPhase),
-   programRevision:CHEST_PROGRAM_REVISION,
+   programRevision:FOUNDATION_PROGRAM_REVISION,
    equipment:deepCopy(state.equipment),
    sessionPrescriptions
  };

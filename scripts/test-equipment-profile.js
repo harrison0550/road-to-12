@@ -27,5 +27,7 @@ assert.doesNotMatch(
   /<input type="file"[^>]*capture=["']environment["'][^>]*data-photo=/,
   "Attachment Locker must not force the rear camera instead of offering Photo Library",
 );
+assert.match(app, /\["vBar","Angled V-bar pressdown attachment","Used for V-bar triceps pushdowns\."\]/, "Attachment Locker must include the new V-bar");
+assert.match(app, /\["rowHandle","Rotating close-grip double-D row handle","Used for seated cable rows\."\]/, "Attachment Locker must identify the rotating row handle");
 
 console.log("Equipment profile checks passed: equipment remains compatible and Attachment Locker offers the iOS photo picker.");

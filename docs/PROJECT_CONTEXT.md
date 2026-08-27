@@ -6,10 +6,10 @@ Read this file at the beginning of every Codex or engineering session. It is the
 
 - Product: Road to 12%
 - Version: 13.2.0
-- Build: 2026.08.26.2
-- Last updated: August 26, 2026
-- Service Worker cache: `road12-v13-2-57-shell`
-- Exercise media cache: `road12-v13-2-57-media`
+- Build: 2026.08.27.1
+- Last updated: August 27, 2026
+- Service Worker cache: `road12-v13-2-58-shell`
+- Exercise media cache: `road12-v13-2-58-media`
 - Runtime: static, client-only, offline-first PWA
 - Primary storage key: `road12v5`
 
@@ -63,6 +63,7 @@ Historical regressions requiring automated coverage:
 
 - BUG-022: Development-era incomplete sessions reduce Program Adherence — resolved in build 2026.08.20.4 with a non-destructive August 20 adherence baseline.
 - BUG-023: Displayed approved weights save as zero unless retyped — resolved in build 2026.08.26.2 with actual input defaults and explicit evidence-based history repair.
+- BUG-024: Smith single-leg squat guide showed the wrong stance/setup — resolved in build 2026.08.27.1 with a forward-facing, no-bench, unsupported-rear-foot prescription and approved animation.
 
 See `KNOWN_BUGS.md` before diagnosing or fixing defects.
 
@@ -86,7 +87,8 @@ See `CODEX_TASKS.md` for priority and acceptance detail.
 - An approved session weight is the actual editable set default, not placeholder text, so completing an untouched set records what the user saw. Prior-session guidance remains display-only. Progress may repair historical zero-weight sets only after confirmation and only when the completed snapshot contains the exact captured prescription; each change retains an audit record and unknown weights are never inferred. Smith selected-volume calculations include the known 33 lb bar.
 - Workout-preview exercise rows are interactive, non-mutating entry points to a full exercise guide. The preview detail reuses the reviewed automatic animation, setup and execution guidance, equipment-specific coaching, prescription summary, and historical performance lookup without creating or changing an active workout. Returning restores the preview list position.
 - Program Adherence starts from the saved August 20, 2026 baseline for the current installation. Earlier development-era sessions remain visible in Calendar and history but do not affect the metric. Only resolved completed or missed training sessions on or after the baseline count; an unresolved scheduled workout never lowers adherence.
-- The current Phase 1 Foundation program has complete exact-name media coverage: 57 currently active guided names resolve to 50 distinct movement animations. Three review-gated lower-ab Phase 2 movements are also approved and cached. The retained legacy chest-press animations bring the registry to 55 distinct GIFs across 70 exact-name mappings. Shared warm-up, cooldown, recovery, pelvic-mobility, and alias names may reuse one accurate movement asset while keeping written prescriptions distinct. The visible Library-only Stationary Bike Setup uses a reviewed static setup guide.
+- The current Phase 1 Foundation program has complete exact-name media coverage: 58 currently active guided names resolve to 51 distinct movement animations. Three review-gated lower-ab Phase 2 movements are also approved and cached. Legacy and alias mappings bring the registry to 56 distinct GIFs across 72 exact-name mappings. Shared warm-up, cooldown, recovery, pelvic-mobility, and alias names may reuse one accurate movement asset while keeping written prescriptions distinct. The visible Library-only Stationary Bike Setup uses a reviewed static setup guide.
+- Full Body B uses the no-bench Smith Machine Single-Leg Squat and adds two sets of V-Bar Triceps Pushdown with one high front-post pulley. Seated Cable Row explicitly uses the owned rotating close-grip double-D handle. The prior split-squat display name remains an alias of the same stable exercise ID, and the session program revision prevents the new additive V-bar block from entering an older active workout.
 - New Full Body A sessions use Smith Machine Bench Press and new Full Body B sessions use Low-Incline Dumbbell Press. The prior Cable Chest Press and Incline Cable Press definitions, stable IDs, media, and completed history remain available. A session-level `programRevision` preserves either old press when an A/B workout was already active before build 2026.08.26.1.
 - Both new chest presses include a visible technique card, optional non-working activation set, chest-engagement feedback, and conservative engagement-aware progression. Activation completion is resumable inside the active session but is excluded from working volume, personal records, progression evidence, and completed exercise history.
 - Full Body A adds two sets of Alternating Dumbbell Curl and Full Body C adds two sets of Behind-the-Back Single-Arm Cable Curl. These are additive accessories and do not replace existing Foundation work.

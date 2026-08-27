@@ -201,7 +201,7 @@
       mediaAlt: "RitFit seated cable row start and finish positions using a close-grip row handle",
       primaryMuscles: ["Mid-back", "Lats"],
       secondaryMuscles: ["Rear shoulders", "Biceps"],
-      equipment: ["RitFit cable station", "One low front-post pulley", "Close-grip row handle", "Bench"],
+      equipment: ["RitFit cable station", "One low front-post pulley", "Rotating close-grip double-D row handle", "Bench"],
       commonMistakes: ["Rounding the back", "Leaning far backward", "Pulling with shrugged shoulders"]
     }),
     "Cable Shoulder Press": ritfit({
@@ -589,7 +589,7 @@
     },
     "Seated Cable Row": {
       slug: "seated-cable-row",
-      mediaAlt: "Movement animation of the red-shirt trainer using both hands to row one close-grip handle on one low cable toward the lower ribs with a tall torso and controlled return"
+      mediaAlt: "Movement animation of the red-shirt trainer using both hands to row one rotating close-grip double-D handle on one low cable toward the lower ribs with a tall torso and controlled return"
     },
     "Lat Pulldown": {
       slug: "lat-pulldown",
@@ -605,6 +605,14 @@
       slug: "rope-triceps-pushdown",
       mediaAlt: "Movement animation of the red-shirt trainer pressing a rope attachment down from a high cable while the elbows stay pinned beside the ribs"
     },
+    "V-Bar Triceps Pushdown": {
+      slug: "v-bar-triceps-pushdown",
+      mediaAlt: "Movement animation of the red-shirt trainer facing the red cage and pressing an angled V-bar from the lower chest toward the thighs while both elbows stay pinned beside the ribs",
+      primaryMuscles: ["Triceps"],
+      secondaryMuscles: ["Forearms", "Core"],
+      equipment: ["RitFit M1 cable station", "One high front-post pulley", "Angled V-bar pressdown attachment"],
+      commonMistakes: ["Letting the elbows drift forward", "Shrugging the shoulders", "Using torso momentum"]
+    },
     "Cable Curl": {
       slug: "cable-curl",
       mediaAlt: "Movement animation of the red-shirt trainer facing one low cable and curling a short straight bar with an underhand grip while the elbows remain still"
@@ -616,7 +624,18 @@
     },
     "Smith Bulgarian Split Squat": {
       slug: "smith-bulgarian-split-squat",
-      mediaAlt: "Movement animation of the red-shirt trainer lowering and standing in a Smith split squat with the rear foot supported and front knee tracking over the toes",
+      mediaAlt: "Movement animation of the red-shirt trainer facing forward and lowering on one planted leg under the Smith bar while the other foot hovers unsupported behind",
+      equipment: ["RitFit M1 Smith station"],
+      commonMistakes: ["Touching down or pushing from the free leg", "Letting the working knee cave inward", "Lifting the working heel"],
+      retainPreviousReference: false
+    },
+    "Smith Machine Single-Leg Squat": {
+      slug: "smith-bulgarian-split-squat",
+      mediaAlt: "Movement animation of the red-shirt trainer facing forward and lowering on one planted leg under the Smith bar while the other foot hovers unsupported behind",
+      primaryMuscles: ["Quadriceps", "Glutes"],
+      secondaryMuscles: ["Hamstrings", "Core"],
+      equipment: ["RitFit M1 Smith station"],
+      commonMistakes: ["Touching down or pushing from the free leg", "Letting the working knee cave inward", "Lifting the working heel"],
       retainPreviousReference: false
     },
     "Smith Machine Calf Raise": {

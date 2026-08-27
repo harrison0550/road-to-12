@@ -17,6 +17,15 @@ No confirmed production behavior defects are currently documented.
 
 ## Resolved
 
+### BUG-024 — Smith single-leg squat animation and setup are incorrect
+
+- Status: Resolved in v13.2.0 maintenance build 2026.08.27.1
+- Severity: High
+- Area: Workout Engine / Exercise Media
+- Report: The movement was labelled as a Bulgarian split squat and depicted a bench-supported stance that did not match the intended Smith-machine movement.
+- Resolution: The active movement is now Smith Machine Single-Leg Squat. It is performed facing forward inside the cage with the working foot slightly ahead, no bench, and the unsupported rear foot hovering. The approved app-created animation and written setup now match; the former name remains a stable identity alias for history compatibility.
+- Regression tests: `scripts/test-exercise-animation-coverage.js`, `scripts/test-structured-strength-history.js`
+
 ### BUG-023 — Displayed recommended weight is saved as zero
 
 - Status: Resolved in v13.2.0 maintenance build 2026.08.26.2

@@ -1,5 +1,5 @@
 /* Keep this query aligned with app-meta.js so Safari cannot reuse stale imported metadata. */
-importScripts("./app-meta.js?build=2026.08.26.2");
+importScripts("./app-meta.js?build=2026.08.27.1");
 
 const CACHE=self.ROAD12_META.serviceWorkerCache;
 const MEDIA_CACHE=CACHE.endsWith("-shell")?`${CACHE.slice(0,-6)}-media`:`${CACHE}-media`;
@@ -88,6 +88,7 @@ const MEDIA_ASSETS=[
   "./assets/exercise-library/generated/treadmill-easy-walk-motion-guide.webp",
   "./assets/exercise-library/generated/treadmill-hiit-interval-motion-guide.webp",
   "./assets/exercise-library/generated/treadmill-incline-walk-motion-guide.webp",
+  "./assets/exercise-library/generated/v-bar-triceps-pushdown-motion-guide.webp",
   "./assets/exercise-library/generated/zone-2-cardio-motion-guide.webp",
   "./assets/exercise-library/original/arm-circles-posture.webp",
   "./assets/exercise-library/original/bird-dog-motion-guide.webp",
@@ -165,6 +166,7 @@ const MEDIA_ASSETS=[
   "./assets/exercise-library/generated/treadmill-easy-walk.gif",
   "./assets/exercise-library/generated/treadmill-hiit-interval.gif",
   "./assets/exercise-library/generated/treadmill-incline-walk.gif",
+  "./assets/exercise-library/generated/v-bar-triceps-pushdown.gif",
   "./assets/exercise-library/generated/zone-2-cardio.gif",
   "./assets/exercise-library/original/bird-dog-animation.gif",
   "./assets/exercise-library/original/dead-bug-animation.gif",
