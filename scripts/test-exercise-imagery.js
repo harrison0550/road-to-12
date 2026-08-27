@@ -37,6 +37,14 @@ const safetyChecks = [
     ["heels planted", "knees tracking over the toes"],
   ],
   [
+    "Smith Machine Bench Press",
+    ["lower-to-middle chest", "flat bench", "complete red RitFit cage", "shoulder blades pinned"],
+  ],
+  [
+    "Low-Incline Dumbbell Press",
+    ["two matching dumbbells", "upper chest", "low-incline bench", "feet planted"],
+  ],
+  [
     "Lat Pulldown",
     ["centered single-cable", "upper chest"],
   ],

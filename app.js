@@ -414,14 +414,15 @@ state.equipment=Object.assign({
   olympicBarbell:false
 },state.equipment||{});
 const weekPlan=[
- {short:"MON",icon:"🏋️",title:"Full Body A",detail:"Guided strength • chest, back, quads and shoulders",action:"workout",time:"55–65 min",focus:"Full-body strength",items:["Treadmill warm-up","Mobility","Smith Machine Squat","Cable Shoulder Press","Cable Curl","Cable Chest Press","Seated Cable Row","Lat Pulldown","Rope Triceps Pushdown","Dumbbell Lateral Raise","Treadmill cooldown"],setup:"Smith and cable stations → 10 lb dumbbells"},
+ {short:"MON",icon:"🏋️",title:"Full Body A",detail:"Guided strength • chest, back, quads and shoulders",action:"workout",time:"55–65 min",focus:"Full-body strength",items:["Treadmill warm-up","Mobility","Smith Machine Squat","Cable Shoulder Press","Cable Curl","Smith Machine Bench Press","Seated Cable Row","Lat Pulldown","Rope Triceps Pushdown","Dumbbell Lateral Raise","Treadmill cooldown"],setup:"Smith and cable stations → 10 lb dumbbells"},
  {short:"TUE",icon:"🚶",title:"Cardio + Mobility",detail:"Incline treadmill, rowing technique and mobility recovery",action:"cardio",time:"45–50 min",focus:"Recovery, rowing skill and aerobic base",items:["5-minute easy treadmill warm-up","20–25 minute incline walk at conversational pace","8-minute easy iFIT rowing technique","Hip flexor stretch","Hamstring stretch","Chest and shoulder mobility","Easy cooldown"],setup:"Treadmill → iFIT rower → floor/wall mobility"},
- {short:"WED",icon:"💪",title:"Full Body B",detail:"Alternate guided full-body strength session",action:"upcoming",time:"55–65 min",focus:"Back, legs, chest and arms",items:["Treadmill warm-up","Hip hinge mobility","Smith Machine RDL","Smith Bulgarian Split Squat","Smith Machine Calf Raise","Incline Cable Press","Single Arm Cable Row","Lat Pulldown","Cable Lateral Raise","Cable Crunch","Cable Hammer Curl","Dumbbell Floor Press","Cooldown"],setup:"Smith and cable stations → 10–15 lb dumbbells"},
+ {short:"WED",icon:"💪",title:"Full Body B",detail:"Alternate guided full-body strength session",action:"upcoming",time:"55–65 min",focus:"Back, legs, chest and arms",items:["Treadmill warm-up","Hip hinge mobility","Smith Machine RDL","Smith Bulgarian Split Squat","Smith Machine Calf Raise","Low-Incline Dumbbell Press","Single Arm Cable Row","Lat Pulldown","Cable Lateral Raise","Cable Crunch","Cable Hammer Curl","Dumbbell Floor Press","Cooldown"],setup:"Smith station → low-incline bench and dumbbells → cable stations"},
  {short:"THU",icon:"🧘",title:"Core + Recovery",detail:"Core training, stretching and easy movement",action:"recovery",time:"25–35 min",focus:"Core control and mobility",items:["Easy walk or row","Dead bug","Bird dog","Side plank from knees","Hip mobility","Upper-back mobility","Slow breathing cooldown"],setup:"Floor space; optional treadmill or rower"},
  {short:"FRI",icon:"🏋️",title:"Full Body C",detail:"Third weekly guided full-body strength session",action:"upcoming",time:"55–65 min",focus:"Legs, pushing, pulling and arms",items:["Treadmill warm-up","Hip hinge mobility","Smith Machine Squat","Cable Shoulder Press","Rear Delt Cable Fly","Cable Face Pull","Cable Straight Arm Pushdown","Rope Triceps Pushdown","High to Low Cable Chop","Dumbbell Romanian Deadlift","Treadmill HIIT Intervals","Cooldown"],setup:"Smith and cable stations → 15 lb dumbbells → treadmill"},
  {short:"SAT",icon:"❤️",title:"Zone 2 Cardio",detail:"Longer easy bike, rower or treadmill session",action:"cardio",time:"35–50 min",focus:"Fat-loss supporting aerobic work",items:["5-minute easy warm-up","25–40 minutes at a pace where you can speak in sentences","5-minute cooldown","Light stretching"],setup:"Choose treadmill, rower or KICKR CORE"},
  {short:"SUN",icon:"📏",title:"Recovery + Check-in",detail:"Rest, measurements and weekly review",action:"progress",time:"10–20 min",focus:"Recovery and progress review",items:["Morning body weight","Waist measurement","Optional progress photos","Review completed workouts","Plan the coming week","Full rest or gentle walk"],setup:"No gym setup required"}
 ];
+const CHEST_PROGRAM_REVISION="foundation-chest-2026-08-26";
 Object.assign(weekPlan[0],{
   detail:"Guided strength - chest, back, quads, shoulders and arms",
   time:"60\u201370 min",
@@ -889,11 +890,13 @@ function bindAnimationControls(){
 }
 
 function quickSettings(ex){
+  const priorExposure=ex.engagementTarget&&state.history.some(session=>(session.exercises||[]).some(item=>item.name===ex.name));
+  const rirRange=priorExposure?ex.progressionRirRange:(ex.firstExposureRirRange||ex.progressionRirRange);
   const values = ex.type==="strength"
     ? [
         ["Target",`${ex.sets} × ${ex.reps}${ex.repUnit==="seconds"?" sec":""}`],
         ["Rest",`${ex.rest} sec`],
-        ["Focus","Controlled form"]
+        ["Focus",ex.engagementTarget?`${ex.engagementTarget} · ${rirRange?.join("–")} RIR`:"Controlled form"]
       ]
     : [
         ["Duration",ex.duration],
@@ -993,6 +996,46 @@ function openExerciseAsset(ex){
  overlay.querySelector(".asset-close").focus();
 }
 
+function chestSetupMarkup(ex){
+  if(!ex.chestSetup)return "";
+  return `<section class="chest-setup-card" aria-labelledby="chestSetupTitle">
+    <span class="pill">TECHNIQUE FIRST</span>
+    <h3 id="chestSetupTitle">${ex.chestSetup.title}</h3>
+    <ol>${ex.chestSetup.instructions.map(item=>`<li>${item}</li>`).join("")}</ol>
+    <blockquote>${ex.chestSetup.cue}</blockquote>
+  </section>`;
+}
+
+function chestActivationMarkup(ex){
+  if(!ex.chestActivation)return "";
+  const exerciseId=window.ROAD12_EXERCISES.resolve(ex.name).id;
+  const completed=!!state.currentSession?.chestActivation?.[exerciseId]?.completed;
+  return `<section class="chest-activation-card">
+    <span class="pill">OPTIONAL ACTIVATION</span>
+    <h3>Chest Activation Set</h3>
+    <p><strong>1 set × 12–15 reps · very light resistance</strong></p>
+    <div class="activation-tempo"><span>3 sec lowering</span><span>Brief stretch</span><span>2 sec pressing</span><span>Chest squeeze</span></div>
+    <p>This set is for learning the movement, not fatigue. Use a light weight and focus entirely on feeling the chest contract.</p>
+    <small>Not counted toward working volume, progression, history, or personal records.</small>
+    <button type="button" class="secondary" id="chestActivationDone" aria-pressed="${completed}">${completed?"Activation complete ✓":"Mark activation complete"}</button>
+  </section>`;
+}
+
+function bindChestActivation(ex){
+  const button=document.querySelector("#chestActivationDone");
+  if(!button||!state.currentSession)return;
+  const exerciseId=window.ROAD12_EXERCISES.resolve(ex.name).id;
+  button.onclick=()=>{
+    state.currentSession.chestActivation=state.currentSession.chestActivation||{};
+    const completed=button.getAttribute("aria-pressed")!=="true";
+    if(completed)state.currentSession.chestActivation[exerciseId]={completed:true,completedAt:new Date().toISOString()};
+    else delete state.currentSession.chestActivation[exerciseId];
+    save();
+    button.setAttribute("aria-pressed",String(completed));
+    button.textContent=completed?"Activation complete ✓":"Mark activation complete";
+  };
+}
+
 function lastCompletedWeight(ex){
  const match=state.history.slice().reverse().map(session=>({
    session,
@@ -1018,21 +1061,23 @@ function sets(ex){
  const targetUnit=ex.repUnit==="seconds"?" sec":" reps";
  const displayedLabel=isSmithAddedWeight?"Total Plates — Both Sides":entry.label;
  const previous=lastCompletedWeight(ex);
- const feedback=state.exerciseFeedback[ex.name]||{rir:"",form:"",discomfort:false};
+ const feedback=state.exerciseFeedback[ex.name]||{rir:"",form:"",discomfort:false,muscleEngagement:null};
+ const engagementRating=feedback.muscleEngagement?.rating||"";
  const captured=window.ROAD12_PRESCRIPTIONS.forExercise(state.currentSession,ex,name=>window.ROAD12_EXERCISES.resolve(name));
  const target=window.ROAD12_PRESCRIPTIONS.effective(state.currentSession,ex,name=>window.ROAD12_EXERCISES.resolve(name));
  return `<section class="card timer-card"><h3>${target.sets} sets × ${target.reps}${targetUnit}</h3>
  ${captured?`<div class="approved-prescription"><small>PRESCRIBED FOR THIS SESSION · ${captured.action}</small><strong>${captured.prescription.summary||`${target.sets} sets × ${target.reps} reps${target.weight!=null?` at ${target.weight} ${target.weightUnit}`:""}`}</strong><span>Record what you actually perform below. You can override any target.</span></div>`:""}<div class="weight-entry-explainer"><span>${entry.mode==="dual"?"↔️":entry.mode==="single"?"1️⃣":"🏋️"}</span><div><strong>${displayedLabel}</strong><p>${entry.help}</p>${previous?`<small class="previous-weight">Last completed: <b>${previous.label}</b> on ${previous.date}</small>`:'<small class="previous-weight">No previous completed weight yet.</small>'}${entry.mode==="dual"?`<small>Example: left 20 lb + right 20 lb → enter <b>20</b>; combined selected stack weight is 40 lb.</small>`:""}</div></div>
  <div class="set-table-head"><span>SET</span><span>${isBodyweight?"LOAD":entry.mode==="dual"?"LB / STACK":isSmithAddedWeight?"PLATES TOTAL":"WEIGHT LB"}</span><span>${repLabel}</span><span>DONE</span></div>
  ${state.logs[ex.name].map((v,i)=>`<div class="set-row"><strong>${i+1}</strong>${isBodyweight?`<span class="bodyweight-load">Bodyweight</span>`:`<input data-w="${i}" inputmode="decimal" placeholder="${target.weight!=null?target.weight:entry.mode==="dual"?"per stack":isSmithAddedWeight?"both sides":"lb"}" aria-label="${displayedLabel}, set ${i+1}" value="${v?.weight||""}">`}<input data-r="${i}" inputmode="numeric" aria-label="${repLabel.toLowerCase()}, set ${i+1}" value="${v?.reps||window.ROAD12_PRESCRIPTIONS.minimumReps(target.reps)}"><button data-d="${i}" class="${v?.done?"done":""}" aria-label="${v?.done?"Mark set incomplete":"Mark set complete"}">${v?.done?"✓":"○"}</button>${entry.mode==="dual"&&v?.weight?`<small class="combined-weight">Combined selected: ${Number(v.weight)*2} lb</small>`:""}</div>`).join("")}
- <div class="exercise-feedback"><div><small>QUICK EXERCISE FEEDBACK</small><strong>Help tune the next session</strong></div><label>Reps left in reserve<select id="exerciseRir"><option value="">Choose</option>${[0,1,2,3,4].map(value=>`<option value="${value}" ${String(feedback.rir)===String(value)?"selected":""}>${value===4?"4+":value}</option>`).join("")}</select></label><label>Form quality<select id="exerciseForm"><option value="">Choose</option><option ${feedback.form==="Clean"?"selected":""}>Clean</option><option ${feedback.form==="Breaking down"?"selected":""}>Breaking down</option></select></label><label class="feedback-check"><input id="exerciseDiscomfort" type="checkbox" ${feedback.discomfort?"checked":""}><span>Pain or discomfort was present</span></label><p>If pain is sharp, worsening, or unusual, stop the movement. This feedback can recommend a deload but does not diagnose an injury.</p></div>
+ <div class="exercise-feedback"><div><small>QUICK EXERCISE FEEDBACK</small><strong>Help tune the next session</strong></div><label>Reps left in reserve<select id="exerciseRir"><option value="">Choose</option>${[0,1,2,3,4].map(value=>`<option value="${value}" ${String(feedback.rir)===String(value)?"selected":""}>${value===4?"4+":value}</option>`).join("")}</select></label><label>Form quality<select id="exerciseForm"><option value="">Choose</option><option ${feedback.form==="Clean"?"selected":""}>Clean</option><option ${feedback.form==="Breaking down"?"selected":""}>Breaking down</option></select></label>${ex.engagementTarget?`<label>${ex.engagementTarget==="upper chest"?"Upper chest":"Chest"} engagement<select id="exerciseEngagement"><option value="">Choose</option>${["Strong","Moderate","Low","None"].map(value=>`<option ${engagementRating===value?"selected":""}>${value}</option>`).join("")}</select></label>`:""}<label class="feedback-check"><input id="exerciseDiscomfort" type="checkbox" ${feedback.discomfort?"checked":""}><span>Pain or discomfort was present</span></label><p>If pain is sharp, worsening, or unusual, stop the movement. This feedback can recommend a deload but does not diagnose an injury.</p></div>
  <div class="timer" id="timer" role="status" aria-live="polite">Rest ${String(Math.floor(ex.rest/60)).padStart(2,"0")}:${String(ex.rest%60).padStart(2,"0")}</div><div class="rest-coach-message" id="restCoach">Recover and prepare for your next set.</div><div class="timer-controls"><button class="secondary" id="rest">Start rest timer</button><button class="secondary" id="stopTimer">Stop timer</button></div></section>`}
 function captureExerciseFeedback(ex){
  const rir=document.querySelector("#exerciseRir")?.value||"";
  const form=document.querySelector("#exerciseForm")?.value||"";
- const discomfort=!!document.querySelector("#exerciseDiscomfort")?.checked;
- if(!rir&&!form&&!discomfort)return;
- state.exerciseFeedback[ex.name]={rir:rir===""?null:Number(rir),form,discomfort,recordedAt:new Date().toISOString()};
+  const discomfort=!!document.querySelector("#exerciseDiscomfort")?.checked;
+ const engagement=document.querySelector("#exerciseEngagement")?.value||"";
+ if(!rir&&!form&&!discomfort&&!engagement)return;
+ state.exerciseFeedback[ex.name]={rir:rir===""?null:Number(rir),form,discomfort,muscleEngagement:engagement?{target:ex.engagementTarget,rating:engagement}:null,recordedAt:new Date().toISOString()};
  save();
 }
 function timed(ex){const cardio=isMeaningfulCardioBlock(ex),runtime=state.cardioTimers[ex.name];return `<section class="card timer-card"><h3>${ex.duration}</h3>${cardio?'<p class="cardio-timer-note">The countdown is your target. When it finishes, tap <strong>Keep going</strong> to continue tracking total cardio time.</p>':""}<div class="timer" id="timer" role="status" aria-live="polite">${ex.duration.includes(":")?ex.duration:"Ready"}</div>${cardio?'<div class="cardio-total" id="cardioTotal" aria-live="polite">Total cardio: 00:00</div>':""}${ex.duration.includes(":")?`<div class="timer-controls"><button class="primary" id="rest">${runtime?.status?"Restart target":"Start timer"}</button>${cardio?'<button class="primary keep-going" id="keepGoing" hidden>Keep going</button>':""}<button class="secondary" id="stopTimer">Stop timer</button></div>`:""}</section>`}
@@ -1061,7 +1106,7 @@ function bindSets(ex){
    if(done)startTimer(ex.rest);
  });
  document.querySelector("#rest").onclick=()=>startTimer(ex.rest);
- ["#exerciseRir","#exerciseForm","#exerciseDiscomfort"].forEach(selector=>{const input=document.querySelector(selector);if(input)input.onchange=()=>captureExerciseFeedback(ex);});
+ ["#exerciseRir","#exerciseForm","#exerciseEngagement","#exerciseDiscomfort"].forEach(selector=>{const input=document.querySelector(selector);if(input)input.onchange=()=>captureExerciseFeedback(ex);});
  const stop=document.querySelector("#stopTimer");if(stop)stop.onclick=stopTimer
 }
 function bindTimer(ex){
@@ -1456,7 +1501,8 @@ function summary(){
 function library(){
  const extras=window.EXTRA_LIBRARY_DATA||[];
  const scheduled=[0,1,2,3,4,5].flatMap(day=>workoutForDay(day));
- const all=[...new Map([...data,...extras,...scheduled].map(ex=>[ex.name,ex])).values()];
+ const legacy=[legacyInclineCablePressExercise()];
+ const all=[...new Map([...data,...extras,...scheduled,...legacy].map(ex=>[ex.name,ex])).values()];
  const category=state.libraryCategory;
  let content="";
  const mediaTiles=items=>`<div class="exercise-library-grid">${items.map(x=>{const entry=exerciseLibraryEntry(x),asset=entryDisplayAsset(entry);return `<button class="exercise-library-tile professional-library-tile" data-lib-name="${x.name}">${asset?`<img src="${asset}" alt="${entry.mediaAlt}" loading="lazy">`:`<div class="library-no-media">Written guide</div>`}<span class="tag">${libraryMediaLabel(entry)}</span><strong>${x.name}</strong><small>${x.muscles||"Guided movement"}</small></button>`}).join("")}</div>`;
@@ -1925,6 +1971,8 @@ function exercise(ex,workoutData=activeWorkout()){
    <div class="why-card"><h3>Why this exercise?</h3><p>${ex.why||"Builds strength, control and confidence."}</p></div>
    ${attachmentPhotoMarkup(ex)}
    ${ex.m1?m1SetupCoach(ex):`<div class="simple-setup-flow"><section class="setup-section"><div class="section-number">1</div><div><small>SETUP</small><h3>Get ready</h3>${ex.setup.map(x=>`<p>${x}</p>`).join("")}</div></section></div>`}
+   ${chestSetupMarkup(ex)}
+   ${chestActivationMarkup(ex)}
    ${exerciseTeachingMarkup(ex)}
    ${smithPlateCalculator(ex)}
    ${quickSettings(ex)}
@@ -1943,7 +1991,7 @@ function exercise(ex,workoutData=activeWorkout()){
   document.querySelector("#openAsset")?.addEventListener("click",()=>openExerciseAsset(ex));
  const plate=document.querySelector("#plateTotal");
  if(plate)plate.oninput=()=>document.querySelector("#plateResult").textContent=calculatePlates(plate.value);
- if(strength)bindSets(ex);else bindTimer(ex);
+ if(strength){bindSets(ex);bindChestActivation(ex)}else bindTimer(ex);
 }
 
 /* Direct tab routing. No wrapper recursion. */
@@ -2367,6 +2415,56 @@ function zone2CardioWorkout(){
   ];
 }
 
+function smithMachineBenchPressExercise(){
+  return cloneExerciseByName("Cable Chest Press",{
+    name:"Smith Machine Bench Press",type:"strength",sets:3,reps:10,rest:90,
+    muscles:"Chest, triceps and front shoulders",
+    setup:["Center the Gator bench flat inside the Smith station","Align the bar path with the lower-to-middle chest","Set both safety stops just below the controlled bottom position","Plant both feet firmly on the floor"],
+    steps:["Pin the shoulder blades back and down and keep the chest slightly elevated.","Unrack with wrists stacked over the forearms.","Lower the bar under control toward the lower-to-middle chest with elbows 45–60 degrees from the torso.","Press upward while thinking about bringing the upper arms toward each other.","Finish without shrugging or rolling the shoulders forward, then re-rack securely."],
+    cues:["Bring the upper arms toward each other with the chest.","Keep the shoulder blades pinned.","Stop with the prescribed clean reps still available."],
+    why:"Uses the stable Smith path and flat bench to establish reliable chest pressing mechanics before adding intensity.",
+    weightRecommendation:"First exposure: begin with the empty 33 lb Smith bar and target 3–4 reps in reserve. Add matched plates only after a clean session with good chest engagement.",
+    requires:["ritfitM1","bench","bumperPlates"],substituteId:null,attachmentCard:null,m1:null,
+    demoImage:null,correctedGuide:null,videoResource:null,youtubeQuery:null,
+    weightEntry:{mode:"total",label:"Total plate weight across both sides",help:"Enter the combined plate weight from both sides. Do not include the 33 lb Smith bar; the app adds it separately."},
+    engagementTarget:"chest",firstExposureRirRange:[3,4],progressionRirRange:[2,3],chestActivation:true,
+    chestSetup:{title:"Chest Setup",instructions:["Position the flat bench so the Smith bar lowers toward the lower-to-middle chest.","Plant both feet firmly on the floor.","Pull the shoulder blades back and down and keep them pinned to the bench.","Keep the chest slightly elevated.","Grip the bar so the forearms are approximately vertical at the bottom.","Keep the elbows approximately 45–60 degrees away from the torso.","Lower the bar under control toward the lower-to-middle chest.","Press upward while thinking about bringing the upper arms toward each other using the chest.","Do not shrug the shoulders forward at the top.","Stop the set with the prescribed number of clean reps remaining."],cue:"Don’t just push the bar away. Think about bringing your upper arms toward each other with your chest."}
+  });
+}
+
+function lowInclineDumbbellPressExercise(){
+  return cloneExerciseByName("Cable Chest Press",{
+    name:"Low-Incline Dumbbell Press",type:"strength",sets:3,reps:10,rest:90,
+    muscles:"Upper chest, triceps and front shoulders",
+    setup:["Set the Gator bench to a low 15–30 degree incline","Use one matching dumbbell in each hand","Plant both feet firmly and keep the shoulder blades back and down"],
+    steps:["Begin with the dumbbells slightly outside the upper chest.","Keep the forearms vertical and elbows 45–60 degrees from the torso.","Press the dumbbells upward and slightly inward.","Finish above the upper chest without touching or clanging the weights.","Lower under control without letting the shoulders roll forward."],
+    cues:["Press up and slightly inward.","Squeeze the upper arms toward each other.","Keep the bench low enough to emphasize the chest."],
+    why:"Uses a low incline and independent dumbbells to improve upper-chest engagement without turning the movement into a shoulder press.",
+    weightRecommendation:"Begin conservatively with an owned matching pair and target 2–3 reps in reserve while chest engagement remains the priority.",
+    requires:["dumbbells","bench"],substituteId:null,attachmentCard:null,m1:null,
+    demoImage:null,correctedGuide:null,videoResource:null,youtubeQuery:null,
+    weightEntry:{mode:"total",paired:true,label:"Combined dumbbell weight",help:"Enter the combined weight of both dumbbells. Example: two 20 lb dumbbells = 40 lb total."},
+    engagementTarget:"upper chest",progressionRirRange:[2,3],chestActivation:true,
+    chestSetup:{title:"Upper Chest Setup",instructions:["Set the bench to approximately 15–30 degrees.","Plant both feet firmly.","Pull the shoulder blades back and down.","Keep the chest elevated without excessively arching the lower back.","Lower the dumbbells slightly outside the upper chest.","Keep the elbows approximately 45–60 degrees from the torso.","Press the dumbbells upward and slightly inward.","Finish with the dumbbells above the upper chest.","Do not aggressively touch or clang the dumbbells together.","Keep the shoulders from rolling forward at the top."],cue:"Press up and slightly inward while squeezing the upper arms toward each other."}
+  });
+}
+
+/* Retained for legacy history, progression references, and future library access.
+   This definition is intentionally not scheduled by the current Foundation plan. */
+function legacyInclineCablePressExercise(){
+  return cloneExerciseByName("Cable Chest Press",{
+    name:"Incline Cable Press",sets:3,reps:10,rest:90,muscles:"Upper chest, front shoulders and triceps",
+    setup:["Set both pulleys to a low position","Use two D-handles","Set the bench to a low incline and center it between the cables","Sit facing away from the M1"],
+    steps:["Bring one handle beside each side of your upper chest.","Brace against the inclined bench.","Press upward and slightly inward.","Stop before locking the elbows.","Lower slowly to the starting position."],
+    cues:["Keep shoulders down against the bench.","Use equal weight on both stacks.","Do not overarch your lower back."],
+    requires:["ritfitM1","bench"],demoImage:"assets/phase2/incline-cable-press.jpg"
+  });
+}
+
+function fullBodyAWorkout(){
+  return data.map(ex=>ex.name==="Cable Chest Press"?smithMachineBenchPressExercise():ex);
+}
+
 function dumbbellAccessoryForDay(dayIndex){
   const shared={
     type:"strength",sets:2,rest:60,requires:["dumbbells"],substituteId:null,
@@ -2425,7 +2523,7 @@ function armAccessoryForDay(dayIndex){
   });
 }
 
-function fullBodyBWorkout(){
+function fullBodyBWorkout(useLegacyChest=false){
   const smithWeightEntry={
     mode:"total",
     label:"Total plate weight across both sides",
@@ -2470,17 +2568,7 @@ function fullBodyBWorkout(){
       requires:["ritfitM1"],substituteId:null,
       demoImage:"assets/phase2/smith-machine-calf-raise.jpg",weightEntry:smithWeightEntry
     }),
-    cloneExerciseByName("Cable Chest Press",{
-      name:"Incline Cable Press",sets:3,reps:10,
-      muscles:"Upper chest, front shoulders and triceps",
-      setup:["Set both pulleys to a low position","Use two D-handles","Set the bench to a low incline and center it between the cables","Sit facing away from the M1"],
-      steps:["Bring one handle beside each side of your upper chest.","Brace against the inclined bench.","Press upward and slightly inward.","Stop before locking the elbows.","Lower slowly to the starting position."],
-      cues:["Keep shoulders down against the bench.","Use equal weight on both stacks.","Do not overarch your lower back."],
-      m1:{pinLeft:2,pinRight:2,attachment:"Two single D-handles",bench:"Bench at a low incline between the cables",facing:"Face away from the M1",stance:"Sit with feet planted",start:"Handles beside the upper chest",finish:"Press upward and slightly inward",view:"45° side view",pinNote:"Set both adjustable pulleys to position 2."},
-      why:"Changes Monday’s horizontal press to an incline angle for balanced chest development.",
-      requires:["ritfitM1","bench"],
-      demoImage:"assets/phase2/incline-cable-press.jpg"
-    }),
+    useLegacyChest?legacyInclineCablePressExercise():lowInclineDumbbellPressExercise(),
     cloneExerciseByName("Seated Cable Row",{
       name:"Single Arm Cable Row",sets:3,reps:10,
       muscles:"Lats, mid-back, rear shoulder, biceps and core",
@@ -2621,7 +2709,8 @@ function fullBodyCWorkout(){
 }
 
 function strengthWorkoutForDay(dayIndex){
-  const baseWorkout=dayIndex===2?fullBodyBWorkout():dayIndex===4?fullBodyCWorkout():data;
+  const preserveActiveDefinition=!!state.currentSession&&!state.currentSession.completedId&&state.currentSession.planDay===dayIndex&&!state.currentSession.programRevision;
+  const baseWorkout=dayIndex===0?(preserveActiveDefinition?data:fullBodyAWorkout()):dayIndex===2?fullBodyBWorkout(preserveActiveDefinition):dayIndex===4?fullBodyCWorkout():data;
   const dumbbellAccessory=dumbbellAccessoryForDay(dayIndex);
   const armAccessory=armAccessoryForDay(dayIndex);
   const workoutData=[...baseWorkout,...[dumbbellAccessory,armAccessory].filter(Boolean)];
@@ -2677,6 +2766,7 @@ function startNewSession(dayIndex=currentPlanIndex(),selectedSchedule=null){
    plannedDate:isRecovered?selectedSchedule.plannedDate:null,
    originalScheduledDate:isRecovered?selectedSchedule.scheduledDate:null,
    trainingPhase:deepCopy(state.trainingPhase),
+   programRevision:CHEST_PROGRAM_REVISION,
    equipment:deepCopy(state.equipment),
    sessionPrescriptions
  };

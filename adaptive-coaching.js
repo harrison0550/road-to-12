@@ -74,15 +74,25 @@
     const allTargets=sets.length>=prescribed&&sets.every(set=>(Number(set.reps)||0)>=target);
     const rating=ratings[latest.session.id]||"";
     const feedback=latestFeedback(latest);
+    const engagement=feedback?.muscleEngagement?.rating||"";
+    const engagementRequired=!!definition.engagementTarget;
+    const lowEngagement=["Low","None"].includes(engagement);
+    const recentLowEngagement=exposures.filter(item=>["Low","None"].includes(latestFeedback(item)?.muscleEngagement?.rating)).length;
+    const intendedRir=exposures.length<=1&&definition.firstExposureRirRange?definition.firstExposureRirRange:definition.progressionRirRange;
+    const rir=feedback?.rir===null||feedback?.rir===undefined||feedback?.rir===""?null:Number(feedback.rir);
+    const rirInRange=!intendedRir||(rir!==null&&rir>=Number(intendedRir[0])&&rir<=Number(intendedRir[1]));
     let action="HOLD",reason="Quality work is complete; hold this prescription while the app gathers another recovery and performance signal.",confidence="moderate";
     if(feedback?.discomfort===true||feedback?.form==="Breaking down"||["Too Hard","Exhausting","Tough"].includes(rating)){action="DELOAD";reason=feedback?.discomfort===true?"Discomfort was recorded, so reduce the next exposure and prioritize a pain-free movement.":"Recent difficulty or form breakdown favors a temporary reduction before progressing.";}
     else if(!allTargets){action="HOLD";reason="Repeat the current prescription until every working set reaches its rep target.";}
+    else if(lowEngagement||(engagementRequired&&recentLowEngagement>=2)){action="HOLD";reason=recentLowEngagement>=2?"Hold load and flag this exercise for coaching review because target-muscle engagement has remained low.":"Hold load while improving target-muscle engagement.";confidence=recentLowEngagement>=2?"high":"moderate";}
     else if(exposures.length<2){action="HOLD";reason="One successful exposure is encouraging; repeat it once to confirm the result.";confidence="collecting";}
+    else if(engagementRequired&&!engagement){action="HOLD";reason="Record target-muscle engagement before increasing this exercise.";confidence="collecting";}
+    else if(engagementRequired&&(!["Strong","Moderate"].includes(engagement)||feedback?.form!=="Clean"||!rirInRange)){action="HOLD";reason="Repeat the current load until form, target-muscle engagement, and reps in reserve all match the intended range.";}
     else if(feedback?.rir!==null&&feedback?.rir!==undefined&&feedback.rir!==""&&Number(feedback.rir)<=1){action="HOLD";reason="The target was completed near your limit. Repeat it before increasing the challenge.";}
     else {
-      if((Number(feedback?.rir)>=3&&feedback?.form==="Clean")||(!feedback&&rating==="Easy")){action="PROGRESS";reason="All prescribed work was completed with enough reserve and clean form for the smallest available increase.";confidence="high";}
+      if((engagementRequired&&rirInRange&&feedback?.form==="Clean"&&["Strong","Moderate"].includes(engagement))||(Number(feedback?.rir)>=3&&feedback?.form==="Clean")||(!feedback&&rating==="Easy")){action="PROGRESS";reason=engagementRequired?"All prescribed work was completed with enough reserve, clean form, and reliable target-muscle engagement for the smallest available increase.":"All prescribed work was completed with enough reserve and clean form for the smallest available increase.";confidence="high";}
     }
-    return {action,reason,confidence,sourceSessionId:latest.session.id,prescription:prescription(action,sets,definition)};
+    return {action,reason,confidence,sourceSessionId:latest.session.id,coachingReview:engagementRequired&&recentLowEngagement>=2,prescription:prescription(action,sets,definition)};
   }
   function phaseReadiness(input={}){
     const history=input.history||[],ratings=input.ratings||{},sessions=input.sessions||[],cardio=input.cardio||[],measurements=input.measurements||[];

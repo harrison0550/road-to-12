@@ -1,5 +1,5 @@
 /* Keep this query aligned with app-meta.js so Safari cannot reuse stale imported metadata. */
-importScripts("./app-meta.js?build=2026.08.23.1");
+importScripts("./app-meta.js?build=2026.08.26.1");
 
 const CACHE=self.ROAD12_META.serviceWorkerCache;
 const MEDIA_CACHE=CACHE.endsWith("-shell")?`${CACHE.slice(0,-6)}-media`:`${CACHE}-media`;
@@ -48,6 +48,7 @@ const MEDIA_ASSETS=[
   "./assets/exercise-library/generated/hanging-knee-raise-motion-guide.webp",
   "./assets/exercise-library/generated/happy-baby-pelvic-floor-stretch-motion-guide.webp",
   "./assets/exercise-library/generated/lying-leg-raise-motion-guide.webp",
+  "./assets/exercise-library/generated/low-incline-dumbbell-press-motion-guide.webp",
   "./assets/exercise-library/generated/ninety-ninety-hip-switch-motion-guide.webp",
   "./assets/exercise-library/generated/reverse-crunch-motion-guide.webp",
   "./assets/exercise-library/generated/supine-diaphragmatic-breathing-motion-guide.webp",
@@ -80,6 +81,7 @@ const MEDIA_ASSETS=[
   "./assets/exercise-library/generated/single-arm-cable-row-motion-guide.webp",
   "./assets/exercise-library/generated/slow-breathing-cooldown-motion-guide.webp",
   "./assets/exercise-library/generated/smith-bulgarian-split-squat-motion-guide.webp",
+  "./assets/exercise-library/generated/smith-machine-bench-press-motion-guide.webp",
   "./assets/exercise-library/generated/smith-machine-calf-raise-motion-guide.webp",
   "./assets/exercise-library/generated/smith-machine-rdl-motion-guide.webp",
   "./assets/exercise-library/generated/smith-machine-squat-motion-guide.webp",
@@ -123,6 +125,7 @@ const MEDIA_ASSETS=[
   "./assets/exercise-library/generated/hanging-knee-raise.gif",
   "./assets/exercise-library/generated/happy-baby-pelvic-floor-stretch.gif",
   "./assets/exercise-library/generated/lying-leg-raise.gif",
+  "./assets/exercise-library/generated/low-incline-dumbbell-press.gif",
   "./assets/exercise-library/generated/ninety-ninety-hip-switch.gif",
   "./assets/exercise-library/generated/reverse-crunch.gif",
   "./assets/exercise-library/generated/supine-diaphragmatic-breathing.gif",
@@ -155,6 +158,7 @@ const MEDIA_ASSETS=[
   "./assets/exercise-library/generated/single-arm-cable-row.gif",
   "./assets/exercise-library/generated/slow-breathing-cooldown.gif",
   "./assets/exercise-library/generated/smith-bulgarian-split-squat.gif",
+  "./assets/exercise-library/generated/smith-machine-bench-press.gif",
   "./assets/exercise-library/generated/smith-machine-calf-raise.gif",
   "./assets/exercise-library/generated/smith-machine-rdl.gif",
   "./assets/exercise-library/generated/smith-machine-squat.gif",

@@ -27,6 +27,19 @@ const dumbbellCompleted=weight=>({name:dumbbellDefinition.name,sets:[1,2].map(()
 const dumbbellProgress=coach.exerciseRecommendation([{id:"db1",exercises:[dumbbellCompleted(30)]},{id:"db2",exercises:[dumbbellCompleted(30)]}],{db2:"Good"},dumbbellDefinition);
 assert.strictEqual(dumbbellProgress.prescription.weight,40,"dumbbell progression must move from the 15 lb pair to the available 20 lb pair");
 
+const chestDefinition={name:"Smith Machine Bench Press",type:"strength",sets:3,reps:10,engagementTarget:"chest",firstExposureRirRange:[3,4],progressionRirRange:[2,3],requires:["ritfitM1"],weightEntry:{mode:"total"}};
+const chestCompleted=(rating,rir=3,form="Clean")=>({name:chestDefinition.name,sets:[1,2,3].map(()=>({done:true,weight:0,reps:10})),feedback:{rir,form,discomfort:false,muscleEngagement:{target:"chest",rating}}});
+assert.strictEqual(coach.exerciseRecommendation([{id:"chest-1",exercises:[chestCompleted("Strong",4)]}],{},chestDefinition).action,"HOLD","the first clean Smith bench exposure must establish a conservative baseline before progression");
+assert.strictEqual(coach.exerciseRecommendation([{id:"chest-1",exercises:[chestCompleted("Strong",4)]},{id:"chest-2",exercises:[chestCompleted("Moderate",2)]}],{},chestDefinition).action,"PROGRESS","clean prescribed work with target engagement and intended RIR may progress");
+const lowChest=coach.exerciseRecommendation([{id:"chest-1",exercises:[chestCompleted("Low")]},{id:"chest-2",exercises:[chestCompleted("None")]}],{},chestDefinition);
+assert.strictEqual(lowChest.action,"HOLD","low target-muscle engagement must hold the current load");
+assert.strictEqual(lowChest.coachingReview,true,"repeated low engagement must flag a coaching review");
+assert.match(lowChest.reason,/coaching review/i);
+const improvingAfterRepeatedLow=coach.exerciseRecommendation([{id:"chest-1",exercises:[chestCompleted("Low")]},{id:"chest-2",exercises:[chestCompleted("None")]},{id:"chest-3",exercises:[chestCompleted("Strong",2)]}],{},chestDefinition);
+assert.strictEqual(improvingAfterRepeatedLow.action,"HOLD","two low-engagement exposures in the recent review window must block automatic overload even after one improved rating");
+assert.strictEqual(improvingAfterRepeatedLow.coachingReview,true);
+assert.strictEqual(coach.exerciseRecommendation([{id:"chest-1",exercises:[chestCompleted("Strong",4)]},{id:"chest-2",exercises:[chestCompleted("Strong",4)]}],{},chestDefinition).action,"HOLD","RIR outside the intended progression range must not increase the load");
+
 const history=[];
 for(let i=0;i<15;i++)history.push({id:`s${i}`,name:`Full Body ${["A","B","C"][i%3]}`,scheduleId:`p${i}`,exercises:[completed(20+i)]});
 const sessions=history.map((item,i)=>({id:`p${i}`,scheduledDate:"2026-08-01",status:"completed"}));
@@ -55,6 +68,7 @@ assert(/version:11,[\s\S]*?exerciseTimings[\s\S]*?schemaVersion=11;/.test(app),"
 assert(/version:12,[\s\S]*?adherenceBaselineDate[\s\S]*?schemaVersion=12;/.test(app),"the adherence reset needs an additive migration that preserves workout history");
 assert(/version:13,[\s\S]*?dumbbellPairWeights:\[10,15,20,25\][\s\S]*?schemaVersion=13;/.test(app),"confirmed dumbbell sizes need an additive equipment migration");
 assert(/QUICK EXERCISE FEEDBACK[\s\S]*?exerciseRir[\s\S]*?exerciseForm[\s\S]*?exerciseDiscomfort/.test(app),"strength exercises need quick exercise-specific feedback controls");
+assert(/exerciseEngagement[\s\S]*?muscleEngagement/.test(app),"chest exercises need stored target-muscle engagement feedback");
 assert(/Approve next-session target/.test(app),"concrete progression recommendations must require approval");
 assert(/Phase advancement is locked/.test(app),"UI must explain that readiness cannot silently change the schedule");
 assert(/plannedDurationMinutes[\s\S]*?actualDurationMinutes[\s\S]*?averageHeartRate/.test(app),"cardio must preserve planned and actual performance");

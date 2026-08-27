@@ -26,6 +26,7 @@ The roadmap communicates direction rather than a guaranteed schedule. Completed 
 - [ ] Validate and mature the readiness algorithm before enabling Phase 2 review
 - [x] Add the iFIT rower and available 10/15/20/25 lb dumbbells to the weekly program without replacing existing exercises
 - [x] Add targeted biceps accessories, a review-gated four-session lower-ab progression, and pelvic-floor relaxation/mobility without replacing Foundation A/B/C
+- [x] Update Foundation chest training with Smith Machine Bench Press, Low-Incline Dumbbell Press, engagement feedback, and technique-first progression while preserving legacy history
 - [x] Refresh Home with the Concept B Training Command Center design
 - [x] Add automated scheduling regression tests
 - [ ] Add calendar filtering and faster month navigation

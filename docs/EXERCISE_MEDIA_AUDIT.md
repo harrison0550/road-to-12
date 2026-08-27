@@ -2,15 +2,15 @@
 
 ## Status
 
-- Audit date: August 23, 2026
-- Release target: version 13.2.0, build `2026.08.23.1`
+- Audit date: August 26, 2026
+- Release target: version 13.2.0, build `2026.08.26.1`
 - Active guided exercise names mapped: 57 of 57
 - Review-gated lower-ab Phase 2 names mapped: 3 of 3
 - Visible Library-only setup entries mapped: 1 of 1
-- Distinct reviewed movement animations: 53
+- Distinct reviewed movement animations: 55
 - New Road to 12% animations in the August 23 expansion: 13
 - Previously approved Road to 12% animations retained: 6
-- Offline cache targets: `road12-v13-2-55-shell` and `road12-v13-2-55-media`
+- Offline cache targets: `road12-v13-2-56-shell` and `road12-v13-2-56-media`
 
 This audit covers the exercise names that can appear in the current Foundation A/B/C, Cardio + Mobility, Core + Recovery, and Zone 2 guided flows; the three explicitly approved movements gated behind the lower-ab Phase 2 review; and the Stationary Bike Setup entry visible only in the Exercise Library. It does not approve media for unimplemented Build, Upper / Lower, or Hypertrophy / Definition workouts.
 
@@ -26,7 +26,11 @@ Each active guided exercise resolves by its exact display name through `ROAD12_E
 
 The written setup, execution, cues, and safety guidance remain authoritative. App-created movement artwork supplements those instructions; it must not be presented as licensed footage or as a substitute for the written coaching.
 
-Several exact workout names intentionally share one accurate animation. Easy treadmill warm-ups, cooldowns, and recovery walks use the same easy-walk asset, while their written prescriptions remain distinct. The current 57 active names therefore map to 50 distinct animations; the three gated Phase 2 movements bring the reviewed set to 53 distinct animations.
+Several exact workout names intentionally share one accurate animation. Easy treadmill warm-ups, cooldowns, and recovery walks use the same easy-walk asset, while their written prescriptions remain distinct. The current 57 active names therefore map to 50 distinct animations. The three gated Phase 2 movements and two retained legacy chest-press movements bring the reviewed registry to 55 distinct animations across 70 exact-name mappings.
+
+## August 26 chest-program update
+
+The audit adds exact-name animation and pause-state poster pairs for Smith Machine Bench Press and Low-Incline Dumbbell Press. These replace Cable Chest Press in future Full Body A sessions and Incline Cable Press in future Full Body B sessions without deleting the older definitions, stable identities, completed history, or reviewed media. Full Body C is unchanged. Both new guides use the approved Road to 12% red-shirt trainer, owned bench/dumbbell context, and the complete red RitFit Smith cage where applicable.
 
 ## August 23 training expansion
 
@@ -43,7 +47,7 @@ The following 57 exact names were checked against the current equipment-safe gui
 1. Treadmill Walk
 2. Arm Circles
 3. Bodyweight Squat
-4. Cable Chest Press
+4. Smith Machine Bench Press
 5. Seated Cable Row
 6. Goblet Squat
 7. Lat Pulldown
@@ -70,7 +74,7 @@ The following 57 exact names were checked against the current equipment-safe gui
 22. Smith Machine RDL
 23. Smith Bulgarian Split Squat
 24. Smith Machine Calf Raise
-25. Incline Cable Press
+25. Low-Incline Dumbbell Press
 26. Single Arm Cable Row
 27. Cable Lateral Raise
 28. Cable Crunch
@@ -145,7 +149,7 @@ These movements are locally ready but do not enter the workout until two Phase 1
 
 ## Offline and performance review
 
-The Service Worker keeps its small versioned shell cache separate from its versioned exercise-media cache. Shell installation and activation do not wait on the 53 GIF downloads, so one unavailable media file cannot strand an iPhone on the previous app build. After the new worker is active, the app requests a bounded background warm-up that caches still posters and exact retained references before GIFs, with no more than four media requests in flight. A media file opened before warm-up completes is cached on demand.
+The Service Worker keeps its small versioned shell cache separate from its versioned exercise-media cache. Shell installation and activation do not wait on the 55 GIF downloads, so one unavailable media file cannot strand an iPhone on the previous app build. After the new worker is active, the app requests a bounded background warm-up that caches still posters and exact retained references before GIFs, with no more than four media requests in flight. A media file opened before warm-up completes is cached on demand.
 
 Older media caches remain available as an offline fallback during an update and are removed only after the new media cache warms without failures. After one successful online warm-up, still posters, animated GIFs, and retained local references remain available offline. Focused exercise screens use the cached GIF immediately; library grids use the lighter still posters.
 

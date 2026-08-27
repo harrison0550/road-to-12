@@ -117,6 +117,9 @@ function generateLiveFoundationWorkouts() {
     "cardioMobilityWorkout",
     "coreRecoveryWorkout",
     "zone2CardioWorkout",
+    "smithMachineBenchPressExercise",
+    "lowInclineDumbbellPressExercise",
+    "fullBodyAWorkout",
     "dumbbellAccessoryForDay",
     "armAccessoryForDay",
     "fullBodyBWorkout",
@@ -155,7 +158,7 @@ const activeFoundationExercises = [
   "Treadmill Walk",
   "Arm Circles",
   "Bodyweight Squat",
-  "Cable Chest Press",
+  "Smith Machine Bench Press",
   "Seated Cable Row",
   "Goblet Squat",
   "Lat Pulldown",
@@ -177,7 +180,7 @@ const activeFoundationExercises = [
   "Smith Machine RDL",
   "Smith Bulgarian Split Squat",
   "Smith Machine Calf Raise",
-  "Incline Cable Press",
+  "Low-Incline Dumbbell Press",
   "Single Arm Cable Row",
   "Cable Lateral Raise",
   "Cable Crunch",
@@ -254,9 +257,10 @@ const visibleLibraryNames = new Set(
 );
 assert.deepStrictEqual(
   [...visibleLibraryNames].filter((name) => !liveExerciseNames.has(name)).sort(),
-  ["Rower Technique", "Stationary Bike Setup"],
-  "the visible Library should add only its rowing template and stationary-bike setup to active workouts",
+  ["Cable Chest Press", "Rower Technique", "Stationary Bike Setup"],
+  "the visible Library should retain the legacy Cable Chest Press alongside its rowing template and stationary-bike setup",
 );
+assert(library.entries["Incline Cable Press"], "the legacy Incline Cable Press media entry must remain available");
 for (const name of visibleLibraryNames) {
   assert(library.entries[name], `visible Exercise Library item ${name} must resolve to reviewed media`);
 }
@@ -305,6 +309,25 @@ for (const name of activeFoundationExercises) {
 }
 
 const liveExercises = liveFoundationWorkouts.flat();
+const smithBench = liveFoundationWorkouts[0].find((exercise) => exercise.name === "Smith Machine Bench Press");
+assert(smithBench, "Full Body A must schedule Smith Machine Bench Press");
+assert.strictEqual(smithBench.sets, 3);
+assert.strictEqual(smithBench.reps, 10);
+assert.strictEqual(smithBench.rest, 90);
+assert.strictEqual(smithBench.weightEntry?.mode, "total");
+assert.match(smithBench.weightEntry?.help || "", /Do not include the 33 lb Smith bar/i);
+assert.strictEqual(smithBench.engagementTarget, "chest");
+assert.deepStrictEqual(Array.from(smithBench.firstExposureRirRange), [3, 4]);
+const lowInclinePress = liveFoundationWorkouts[2].find((exercise) => exercise.name === "Low-Incline Dumbbell Press");
+assert(lowInclinePress, "Full Body B must schedule Low-Incline Dumbbell Press");
+assert.strictEqual(lowInclinePress.sets, 3);
+assert.strictEqual(lowInclinePress.reps, 10);
+assert.strictEqual(lowInclinePress.rest, 90);
+assert.strictEqual(lowInclinePress.weightEntry?.mode, "total");
+assert.strictEqual(lowInclinePress.weightEntry?.paired, true);
+assert.strictEqual(lowInclinePress.engagementTarget, "upper chest");
+assert.deepStrictEqual(Array.from(lowInclinePress.progressionRirRange), [2, 3]);
+assert(!liveFoundationWorkouts[4].some((exercise) => ["Smith Machine Bench Press", "Low-Incline Dumbbell Press"].includes(exercise.name)), "Full Body C chest volume must remain unchanged");
 const latPulldowns = liveExercises.filter((exercise) => exercise.name === "Lat Pulldown");
 assert.strictEqual(latPulldowns.length, 2, "Full Body A and B must each contain Lat Pulldown");
 for (const exercise of latPulldowns) {

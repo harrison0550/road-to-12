@@ -69,6 +69,8 @@ Copy this block for new work:
 
 ## Completed this sprint
 
+- [x] Replace future Foundation A/B chest presses with Smith Machine Bench Press and Low-Incline Dumbbell Press, preserve active and completed legacy sessions, add approved offline motion guides, and gate progression on technique, RIR, comfort, and target-muscle engagement.
+
 - [x] Add the approved biceps accessories, four-session lower-ab progression with explicit Phase 2 acceptance, and twice-weekly pelvic-floor relaxation/mobility sequence, including 13 offline animations and schema-14 tracking.
 - [x] Open a read-only, animation-first exercise guide with setup and previous performance when an exercise is selected from Workout Preview.
 - [x] Audit every active guided exercise name and deliver 47-of-47 animation coverage with automatic focused playback, explicit Pause/Play controls, centralized retained-reference attribution, offline caching, and automated validation.

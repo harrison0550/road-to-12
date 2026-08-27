@@ -8,6 +8,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Added
 
+- Added reviewed offline animations, pause-state storyboards, coaching cards, and optional technique-only activation sets for Smith Machine Bench Press and Low-Incline Dumbbell Press.
+- Added chest and upper-chest engagement feedback with engagement-aware HOLD, coaching-review, and conservative progression rules.
 - Added two additive arm accessories: Alternating Dumbbell Curl on Full Body A and Behind-the-Back Single-Arm Cable Curl on Full Body C, without replacing the existing program.
 - Added a four-session lower-ab progression to Core + Recovery. Two completed Phase 1 sessions unlock a review-and-accept milestone before Phase 2 can begin; completed exposure is stored independently from calendar time.
 - Added five-minute pelvic-floor relaxation and hip-mobility blocks to Tuesday and Saturday, framed as breathing and mobility rather than medical treatment.
@@ -31,6 +33,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Changed
 
+- Advanced the maintenance build to `2026.08.26.1` and rotated the offline shell/media caches for the approved chest-program update.
+- Future Full Body A sessions now use Smith Machine Bench Press, and future Full Body B sessions use Low-Incline Dumbbell Press. Full Body C and all non-chest Foundation work remain unchanged.
+- Existing active A/B sessions retain their original press definition; legacy Cable Chest Press and Incline Cable Press identities, media, definitions, and completed history remain intact.
 - Advanced the maintenance build to `2026.08.23.1` and rotated the offline shell/media caches for the additive training expansion.
 - Reworked the High-to-Low Cable Chop animation to show a front-facing athlete, one high cable travelling across the front of the torso, and a controlled finish beside the opposite knee.
 - Advanced the maintenance build to `2026.08.21.2` and rotated the offline caches for the two corrected cable-exercise animations.
