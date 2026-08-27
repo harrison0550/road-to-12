@@ -33,6 +33,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Changed
 
+- Recommended strength targets now populate the real weight field rather than placeholder text, so completing an untouched set records the displayed weight. Progress offers an explicit evidence-based review for affected history, and Smith-machine selected volume includes the known 33 lb bar.
 - Advanced the maintenance build to `2026.08.26.1` and rotated the offline shell/media caches for the approved chest-program update.
 - Future Full Body A sessions now use Smith Machine Bench Press, and future Full Body B sessions use Low-Incline Dumbbell Press. Full Body C and all non-chest Foundation work remain unchanged.
 - Existing active A/B sessions retain their original press definition; legacy Cable Chest Press and Incline Cable Press identities, media, definitions, and completed history remain intact.

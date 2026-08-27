@@ -61,6 +61,7 @@ Standard cards have approximately 14px bottom separation. Avoid nested cards unl
 - Keep card padding responsive, approximately 16–22px.
 - Cards must never exceed their content container or require page-level horizontal scrolling.
 - Use specialized border color sparingly for warnings, recommendations, or completion.
+- Historical-data review cards use an amber treatment, explain the exact evidence and affected records, and require a clear user choice before changing saved facts. Provide a non-mutating Keep as recorded alternative.
 - Technique-first exercise cards use a subtle red-tinted border, an ordered setup list, and one short high-emphasis cue. Optional activation cards must clearly state that the set does not count toward working volume or records, use a minimum 44px completion control, and collapse multi-column tempo cues to one column on 360px-wide screens.
 
 ## Buttons and touch targets

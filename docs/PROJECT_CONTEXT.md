@@ -6,10 +6,10 @@ Read this file at the beginning of every Codex or engineering session. It is the
 
 - Product: Road to 12%
 - Version: 13.2.0
-- Build: 2026.08.26.1
+- Build: 2026.08.26.2
 - Last updated: August 26, 2026
-- Service Worker cache: `road12-v13-2-56-shell`
-- Exercise media cache: `road12-v13-2-56-media`
+- Service Worker cache: `road12-v13-2-57-shell`
+- Exercise media cache: `road12-v13-2-57-media`
 - Runtime: static, client-only, offline-first PWA
 - Primary storage key: `road12v5`
 
@@ -62,6 +62,7 @@ Historical regressions requiring automated coverage:
 - BUG-021: Installed iPhone PWA remains on stale shell files or returns animations to Play-first mode — resolved in build 2026.08.20.3.
 
 - BUG-022: Development-era incomplete sessions reduce Program Adherence — resolved in build 2026.08.20.4 with a non-destructive August 20 adherence baseline.
+- BUG-023: Displayed approved weights save as zero unless retyped — resolved in build 2026.08.26.2 with actual input defaults and explicit evidence-based history repair.
 
 See `KNOWN_BUGS.md` before diagnosing or fixing defects.
 
@@ -82,6 +83,7 @@ See `CODEX_TASKS.md` for priority and acceptance detail.
 
 ## Recent design decisions
 
+- An approved session weight is the actual editable set default, not placeholder text, so completing an untouched set records what the user saw. Prior-session guidance remains display-only. Progress may repair historical zero-weight sets only after confirmation and only when the completed snapshot contains the exact captured prescription; each change retains an audit record and unknown weights are never inferred. Smith selected-volume calculations include the known 33 lb bar.
 - Workout-preview exercise rows are interactive, non-mutating entry points to a full exercise guide. The preview detail reuses the reviewed automatic animation, setup and execution guidance, equipment-specific coaching, prescription summary, and historical performance lookup without creating or changing an active workout. Returning restores the preview list position.
 - Program Adherence starts from the saved August 20, 2026 baseline for the current installation. Earlier development-era sessions remain visible in Calendar and history but do not affect the metric. Only resolved completed or missed training sessions on or after the baseline count; an unresolved scheduled workout never lowers adherence.
 - The current Phase 1 Foundation program has complete exact-name media coverage: 57 currently active guided names resolve to 50 distinct movement animations. Three review-gated lower-ab Phase 2 movements are also approved and cached. The retained legacy chest-press animations bring the registry to 55 distinct GIFs across 70 exact-name mappings. Shared warm-up, cooldown, recovery, pelvic-mobility, and alias names may reuse one accurate movement asset while keeping written prescriptions distinct. The visible Library-only Stationary Bike Setup uses a reviewed static setup guide.

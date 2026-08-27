@@ -657,9 +657,9 @@ function sessionTotals(session){
   let completedSets=0,totalReps=0,selectedVolume=0;
   exercises.forEach(ex=>(ex.sets||[]).forEach(s=>{
     if(s?.done)completedSets++;
-    const reps=Number(s?.reps)||0, weight=Number(s?.weight)||0;
+    const reps=Number(s?.reps)||0;
     totalReps+=s?.done?reps:0;
-    if(s?.done)selectedVolume+=weight*reps*(ex.weightEntry?.mode==="dual"?2:1);
+    if(s?.done)selectedVolume+=window.ROAD12_PRESCRIPTIONS.selectedLoad(ex,s,SMITH_BAR_WEIGHT_LB)*reps;
   }));
   return {completedSets,totalReps,selectedVolume};
 }
@@ -1040,9 +1040,9 @@ function lastCompletedWeight(ex){
  const match=state.history.slice().reverse().map(session=>({
    session,
    exercise:(session.exercises||[]).find(item=>item.name===ex.name)
- })).find(item=>item.exercise&&(item.exercise.sets||[]).some(set=>set?.done&&set.weight!==""&&set.weight!==undefined));
+ })).find(item=>item.exercise&&(item.exercise.sets||[]).some(set=>(set?.done||set?.completed)&&window.ROAD12_PRESCRIPTIONS.hasRecordedWeight(item.exercise,set)));
  if(!match)return null;
- const completedSets=match.exercise.sets.filter(set=>set?.done&&set.weight!==""&&set.weight!==undefined);
+ const completedSets=match.exercise.sets.filter(set=>(set?.done||set?.completed)&&window.ROAD12_PRESCRIPTIONS.hasRecordedWeight(match.exercise,set));
  const weight=Number(completedSets[completedSets.length-1].weight);
  if(!Number.isFinite(weight))return null;
  const mode=match.exercise.weightEntry?.mode||ex.weightEntry?.mode;
@@ -1068,7 +1068,7 @@ function sets(ex){
  return `<section class="card timer-card"><h3>${target.sets} sets × ${target.reps}${targetUnit}</h3>
  ${captured?`<div class="approved-prescription"><small>PRESCRIBED FOR THIS SESSION · ${captured.action}</small><strong>${captured.prescription.summary||`${target.sets} sets × ${target.reps} reps${target.weight!=null?` at ${target.weight} ${target.weightUnit}`:""}`}</strong><span>Record what you actually perform below. You can override any target.</span></div>`:""}<div class="weight-entry-explainer"><span>${entry.mode==="dual"?"↔️":entry.mode==="single"?"1️⃣":"🏋️"}</span><div><strong>${displayedLabel}</strong><p>${entry.help}</p>${previous?`<small class="previous-weight">Last completed: <b>${previous.label}</b> on ${previous.date}</small>`:'<small class="previous-weight">No previous completed weight yet.</small>'}${entry.mode==="dual"?`<small>Example: left 20 lb + right 20 lb → enter <b>20</b>; combined selected stack weight is 40 lb.</small>`:""}</div></div>
  <div class="set-table-head"><span>SET</span><span>${isBodyweight?"LOAD":entry.mode==="dual"?"LB / STACK":isSmithAddedWeight?"PLATES TOTAL":"WEIGHT LB"}</span><span>${repLabel}</span><span>DONE</span></div>
- ${state.logs[ex.name].map((v,i)=>`<div class="set-row"><strong>${i+1}</strong>${isBodyweight?`<span class="bodyweight-load">Bodyweight</span>`:`<input data-w="${i}" inputmode="decimal" placeholder="${target.weight!=null?target.weight:entry.mode==="dual"?"per stack":isSmithAddedWeight?"both sides":"lb"}" aria-label="${displayedLabel}, set ${i+1}" value="${v?.weight||""}">`}<input data-r="${i}" inputmode="numeric" aria-label="${repLabel.toLowerCase()}, set ${i+1}" value="${v?.reps||window.ROAD12_PRESCRIPTIONS.minimumReps(target.reps)}"><button data-d="${i}" class="${v?.done?"done":""}" aria-label="${v?.done?"Mark set incomplete":"Mark set complete"}">${v?.done?"✓":"○"}</button>${entry.mode==="dual"&&v?.weight?`<small class="combined-weight">Combined selected: ${Number(v.weight)*2} lb</small>`:""}</div>`).join("")}
+ ${state.logs[ex.name].map((v,i)=>{const weightValue=isBodyweight?"":window.ROAD12_PRESCRIPTIONS.inputWeight(v?.weight,target.weight);return `<div class="set-row"><strong>${i+1}</strong>${isBodyweight?`<span class="bodyweight-load">Bodyweight</span>`:`<input data-w="${i}" inputmode="decimal" placeholder="${entry.mode==="dual"?"per stack":isSmithAddedWeight?"both sides":"lb"}" aria-label="${displayedLabel}, set ${i+1}" value="${weightValue}">`}<input data-r="${i}" inputmode="numeric" aria-label="${repLabel.toLowerCase()}, set ${i+1}" value="${v?.reps||window.ROAD12_PRESCRIPTIONS.minimumReps(target.reps)}"><button data-d="${i}" class="${v?.done?"done":""}" aria-label="${v?.done?"Mark set incomplete":"Mark set complete"}">${v?.done?"✓":"○"}</button>${entry.mode==="dual"&&weightValue!==""?`<small class="combined-weight">Combined selected: ${Number(weightValue)*2} lb</small>`:""}</div>`;}).join("")}
  <div class="exercise-feedback"><div><small>QUICK EXERCISE FEEDBACK</small><strong>Help tune the next session</strong></div><label>Reps left in reserve<select id="exerciseRir"><option value="">Choose</option>${[0,1,2,3,4].map(value=>`<option value="${value}" ${String(feedback.rir)===String(value)?"selected":""}>${value===4?"4+":value}</option>`).join("")}</select></label><label>Form quality<select id="exerciseForm"><option value="">Choose</option><option ${feedback.form==="Clean"?"selected":""}>Clean</option><option ${feedback.form==="Breaking down"?"selected":""}>Breaking down</option></select></label>${ex.engagementTarget?`<label>${ex.engagementTarget==="upper chest"?"Upper chest":"Chest"} engagement<select id="exerciseEngagement"><option value="">Choose</option>${["Strong","Moderate","Low","None"].map(value=>`<option ${engagementRating===value?"selected":""}>${value}</option>`).join("")}</select></label>`:""}<label class="feedback-check"><input id="exerciseDiscomfort" type="checkbox" ${feedback.discomfort?"checked":""}><span>Pain or discomfort was present</span></label><p>If pain is sharp, worsening, or unusual, stop the movement. This feedback can recommend a deload but does not diagnose an injury.</p></div>
  <div class="timer" id="timer" role="status" aria-live="polite">Rest ${String(Math.floor(ex.rest/60)).padStart(2,"0")}:${String(ex.rest%60).padStart(2,"0")}</div><div class="rest-coach-message" id="restCoach">Recover and prepare for your next set.</div><div class="timer-controls"><button class="secondary" id="rest">Start rest timer</button><button class="secondary" id="stopTimer">Stop timer</button></div></section>`}
 function captureExerciseFeedback(ex){
@@ -1352,7 +1352,7 @@ function personalRecords(){
    const done=(exercise.sets||[]).filter(s=>s?.done);
    if(!done.length)return;
    const best=Math.max(...done.map(s=>Number(s.weight)||0));
-   const volume=done.reduce((sum,s)=>sum+(Number(s.weight)||0)*(Number(s.reps)||0)*(exercise.weightEntry?.mode==="dual"?2:1),0);
+   const volume=done.reduce((sum,s)=>sum+window.ROAD12_PRESCRIPTIONS.selectedLoad(exercise,s,SMITH_BAR_WEIGHT_LB)*(Number(s.reps)||0),0);
    const rec=map[exercise.name]||{name:exercise.name,bestWeight:0,bestVolume:0,lastWeight:0,date:""};
    rec.bestWeight=Math.max(rec.bestWeight,best);
    rec.bestVolume=Math.max(rec.bestVolume,volume);
@@ -1834,6 +1834,20 @@ function lowerAbsProgramMarkup(){
  </section>`;
 }
 
+function weightHistoryRepairMarkup(candidates){
+ if(!candidates.length)return "";
+ const setCount=candidates.reduce((sum,item)=>sum+item.setIndexes.length,0);
+ return `<section class="card weight-history-repair-card" aria-labelledby="weightHistoryRepairTitle">
+   <span class="pill">WORKOUT HISTORY REVIEW</span>
+   <h2 id="weightHistoryRepairTitle">Restore missing recommended weights</h2>
+   <p>${setCount} completed set${setCount===1?"":"s"} look${setCount===1?"s":""} blank even though Road to 12% had an approved weight displayed. Review the exact saved recommendations below before changing history.</p>
+   <div class="weight-repair-list">${candidates.slice(0,8).map(item=>`<div><span><strong>${item.exerciseName}</strong><small>${formatHistoryDateKey(item.sessionDate)} · ${item.sessionName} · Set${item.setIndexes.length===1?"":"s"} ${item.setIndexes.map(index=>index+1).join(", ")}</small></span><b>${item.targetWeight} lb</b></div>`).join("")}</div>
+   ${candidates.length>8?`<p class="muted">Plus ${candidates.length-8} more exercise record${candidates.length-8===1?"":"s"} with saved recommendation evidence.</p>`:""}
+   <div class="weight-repair-actions"><button class="primary" id="restoreRecommendedWeights">Restore displayed weights</button><button class="secondary" id="keepRecordedWeights">Keep as recorded</button></div>
+   <small>Only records with a captured approved prescription qualify. Road to 12% will not guess missing weights.</small>
+ </section>`;
+}
+
 function progress(){
  if(state.historyView){
    const session=state.history.find(h=>h.id===state.historyView);
@@ -1848,8 +1862,9 @@ function progress(){
  const progression=exerciseProgressionRecommendations();
  const measurements=state.measurementHistory.slice().sort((a,b)=>String(b.recordedAt).localeCompare(String(a.recordedAt))).slice(0,8);
  const weight7=measurementTrend(7,"weight"),weight30=measurementTrend(30,"weight"),waist30=measurementTrend(30,"waist"),strength30=strengthTrend();
+ const weightRepairCandidates=window.ROAD12_PRESCRIPTIONS.recommendedWeightRepairCandidates(state.history);
 
- app.innerHTML=`${phaseReadinessMarkup(readiness)}${lowerAbsProgramMarkup()}<section class="card">
+ app.innerHTML=`${phaseReadinessMarkup(readiness)}${lowerAbsProgramMarkup()}${weightHistoryRepairMarkup(weightRepairCandidates)}<section class="card">
    <span class="pill">PROGRESS CENTER</span>
    <h2>Your Road to 12%</h2>
    <div class="brief-grid">
@@ -1924,6 +1939,20 @@ function progress(){
    save();
    progress();
  });
+ const resolveWeightHistory=decision=>{
+   const setCount=weightRepairCandidates.reduce((sum,item)=>sum+item.setIndexes.length,0);
+   const restoring=decision==="restore";
+   const prompt=restoring
+     ?`Restore the exact displayed recommendation for ${setCount} completed set${setCount===1?"":"s"}? Lifetime volume and previous-weight guidance will update immediately.`
+     :`Keep ${setCount} completed set${setCount===1?"":"s"} at their currently recorded weight? They will not be offered for repair again.`;
+   if(!confirm(prompt))return;
+   const result=window.ROAD12_PRESCRIPTIONS.resolveRecommendedWeightHistory(state.history,decision,new Date().toISOString());
+   state.history=result.history;
+   save();
+   progress();
+ };
+ document.querySelector("#restoreRecommendedWeights")?.addEventListener("click",()=>resolveWeightHistory("restore"));
+ document.querySelector("#keepRecordedWeights")?.addEventListener("click",()=>resolveWeightHistory("keep"));
  document.querySelector("#exportHistory").onclick=exportV1131Backup;
  document.querySelector("#importHistory").onchange=e=>{
    const file=e.target.files?.[0];

@@ -17,6 +17,15 @@ No confirmed production behavior defects are currently documented.
 
 ## Resolved
 
+### BUG-023 — Displayed recommended weight is saved as zero
+
+- Status: Resolved in v13.2.0 maintenance build 2026.08.26.2
+- Severity: High
+- Area: Workout Engine / Progress
+- Report: A recommended weight appeared inside each set field, but it was placeholder text. Completing the set without retyping the number stored an empty value that became zero in completed history and lifetime volume.
+- Resolution: Approved recommended weights now render as actual editable input values. Progress offers an explicit restore-or-keep review only for past sets whose exact displayed weight is proven by a captured prescription; restored records retain correction metadata. Smith-machine volume also includes the known 33 lb bar.
+- Regression test: `scripts/test-workout-prescriptions.js`
+
 ### BUG-001 — Workout page scroll jumps
 
 - Status: Resolved in v13.2.0

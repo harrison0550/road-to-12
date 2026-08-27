@@ -39,6 +39,59 @@
     const value=forExercise(session,exercise,resolver);
     return value?clone(value.prescription):basePrescription(exercise);
   }
+  function inputWeight(loggedWeight,prescribedWeight){
+    if(loggedWeight!==""&&loggedWeight!==null&&loggedWeight!==undefined&&Number.isFinite(Number(loggedWeight)))return loggedWeight;
+    return prescribedWeight!==null&&prescribedWeight!==undefined&&Number.isFinite(Number(prescribedWeight))?Number(prescribedWeight):"";
+  }
+  function isSmithPlateEntry(exercise){return String(exercise?.name||"").includes("Smith")&&exercise?.weightEntry?.mode==="total";}
+  function hasRecordedWeight(exercise,set){
+    if(exercise?.weightEntry?.mode==="bodyweight")return false;
+    if(set?.weight===""||set?.weight===null||set?.weight===undefined||!Number.isFinite(Number(set.weight)))return false;
+    return isSmithPlateEntry(exercise)?Number(set.weight)>=0:Number(set.weight)>0;
+  }
+  function selectedLoad(exercise,set,smithBarWeight=33){
+    if(exercise?.weightEntry?.mode==="bodyweight")return 0;
+    let weight=Number(set?.weight)||0;
+    if(isSmithPlateEntry(exercise))weight+=Number(smithBarWeight)||0;
+    if(exercise?.weightEntry?.mode==="dual")weight*=2;
+    return weight;
+  }
+  function recommendedWeightRepairCandidates(history=[]){
+    const candidates=[];
+    (history||[]).forEach((session,sessionIndex)=>(session.exercises||[]).forEach((exercise,exerciseIndex)=>{
+      const targetWeight=Number(exercise?.progressionPrescription?.prescription?.weight);
+      if(!Number.isFinite(targetWeight)||targetWeight<=0||exercise?.weightEntry?.mode==="bodyweight")return;
+      const setIndexes=(exercise.sets||[]).map((set,setIndex)=>({set,setIndex})).filter(({set})=>
+        (set?.done||set?.completed)&&(!Number.isFinite(Number(set?.weight))||Number(set?.weight)<=0)&&set?.weightReviewStatus!=="keptAsRecorded"
+      ).map(({setIndex})=>setIndex);
+      if(setIndexes.length)candidates.push({
+        sessionIndex,exerciseIndex,setIndexes,targetWeight,
+        sessionId:session.id||null,sessionName:session.name||"Workout",sessionDate:session.dateKey||session.completedDate||session.date||"",
+        exerciseId:exercise.exerciseId||null,exerciseName:exercise.name||"Exercise"
+      });
+    }));
+    return candidates;
+  }
+  function resolveRecommendedWeightHistory(history=[],decision="restore",correctedAt=new Date().toISOString()){
+    const next=clone(history||[]),candidates=recommendedWeightRepairCandidates(next);
+    let setCount=0;
+    candidates.forEach(candidate=>{
+      const session=next[candidate.sessionIndex],exercise=session?.exercises?.[candidate.exerciseIndex];
+      if(!exercise)return;
+      candidate.setIndexes.forEach(setIndex=>{
+        const set=exercise.sets?.[setIndex];
+        if(!set)return;
+        if(decision==="restore"){
+          set.weight=candidate.targetWeight;
+          set.weightRecovery={source:"displayedPrescription",correctedAt};
+        }else set.weightReviewStatus="keptAsRecorded";
+        setCount+=1;
+      });
+      session.historyCorrections=Array.isArray(session.historyCorrections)?session.historyCorrections:[];
+      session.historyCorrections.push({type:decision==="restore"?"recommendedWeightRestore":"recommendedWeightKept",exerciseId:candidate.exerciseId,exerciseName:candidate.exerciseName,setNumbers:candidate.setIndexes.map(index=>index+1),targetWeight:candidate.targetWeight,correctedAt});
+    });
+    return {history:next,candidateCount:candidates.length,setCount};
+  }
   const attempted=set=>Boolean(set&&!(set.status==="skipped"||set.skipped===true)&&(
     set.done||set.completed||(set.weight!==""&&set.weight!=null)||(set.reps!==""&&set.reps!=null)||(set.repetitions!==""&&set.repetitions!=null)
   ));
@@ -62,5 +115,5 @@
     });
     return next;
   }
-  return Object.freeze({exerciseIdentity,basePrescription,findApproval,capture,forExercise,effective,outcome,completeApprovals,minimumReps});
+  return Object.freeze({exerciseIdentity,basePrescription,findApproval,capture,forExercise,effective,inputWeight,hasRecordedWeight,selectedLoad,recommendedWeightRepairCandidates,resolveRecommendedWeightHistory,outcome,completeApprovals,minimumReps});
 });

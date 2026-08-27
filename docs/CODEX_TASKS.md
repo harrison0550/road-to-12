@@ -69,6 +69,7 @@ Copy this block for new work:
 
 ## Completed this sprint
 
+- [x] Save displayed recommended weights without requiring re-entry, add an evidence-based historical repair review, and correct Smith-machine working-volume totals.
 - [x] Replace future Foundation A/B chest presses with Smith Machine Bench Press and Low-Incline Dumbbell Press, preserve active and completed legacy sessions, add approved offline motion guides, and gate progression on technique, RIR, comfort, and target-muscle engagement.
 
 - [x] Add the approved biceps accessories, four-session lower-ab progression with explicit Phase 2 acceptance, and twice-weekly pelvic-floor relaxation/mobility sequence, including 13 offline animations and schema-14 tracking.

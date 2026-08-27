@@ -3,14 +3,14 @@
 ## Status
 
 - Audit date: August 26, 2026
-- Release target: version 13.2.0, build `2026.08.26.1`
+- Release target: version 13.2.0, build `2026.08.26.2`
 - Active guided exercise names mapped: 57 of 57
 - Review-gated lower-ab Phase 2 names mapped: 3 of 3
 - Visible Library-only setup entries mapped: 1 of 1
 - Distinct reviewed movement animations: 55
 - New Road to 12% animations in the August 23 expansion: 13
 - Previously approved Road to 12% animations retained: 6
-- Offline cache targets: `road12-v13-2-56-shell` and `road12-v13-2-56-media`
+- Offline cache targets: `road12-v13-2-57-shell` and `road12-v13-2-57-media`
 
 This audit covers the exercise names that can appear in the current Foundation A/B/C, Cardio + Mobility, Core + Recovery, and Zone 2 guided flows; the three explicitly approved movements gated behind the lower-ab Phase 2 review; and the Stationary Bike Setup entry visible only in the Exercise Library. It does not approve media for unimplemented Build, Upper / Lower, or Hypertrophy / Definition workouts.
 
