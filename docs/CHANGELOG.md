@@ -8,6 +8,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Added
 
+- Added the owned 30 lb kettlebell to My Equipment and schema-15 backup-compatible storage.
+- Added a conservative Thursday kettlebell block: two sets of Around the World, three sets of two-hand Swings, and two Suitcase Carry intervals per side without removing Dead Bug, Bird Dog, Side Plank, lower-ab work, or mobility.
+- Added three reviewed, locally bundled kettlebell animations and pause-state guides with offline caching.
 - Added the owned angled V-bar to Full Body B as two additive sets of V-Bar Triceps Pushdown, plus exact Attachment Locker records for the V-bar and rotating close-grip double-D row handle.
 - Added an approved offline V-Bar Triceps Pushdown animation and pause-state guide using one high front-post pulley and a centered cable connection.
 - Added reviewed offline animations, pause-state storyboards, coaching cards, and optional technique-only activation sets for Smith Machine Bench Press and Low-Incline Dumbbell Press.
@@ -35,6 +38,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Changed
 
+- Extended Core + Recovery to approximately 50–60 minutes and positioned kettlebell work after the easy warm-up and before the existing floor-core sequence. First exposure uses only the owned 30 lb bell; overhead and advanced ballistic movements remain deferred.
+- Advanced the maintenance build to `2026.08.27.2` and rotated the offline shell/media caches for the kettlebell expansion.
 - Corrected the former Smith Bulgarian Split Squat into a no-bench Smith Machine Single-Leg Squat: the athlete faces forward inside the cage, one foot works slightly ahead of the bar path, and the unsupported rear foot hovers behind. The stable exercise identity and legacy name alias remain compatible with completed history.
 - Seated Cable Row now names the owned rotating close-grip double-D row handle explicitly. New additive attachment work is revision-gated so it cannot appear inside an older active session.
 - Advanced the maintenance build to `2026.08.27.1` and rotated the offline shell/media caches for the approved single-leg-squat correction and cable attachments.

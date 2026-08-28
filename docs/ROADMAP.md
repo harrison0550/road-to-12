@@ -41,7 +41,7 @@ The roadmap communicates direction rather than a guaranteed schedule. Completed 
 ### v13.4
 
 - [x] Deterministic adaptive training profile and explainable recommendation foundation
-- [x] Complete movement-animation coverage for all 58 active Foundation guided exercise names and all three review-gated lower-ab Phase 2 movements, with automatic focused playback and offline caching
+- [x] Complete movement-animation coverage for all 61 active Foundation guided exercise names and all three review-gated lower-ab Phase 2 movements, with automatic focused playback and offline caching
 - [ ] Expanded equipment setup guides
 - [ ] Explainable AI training recommendations
 - [ ] Exercise search and filtering

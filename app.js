@@ -194,7 +194,7 @@ if(smithSquatTemplate){
 }
 /* Versioned storage boundary. Migrations must remain ordered and idempotent. */
 const ROAD12_STORAGE_KEY="road12v5";
-const ROAD12_SCHEMA_VERSION=14;
+const ROAD12_SCHEMA_VERSION=15;
 const ADHERENCE_RESET_DATE="2026-08-20";
 const ROAD12_MIGRATIONS=[
   {
@@ -344,6 +344,16 @@ const ROAD12_MIGRATIONS=[
       value.schemaVersion=14;
       return value;
     }
+  },
+  {
+    version:15,
+    up(value){
+      /* Record the newly confirmed 30 lb kettlebell additively. Existing
+         workout history and active set results remain untouched. */
+      value.equipment=Object.assign({},value.equipment||{}, {kettlebells:true,kettlebellWeights:[30]});
+      value.schemaVersion=15;
+      return value;
+    }
   }
 ];
 const road12Storage=(()=>{
@@ -411,19 +421,20 @@ state.equipment=Object.assign({
   bumperPlates:true,
   dumbbells:true,
   dumbbellPairWeights:[10,15,20,25],
-  kettlebells:false,
+  kettlebells:true,
+  kettlebellWeights:[30],
   olympicBarbell:false
 },state.equipment||{});
 const weekPlan=[
  {short:"MON",icon:"🏋️",title:"Full Body A",detail:"Guided strength • chest, back, quads and shoulders",action:"workout",time:"55–65 min",focus:"Full-body strength",items:["Treadmill warm-up","Mobility","Smith Machine Squat","Cable Shoulder Press","Cable Curl","Smith Machine Bench Press","Seated Cable Row","Lat Pulldown","Rope Triceps Pushdown","Dumbbell Lateral Raise","Treadmill cooldown"],setup:"Smith and cable stations → 10 lb dumbbells"},
  {short:"TUE",icon:"🚶",title:"Cardio + Mobility",detail:"Incline treadmill, rowing technique and mobility recovery",action:"cardio",time:"45–50 min",focus:"Recovery, rowing skill and aerobic base",items:["5-minute easy treadmill warm-up","20–25 minute incline walk at conversational pace","8-minute easy iFIT rowing technique","Hip flexor stretch","Hamstring stretch","Chest and shoulder mobility","Easy cooldown"],setup:"Treadmill → iFIT rower → floor/wall mobility"},
  {short:"WED",icon:"💪",title:"Full Body B",detail:"Alternate guided full-body strength session",action:"upcoming",time:"60–70 min",focus:"Back, legs, chest and arms",items:["Treadmill warm-up","Hip hinge mobility","Smith Machine RDL","Smith Machine Single-Leg Squat","Smith Machine Calf Raise","Low-Incline Dumbbell Press","Single Arm Cable Row","Lat Pulldown","V-Bar Triceps Pushdown","Cable Lateral Raise","Cable Crunch","Cable Hammer Curl","Dumbbell Floor Press","Cooldown"],setup:"Smith station → low-incline bench and dumbbells → cable stations"},
- {short:"THU",icon:"🧘",title:"Core + Recovery",detail:"Core training, stretching and easy movement",action:"recovery",time:"25–35 min",focus:"Core control and mobility",items:["Easy walk or row","Dead bug","Bird dog","Side plank from knees","Hip mobility","Upper-back mobility","Slow breathing cooldown"],setup:"Floor space; optional treadmill or rower"},
+ {short:"THU",icon:"🧘",title:"Core + Recovery",detail:"Kettlebell technique, core training, stretching and easy movement",action:"recovery",time:"35–45 min",focus:"Kettlebell skill, core control and mobility",items:["Easy walk or row","Kettlebell Around the World","Kettlebell Swing","Kettlebell Suitcase Carry","Dead bug","Bird dog","Side plank from knees","Hip mobility","Upper-back mobility","Slow breathing cooldown"],setup:"30 lb kettlebell → floor space; optional treadmill or rower"},
  {short:"FRI",icon:"🏋️",title:"Full Body C",detail:"Third weekly guided full-body strength session",action:"upcoming",time:"55–65 min",focus:"Legs, pushing, pulling and arms",items:["Treadmill warm-up","Hip hinge mobility","Smith Machine Squat","Cable Shoulder Press","Rear Delt Cable Fly","Cable Face Pull","Cable Straight Arm Pushdown","Rope Triceps Pushdown","High to Low Cable Chop","Dumbbell Romanian Deadlift","Treadmill HIIT Intervals","Cooldown"],setup:"Smith and cable stations → 15 lb dumbbells → treadmill"},
  {short:"SAT",icon:"❤️",title:"Zone 2 Cardio",detail:"Longer easy bike, rower or treadmill session",action:"cardio",time:"35–50 min",focus:"Fat-loss supporting aerobic work",items:["5-minute easy warm-up","25–40 minutes at a pace where you can speak in sentences","5-minute cooldown","Light stretching"],setup:"Choose treadmill, rower or KICKR CORE"},
  {short:"SUN",icon:"📏",title:"Recovery + Check-in",detail:"Rest, measurements and weekly review",action:"progress",time:"10–20 min",focus:"Recovery and progress review",items:["Morning body weight","Waist measurement","Optional progress photos","Review completed workouts","Plan the coming week","Full rest or gentle walk"],setup:"No gym setup required"}
 ];
-const FOUNDATION_PROGRAM_REVISION="foundation-attachments-2026-08-26";
+const FOUNDATION_PROGRAM_REVISION="foundation-kettlebell-2026-08-27";
 Object.assign(weekPlan[0],{
   detail:"Guided strength - chest, back, quads, shoulders and arms",
   time:"60\u201370 min",
@@ -436,10 +447,10 @@ Object.assign(weekPlan[1],{
   items:[...weekPlan[1].items.slice(0,-1),"5-minute pelvic-floor relaxation",weekPlan[1].items.at(-1)]
 });
 Object.assign(weekPlan[3],{
-  detail:"Core training, phased lower-ab work, stretching and easy movement",
-  time:"40\u201350 min",
-  items:[...weekPlan[3].items.slice(0,4),"Lower Abs Progression",...weekPlan[3].items.slice(4)],
-  setup:"Floor space, bench and M1 pull-up bar; optional treadmill"
+  detail:"Kettlebell technique, phased lower-ab work, core training and mobility",
+  time:"50\u201360 min",
+  items:[...weekPlan[3].items.slice(0,7),"Lower Abs Progression",...weekPlan[3].items.slice(7)],
+  setup:"30 lb kettlebell → floor space, bench and M1 pull-up bar; optional treadmill"
 });
 Object.assign(weekPlan[4],{
   detail:"Third weekly guided full-body strength session with added biceps work",
@@ -1245,7 +1256,7 @@ function equipment(){
   ["kickrCore","🚴","Wahoo KICKR CORE","Available for cycling sessions."],
   ["bumperPlates","⚫","Olympic bumper plates","Available in weights from 10–45 lb for Smith-machine loading."],
   ["dumbbells","🔩","Dumbbells","Available fixed pairs: 10, 15, 20 and 25 lb."],
-  ["kettlebells","⚫","Kettlebells","Separate from dumbbells. Keep off when no kettlebells are available."],
+  ["kettlebells","⚫","Kettlebell — 30 lb","Owned fixed-weight bell for swings, carries and controlled core work."],
   ["olympicBarbell","🏋️‍♂️","Free Olympic barbell","This refers to free-barbell work, not the M1 Smith bar."]
  ];
  const attachments=[
@@ -2321,6 +2332,48 @@ function cardioMobilityWorkout(){
   ];
 }
 
+function kettlebellFoundationBlock(){
+  const shared={
+    type:"strength",
+    requires:["kettlebells"],
+    substituteId:null,
+    attachmentCard:null,
+    weightEntry:{mode:"total",label:"Kettlebell weight",help:"Enter 30 lb for the owned kettlebell. Record a lower value only if different equipment is used."}
+  };
+  return [
+    Object.assign(cloneExerciseByName("Hip Hinge"),shared,{
+      name:"Kettlebell Around the World",sets:2,reps:"5/dir",rest:45,
+      muscles:"Deep core, obliques, shoulders, grip and hip stability",
+      setup:["Use the owned 30 lb kettlebell in a clear standing area","Stand tall with feet about hip width and knees soft","Hold the bell at one hip with the free hand ready to receive"],
+      steps:["Brace gently and keep the ribs stacked over the hips.","Pass the kettlebell behind the waist from one hand to the other.","Bring it around the opposite side and transfer it again in front.","Complete five slow circles, then reverse direction."],
+      cues:["Keep the bell below the navel.","Keep the torso still—do not twist or lean.","Make every handoff secure before releasing."],
+      why:"Introduces controlled kettlebell handling while training the trunk to resist rotation.",
+      weightRecommendation:"Use the 30 lb bell only while every handoff is secure. Stop or skip the movement if the bell pulls you out of position.",
+      demoImage:"assets/exercise-library/generated/kettlebell-around-the-world-motion-guide.webp"
+    }),
+    Object.assign(cloneExerciseByName("Hip Hinge"),shared,{
+      name:"Kettlebell Swing",sets:3,reps:10,rest:60,
+      muscles:"Glutes, hamstrings, core, grip and cardiovascular power",
+      setup:["Place the owned 30 lb kettlebell about one foot in front of you","Stand with feet just wider than hip width","Hinge back with a long spine and grip the handle with both hands"],
+      steps:["Hike the kettlebell high between the thighs with the arms long.","Drive the feet into the floor and snap the hips forward.","Let the bell float to about chest height without lifting with the shoulders.","Allow it to fall, hinge again, and guide it between the thighs.","After the final rep, park the bell under control in front of you."],
+      cues:["Hinge—do not squat the bell.","Power comes from the hips; the arms stay long.","Stop at chest height and keep the ribs stacked."],
+      why:"Adds a short technique-focused power and conditioning dose without replacing the existing core work.",
+      weightRecommendation:"Use the 30 lb bell for crisp sets of ten only. End the set immediately if the back rounds or the arms begin lifting the bell.",
+      demoImage:"assets/exercise-library/generated/kettlebell-swing-motion-guide.webp"
+    }),
+    Object.assign(cloneExerciseByName("Hip Hinge"),shared,{
+      name:"Kettlebell Suitcase Carry",sets:2,reps:"30 sec/side",rest:45,
+      muscles:"Obliques, deep core, grip, shoulders and walking stability",
+      setup:["Use the owned 30 lb kettlebell in one hand","Stand tall with the bell beside the thigh","Clear a short walking path and keep the free arm relaxed"],
+      steps:["Walk slowly while keeping the ribs stacked and hips level.","Keep the loaded shoulder down and the kettlebell close to the leg.","Turn under control without swinging the bell.","Complete 30 seconds, switch hands, and repeat on the other side."],
+      cues:["Do not lean toward or away from the bell.","Keep the wrist straight and shoulder packed.","Take quiet, controlled steps."],
+      why:"Adds practical grip and anti-side-bending core work with a low skill barrier.",
+      weightRecommendation:"Use the 30 lb bell. Shorten the interval before posture changes.",
+      demoImage:"assets/exercise-library/generated/kettlebell-suitcase-carry-motion-guide.webp"
+    })
+  ];
+}
+
 function coreRecoveryWorkout(){
   return [
     cloneExerciseByName("Treadmill Walk",{
@@ -2331,6 +2384,7 @@ function coreRecoveryWorkout(){
       why:"Promotes circulation without adding significant fatigue.",
       demoImage:"assets/phase3/treadmill-walking.jpg"
     }),
+    ...kettlebellFoundationBlock(),
     cloneExerciseByName("Bodyweight Squat",{
       name:"Dead Bug",
       duration:"3:00",

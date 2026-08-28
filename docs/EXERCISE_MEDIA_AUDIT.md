@@ -3,14 +3,14 @@
 ## Status
 
 - Audit date: August 27, 2026
-- Release target: version 13.2.0, build `2026.08.27.1`
-- Active guided exercise names mapped: 58 of 58
+- Release target: version 13.2.0, build `2026.08.27.2`
+- Active guided exercise names mapped: 61 of 61
 - Review-gated lower-ab Phase 2 names mapped: 3 of 3
 - Visible Library-only setup entries mapped: 1 of 1
-- Distinct reviewed movement animations: 56
+- Distinct reviewed movement animations: 59
 - New Road to 12% animations in the August 23 expansion: 13
 - Previously approved Road to 12% animations retained: 6
-- Offline cache targets: `road12-v13-2-58-shell` and `road12-v13-2-58-media`
+- Offline cache targets: `road12-v13-2-59-shell` and `road12-v13-2-59-media`
 
 This audit covers the exercise names that can appear in the current Foundation A/B/C, Cardio + Mobility, Core + Recovery, and Zone 2 guided flows; the three explicitly approved movements gated behind the lower-ab Phase 2 review; and the Stationary Bike Setup entry visible only in the Exercise Library. It does not approve media for unimplemented Build, Upper / Lower, or Hypertrophy / Definition workouts.
 
@@ -26,7 +26,11 @@ Each active guided exercise resolves by its exact display name through `ROAD12_E
 
 The written setup, execution, cues, and safety guidance remain authoritative. App-created movement artwork supplements those instructions; it must not be presented as licensed footage or as a substitute for the written coaching.
 
-Several exact workout names intentionally share one accurate animation. Easy treadmill warm-ups, cooldowns, and recovery walks use the same easy-walk asset, while their written prescriptions remain distinct. The current 58 active names therefore map to 51 distinct animations. The three gated Phase 2 movements plus retained legacy and alias mappings bring the reviewed registry to 56 distinct animations across 72 exact-name mappings.
+Several exact workout names intentionally share one accurate animation. Easy treadmill warm-ups, cooldowns, and recovery walks use the same easy-walk asset, while their written prescriptions remain distinct. The current 61 active names therefore map to 54 distinct animations. The three gated Phase 2 movements plus retained legacy and alias mappings bring the reviewed registry to 59 distinct animations across 75 exact-name mappings.
+
+## August 27 kettlebell expansion
+
+The audit adds exact-name animation and pause-state poster pairs for Kettlebell Around the World, Kettlebell Swing, and Kettlebell Suitcase Carry. Each guide shows the owned 30 lb bell, the established red-shirt trainer, a clear black background, and the first-exposure technique used in Thursday Core + Recovery. The written coaching remains authoritative: swings stop at chest height and remain hip-driven; around-the-world handoffs stay below the navel with a still torso; suitcase carries maintain level hips without side bending.
 
 ## August 27 equipment and single-leg update
 
@@ -91,51 +95,54 @@ Full Body B also reuses Treadmill Walk, Lat Pulldown, and Easy Treadmill Cooldow
 ### Core + Recovery
 
 32. Easy Recovery Walk
-33. Dead Bug
-34. Bird Dog
-35. Side Plank from Knees
-36. Hip and Glute Mobility
-37. Thoracic and Shoulder Mobility
-38. Slow Breathing Cooldown
+33. Kettlebell Around the World
+34. Kettlebell Swing
+35. Kettlebell Suitcase Carry
+36. Dead Bug
+37. Bird Dog
+38. Side Plank from Knees
+39. Hip and Glute Mobility
+40. Thoracic and Shoulder Mobility
+41. Slow Breathing Cooldown
 
 ### Full Body C additions
 
-39. Smith Machine Squat
-40. Rear Delt Cable Fly
-41. Cable Face Pull
-42. Cable Straight Arm Pushdown
-43. High to Low Cable Chop
-44. Dumbbell Romanian Deadlift
-45. Treadmill HIIT Intervals
+42. Smith Machine Squat
+43. Rear Delt Cable Fly
+44. Cable Face Pull
+45. Cable Straight Arm Pushdown
+46. High to Low Cable Chop
+47. Dumbbell Romanian Deadlift
+48. Treadmill HIIT Intervals
 
 Full Body C also reuses Treadmill Walk, Hip Hinge, Cable Shoulder Press, Rope Triceps Pushdown, and Easy Treadmill Cooldown.
 
 ### Zone 2 Cardio
 
-46. Zone 2 Warm-Up
-47. Zone 2 Cardio
-48. Zone 2 Cooldown
+49. Zone 2 Warm-Up
+50. Zone 2 Cardio
+51. Zone 2 Cooldown
 
 ### August 23 active additions
 
-49. Alternating Dumbbell Curl
-50. Behind-the-Back Single-Arm Cable Curl
-51. Reverse Crunch
-52. Lying Leg Raise
-53. Forearm Plank with Posterior Pelvic Tilt
-54. Supine Diaphragmatic Breathing
-55. Wide-Knee Child's Pose Breathing
-56. Supported Deep Squat Breathing
-57. Happy Baby Pelvic Floor Stretch
-58. 90/90 Hip Switch
+52. Alternating Dumbbell Curl
+53. Behind-the-Back Single-Arm Cable Curl
+54. Reverse Crunch
+55. Lying Leg Raise
+56. Forearm Plank with Posterior Pelvic Tilt
+57. Supine Diaphragmatic Breathing
+58. Wide-Knee Child's Pose Breathing
+59. Supported Deep Squat Breathing
+60. Happy Baby Pelvic Floor Stretch
+61. 90/90 Hip Switch
 
 ### Review-gated lower-ab Phase 2
 
 These movements are locally ready but do not enter the workout until two Phase 1 sessions are completed and the user explicitly accepts the transition.
 
-59. Hanging Knee Raise
-60. Decline Bench Reverse Crunch
-61. Hanging Garhammer Raise
+62. Hanging Knee Raise
+63. Decline Bench Reverse Crunch
+64. Hanging Garhammer Raise
 
 ## Visible Library-only setup coverage
 
@@ -154,7 +161,7 @@ These movements are locally ready but do not enter the workout until two Phase 1
 
 ## Offline and performance review
 
-The Service Worker keeps its small versioned shell cache separate from its versioned exercise-media cache. Shell installation and activation do not wait on the 56 GIF downloads, so one unavailable media file cannot strand an iPhone on the previous app build. After the new worker is active, the app requests a bounded background warm-up that caches still posters and exact retained references before GIFs, with no more than four media requests in flight. A media file opened before warm-up completes is cached on demand.
+The Service Worker keeps its small versioned shell cache separate from its versioned exercise-media cache. Shell installation and activation do not wait on the 59 GIF downloads, so one unavailable media file cannot strand an iPhone on the previous app build. After the new worker is active, the app requests a bounded background warm-up that caches still posters and exact retained references before GIFs, with no more than four media requests in flight. A media file opened before warm-up completes is cached on demand.
 
 Older media caches remain available as an offline fallback during an update and are removed only after the new media cache warms without failures. After one successful online warm-up, still posters, animated GIFs, and retained local references remain available offline. Focused exercise screens use the cached GIF immediately; library grids use the lighter still posters.
 
@@ -173,7 +180,7 @@ node scripts/test-offline-pwa.js
 
 The validators should confirm:
 
-- All 58 active guided names and all three review-gated lower-ab Phase 2 names resolve to reviewed animation metadata.
+- All 61 active guided names and all three review-gated lower-ab Phase 2 names resolve to reviewed animation metadata.
 - Every visible Library-only exercise or setup name resolves to reviewed media; movement entries require animation, while setup-only entries may use an accurate still guide.
 - Every animation has a still poster, meaningful alternative text, and a valid multi-frame GIF.
 - Retained reference metadata remains valid and inexact legacy references remain excluded.

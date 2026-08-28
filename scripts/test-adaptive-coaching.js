@@ -67,6 +67,7 @@ assert(/version:10,[\s\S]*?cardioTimers[\s\S]*?schemaVersion=10;/.test(app),"act
 assert(/version:11,[\s\S]*?exerciseTimings[\s\S]*?schemaVersion=11;/.test(app),"structured exercise timing needs an additive migration");
 assert(/version:12,[\s\S]*?adherenceBaselineDate[\s\S]*?schemaVersion=12;/.test(app),"the adherence reset needs an additive migration that preserves workout history");
 assert(/version:13,[\s\S]*?dumbbellPairWeights:\[10,15,20,25\][\s\S]*?schemaVersion=13;/.test(app),"confirmed dumbbell sizes need an additive equipment migration");
+assert(/version:15,[\s\S]*?kettlebells:true,kettlebellWeights:\[30\][\s\S]*?schemaVersion=15;/.test(app),"the confirmed 30 lb kettlebell needs an additive equipment migration");
 assert(/QUICK EXERCISE FEEDBACK[\s\S]*?exerciseRir[\s\S]*?exerciseForm[\s\S]*?exerciseDiscomfort/.test(app),"strength exercises need quick exercise-specific feedback controls");
 assert(/exerciseEngagement[\s\S]*?muscleEngagement/.test(app),"chest exercises need stored target-muscle engagement feedback");
 assert(/Approve next-session target/.test(app),"concrete progression recommendations must require approval");

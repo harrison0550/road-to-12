@@ -13,8 +13,11 @@ assert.strictEqual(identities.resolve("Cable Hammer Curl").externalMappings.stra
 assert.strictEqual(identities.resolve("Smith Machine Single-Leg Squat").id,"road12.lunge.smith-bulgarian");
 assert.strictEqual(identities.resolve("Smith Bulgarian Split Squat").id,"road12.lunge.smith-bulgarian","legacy split-squat history must retain its stable identity");
 assert.strictEqual(identities.resolve("V-Bar Triceps Pushdown").id,"road12.triceps.v-bar-pushdown");
+assert.strictEqual(identities.resolve("Kettlebell Swing").id,"road12.hinge.kettlebell-swing");
+assert.strictEqual(identities.resolve("Kettlebell Around the World").id,"road12.core.kettlebell-around-world");
+assert.strictEqual(identities.resolve("Kettlebell Suitcase Carry").id,"road12.carry.kettlebell-suitcase");
 assert.strictEqual(identities.resolve("Future Movement").id,"road12.exercise.future-movement");
-assert.match(app,/ROAD12_SCHEMA_VERSION=14/);
+assert.match(app,/ROAD12_SCHEMA_VERSION=15/);
 assert.match(app,/version:11,[\s\S]*?exerciseTimings[\s\S]*?schemaVersion=11/);
 [
   "exerciseId:identity.id","basePrescription","prescription:effectivePrescription","setNumber:setIndex+1","repetitions:Number(set?.reps)",

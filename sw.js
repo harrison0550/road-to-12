@@ -1,5 +1,5 @@
 /* Keep this query aligned with app-meta.js so Safari cannot reuse stale imported metadata. */
-importScripts("./app-meta.js?build=2026.08.27.1");
+importScripts("./app-meta.js?build=2026.08.27.2");
 
 const CACHE=self.ROAD12_META.serviceWorkerCache;
 const MEDIA_CACHE=CACHE.endsWith("-shell")?`${CACHE.slice(0,-6)}-media`:`${CACHE}-media`;
@@ -72,6 +72,9 @@ const MEDIA_ASSETS=[
   "./assets/exercise-library/generated/hip-glute-mobility-motion-guide.webp",
   "./assets/exercise-library/generated/hip-hinge-motion-guide.webp",
   "./assets/exercise-library/generated/ifit-rowing-technique-motion-guide.webp",
+  "./assets/exercise-library/generated/kettlebell-around-the-world-motion-guide.webp",
+  "./assets/exercise-library/generated/kettlebell-suitcase-carry-motion-guide.webp",
+  "./assets/exercise-library/generated/kettlebell-swing-motion-guide.webp",
   "./assets/exercise-library/generated/incline-cable-press-motion-guide.webp",
   "./assets/exercise-library/generated/lat-pulldown-motion-guide.webp",
   "./assets/exercise-library/generated/post-workout-stretch-motion-guide.webp",
@@ -150,6 +153,9 @@ const MEDIA_ASSETS=[
   "./assets/exercise-library/generated/hip-glute-mobility.gif",
   "./assets/exercise-library/generated/hip-hinge.gif",
   "./assets/exercise-library/generated/ifit-rowing-technique.gif",
+  "./assets/exercise-library/generated/kettlebell-around-the-world.gif",
+  "./assets/exercise-library/generated/kettlebell-suitcase-carry.gif",
+  "./assets/exercise-library/generated/kettlebell-swing.gif",
   "./assets/exercise-library/generated/incline-cable-press.gif",
   "./assets/exercise-library/generated/lat-pulldown.gif",
   "./assets/exercise-library/generated/post-workout-stretch.gif",

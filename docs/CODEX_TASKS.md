@@ -69,6 +69,7 @@ Copy this block for new work:
 
 ## Completed this sprint
 
+- [x] Record the owned 30 lb kettlebell and add conservative swings, around-the-worlds, and suitcase carries to Thursday without removing existing core work, including reviewed offline animations and storage compatibility.
 - [x] Correct the Smith single-leg squat to the approved forward-facing no-bench form, add the owned V-bar as additive Full Body B triceps work, and record the rotating close-grip row handle without disrupting older active sessions or history.
 - [x] Save displayed recommended weights without requiring re-entry, add an evidence-based historical repair review, and correct Smith-machine working-volume totals.
 - [x] Replace future Foundation A/B chest presses with Smith Machine Bench Press and Low-Incline Dumbbell Press, preserve active and completed legacy sessions, add approved offline motion guides, and gate progression on technique, RIR, comfort, and target-muscle engagement.

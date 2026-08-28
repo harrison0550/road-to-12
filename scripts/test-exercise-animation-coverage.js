@@ -114,6 +114,7 @@ function generateLiveFoundationWorkouts() {
     "currentLowerAbsPhase",
     "lowerAbsProgramExercises",
     "pelvicFloorRelaxationBlock",
+    "kettlebellFoundationBlock",
     "cardioMobilityWorkout",
     "coreRecoveryWorkout",
     "zone2CardioWorkout",
@@ -141,7 +142,7 @@ function generateLiveFoundationWorkouts() {
   };
   const harness = `
     const data=window.WORKOUT_DATA;
-    const state={history:[],lowerAbsProgram:{phase2AcceptedAt:null,completedSessionIds:[]},equipment:{ritfitM1:true,bench:true,treadmill:true,rower:true,kickrCore:true,bumperPlates:true,dumbbells:true,kettlebells:false,olympicBarbell:false}};
+    const state={history:[],lowerAbsProgram:{phase2AcceptedAt:null,completedSessionIds:[]},equipment:{ritfitM1:true,bench:true,treadmill:true,rower:true,kickrCore:true,bumperPlates:true,dumbbells:true,kettlebells:true,kettlebellWeights:[30],olympicBarbell:false}};
     const equipmentLabels={};
     ${workoutFunctionNames.map((name) => extractFunction(appSource, name)).join("\n")}
     this.__foundationWorkouts=[0,1,2,3,4,5].map(day=>workoutForDay(day));
@@ -188,6 +189,9 @@ const activeFoundationExercises = [
   "V-Bar Triceps Pushdown",
   "Dumbbell Floor Press",
   "Easy Recovery Walk",
+  "Kettlebell Around the World",
+  "Kettlebell Swing",
+  "Kettlebell Suitcase Carry",
   "Dead Bug",
   "Bird Dog",
   "Side Plank from Knees",
@@ -217,8 +221,8 @@ const activeFoundationExercises = [
 
 assert.strictEqual(
   new Set(activeFoundationExercises).size,
-  58,
-  "the active Foundation media audit must cover 58 distinct exercise names",
+  61,
+  "the active Foundation media audit must cover 61 distinct exercise names",
 );
 
 const liveFoundationWorkouts = generateLiveFoundationWorkouts();
@@ -386,8 +390,8 @@ assert(vBarEntry.equipment.some((item)=>/angled V-bar pressdown attachment/i.tes
 
 assert.strictEqual(
   new Set(activeFoundationExercises.map((name) => library.entries[name].media)).size,
-  51,
-  "the audit should resolve the 58 active names to 51 distinct reviewed animations",
+  54,
+  "the audit should resolve the 61 active names to 54 distinct reviewed animations",
 );
 
 for (const name of ["Hanging Knee Raise", "Decline Bench Reverse Crunch", "Hanging Garhammer Raise"]) {
@@ -395,5 +399,5 @@ for (const name of ["Hanging Knee Raise", "Decline Bench Reverse Crunch", "Hangi
 }
 
 console.log(
-  "Foundation animation coverage passed: live workoutForDay(0..5) output matches all 58 audited names, resolves to 51 reviewed animations, and all three review-gated Phase 2 movements are ready.",
+  "Foundation animation coverage passed: live workoutForDay(0..5) output matches all 61 audited names, resolves to 54 reviewed animations, and all three review-gated Phase 2 movements are ready.",
 );

@@ -37,7 +37,10 @@
     ["road12.core.forearm-plank-posterior-tilt","Forearm Plank with Posterior Pelvic Tilt","PLANK",[]],
     ["road12.core.hanging-knee-raise","Hanging Knee Raise","HANGING_KNEE_RAISE",[]],
     ["road12.core.decline-reverse-crunch","Decline Bench Reverse Crunch","CRUNCH",[]],
-    ["road12.core.hanging-garhammer","Hanging Garhammer Raise","HANGING_KNEE_RAISE",[]]
+    ["road12.core.hanging-garhammer","Hanging Garhammer Raise","HANGING_KNEE_RAISE",[]],
+    ["road12.hinge.kettlebell-swing","Kettlebell Swing","KETTLEBELL_SWING",[]],
+    ["road12.core.kettlebell-around-world","Kettlebell Around the World",null,[]],
+    ["road12.carry.kettlebell-suitcase","Kettlebell Suitcase Carry",null,[]]
   ].map(([id,name,stravaExerciseType,aliases])=>Object.freeze({id,name,aliases:Object.freeze(aliases),externalMappings:Object.freeze({strava:Object.freeze({exerciseType:stravaExerciseType})})}));
   const normalize=value=>String(value||"").trim().toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
   const byName=new Map();

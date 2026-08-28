@@ -6,10 +6,10 @@ Read this file at the beginning of every Codex or engineering session. It is the
 
 - Product: Road to 12%
 - Version: 13.2.0
-- Build: 2026.08.27.1
+- Build: 2026.08.27.2
 - Last updated: August 27, 2026
-- Service Worker cache: `road12-v13-2-58-shell`
-- Exercise media cache: `road12-v13-2-58-media`
+- Service Worker cache: `road12-v13-2-59-shell`
+- Exercise media cache: `road12-v13-2-59-media`
 - Runtime: static, client-only, offline-first PWA
 - Primary storage key: `road12v5`
 
@@ -87,7 +87,8 @@ See `CODEX_TASKS.md` for priority and acceptance detail.
 - An approved session weight is the actual editable set default, not placeholder text, so completing an untouched set records what the user saw. Prior-session guidance remains display-only. Progress may repair historical zero-weight sets only after confirmation and only when the completed snapshot contains the exact captured prescription; each change retains an audit record and unknown weights are never inferred. Smith selected-volume calculations include the known 33 lb bar.
 - Workout-preview exercise rows are interactive, non-mutating entry points to a full exercise guide. The preview detail reuses the reviewed automatic animation, setup and execution guidance, equipment-specific coaching, prescription summary, and historical performance lookup without creating or changing an active workout. Returning restores the preview list position.
 - Program Adherence starts from the saved August 20, 2026 baseline for the current installation. Earlier development-era sessions remain visible in Calendar and history but do not affect the metric. Only resolved completed or missed training sessions on or after the baseline count; an unresolved scheduled workout never lowers adherence.
-- The current Phase 1 Foundation program has complete exact-name media coverage: 58 currently active guided names resolve to 51 distinct movement animations. Three review-gated lower-ab Phase 2 movements are also approved and cached. Legacy and alias mappings bring the registry to 56 distinct GIFs across 72 exact-name mappings. Shared warm-up, cooldown, recovery, pelvic-mobility, and alias names may reuse one accurate movement asset while keeping written prescriptions distinct. The visible Library-only Stationary Bike Setup uses a reviewed static setup guide.
+- The current Phase 1 Foundation program has complete exact-name media coverage: 61 currently active guided names resolve to 54 distinct movement animations. Three review-gated lower-ab Phase 2 movements are also approved and cached. Legacy and alias mappings bring the registry to 59 distinct GIFs across 75 exact-name mappings. Shared warm-up, cooldown, recovery, pelvic-mobility, and alias names may reuse one accurate movement asset while keeping written prescriptions distinct. The visible Library-only Stationary Bike Setup uses a reviewed static setup guide.
+- Thursday Core + Recovery includes a conservative first-exposure block using the owned 30 lb kettlebell: Around the World, two-hand Swing, and Suitcase Carry. It is inserted after the easy warm-up and preserves Dead Bug, Bird Dog, Side Plank, phased lower-ab work, and mobility. Advanced kettlebell lifts remain deferred until technique and recovery evidence exist.
 - Full Body B uses the no-bench Smith Machine Single-Leg Squat and adds two sets of V-Bar Triceps Pushdown with one high front-post pulley. Seated Cable Row explicitly uses the owned rotating close-grip double-D handle. The prior split-squat display name remains an alias of the same stable exercise ID, and the session program revision prevents the new additive V-bar block from entering an older active workout.
 - New Full Body A sessions use Smith Machine Bench Press and new Full Body B sessions use Low-Incline Dumbbell Press. The prior Cable Chest Press and Incline Cable Press definitions, stable IDs, media, and completed history remain available. A session-level `programRevision` preserves either old press when an A/B workout was already active before build 2026.08.26.1.
 - Both new chest presses include a visible technique card, optional non-working activation set, chest-engagement feedback, and conservative engagement-aware progression. Activation completion is resumable inside the active session but is excluded from working volume, personal records, progression evidence, and completed exercise history.
@@ -136,7 +137,7 @@ See `CODEX_TASKS.md` for priority and acceptance detail.
 - App-created exercise illustrations are identified as posture illustrations; written setup and movement cues remain authoritative.
 - Exercise artwork is previewed for user approval before it replaces an application asset; the approved Lat Pulldown guide shows the full cage with one center-connected cable on the facing front post.
 - Olympic bumper plates from 10–45 lb are available and enabled; existing Smith-machine squat, hinge, split-squat, and calf-raise programming may use progressive added plate weight.
-- Dumbbells are available and enabled independently from kettlebells; fixed pairs of 10, 15, 20, and 25 lb are recorded, while kettlebells remain unavailable. Goblet Squat may therefore use one dumbbell in the equipment-safe rotation. Progression may recommend only the next owned dumbbell size and still requires explicit approval.
+- Dumbbells and kettlebells remain independent equipment categories. Fixed dumbbell pairs of 10, 15, 20, and 25 lb and one 30 lb kettlebell are recorded. Progression may recommend only owned weights and still requires explicit approval.
 - Smith set entries store total added plate weight across both sides for backward compatibility; the calculator divides that load per side and adds the official 33 lb M1 Pro Smith bar to show working weight.
 - Timer completion uses a locally generated Web Audio chime, vibration where supported, and an accessible status announcement; it does not require a network asset.
 - Active timers use an absolute wall-clock finish time and reconcile on foreground restoration so iOS suspension does not pause elapsed time; completion audio may be delayed until the PWA resumes because of platform restrictions.
@@ -156,7 +157,7 @@ See `CODEX_TASKS.md` for priority and acceptance detail.
 - Preserve existing workout history and `road12v5` compatibility.
 - Migrations must be additive, ordered, and idempotent.
 - Equipment migration v4 enables the newly available bumper plates without changing completed workout snapshots.
-- Equipment migration v6 separates dumbbells from kettlebells, enables the user's dumbbells, and leaves kettlebells disabled without changing completed workout snapshots.
+- Equipment migration v6 separates dumbbells from kettlebells. Additive migration v15 records the owned 30 lb kettlebell without changing completed workout snapshots.
 - Equipment migration v7 reconciles the confirmed iFIT rower and dumbbell availability for existing device profiles so additive exercises are not filtered from previews; completed history remains unchanged.
 - Migration v8 initializes the locked Foundation phase, measurement history and cardio history, and retires the unused accepted whole-workout adaptive plan without altering completed sessions.
 - Migration v9 initializes active exercise feedback and approved next-session prescriptions without altering completed sessions.

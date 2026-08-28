@@ -21,4 +21,10 @@ assert.match(app, /combined weight of both dumbbells[\s\S]*?Available pairs are 
 assert.match(app, /const workoutData=\[\.\.\.baseWorkout,\.\.\.\[dumbbellAccessory,armAccessory\]\.filter\(Boolean\)\];/, "accessories must be appended without replacing the existing strength workout");
 assert.match(app, /if\(ex\.type==="cooldown"\)return 7;/, "cooldowns must remain ordered after added accessories");
 
-console.log("Weekly equipment mix checks passed: rowing and two-set dumbbell accessories are additive and cooldowns remain last.");
+assert.match(app, /function kettlebellFoundationBlock\(\)[\s\S]*?name:"Kettlebell Around the World",sets:2,reps:"5\/dir"/, "Thursday must add conservative around-the-world practice");
+assert.match(app, /function kettlebellFoundationBlock\(\)[\s\S]*?name:"Kettlebell Swing",sets:3,reps:10/, "Thursday must add technique-focused kettlebell swings");
+assert.match(app, /function kettlebellFoundationBlock\(\)[\s\S]*?name:"Kettlebell Suitcase Carry",sets:2,reps:"30 sec\/side"/, "Thursday must add the selected low-skill carry");
+assert.match(app, /function coreRecoveryWorkout\(\)[\s\S]*?\.\.\.kettlebellFoundationBlock\(\)[\s\S]*?name:"Dead Bug"[\s\S]*?name:"Bird Dog"/, "kettlebell work must remain additive and preserve the existing core sequence");
+assert.match(app, /weightEntry:\{mode:"total",label:"Kettlebell weight"[\s\S]*?Enter 30 lb/, "kettlebell sets must record the owned bell weight");
+
+console.log("Weekly equipment mix checks passed: rowing, dumbbell and kettlebell additions are conservative, additive, and preserve the existing core sequence.");
