@@ -19,6 +19,7 @@
     ["road12.lunge.smith-bulgarian","Smith Machine Single-Leg Squat","SMITH_MACHINE_LUNGE",["Smith Bulgarian Split Squat"]],
     ["road12.triceps.v-bar-pushdown","V-Bar Triceps Pushdown","CABLE_TRICEPS_PUSHDOWN",[]],
     ["road12.calf-raise.smith","Smith Machine Calf Raise","STANDING_CALF_RAISE",[]],
+    ["road12.hip-thrust.smith","Smith Machine Hip Thrust",null,[]],
     ["road12.press.incline-cable","Incline Cable Press","MACHINE_INCLINE_CHEST_PRESS",[]],
     ["road12.press.dumbbell-low-incline","Low-Incline Dumbbell Press","DUMBBELL_INCLINE_BENCH_PRESS",[]],
     ["road12.row.single-arm-cable","Single Arm Cable Row","ROW_GENERIC",["Single-Arm Cable Row"]],

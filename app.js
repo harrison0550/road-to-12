@@ -38,6 +38,7 @@ const PHASE2_ASSET_MAP={
  "Smith Bulgarian Split Squat":"assets/phase2/smith-bulgarian-split-squat.jpg",
  "Smith Machine Single-Leg Squat":"assets/exercise-library/generated/smith-bulgarian-split-squat-motion-guide.webp",
  "Smith Machine Calf Raise":"assets/phase2/smith-machine-calf-raise.jpg",
+ "Smith Machine Hip Thrust":"assets/exercise-library/generated/smith-machine-hip-thrust-motion-guide.webp",
  "Cable Crunch":"assets/phase2/cable-crunch.jpg",
  "Cable Straight Arm Pushdown":"assets/phase2/cable-straight-arm-pushdown.jpg"
 };
@@ -430,11 +431,12 @@ const weekPlan=[
  {short:"TUE",icon:"🚶",title:"Cardio + Mobility",detail:"Incline treadmill, rowing technique and mobility recovery",action:"cardio",time:"45–50 min",focus:"Recovery, rowing skill and aerobic base",items:["5-minute easy treadmill warm-up","20–25 minute incline walk at conversational pace","8-minute easy iFIT rowing technique","Hip flexor stretch","Hamstring stretch","Chest and shoulder mobility","Easy cooldown"],setup:"Treadmill → iFIT rower → floor/wall mobility"},
  {short:"WED",icon:"💪",title:"Full Body B",detail:"Alternate guided full-body strength session",action:"upcoming",time:"60–70 min",focus:"Back, legs, chest and arms",items:["Treadmill warm-up","Hip hinge mobility","Smith Machine RDL","Smith Machine Single-Leg Squat","Smith Machine Calf Raise","Low-Incline Dumbbell Press","Single Arm Cable Row","Lat Pulldown","V-Bar Triceps Pushdown","Cable Lateral Raise","Cable Crunch","Cable Hammer Curl","Dumbbell Floor Press","Cooldown"],setup:"Smith station → low-incline bench and dumbbells → cable stations"},
  {short:"THU",icon:"🧘",title:"Core + Recovery",detail:"Kettlebell technique, core training, stretching and easy movement",action:"recovery",time:"35–45 min",focus:"Kettlebell skill, core control and mobility",items:["Easy walk or row","Kettlebell Around the World","Kettlebell Swing","Kettlebell Suitcase Carry","Dead bug","Bird dog","Side plank from knees","Hip mobility","Upper-back mobility","Slow breathing cooldown"],setup:"30 lb kettlebell → floor space; optional treadmill or rower"},
- {short:"FRI",icon:"🏋️",title:"Full Body C",detail:"Third weekly guided full-body strength session",action:"upcoming",time:"55–65 min",focus:"Legs, pushing, pulling and arms",items:["Treadmill warm-up","Hip hinge mobility","Smith Machine Squat","Cable Shoulder Press","Rear Delt Cable Fly","Cable Face Pull","Cable Straight Arm Pushdown","Rope Triceps Pushdown","High to Low Cable Chop","Dumbbell Romanian Deadlift","Treadmill HIIT Intervals","Cooldown"],setup:"Smith and cable stations → 15 lb dumbbells → treadmill"},
+ {short:"FRI",icon:"🏋️",title:"Full Body C",detail:"Third weekly guided full-body strength session",action:"upcoming",time:"65–75 min",focus:"Legs, glutes, pushing, pulling and arms",items:["Treadmill warm-up","Hip hinge mobility","Smith Machine Squat","Smith Machine Hip Thrust","Cable Shoulder Press","Rear Delt Cable Fly","Cable Face Pull","Cable Straight Arm Pushdown","Rope Triceps Pushdown","High to Low Cable Chop","Dumbbell Romanian Deadlift","Treadmill HIIT Intervals","Cooldown"],setup:"Smith station and outside bench → cable stations → 15 lb dumbbells → treadmill"},
  {short:"SAT",icon:"❤️",title:"Zone 2 Cardio",detail:"Longer easy bike, rower or treadmill session",action:"cardio",time:"35–50 min",focus:"Fat-loss supporting aerobic work",items:["5-minute easy warm-up","25–40 minutes at a pace where you can speak in sentences","5-minute cooldown","Light stretching"],setup:"Choose treadmill, rower or KICKR CORE"},
  {short:"SUN",icon:"📏",title:"Recovery + Check-in",detail:"Rest, measurements and weekly review",action:"progress",time:"10–20 min",focus:"Recovery and progress review",items:["Morning body weight","Waist measurement","Optional progress photos","Review completed workouts","Plan the coming week","Full rest or gentle walk"],setup:"No gym setup required"}
 ];
-const FOUNDATION_PROGRAM_REVISION="foundation-kettlebell-2026-08-27";
+const PREVIOUS_FOUNDATION_PROGRAM_REVISION="foundation-kettlebell-2026-08-27";
+const FOUNDATION_PROGRAM_REVISION="foundation-smith-hip-thrust-2026-08-28";
 Object.assign(weekPlan[0],{
   detail:"Guided strength - chest, back, quads, shoulders and arms",
   time:"60\u201370 min",
@@ -453,9 +455,9 @@ Object.assign(weekPlan[3],{
   setup:"30 lb kettlebell → floor space, bench and M1 pull-up bar; optional treadmill"
 });
 Object.assign(weekPlan[4],{
-  detail:"Third weekly guided full-body strength session with added biceps work",
-  time:"60\u201370 min",
-  items:[...weekPlan[4].items.slice(0,8),"Behind-the-Back Single-Arm Cable Curl",...weekPlan[4].items.slice(8)]
+  detail:"Third weekly guided full-body strength session with added glute and biceps work",
+  time:"65\u201375 min",
+  items:[...weekPlan[4].items.slice(0,9),"Behind-the-Back Single-Arm Cable Curl",...weekPlan[4].items.slice(9)]
 });
 Object.assign(weekPlan[5],{
   detail:"Longer easy bike, rower or treadmill session plus pelvic-floor relaxation",
@@ -1265,7 +1267,8 @@ function equipment(){
   ["rope","Triceps rope","Used for rope pushdowns."],
   ["latBar","Lat pulldown bar","Used for lat pulldowns."],
   ["rowHandle","Rotating close-grip double-D row handle","Used for seated cable rows."],
-  ["vBar","Angled V-bar pressdown attachment","Used for V-bar triceps pushdowns."]
+  ["vBar","Angled V-bar pressdown attachment","Used for V-bar triceps pushdowns."],
+  ["smithBarPad","Smith barbell pad","Used to cushion the Smith bar during hip thrusts."]
  ];
  app.innerHTML=`<section class="card"><h2>Profile</h2><label>What should the app call you?<input id="preferredName" value="${state.preferredName}" autocomplete="given-name"></label><button class="secondary profile-save" id="saveProfile">Save name</button></section>
  <section class="card adaptive-profile-card" aria-labelledby="trainingProfileTitle"><span class="pill">TRAINING PROFILE</span><h2 id="trainingProfileTitle">Foundation context</h2><p class="muted">These details provide context for future progression. They remain on this device and never change the current phase automatically.</p>
@@ -2726,7 +2729,24 @@ function fullBodyBWorkout(useLegacyChest=false,includeVBar=true){
   ];
 }
 
-function fullBodyCWorkout(){
+function smithMachineHipThrustExercise(){
+  return cloneExerciseByName("Goblet Squat",{
+    name:"Smith Machine Hip Thrust",type:"strength",sets:3,reps:10,rest:90,
+    muscles:"Glutes, hamstrings and core",
+    setup:["Place the flat bench completely outside the front opening of the Smith cage","Position your shoulder blades across the bench with your legs extending into the cage","Wrap the Smith barbell pad securely around the center of the bar","Plant both feet inside the cage about hip width apart","Center the padded bar across the hip crease and set the safety stops just below your controlled bottom position"],
+    steps:["Brace your abdomen and hold the padded bar lightly near each hip.","Lower the hips under control while keeping both feet planted.","Drive through the heels and squeeze the glutes to raise the hips.","Finish when the shoulders, hips and knees form one straight line without arching the lower back.","Lower smoothly, then re-rack the Smith bar securely after the set."],
+    cues:["Bench outside; feet face into the cage.","Keep the pad centered over the hip crease.","Drive with the glutes, not the lower back.","Keep the chin gently tucked and ribs down."],
+    why:"Adds direct hip-extension strength for the glutes while the Smith rails and padded bar provide a stable, repeatable loading path.",
+    weightRecommendation:"First exposure: use the padded empty 33 lb Smith bar for three controlled sets of ten. Add matched plates only after the setup, lockout and re-rack all feel secure.",
+    requires:["ritfitM1","bench","bumperPlates"],substituteId:null,m1:null,
+    attachmentCard:{key:"smithBarPad",name:"Smith barbell pad",qty:1},
+    weightEntry:{mode:"total",label:"Total plate weight across both sides",help:"Enter the combined plate weight from both sides. Do not include the 33 lb Smith bar; the app adds it separately."},
+    correctedGuide:null,demoImage:"assets/exercise-library/generated/smith-machine-hip-thrust-motion-guide.webp"
+  });
+}
+
+function fullBodyCWorkout(includeHipThrust=true){
+  const hipThrust=includeHipThrust?[smithMachineHipThrustExercise()]:[];
   return [
     cloneExerciseByName("Treadmill Walk"),
     cloneExerciseByName("Hip Hinge"),
@@ -2736,6 +2756,7 @@ function fullBodyCWorkout(){
       why:"Keeps one primary squat in the week’s third strength session while using the stable Smith setup and safety stops.",
       weightRecommendation:"Start with the empty Smith bar and add plates only when all eight reps remain smooth and controlled."
     }),
+    ...hipThrust,
     cloneExerciseByName("Cable Shoulder Press"),
     cloneExerciseByName("Cable Shoulder Press",{
       name:"Rear Delt Cable Fly",sets:2,reps:12,
@@ -2817,8 +2838,9 @@ function fullBodyCWorkout(){
 function strengthWorkoutForDay(dayIndex){
   const activeSession=!!state.currentSession&&!state.currentSession.completedId&&state.currentSession.planDay===dayIndex;
   const preservePreChestDefinition=activeSession&&!state.currentSession.programRevision;
-  const includeCurrentAttachments=!activeSession||state.currentSession.programRevision===FOUNDATION_PROGRAM_REVISION;
-  const baseWorkout=dayIndex===0?(preservePreChestDefinition?data:fullBodyAWorkout()):dayIndex===2?fullBodyBWorkout(preservePreChestDefinition,includeCurrentAttachments):dayIndex===4?fullBodyCWorkout():data;
+  const includeCurrentAttachments=!activeSession||[PREVIOUS_FOUNDATION_PROGRAM_REVISION,FOUNDATION_PROGRAM_REVISION].includes(state.currentSession.programRevision);
+  const includeHipThrust=!activeSession||state.currentSession.programRevision===FOUNDATION_PROGRAM_REVISION;
+  const baseWorkout=dayIndex===0?(preservePreChestDefinition?data:fullBodyAWorkout()):dayIndex===2?fullBodyBWorkout(preservePreChestDefinition,includeCurrentAttachments):dayIndex===4?fullBodyCWorkout(includeHipThrust):data;
   const dumbbellAccessory=dumbbellAccessoryForDay(dayIndex);
   const armAccessory=armAccessoryForDay(dayIndex);
   const workoutData=[...baseWorkout,...[dumbbellAccessory,armAccessory].filter(Boolean)];

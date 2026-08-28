@@ -2,15 +2,15 @@
 
 ## Status
 
-- Audit date: August 27, 2026
-- Release target: version 13.2.0, build `2026.08.27.2`
-- Active guided exercise names mapped: 61 of 61
+- Audit date: August 28, 2026
+- Release target: version 13.2.0, build `2026.08.28.1`
+- Active guided exercise names mapped: 62 of 62
 - Review-gated lower-ab Phase 2 names mapped: 3 of 3
 - Visible Library-only setup entries mapped: 1 of 1
-- Distinct reviewed movement animations: 59
+- Distinct reviewed movement animations: 60
 - New Road to 12% animations in the August 23 expansion: 13
 - Previously approved Road to 12% animations retained: 6
-- Offline cache targets: `road12-v13-2-59-shell` and `road12-v13-2-59-media`
+- Offline cache targets: `road12-v13-2-60-shell` and `road12-v13-2-60-media`
 
 This audit covers the exercise names that can appear in the current Foundation A/B/C, Cardio + Mobility, Core + Recovery, and Zone 2 guided flows; the three explicitly approved movements gated behind the lower-ab Phase 2 review; and the Stationary Bike Setup entry visible only in the Exercise Library. It does not approve media for unimplemented Build, Upper / Lower, or Hypertrophy / Definition workouts.
 
@@ -26,7 +26,11 @@ Each active guided exercise resolves by its exact display name through `ROAD12_E
 
 The written setup, execution, cues, and safety guidance remain authoritative. App-created movement artwork supplements those instructions; it must not be presented as licensed footage or as a substitute for the written coaching.
 
-Several exact workout names intentionally share one accurate animation. Easy treadmill warm-ups, cooldowns, and recovery walks use the same easy-walk asset, while their written prescriptions remain distinct. The current 61 active names therefore map to 54 distinct animations. The three gated Phase 2 movements plus retained legacy and alias mappings bring the reviewed registry to 59 distinct animations across 75 exact-name mappings.
+Several exact workout names intentionally share one accurate animation. Easy treadmill warm-ups, cooldowns, and recovery walks use the same easy-walk asset, while their written prescriptions remain distinct. The current 62 active names therefore map to 55 distinct animations. The three gated Phase 2 movements plus retained legacy and alias mappings bring the reviewed registry to 60 distinct animations across 76 exact-name mappings.
+
+## August 28 Smith hip-thrust expansion
+
+The audit adds the approved Smith Machine Hip Thrust animation and pause-state poster. The flat bench is entirely outside the front opening, both feet and knees face into the cage, the padded Smith bar remains attached to its vertical rails across the hip crease, and the hands remain visibly connected to the forearms in both reviewed positions. Written setup requires a controlled glute-driven lockout without lower-back overextension.
 
 ## August 27 kettlebell expansion
 
@@ -114,35 +118,36 @@ Full Body B also reuses Treadmill Walk, Lat Pulldown, and Easy Treadmill Cooldow
 46. High to Low Cable Chop
 47. Dumbbell Romanian Deadlift
 48. Treadmill HIIT Intervals
+49. Smith Machine Hip Thrust
 
 Full Body C also reuses Treadmill Walk, Hip Hinge, Cable Shoulder Press, Rope Triceps Pushdown, and Easy Treadmill Cooldown.
 
 ### Zone 2 Cardio
 
-49. Zone 2 Warm-Up
-50. Zone 2 Cardio
-51. Zone 2 Cooldown
+50. Zone 2 Warm-Up
+51. Zone 2 Cardio
+52. Zone 2 Cooldown
 
 ### August 23 active additions
 
-52. Alternating Dumbbell Curl
-53. Behind-the-Back Single-Arm Cable Curl
-54. Reverse Crunch
-55. Lying Leg Raise
-56. Forearm Plank with Posterior Pelvic Tilt
-57. Supine Diaphragmatic Breathing
-58. Wide-Knee Child's Pose Breathing
-59. Supported Deep Squat Breathing
-60. Happy Baby Pelvic Floor Stretch
-61. 90/90 Hip Switch
+53. Alternating Dumbbell Curl
+54. Behind-the-Back Single-Arm Cable Curl
+55. Reverse Crunch
+56. Lying Leg Raise
+57. Forearm Plank with Posterior Pelvic Tilt
+58. Supine Diaphragmatic Breathing
+59. Wide-Knee Child's Pose Breathing
+60. Supported Deep Squat Breathing
+61. Happy Baby Pelvic Floor Stretch
+62. 90/90 Hip Switch
 
 ### Review-gated lower-ab Phase 2
 
 These movements are locally ready but do not enter the workout until two Phase 1 sessions are completed and the user explicitly accepts the transition.
 
-62. Hanging Knee Raise
-63. Decline Bench Reverse Crunch
-64. Hanging Garhammer Raise
+63. Hanging Knee Raise
+64. Decline Bench Reverse Crunch
+65. Hanging Garhammer Raise
 
 ## Visible Library-only setup coverage
 
@@ -161,7 +166,7 @@ These movements are locally ready but do not enter the workout until two Phase 1
 
 ## Offline and performance review
 
-The Service Worker keeps its small versioned shell cache separate from its versioned exercise-media cache. Shell installation and activation do not wait on the 59 GIF downloads, so one unavailable media file cannot strand an iPhone on the previous app build. After the new worker is active, the app requests a bounded background warm-up that caches still posters and exact retained references before GIFs, with no more than four media requests in flight. A media file opened before warm-up completes is cached on demand.
+The Service Worker keeps its small versioned shell cache separate from its versioned exercise-media cache. Shell installation and activation do not wait on the 60 GIF downloads, so one unavailable media file cannot strand an iPhone on the previous app build. After the new worker is active, the app requests a bounded background warm-up that caches still posters and exact retained references before GIFs, with no more than four media requests in flight. A media file opened before warm-up completes is cached on demand.
 
 Older media caches remain available as an offline fallback during an update and are removed only after the new media cache warms without failures. After one successful online warm-up, still posters, animated GIFs, and retained local references remain available offline. Focused exercise screens use the cached GIF immediately; library grids use the lighter still posters.
 
@@ -180,7 +185,7 @@ node scripts/test-offline-pwa.js
 
 The validators should confirm:
 
-- All 61 active guided names and all three review-gated lower-ab Phase 2 names resolve to reviewed animation metadata.
+- All 62 active guided names and all three review-gated lower-ab Phase 2 names resolve to reviewed animation metadata.
 - Every visible Library-only exercise or setup name resolves to reviewed media; movement entries require animation, while setup-only entries may use an accurate still guide.
 - Every animation has a still poster, meaningful alternative text, and a valid multi-frame GIF.
 - Retained reference metadata remains valid and inexact legacy references remain excluded.

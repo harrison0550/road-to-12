@@ -8,6 +8,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Added
 
+- Added three technique-first sets of Smith Machine Hip Thrust to future Full Body C sessions, including normal set/rep/weight logging, a 90-second rest timer, last-performance history, the 33 lb Smith-bar calculation, and a new Smith barbell pad Attachment Locker entry.
+- Added the approved Smith Machine Hip Thrust animation and pause-state guide showing the bench outside the cage, feet facing into the cage, padded bar at the hip crease, and continuous hand/wrist anatomy; both assets are cached for offline use.
 - Added the owned 30 lb kettlebell to My Equipment and schema-15 backup-compatible storage.
 - Added a conservative Thursday kettlebell block: two sets of Around the World, three sets of two-hand Swings, and two Suitcase Carry intervals per side without removing Dead Bug, Bird Dog, Side Plank, lower-ab work, or mobility.
 - Added three reviewed, locally bundled kettlebell animations and pause-state guides with offline caching.
@@ -38,6 +40,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Changed
 
+- Advanced the maintenance build to `2026.08.28.1`, rotated the offline shell/media caches, and added a program-revision boundary so an already-active Full Body C session is not changed by the hip-thrust expansion.
 - Extended Core + Recovery to approximately 50–60 minutes and positioned kettlebell work after the easy warm-up and before the existing floor-core sequence. First exposure uses only the owned 30 lb bell; overhead and advanced ballistic movements remain deferred.
 - Advanced the maintenance build to `2026.08.27.2` and rotated the offline shell/media caches for the kettlebell expansion.
 - Corrected the former Smith Bulgarian Split Squat into a no-bench Smith Machine Single-Leg Squat: the athlete faces forward inside the cage, one foot works slightly ahead of the bar path, and the unsupported rear foot hovers behind. The stable exercise identity and legacy name alias remain compatible with completed history.

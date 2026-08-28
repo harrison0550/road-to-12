@@ -27,6 +27,7 @@ The roadmap communicates direction rather than a guaranteed schedule. Completed 
 - [x] Add the iFIT rower and available 10/15/20/25 lb dumbbells to the weekly program without replacing existing exercises
 - [x] Add targeted biceps accessories, a review-gated four-session lower-ab progression, and pelvic-floor relaxation/mobility without replacing Foundation A/B/C
 - [x] Update Foundation chest training with Smith Machine Bench Press, Low-Incline Dumbbell Press, engagement feedback, and technique-first progression while preserving legacy history
+- [x] Add Smith Machine Hip Thrust to Full Body C with the owned bar pad, complete strength tracking, and approved offline movement guidance
 - [x] Refresh Home with the Concept B Training Command Center design
 - [x] Add automated scheduling regression tests
 - [ ] Add calendar filtering and faster month navigation
@@ -41,7 +42,7 @@ The roadmap communicates direction rather than a guaranteed schedule. Completed 
 ### v13.4
 
 - [x] Deterministic adaptive training profile and explainable recommendation foundation
-- [x] Complete movement-animation coverage for all 61 active Foundation guided exercise names and all three review-gated lower-ab Phase 2 movements, with automatic focused playback and offline caching
+- [x] Complete movement-animation coverage for all 62 active Foundation guided exercise names and all three review-gated lower-ab Phase 2 movements, with automatic focused playback and offline caching
 - [ ] Expanded equipment setup guides
 - [ ] Explainable AI training recommendations
 - [ ] Exercise search and filtering

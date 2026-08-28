@@ -124,6 +124,7 @@ function generateLiveFoundationWorkouts() {
     "dumbbellAccessoryForDay",
     "armAccessoryForDay",
     "fullBodyBWorkout",
+    "smithMachineHipThrustExercise",
     "fullBodyCWorkout",
     "strengthWorkoutForDay",
     "workoutForDay",
@@ -207,6 +208,7 @@ const activeFoundationExercises = [
   "Happy Baby Pelvic Floor Stretch",
   "90/90 Hip Switch",
   "Smith Machine Squat",
+  "Smith Machine Hip Thrust",
   "Rear Delt Cable Fly",
   "Cable Face Pull",
   "Cable Straight Arm Pushdown",
@@ -221,8 +223,8 @@ const activeFoundationExercises = [
 
 assert.strictEqual(
   new Set(activeFoundationExercises).size,
-  61,
-  "the active Foundation media audit must cover 61 distinct exercise names",
+  62,
+  "the active Foundation media audit must cover 62 distinct exercise names",
 );
 
 const liveFoundationWorkouts = generateLiveFoundationWorkouts();
@@ -390,8 +392,8 @@ assert(vBarEntry.equipment.some((item)=>/angled V-bar pressdown attachment/i.tes
 
 assert.strictEqual(
   new Set(activeFoundationExercises.map((name) => library.entries[name].media)).size,
-  54,
-  "the audit should resolve the 61 active names to 54 distinct reviewed animations",
+  55,
+  "the audit should resolve the 62 active names to 55 distinct reviewed animations",
 );
 
 for (const name of ["Hanging Knee Raise", "Decline Bench Reverse Crunch", "Hanging Garhammer Raise"]) {
@@ -399,5 +401,5 @@ for (const name of ["Hanging Knee Raise", "Decline Bench Reverse Crunch", "Hangi
 }
 
 console.log(
-  "Foundation animation coverage passed: live workoutForDay(0..5) output matches all 61 audited names, resolves to 54 reviewed animations, and all three review-gated Phase 2 movements are ready.",
+  "Foundation animation coverage passed: live workoutForDay(0..5) output matches all 62 audited names, resolves to 55 reviewed animations, and all three review-gated Phase 2 movements are ready.",
 );

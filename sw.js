@@ -1,5 +1,5 @@
 /* Keep this query aligned with app-meta.js so Safari cannot reuse stale imported metadata. */
-importScripts("./app-meta.js?build=2026.08.27.2");
+importScripts("./app-meta.js?build=2026.08.28.1");
 
 const CACHE=self.ROAD12_META.serviceWorkerCache;
 const MEDIA_CACHE=CACHE.endsWith("-shell")?`${CACHE.slice(0,-6)}-media`:`${CACHE}-media`;
@@ -86,6 +86,7 @@ const MEDIA_ASSETS=[
   "./assets/exercise-library/generated/smith-bulgarian-split-squat-motion-guide.webp",
   "./assets/exercise-library/generated/smith-machine-bench-press-motion-guide.webp",
   "./assets/exercise-library/generated/smith-machine-calf-raise-motion-guide.webp",
+  "./assets/exercise-library/generated/smith-machine-hip-thrust-motion-guide.webp",
   "./assets/exercise-library/generated/smith-machine-rdl-motion-guide.webp",
   "./assets/exercise-library/generated/smith-machine-squat-motion-guide.webp",
   "./assets/exercise-library/generated/treadmill-easy-walk-motion-guide.webp",
@@ -167,6 +168,7 @@ const MEDIA_ASSETS=[
   "./assets/exercise-library/generated/smith-bulgarian-split-squat.gif",
   "./assets/exercise-library/generated/smith-machine-bench-press.gif",
   "./assets/exercise-library/generated/smith-machine-calf-raise.gif",
+  "./assets/exercise-library/generated/smith-machine-hip-thrust.gif",
   "./assets/exercise-library/generated/smith-machine-rdl.gif",
   "./assets/exercise-library/generated/smith-machine-squat.gif",
   "./assets/exercise-library/generated/treadmill-easy-walk.gif",

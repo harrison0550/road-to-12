@@ -14,9 +14,9 @@ assert.strictEqual(identities.resolve("Incline Cable Press").id, "road12.press.i
 
 assert.match(app, /function fullBodyAWorkout\(\)[\s\S]*?if\(ex\.name==="Cable Chest Press"\)return smithMachineBenchPressExercise\(\)/, "future Full Body A sessions must use Smith Machine Bench Press");
 assert.match(app, /function fullBodyBWorkout\(useLegacyChest=false,includeVBar=true\)[\s\S]*?lowInclineDumbbellPressExercise\(\)/, "future Full Body B sessions must use Low-Incline Dumbbell Press");
-assert.match(app, /function fullBodyCWorkout\(\)/, "Full Body C must remain a separate unchanged workout definition");
+assert.match(app, /function fullBodyCWorkout\(includeHipThrust=true\)/, "Full Body C must remain a separate workout definition with a revision-gated hip-thrust addition");
 assert.match(app, /preservePreChestDefinition=activeSession&&!state\.currentSession\.programRevision/, "an active pre-chest workout must keep its original chest definitions");
-assert.match(app, /includeCurrentAttachments=!activeSession\|\|state\.currentSession\.programRevision===FOUNDATION_PROGRAM_REVISION/, "new additive attachment work must not appear inside an older active workout");
+assert.match(app, /includeCurrentAttachments=!activeSession\|\|\[PREVIOUS_FOUNDATION_PROGRAM_REVISION,FOUNDATION_PROGRAM_REVISION\]\.includes\(state\.currentSession\.programRevision\)/, "new additive attachment work must remain present for compatible active workout revisions");
 assert.match(app, /programRevision:FOUNDATION_PROGRAM_REVISION/, "new sessions must capture the current Foundation-program revision boundary");
 assert.match(app, /function legacyInclineCablePressExercise\(\)/, "the previous incline cable definition must remain available for legacy history and reference");
 assert.match(app, /const legacy=\[legacyInclineCablePressExercise\(\)\]/, "the legacy incline cable definition must remain accessible in the Exercise Library");
