@@ -47,6 +47,7 @@ node scripts/test-exercise-animation-coverage.js
 node scripts/test-exercise-imagery.js
 node scripts/test-offline-pwa.js
 node scripts/test-wyze-xlsx-import.js
+node scripts/test-progress-disclosures.js
 git diff --check
 ```
 

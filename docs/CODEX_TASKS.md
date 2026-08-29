@@ -69,6 +69,7 @@ Copy this block for new work:
 
 ## Completed this sprint
 
+- [x] Repair the installed-iPhone Wyze XLSX file picker and compact the long Progress screen into accessible state-preserving disclosures without removing metrics, controls, or history.
 - [x] Add a local-first Wyze Scale XLSX importer with dynamic header detection, unit-safe nullable parsing, review-before-confirmation, ten-minute richness-aware deduplication, deterministic re-import safety, exact-record enrichment, current-value summaries, offline packaging, and backup compatibility.
 - [x] Add schema-16 canonical body measurements, legacy-compatible manual check-ins and backups, newest-value summaries, a seven-day rolling weight average, source adapters, and a documented native HealthKit bridge boundary without allowing daily scale values to affect training progression.
 - [x] Add the approved Smith Machine Hip Thrust to future Full Body C sessions with the owned bar pad, outside-bench setup, full strength tracking, revision-safe activation, reviewed offline animation, and regression coverage.

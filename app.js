@@ -412,6 +412,7 @@ const road12Storage=(()=>{
 const state=road12Storage.load();
 let pendingWyzeImport=null;
 let wyzeImportNotice="";
+const progressExpandedSections=new Set();
 Object.assign(state,{tab:state.tab||"home",step:state.step||0,logs:state.logs||{},sessions:state.sessions||0,weight:state.weight||221,waist:state.waist||43,history:state.history||[],selectedDay:Number.isInteger(state.selectedDay)?state.selectedDay:0,coachMode:state.coachMode!==false});
 state.attachmentPhotos=state.attachmentPhotos||{};
 state.currentSession=state.currentSession||null;
@@ -1897,6 +1898,13 @@ function weightHistoryRepairMarkup(candidates){
 
 function bodyMeasurementSourceLabel(source){return source==="wyze-import"?"Wyze Scale":source==="apple-health"?"Apple Health":"Manual";}
 function bodyMeasurementDate(record){return record?new Date(record.timestamp).toLocaleDateString(undefined,{month:"short",day:"numeric",year:"numeric"}):"Not measured";}
+function progressDisclosure(id,title,subtitle,content){
+ const open=progressExpandedSections.has(id)?" open":"";
+ return `<details class="progress-disclosure" data-progress-section="${id}"${open}>
+   <summary><span><small>${subtitle}</small><strong>${title}</strong></span><b aria-hidden="true"></b></summary>
+   <div class="progress-disclosure-body">${content}</div>
+ </details>`;
+}
 function bodyMeasurementsImport(){
  const current=currentBodyMeasurements();
  const latestBodyFat=window.ROAD12_BODY_MEASUREMENTS.newestRecord(state.bodyMeasurements,"bodyFatPercent");
@@ -1914,7 +1922,8 @@ function bodyMeasurementsImport(){
    </div>
    ${wyzeImportNotice?`<p class="measurement-import-notice" role="status">${wyzeImportNotice}</p>`:""}
    <div class="measurement-import-actions">
-     <label class="primary import-label">Import Wyze Scale Export<input id="wyzeMeasurementFile" type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"></label>
+     <button class="primary" id="chooseWyzeMeasurementFile" type="button">Import Wyze Scale Export</button>
+     <input class="file-input-a11y" id="wyzeMeasurementFile" type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" aria-label="Choose Wyze Scale XLSX export">
      <button class="secondary" id="manualMeasurement">Manual Measurement</button>
    </div>
    <small class="measurement-privacy-note">Accepted format: Wyze Scale `.xlsx` export. Road to 12% does not connect to an undocumented Wyze API or Bluetooth service.</small>
@@ -1929,7 +1938,15 @@ function bodyMeasurementsImport(){
  </section>`:""}`;
  document.querySelector("#bodyMeasurementsBack").onclick=()=>{pendingWyzeImport=null;wyzeImportNotice="";progress();};
  document.querySelector("#manualMeasurement").onclick=()=>{pendingWyzeImport=null;wyzeImportNotice="";progress();setTimeout(()=>document.querySelector("#w")?.focus(),0);};
- document.querySelector("#wyzeMeasurementFile").onchange=async event=>{
+ const wyzeFileInput=document.querySelector("#wyzeMeasurementFile");
+ document.querySelector("#chooseWyzeMeasurementFile").onclick=()=>{
+   wyzeFileInput.value="";
+   if(typeof wyzeFileInput.showPicker==="function"){
+     try{wyzeFileInput.showPicker();return;}catch(_error){}
+   }
+   wyzeFileInput.click();
+ };
+ wyzeFileInput.onchange=async event=>{
    const file=event.target.files?.[0];
    if(!file)return;
    try{
@@ -1974,8 +1991,10 @@ function progress(){
  const latestLean=window.ROAD12_BODY_MEASUREMENTS.newestRecord(state.bodyMeasurements,"leanBodyMassLb");
  const weight7=measurementRollingAverage(7,"weight"),weightWeek=measurementTrend(7,"weight"),weight30=measurementTrend(30,"weight"),waist30=measurementTrend(30,"waist"),strength30=strengthTrend();
  const weightRepairCandidates=window.ROAD12_PRESCRIPTIONS.recommendedWeightRepairCandidates(state.history);
+ const lowerAbsMarkup=lowerAbsProgramMarkup();
+ const weightRepairMarkup=weightHistoryRepairMarkup(weightRepairCandidates);
 
- app.innerHTML=`${phaseReadinessMarkup(readiness)}${lowerAbsProgramMarkup()}${weightHistoryRepairMarkup(weightRepairCandidates)}<section class="card">
+ app.innerHTML=`<section class="card progress-overview-card">
    <span class="pill">PROGRESS CENTER</span>
    <h2>Your Road to 12%</h2>
    <div class="brief-grid">
@@ -1990,14 +2009,18 @@ function progress(){
      <button class="secondary" id="saveP">Save check-in</button>
    </div>
    <button class="secondary body-measurements-open" id="openBodyMeasurements">Body Measurements / Import</button>
-   ${measurements.length?`<div class="measurement-history"><h3>Measurement history</h3>${measurements.map(item=>`<div><time>${formatHistoryDateKey(item.timestamp?.slice(0,10))}</time><strong>${item.weight??"—"} lb</strong><strong>${item.waist??"—"} in</strong></div>`).join("")}</div>`:""}
+   ${measurements.length?`<details class="compact-progress-details"><summary>Recent measurements</summary><div class="measurement-history">${measurements.map(item=>`<div><time>${formatHistoryDateKey(item.timestamp?.slice(0,10))}</time><strong>${item.weight??"—"} lb</strong><strong>${item.waist??"—"} in</strong></div>`).join("")}</div></details>`:""}
  </section>
 
- <section class="card composition-trends"><span class="pill">BODY-COMPOSITION TRENDS</span><h2>Direction, not one weigh-in</h2><div class="trend-grid"><div><small>7-DAY WEIGHT AVERAGE</small><strong>${weight7?`${weight7.average} lb`:"Collecting"}</strong><span>${weight7?`${weight7.count} check-in${weight7.count===1?"":"s"} in the rolling window`:"Add a weight check-in"}</span></div><div><small>7-DAY CHANGE</small><strong>${weightWeek?`${weightWeek.change>0?"+":""}${weightWeek.change} lb`:"Collecting"}</strong><span>${weightWeek?`${weightWeek.count} check-ins`:"At least two check-ins needed"}</span></div><div><small>30-DAY WEIGHT</small><strong>${weight30?`${weight30.change>0?"+":""}${weight30.change} lb`:"Collecting"}</strong><span>${weight30?`${weight30.count} check-ins`:"At least two check-ins needed"}</span></div><div><small>30-DAY WAIST</small><strong>${waist30?`${waist30.change>0?"+":""}${waist30.change} in`:"Collecting"}</strong><span>${waist30?`${waist30.count} check-ins`:"At least two check-ins needed"}</span></div><div><small>RECENT STRENGTH</small><strong>${strength30===null?"Collecting":`${strength30>0?"+":""}${strength30}%`}</strong><span>Selected volume across recent A/B/C sessions</span></div></div><div class="body-reference-grid"><div><small>LATEST BODY FAT</small><strong>${latestBodyFat?`${latestBodyFat.bodyFatPercent}%`:"Collecting"}</strong><span>${latestBodyFat?`${bodyMeasurementSourceLabel(latestBodyFat.source)} • measured ${bodyMeasurementDate(latestBodyFat)}`:"No body-fat reading yet"}</span></div><div><small>LATEST LEAN BODY MASS</small><strong>${latestLean?`${latestLean.leanBodyMassLb} lb`:"Collecting"}</strong><span>${latestLean?`${bodyMeasurementSourceLabel(latestLean.source)} • measured ${bodyMeasurementDate(latestLean)}`:"No lean-mass reading yet"}</span></div></div><p class="trend-note">Weight and waist are the primary body-composition signals. Consumer-scale composition estimates are stored as supporting trend data. A newer weight-only reading remains body-fat null; the dated reference above comes from the newest reading that actually measured it. Daily scale changes never alter training progression or trigger a fat-loss warning.</p></section>
+ ${progressDisclosure("readiness","Training readiness","PHASE & DATA QUALITY",phaseReadinessMarkup(readiness))}
+ ${lowerAbsMarkup?progressDisclosure("lower-abs","Lower-ab progression","FOUNDATION SUBPROGRAM",lowerAbsMarkup):""}
+ ${weightRepairMarkup?progressDisclosure("weight-review","Weight history review","DATA QUALITY",weightRepairMarkup):""}
 
- <section class="card"><span class="pill">EXERCISE PROGRESSION</span><h2>Next-session guidance</h2><p class="muted">Recommendations use exercise-specific completed sets, reps, weight and workout feedback. Nothing changes automatically.</p><div class="exercise-progression-list">${progression.map(item=>{const recommendation=item.recommendation,approved=approvedProgressionFor(item.exercise),key=encodeURIComponent(item.exercise.name);return `<div class="progression-${recommendation.action.toLowerCase()}"><span>${recommendation.action}</span><p><strong>${item.exercise.name}</strong><b>${recommendation.prescription.summary}</b><small>${recommendation.reason}</small>${recommendation.action!=="BUILD"?`<button class="${approved?.sourceSessionId===recommendation.sourceSessionId?"secondary":"primary"} progression-approval" data-approve-progression="${key}">${approved?.sourceSessionId===recommendation.sourceSessionId?"Approved for next session ✓":"Approve next-session target"}</button>`:""}</p></div>`;}).join("")}</div></section>
+ ${progressDisclosure("body-trends","Body-composition trends","WEIGHT, WAIST & REFERENCE DATA",`<section class="card composition-trends"><span class="pill">BODY-COMPOSITION TRENDS</span><h2>Direction, not one weigh-in</h2><div class="trend-grid"><div><small>7-DAY WEIGHT AVERAGE</small><strong>${weight7?`${weight7.average} lb`:"Collecting"}</strong><span>${weight7?`${weight7.count} check-in${weight7.count===1?"":"s"} in the rolling window`:"Add a weight check-in"}</span></div><div><small>7-DAY CHANGE</small><strong>${weightWeek?`${weightWeek.change>0?"+":""}${weightWeek.change} lb`:"Collecting"}</strong><span>${weightWeek?`${weightWeek.count} check-ins`:"At least two check-ins needed"}</span></div><div><small>30-DAY WEIGHT</small><strong>${weight30?`${weight30.change>0?"+":""}${weight30.change} lb`:"Collecting"}</strong><span>${weight30?`${weight30.count} check-ins`:"At least two check-ins needed"}</span></div><div><small>30-DAY WAIST</small><strong>${waist30?`${waist30.change>0?"+":""}${waist30.change} in`:"Collecting"}</strong><span>${waist30?`${waist30.count} check-ins`:"At least two check-ins needed"}</span></div><div><small>RECENT STRENGTH</small><strong>${strength30===null?"Collecting":`${strength30>0?"+":""}${strength30}%`}</strong><span>Selected volume across recent A/B/C sessions</span></div></div><div class="body-reference-grid"><div><small>LATEST BODY FAT</small><strong>${latestBodyFat?`${latestBodyFat.bodyFatPercent}%`:"Collecting"}</strong><span>${latestBodyFat?`${bodyMeasurementSourceLabel(latestBodyFat.source)} • measured ${bodyMeasurementDate(latestBodyFat)}`:"No body-fat reading yet"}</span></div><div><small>LATEST LEAN BODY MASS</small><strong>${latestLean?`${latestLean.leanBodyMassLb} lb`:"Collecting"}</strong><span>${latestLean?`${bodyMeasurementSourceLabel(latestLean.source)} • measured ${bodyMeasurementDate(latestLean)}`:"No lean-mass reading yet"}</span></div></div><p class="trend-note">Weight and waist are the primary body-composition signals. Consumer-scale composition estimates are stored as supporting trend data. A newer weight-only reading remains body-fat null; the dated reference above comes from the newest reading that actually measured it. Daily scale changes never alter training progression or trigger a fat-loss warning.</p></section>`)}
 
- <section class="card history-protection-card">
+ ${progressDisclosure("exercise-progression","Exercise progression","NEXT-SESSION GUIDANCE",`<section class="card"><span class="pill">EXERCISE PROGRESSION</span><h2>Next-session guidance</h2><p class="muted">Recommendations use exercise-specific completed sets, reps, weight and workout feedback. Nothing changes automatically.</p><div class="exercise-progression-list">${progression.map(item=>{const recommendation=item.recommendation,approved=approvedProgressionFor(item.exercise),key=encodeURIComponent(item.exercise.name);return `<div class="progression-${recommendation.action.toLowerCase()}"><span>${recommendation.action}</span><p><strong>${item.exercise.name}</strong><b>${recommendation.prescription.summary}</b><small>${recommendation.reason}</small>${recommendation.action!=="BUILD"?`<button class="${approved?.sourceSessionId===recommendation.sourceSessionId?"secondary":"primary"} progression-approval" data-approve-progression="${key}">${approved?.sourceSessionId===recommendation.sourceSessionId?"Approved for next session ✓":"Approve next-session target"}</button>`:""}</p></div>`;}).join("")}</div></section>`)}
+
+ ${progressDisclosure("data-backup","Data & backup","EXPORT OR RESTORE",`<section class="card history-protection-card">
    <div class="section-title-row">
      <div><small>DATA PROTECTION</small><h2>Workout history backup</h2></div>
      <span class="history-total">${state.history.length} saved</span>
@@ -2007,25 +2030,25 @@ function progress(){
      <button class="secondary" id="exportHistory">Export backup</button>
      <label class="secondary import-label">Import backup<input id="importHistory" type="file" accept="application/json,.json"></label>
    </div>
- </section>
+ </section>`)}
 
- <section class="card">
+ ${progressDisclosure("recovery-map","Muscle recovery","RECENT TRAINING LOAD",`<section class="card">
    <h2>Muscle recovery map</h2>
    <p class="muted">Red groups were trained recently. Green groups are ready or were not emphasized in the last three sessions.</p>
    <div class="muscle-map">${muscles.map(m=>`<div class="${m.trained?"recovering":"ready"}"><span></span><strong>${m.label}</strong><small>${m.trained?"Recovering":"Ready"}</small></div>`).join("")}</div>
- </section>
+ </section>`)}
 
- <section class="card">
+ ${progressDisclosure("personal-records","Personal records","STRENGTH HIGHLIGHTS",`<section class="card">
    <h2>Personal records</h2>
    ${records.length?`<div class="pr-grid">${records.map(r=>`<div><small>${r.name}</small><strong>${r.bestWeight} lb</strong><span>Best volume ${Math.round(r.bestVolume).toLocaleString()} lb</span></div>`).join("")}</div>`:'<p class="muted">Complete strength workouts to establish your first records.</p>'}
- </section>
+ </section>`)}
 
- <section class="card">
+ ${progressDisclosure("achievements","Achievements","MILESTONES",`<section class="card">
    <h2>Achievements</h2>
    <div class="achievement-grid">${achievements.length?achievements.map(([a,d])=>`<div><span>✓</span><strong>${a}</strong><small>${d}</small></div>`).join(""):'<p class="muted">Your first achievement unlocks after one completed workout.</p>'}</div>
- </section>
+ </section>`)}
 
- <section class="card">
+ ${progressDisclosure("workout-history","Workout history",`${state.history.length} COMPLETED SESSION${state.history.length===1?"":"S"}`,`<section class="card">
    <h2>Workout history</h2>
    ${state.history.length?state.history.slice().reverse().map(h=>{
      const t=sessionTotals(h),rating=state.workoutRatings[h.id]||"";
@@ -2035,8 +2058,12 @@ function progress(){
        <span class="history-arrow">›</span>
      </button>`;
    }).join(""):'<p class="muted">No completed sessions yet.</p>'}
- </section>`;
+ </section>`)} `;
 
+ document.querySelectorAll("[data-progress-section]").forEach(section=>section.addEventListener("toggle",()=>{
+   const id=section.dataset.progressSection;
+   if(section.open)progressExpandedSections.add(id);else progressExpandedSections.delete(id);
+ }));
  document.querySelector("#saveP").onclick=()=>{
    const weight=Number(document.querySelector("#w").value)||null,waist=Number(document.querySelector("#wa").value)||null;
    const measurement=window.ROAD12_BODY_MEASUREMENTS.adapters.manual.adapt({weight,waist,timestamp:new Date().toISOString()});

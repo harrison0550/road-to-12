@@ -66,6 +66,7 @@ Standard cards have approximately 14px bottom separation. Avoid nested cards unl
 
 ## Buttons and touch targets
 
+- Long secondary Progress sections use native `details`/`summary` disclosures with visible text labels, plus/minus state indicators, at least 44px touch targets, visible keyboard focus, and no color-only state. Headline progress metrics and primary measurement actions remain outside disclosures.
 - Workout Preview exercise rows are full-width buttons with a visible disclosure indicator. Their detail pages remain read-only, reuse the approved exercise-animation presentation, and provide clear Back actions without changing the active workout.
 - Primary and secondary buttons are full-width inside their content container by default.
 - Standard button radius: 17px.

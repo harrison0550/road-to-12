@@ -44,6 +44,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Changed
 
+- Advanced the maintenance build to `2026.08.29.3`, rotated the offline caches, and reorganized the long Progress screen into accessible expandable sections while keeping headline metrics and body-measurement actions immediately visible.
 - Advanced the maintenance build to `2026.08.29.2`, rotated the offline caches, and extended backup validation for all Wyze measurement aliases and source metadata.
 - Advanced the maintenance build to `2026.08.29.1`, rotated the offline caches, derived displayed weight and waist from the newest valid canonical measurements, and changed the seven-day weight metric to a true rolling average.
 - Clarified that weight and waist are primary body-composition signals; individual daily scale values and consumer-scale estimates do not alter training progression or trigger fat-loss warnings.
@@ -177,6 +178,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Fixed
 
+- Fixed the installed-iPhone Wyze import button by replacing the unreliable hidden-input label with a direct system file-picker action and accessible fallback.
 - Fixed installed iPhone PWAs continuing to show the prior Play-first animation screen after a new build was published.
 - Fixed Attachment Locker photo controls forcing the iPhone camera; the native image picker can now offer Photo Library, Take Photo, and Files.
 - Fixed active guided exercises falling back to missing-media or approximate legacy imagery because their exact display name had no reviewed animation mapping.
