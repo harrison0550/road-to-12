@@ -6,10 +6,10 @@ Read this file at the beginning of every Codex or engineering session. It is the
 
 - Product: Road to 12%
 - Version: 13.2.0
-- Build: 2026.08.29.3
+- Build: 2026.08.29.4
 - Last updated: August 29, 2026
-- Service Worker cache: `road12-v13-2-63-shell`
-- Exercise media cache: `road12-v13-2-63-media`
+- Service Worker cache: `road12-v13-2-64-shell`
+- Exercise media cache: `road12-v13-2-64-media`
 - Runtime: static, client-only, offline-first PWA
 - Primary storage key: `road12v5`
 
@@ -86,7 +86,7 @@ See `CODEX_TASKS.md` for priority and acceptance detail.
 
 ## Recent design decisions
 
-- Progress keeps its four headline metrics and measurement actions visible, then groups readiness, body trends, progression, recovery, records, achievements, backup, and workout history into native accessible disclosures. Expanded sections remain open during in-screen rerenders. The Wyze importer uses a real button with `showPicker()` and a direct-click fallback because an input hidden with `display:none` inside a styled label is unreliable in an installed iPhone PWA.
+- Progress keeps its four headline metrics and measurement actions visible, then groups readiness, body trends, progression, recovery, records, achievements, backup, and workout history into native accessible disclosures. Expanded sections remain open during in-screen rerenders. The Wyze import surface is covered by the real non-hidden file input so the iPhone tap reaches the native control directly; it must not depend on a label, `showPicker()`, or simulated click.
 - Wyze Scale exports are parsed locally from user-selected `.xlsx` files. The app shows Import, Update, and Duplicate decisions before confirmation, collapses poorer same-weight readings within ten minutes, and enriches exact stored readings on richer re-import. Deterministic identity uses source, timestamp, and weight. Newer weight-only readings remain body-composition-null, while each dashboard reference shows the newest actual measurement date for its field. Manual measurements, workout history, and progression state remain untouched.
 - Schema 16 adds append-only `bodyMeasurements` with shared `manual`, `wyze-import`, and `apple-health` adapters. Current weight and waist are derived independently from the newest valid canonical values while legacy `weight`, `waist`, and `measurementHistory` remain readable and continue to be written by manual check-ins. The seven-day weight display is a rolling average; daily scale values never affect readiness or exercise progression.
 - An approved session weight is the actual editable set default, not placeholder text, so completing an untouched set records what the user saw. Prior-session guidance remains display-only. Progress may repair historical zero-weight sets only after confirmation and only when the completed snapshot contains the exact captured prescription; each change retains an audit record and unknown weights are never inferred. Smith selected-volume calculations include the known 33 lb bar.

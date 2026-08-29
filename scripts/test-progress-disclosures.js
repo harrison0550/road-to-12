@@ -5,12 +5,11 @@ const root=path.resolve(__dirname,"..");
 const app=fs.readFileSync(path.join(root,"app.js"),"utf8");
 const css=fs.readFileSync(path.join(root,"app.css"),"utf8");
 
-assert.match(app,/<button class="primary" id="chooseWyzeMeasurementFile" type="button">Import Wyze Scale Export<\/button>/,"Wyze import must use a real iPhone-safe button");
-assert.match(app,/class="file-input-a11y" id="wyzeMeasurementFile"[^>]+aria-label="Choose Wyze Scale XLSX export"/);
-assert.match(app,/chooseWyzeMeasurementFile[\s\S]*?showPicker[\s\S]*?wyzeFileInput\.click\(\)/,"file picker must use showPicker with a direct-click fallback");
+assert.match(app,/<div class="native-file-picker"><span aria-hidden="true">Import Wyze Scale Export<\/span><input id="wyzeMeasurementFile"[^>]+aria-label="Import Wyze Scale XLSX export">/,"the visible Import surface must contain the real native file input");
+assert.doesNotMatch(app,/chooseWyzeMeasurementFile|showPicker|wyzeFileInput\.click\(\)/,"the iPhone picker must not depend on programmatic activation");
 assert.doesNotMatch(app,/<label class="primary import-label">Import Wyze Scale Export/,"the unreliable hidden-input label pattern must not return");
-assert.match(css,/\.file-input-a11y\{position:absolute;width:1px!important;height:1px/);
-assert.doesNotMatch(css,/\.file-input-a11y\{[^}]*display:none/,"the Wyze input must remain available to iOS and assistive technology");
+assert.match(css,/\.native-file-picker>input\{position:absolute;z-index:1;inset:0;width:100%;height:100%/,"the native input must directly cover the full visible tap target");
+assert.doesNotMatch(css,/\.native-file-picker>input\{[^}]*display:none/,"the Wyze input must remain a real iOS tap target");
 
 [
   "readiness","lower-abs","weight-review","body-trends","exercise-progression","data-backup",
