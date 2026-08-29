@@ -55,7 +55,9 @@ The roadmap communicates direction rather than a guaranteed schedule. Completed 
 
 - [ ] Secure opt-in Strava Strength Training sync using structured sets and duplicate-safe upload status
 - [ ] Strava cardio source arbitration that avoids duplicating iFIT activities
-- [ ] Apple Health integration
+- [x] Canonical manual/Wyze-export/Apple Health body-measurement adapter contract
+- [ ] Native iOS HealthKit bridge with explicit authorization, anchored reads, unit conversion, and duplicate protection
+- [x] User-reviewed, duplicate-safe Wyze XLSX export import through the documented adapter; no undocumented API or Bluetooth reverse engineering
 - [ ] Wearable and heart-rate integrations
 - [ ] Nutrition and protein tracking
 - [ ] Readiness and sleep trends

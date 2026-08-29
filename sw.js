@@ -1,5 +1,5 @@
 /* Keep this query aligned with app-meta.js so Safari cannot reuse stale imported metadata. */
-importScripts("./app-meta.js?build=2026.08.28.1");
+importScripts("./app-meta.js?build=2026.08.29.2");
 
 const CACHE=self.ROAD12_META.serviceWorkerCache;
 const MEDIA_CACHE=CACHE.endsWith("-shell")?`${CACHE.slice(0,-6)}-media`:`${CACHE}-media`;
@@ -14,6 +14,9 @@ const MUTABLE_ASSETS=[
   "exercise-identity.js",
   "data.js",
   "adaptive-coaching.js",
+  "body-measurements.js",
+  "vendor/xlsx.mini.min.js",
+  "wyze-xlsx-import.js",
   "backup-restore.js",
   "workout-prescriptions.js",
   "scheduling.js",
@@ -31,6 +34,9 @@ const CORE_ASSETS=[
   "./exercise-identity.js",
   "./data.js",
   "./adaptive-coaching.js",
+  "./body-measurements.js",
+  "./vendor/xlsx.mini.min.js",
+  "./wyze-xlsx-import.js",
   "./backup-restore.js",
   "./workout-prescriptions.js",
   "./scheduling.js",

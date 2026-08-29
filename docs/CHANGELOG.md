@@ -8,6 +8,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Added
 
+- Added an offline Wyze Scale XLSX importer under Progress / Body Measurements with dynamic header discovery, local-time preservation, unit/null normalization, weight-only support, per-reading review, richness-aware duplicate handling, and deterministic re-import enrichment.
+- Added dated body-fat and lean-mass reference cards that never copy older composition values into a newer weight-only reading, plus locally bundled SheetJS CE parsing and license notices.
+- Added schema-16 timestamped `bodyMeasurements` records covering weight, waist, and consumer-scale composition fields, with validated adapters for manual entry, Wyze exports, and a future Apple Health bridge.
+- Added a documented native HealthKit bridge boundary and preserved backup/import support for both canonical and legacy measurement histories.
 - Added three technique-first sets of Smith Machine Hip Thrust to future Full Body C sessions, including normal set/rep/weight logging, a 90-second rest timer, last-performance history, the 33 lb Smith-bar calculation, and a new Smith barbell pad Attachment Locker entry.
 - Added the approved Smith Machine Hip Thrust animation and pause-state guide showing the bench outside the cage, feet facing into the cage, padded bar at the hip crease, and continuous hand/wrist anatomy; both assets are cached for offline use.
 - Added the owned 30 lb kettlebell to My Equipment and schema-15 backup-compatible storage.
@@ -40,6 +44,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Changed
 
+- Advanced the maintenance build to `2026.08.29.2`, rotated the offline caches, and extended backup validation for all Wyze measurement aliases and source metadata.
+- Advanced the maintenance build to `2026.08.29.1`, rotated the offline caches, derived displayed weight and waist from the newest valid canonical measurements, and changed the seven-day weight metric to a true rolling average.
+- Clarified that weight and waist are primary body-composition signals; individual daily scale values and consumer-scale estimates do not alter training progression or trigger fat-loss warnings.
 - Advanced the maintenance build to `2026.08.28.1`, rotated the offline shell/media caches, and added a program-revision boundary so an already-active Full Body C session is not changed by the hip-thrust expansion.
 - Extended Core + Recovery to approximately 50–60 minutes and positioned kettlebell work after the easy warm-up and before the existing floor-core sequence. First exposure uses only the owned 30 lb bell; overhead and advanced ballistic movements remain deferred.
 - Advanced the maintenance build to `2026.08.27.2` and rotated the offline shell/media caches for the kettlebell expansion.

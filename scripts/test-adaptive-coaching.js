@@ -78,7 +78,7 @@ assert(/previousCardioBlock[\s\S]*?Previous:/.test(app),"cardio blocks must show
 assert(/7-DAY WEIGHT[\s\S]*?30-DAY WEIGHT[\s\S]*?30-DAY WAIST[\s\S]*?RECENT STRENGTH/.test(app),"Progress must show body-composition and strength trends");
 assert(/dataQualityItems[\s\S]*?READINESS DATA QUALITY/.test(app),"readiness must explain the quality of its evidence");
 assert(/planDay:Number\.isInteger\(state\.currentSession\?\.planDay\)/.test(app),"completed history must retain the actual selected plan day for cardio and progression analysis");
-assert(/state\.measurementHistory\.push/.test(app),"check-ins must append measurement history");
+assert(/state\.bodyMeasurements\.push[\s\S]*?state\.measurementHistory\.push/.test(app),"check-ins must append canonical and backward-compatible measurement history");
 assert(/@media\(max-width:370px\)[\s\S]*?\.cardio-log-grid[\s\S]*?\.trend-grid/.test(css),"new progression UI must collapse safely on small iPhones");
 
 console.log("Foundation progression tests passed: phase readiness is multi-signal and locked, exercise guidance is specific, and cardio/measurement history is additive.");

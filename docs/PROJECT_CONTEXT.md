@@ -6,10 +6,10 @@ Read this file at the beginning of every Codex or engineering session. It is the
 
 - Product: Road to 12%
 - Version: 13.2.0
-- Build: 2026.08.28.1
-- Last updated: August 28, 2026
-- Service Worker cache: `road12-v13-2-60-shell`
-- Exercise media cache: `road12-v13-2-60-media`
+- Build: 2026.08.29.2
+- Last updated: August 29, 2026
+- Service Worker cache: `road12-v13-2-62-shell`
+- Exercise media cache: `road12-v13-2-62-media`
 - Runtime: static, client-only, offline-first PWA
 - Primary storage key: `road12v5`
 
@@ -21,6 +21,8 @@ Read this file at the beginning of every Codex or engineering session. It is the
 - `adaptive-coaching.js` owns pure phase-readiness and exercise-progression projections without mutating workout definitions.
 - `workout-prescriptions.js` captures an approved target into the next matching session and classifies the completed prescription outcome without mutating Foundation definitions.
 - `backup-restore.js` owns versioned backup creation, untrusted-input validation, and compatibility-preserving merge rules.
+- `body-measurements.js` owns the canonical timestamped body-measurement model, source adapters, current-value derivation, rolling averages, and trend calculations.
+- `wyze-xlsx-import.js` owns pure Wyze XLSX header discovery, local-time/unit/null parsing, review status, deterministic deduplication, and confirmed enrichment; the vendored XLSX reader is part of the offline shell.
 - `workout-navigation.js` owns testable workout scroll capture, restoration, and intentional advancement behavior.
 - `data.js` contains workout definitions.
 - `exercise-library.js` contains reviewed exercise education metadata plus animation, pause-state poster, and retained-reference mappings.
@@ -84,6 +86,8 @@ See `CODEX_TASKS.md` for priority and acceptance detail.
 
 ## Recent design decisions
 
+- Wyze Scale exports are parsed locally from user-selected `.xlsx` files. The app shows Import, Update, and Duplicate decisions before confirmation, collapses poorer same-weight readings within ten minutes, and enriches exact stored readings on richer re-import. Deterministic identity uses source, timestamp, and weight. Newer weight-only readings remain body-composition-null, while each dashboard reference shows the newest actual measurement date for its field. Manual measurements, workout history, and progression state remain untouched.
+- Schema 16 adds append-only `bodyMeasurements` with shared `manual`, `wyze-import`, and `apple-health` adapters. Current weight and waist are derived independently from the newest valid canonical values while legacy `weight`, `waist`, and `measurementHistory` remain readable and continue to be written by manual check-ins. The seven-day weight display is a rolling average; daily scale values never affect readiness or exercise progression.
 - An approved session weight is the actual editable set default, not placeholder text, so completing an untouched set records what the user saw. Prior-session guidance remains display-only. Progress may repair historical zero-weight sets only after confirmation and only when the completed snapshot contains the exact captured prescription; each change retains an audit record and unknown weights are never inferred. Smith selected-volume calculations include the known 33 lb bar.
 - Workout-preview exercise rows are interactive, non-mutating entry points to a full exercise guide. The preview detail reuses the reviewed automatic animation, setup and execution guidance, equipment-specific coaching, prescription summary, and historical performance lookup without creating or changing an active workout. Returning restores the preview list position.
 - Program Adherence starts from the saved August 20, 2026 baseline for the current installation. Earlier development-era sessions remain visible in Calendar and history but do not affect the metric. Only resolved completed or missed training sessions on or after the baseline count; an unresolved scheduled workout never lowers adherence.
@@ -157,6 +161,7 @@ See `CODEX_TASKS.md` for priority and acceptance detail.
 
 - Preserve existing workout history and `road12v5` compatibility.
 - Migrations must be additive, ordered, and idempotent.
+- Body-measurement imports must use the canonical adapter interface. Do not use undocumented Wyze APIs or reverse-engineer Bluetooth. Automatic Apple Health sync requires a separately authorized native HealthKit bridge that writes through the existing data layer.
 - Equipment migration v4 enables the newly available bumper plates without changing completed workout snapshots.
 - Equipment migration v6 separates dumbbells from kettlebells. Additive migration v15 records the owned 30 lb kettlebell without changing completed workout snapshots.
 - Equipment migration v7 reconciles the confirmed iFIT rower and dumbbell availability for existing device profiles so additive exercises are not filtered from previews; completed history remains unchanged.

@@ -8,6 +8,7 @@ This folder is the canonical source for product direction, architecture, design 
 
 - Semantic HTML5 in `index.html`
 - Modern browser JavaScript in `app.js`, `data.js`, and `exercise-library.js`
+- Locally vendored SheetJS CE for offline, user-selected Wyze `.xlsx` parsing
 - CSS with responsive layouts, safe-area support, and reduced-motion handling
 - Browser `localStorage` for device-local application state
 - Service Worker and Cache Storage for offline operation
@@ -45,6 +46,7 @@ node scripts/validate-exercise-library.js
 node scripts/test-exercise-animation-coverage.js
 node scripts/test-exercise-imagery.js
 node scripts/test-offline-pwa.js
+node scripts/test-wyze-xlsx-import.js
 git diff --check
 ```
 
@@ -60,6 +62,10 @@ Also complete the manual and mobile testing checklist in `RELEASE_PROCESS.md`. A
 ├── app-meta.js              Version, build, and cache metadata
 ├── app.css                  Current production styles
 ├── app.js                   Current application and UI logic
+├── body-measurements.js     Measurement adapters, summaries, and trends
+├── wyze-xlsx-import.js      Review-first Wyze XLSX parser and deduplication
+├── backup-restore.js        Versioned data portability and validation
+├── vendor/                  Audited third-party runtime and license files
 ├── data.js                  Workout definitions
 ├── exercise-library.js      Exercise education metadata
 ├── index.html               Application shell and entry point
@@ -77,6 +83,8 @@ Older versioned JavaScript and CSS files are retained as historical artifacts. N
 - `VISION.md` — long-term product direction
 - `ROADMAP.md` — release sequence and future ideas
 - `ARCHITECTURE.md` — system boundaries and data flow
+- `BODY_MEASUREMENTS.md` — canonical measurement schema, source adapters, and HealthKit bridge boundary
+- `OPEN_SOURCE_NOTICES.md` — bundled third-party software and license locations
 - `UI_GUIDELINES.md` — visual and interaction standards
 - `EXERCISE_MEDIA_AUDIT.md` — exact active-program and visible-library media coverage, accessibility, provenance, and offline validation
 - `CODEX_TASKS.md` — prioritized sprint backlog

@@ -69,6 +69,8 @@ Copy this block for new work:
 
 ## Completed this sprint
 
+- [x] Add a local-first Wyze Scale XLSX importer with dynamic header detection, unit-safe nullable parsing, review-before-confirmation, ten-minute richness-aware deduplication, deterministic re-import safety, exact-record enrichment, current-value summaries, offline packaging, and backup compatibility.
+- [x] Add schema-16 canonical body measurements, legacy-compatible manual check-ins and backups, newest-value summaries, a seven-day rolling weight average, source adapters, and a documented native HealthKit bridge boundary without allowing daily scale values to affect training progression.
 - [x] Add the approved Smith Machine Hip Thrust to future Full Body C sessions with the owned bar pad, outside-bench setup, full strength tracking, revision-safe activation, reviewed offline animation, and regression coverage.
 - [x] Record the owned 30 lb kettlebell and add conservative swings, around-the-worlds, and suitcase carries to Thursday without removing existing core work, including reviewed offline animations and storage compatibility.
 - [x] Correct the Smith single-leg squat to the approved forward-facing no-bench form, add the owned V-bar as additive Full Body B triceps work, and record the rotating close-grip row handle without disrupting older active sessions or history.

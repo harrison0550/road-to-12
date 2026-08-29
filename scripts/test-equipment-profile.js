@@ -6,7 +6,7 @@ const root = path.resolve(__dirname, "..");
 const app = fs.readFileSync(path.join(root, "app.js"), "utf8");
 const data = fs.readFileSync(path.join(root, "data.js"), "utf8");
 
-assert.match(app, /const ROAD12_SCHEMA_VERSION=15;/, "progression architecture must preserve the additive storage migration chain");
+assert.match(app, /const ROAD12_SCHEMA_VERSION=16;/, "progression architecture must preserve the additive storage migration chain");
 assert.match(app, /version:6,[\s\S]*?dumbbells:true,kettlebells:false[\s\S]*?schemaVersion=6;/, "existing profiles must gain the user's confirmed equipment without losing saved state");
 assert.match(app, /version:7,[\s\S]*?dumbbells:true,rower:true,kettlebells:false[\s\S]*?schemaVersion=7;/, "the current device profile must restore confirmed dumbbells and rower so added exercises are not filtered from previews");
 assert.match(app, /version:13,[\s\S]*?dumbbellPairWeights:\[10,15,20,25\][\s\S]*?schemaVersion=13;/, "existing profiles must gain the confirmed 20 and 25 lb dumbbell pairs additively");

@@ -195,7 +195,7 @@ if(smithSquatTemplate){
 }
 /* Versioned storage boundary. Migrations must remain ordered and idempotent. */
 const ROAD12_STORAGE_KEY="road12v5";
-const ROAD12_SCHEMA_VERSION=15;
+const ROAD12_SCHEMA_VERSION=16;
 const ADHERENCE_RESET_DATE="2026-08-20";
 const ROAD12_MIGRATIONS=[
   {
@@ -355,6 +355,26 @@ const ROAD12_MIGRATIONS=[
       value.schemaVersion=15;
       return value;
     }
+  },
+  {
+    version:16,
+    up(value){
+      /* Add canonical body-composition records beside the legacy weight,
+         waist and measurementHistory fields. Never rewrite old check-ins. */
+      value.bodyMeasurements=Array.isArray(value.bodyMeasurements)?value.bodyMeasurements:[];
+      const legacyMeasurements=(Array.isArray(value.measurementHistory)?value.measurementHistory:[])
+        .map((item,index)=>window.ROAD12_BODY_MEASUREMENTS.fromLegacy(item,index))
+        .filter(Boolean);
+      const measurementIdentity=item=>`${item.timestamp}|${item.weight??""}|${item.waist??""}`;
+      const knownMeasurements=new Set(value.bodyMeasurements.map(measurementIdentity));
+      legacyMeasurements.forEach(item=>{
+        const identity=measurementIdentity(item);
+        if(!knownMeasurements.has(identity))value.bodyMeasurements.push(item);
+        knownMeasurements.add(identity);
+      });
+      value.schemaVersion=16;
+      return value;
+    }
   }
 ];
 const road12Storage=(()=>{
@@ -387,9 +407,11 @@ const road12Storage=(()=>{
     localStorage.removeItem(ROAD12_STORAGE_KEY);
     writable=true;
   }
-  return {load,write,remove};
+  return {load,write,remove,migrate};
 })();
 const state=road12Storage.load();
+let pendingWyzeImport=null;
+let wyzeImportNotice="";
 Object.assign(state,{tab:state.tab||"home",step:state.step||0,logs:state.logs||{},sessions:state.sessions||0,weight:state.weight||221,waist:state.waist||43,history:state.history||[],selectedDay:Number.isInteger(state.selectedDay)?state.selectedDay:0,coachMode:state.coachMode!==false});
 state.attachmentPhotos=state.attachmentPhotos||{};
 state.currentSession=state.currentSession||null;
@@ -407,6 +429,12 @@ state.adaptiveRecommendation=state.adaptiveRecommendation||null;
 state.acceptedAdaptivePlan=state.acceptedAdaptivePlan||null;
 state.trainingPhase=state.trainingPhase||{id:"foundation",number:1,startedAt:localDateKey(),status:"active",advancementLocked:true};
 state.measurementHistory=Array.isArray(state.measurementHistory)?state.measurementHistory:[];
+state.bodyMeasurements=Array.isArray(state.bodyMeasurements)?state.bodyMeasurements:[];
+{
+  const currentMeasurements=window.ROAD12_BODY_MEASUREMENTS.current(state.bodyMeasurements,{weight:state.weight,waist:state.waist});
+  if(currentMeasurements.weight!==null)state.weight=currentMeasurements.weight;
+  if(currentMeasurements.waist!==null)state.waist=currentMeasurements.waist;
+}
 state.cardioHistory=Array.isArray(state.cardioHistory)?state.cardioHistory:[];
 state.cardioTimers=state.cardioTimers&&typeof state.cardioTimers==="object"?state.cardioTimers:{};
 state.exerciseFeedback=state.exerciseFeedback&&typeof state.exerciseFeedback==="object"?state.exerciseFeedback:{};
@@ -664,7 +692,9 @@ function isMeaningfulCardioBlock(ex){return durationMinutes(ex)!==null&&(ex.type
 function cardioBlocksForWorkout(workout){return workout.filter(isMeaningfulCardioBlock).map((ex,index)=>({id:`${index}-${ex.name.toLowerCase().replace(/[^a-z0-9]+/g,"-")}`,name:ex.name,plannedDurationMinutes:durationMinutes(ex),modality:/row/i.test(ex.name)?"Rowing":/bike/i.test(ex.name)?"Cycling":/run|treadmill|walk/i.test(ex.name)?"Treadmill":"Cardio"}));}
 function previousCardioBlock(name,sessionId){return state.cardioHistory.slice().reverse().find(item=>item.name===name&&item.sessionId!==sessionId&&Number(item.actualDurationMinutes)>0)||null;}
 function cardioComparison(previous){return previous?`Previous: ${previous.actualDurationMinutes} min${previous.distance?` • ${previous.distance} distance`:""}${previous.averageHeartRate?` • ${previous.averageHeartRate} bpm`:""}`:"No previous performance recorded.";}
-function measurementTrend(days,field){const cutoff=Date.now()-days*86400000,items=state.measurementHistory.filter(item=>Number(item[field])>0&&new Date(item.recordedAt||item.date).getTime()>=cutoff).sort((a,b)=>new Date(a.recordedAt||a.date)-new Date(b.recordedAt||b.date));if(items.length<2)return null;return {change:Number((Number(items.at(-1)[field])-Number(items[0][field])).toFixed(1)),count:items.length};}
+function currentBodyMeasurements(){return window.ROAD12_BODY_MEASUREMENTS.current(state.bodyMeasurements,{weight:state.weight,waist:state.waist});}
+function measurementTrend(days,field){return window.ROAD12_BODY_MEASUREMENTS.trend(state.bodyMeasurements,field,days);}
+function measurementRollingAverage(days,field){return window.ROAD12_BODY_MEASUREMENTS.rollingAverage(state.bodyMeasurements,field,days);}
 function strengthTrend(){const sessions=state.history.filter(item=>/Full Body [ABC]/.test(item.name||"")).slice(-6);if(sessions.length<2)return null;const first=sessionTotals(sessions[0]).selectedVolume,last=sessionTotals(sessions.at(-1)).selectedVolume;return first?Math.round((last-first)/first*100):null;}
 function sessionTotals(session){
   const exercises=session.exercises||[];
@@ -1235,7 +1265,7 @@ function escapeAdaptiveText(value){
  return String(value||"").replace(/[&<>"']/g,character=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[character]);
 }
 function currentAdaptiveRecommendation(){
- return window.ROAD12_ADAPTIVE.phaseReadiness({history:state.history,ratings:state.workoutRatings,sessions:state.workoutSessions,today:localDateKey(),adherenceBaselineDate:state.adherenceBaselineDate,measurements:state.measurementHistory,cardio:state.cardioHistory});
+ return window.ROAD12_ADAPTIVE.phaseReadiness({history:state.history,ratings:state.workoutRatings,sessions:state.workoutSessions,today:localDateKey(),adherenceBaselineDate:state.adherenceBaselineDate,measurements:state.bodyMeasurements,cardio:state.cardioHistory});
 }
 function phaseReadinessMarkup(readiness,compact=false){
  const quality=readiness.dataQualityItems||[];
@@ -1726,7 +1756,7 @@ function importV1131Backup(file){
    try{
      const payload=JSON.parse(reader.result);
      const validated=window.ROAD12_BACKUP.validate(payload,ROAD12_SCHEMA_VERSION);
-     const restored=window.ROAD12_BACKUP.merge(state,validated.state);
+     const restored=road12Storage.migrate(window.ROAD12_BACKUP.merge(state,validated.state));
      if(restored.trainingProfile)restored.trainingProfile=window.ROAD12_ADAPTIVE.normalizeProfile(restored.trainingProfile);
      Object.keys(state).forEach(key=>delete state[key]);
      Object.assign(state,restored);
@@ -1779,6 +1809,7 @@ function home(){
   const followingPlan=followingSession?weekPlan[followingSession.planDay]:null;
   const primaryLabel=active?"WORKOUT IN PROGRESS":nextIsFuture?`UP NEXT • ${nextDateLabel}`:"TODAY";
   const latestTotals=latest?sessionTotals(latest):null;
+  const bodyMeasurements=currentBodyMeasurements();
 
  app.innerHTML=`<section class="card command-week" aria-labelledby="commandWeekTitle">
    <div class="command-section-heading"><div><small>THIS WEEK</small><h2 id="commandWeekTitle">Training command center</h2></div><button class="history-count-button" id="openHistory">${historyCount} saved</button></div>
@@ -1798,7 +1829,7 @@ function home(){
  ${phaseReadinessMarkup(adaptiveRecommendation,true)}
  ${followingPlan?`<button class="card command-up-next" id="previewFollowingWorkout"><span class="up-next-icon">${followingPlan.icon}</span><span><small>UP NEXT • ${parseDateKey(followingSession.scheduledDate).toLocaleDateString(undefined,{weekday:"short",month:"short",day:"numeric"})}</small><strong>${followingPlan.title}</strong><em>${followingPlan.time}</em></span><b aria-hidden="true">›</b></button>`:""}
  ${latest?`<section class="card command-achievement"><span class="achievement-icon">✓</span><div><small>LATEST ACHIEVEMENT</small><strong>${latest.name||"Completed workout"}</strong><span>${v1131DateLabel(latest)} • ${latestTotals.completedSets} sets</span></div><button class="secondary" id="viewLatestAchievement">View</button></section>`:""}
- <section class="command-checkin" aria-label="Latest check-in"><div><small>WEIGHT</small><strong>${state.weight} lb</strong></div><div><small>WAIST</small><strong>${state.waist} in</strong></div></section>`;
+ <section class="command-checkin" aria-label="Latest check-in"><div><small>WEIGHT</small><strong>${bodyMeasurements.weight??"—"} lb</strong></div><div><small>WAIST</small><strong>${bodyMeasurements.waist??"—"} in</strong></div></section>`;
 
  document.querySelector("#viewLatestAchievement")?.addEventListener("click",()=>{
    state.historyView=latest.id;
@@ -1864,6 +1895,67 @@ function weightHistoryRepairMarkup(candidates){
  </section>`;
 }
 
+function bodyMeasurementSourceLabel(source){return source==="wyze-import"?"Wyze Scale":source==="apple-health"?"Apple Health":"Manual";}
+function bodyMeasurementDate(record){return record?new Date(record.timestamp).toLocaleDateString(undefined,{month:"short",day:"numeric",year:"numeric"}):"Not measured";}
+function bodyMeasurementsImport(){
+ const current=currentBodyMeasurements();
+ const latestBodyFat=window.ROAD12_BODY_MEASUREMENTS.newestRecord(state.bodyMeasurements,"bodyFatPercent");
+ const latestLean=window.ROAD12_BODY_MEASUREMENTS.newestRecord(state.bodyMeasurements,"leanBodyMassLb");
+ const review=pendingWyzeImport;
+ app.innerHTML=`<section class="card body-measurements-import-card">
+   <button class="secondary" id="bodyMeasurementsBack">Back to Progress</button>
+   <span class="pill">BODY MEASUREMENTS</span>
+   <h2>Import measurements</h2>
+   <p class="muted">Imports are processed locally on this device. Nothing is saved until you review and confirm it.</p>
+   <div class="body-measurement-current" aria-label="Current body measurements">
+     <div><small>CURRENT WEIGHT</small><strong>${current.weight??"—"} lb</strong></div>
+     <div><small>LATEST BODY FAT</small><strong>${latestBodyFat?`${latestBodyFat.bodyFatPercent}%`:"—"}</strong><span>${latestBodyFat?`Measured ${bodyMeasurementDate(latestBodyFat)}`:"Not measured"}</span></div>
+     <div><small>LATEST LEAN MASS</small><strong>${latestLean?`${latestLean.leanBodyMassLb} lb`:"—"}</strong><span>${latestLean?`Measured ${bodyMeasurementDate(latestLean)}`:"Not measured"}</span></div>
+   </div>
+   ${wyzeImportNotice?`<p class="measurement-import-notice" role="status">${wyzeImportNotice}</p>`:""}
+   <div class="measurement-import-actions">
+     <label class="primary import-label">Import Wyze Scale Export<input id="wyzeMeasurementFile" type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"></label>
+     <button class="secondary" id="manualMeasurement">Manual Measurement</button>
+   </div>
+   <small class="measurement-privacy-note">Accepted format: Wyze Scale `.xlsx` export. Road to 12% does not connect to an undocumented Wyze API or Bluetooth service.</small>
+ </section>
+ ${review?`<section class="card wyze-import-review" aria-labelledby="wyzeImportReviewTitle">
+   <span class="pill">REVIEW BEFORE IMPORT</span>
+   <h2 id="wyzeImportReviewTitle">${review.foundCount} Wyze reading${review.foundCount===1?"":"s"} found</h2>
+   <div class="wyze-import-summary"><strong>${review.uniqueCount} unique measurement${review.uniqueCount===1?"":"s"} will be imported</strong><span>${review.duplicateCount} duplicate reading${review.duplicateCount===1?"":"s"} will be skipped</span></div>
+   <div class="wyze-import-list">${review.rows.map(item=>`<article class="status-${item.status}"><div><time>${new Date(item.record.timestamp).toLocaleString(undefined,{month:"short",day:"numeric",year:"numeric",hour:"numeric",minute:"2-digit"})}</time><strong>${item.record.weight} lb</strong><span>${item.record.bodyFatPercent!==null?`${item.record.bodyFatPercent}% body fat`:"Body fat not recorded"}${item.record.leanBodyMassLb!==null?` • ${item.record.leanBodyMassLb} lb lean mass`:""}</span></div><b>${item.status==="import"?"Import":item.status==="update"?"Update":"Duplicate"}</b>${item.reason?`<small>${item.reason}</small>`:""}</article>`).join("")}</div>
+   <button class="primary" id="confirmWyzeImport" ${review.uniqueCount?"":"disabled"}>Import Measurements</button>
+   <button class="secondary" id="cancelWyzeImport">Cancel</button>
+ </section>`:""}`;
+ document.querySelector("#bodyMeasurementsBack").onclick=()=>{pendingWyzeImport=null;wyzeImportNotice="";progress();};
+ document.querySelector("#manualMeasurement").onclick=()=>{pendingWyzeImport=null;wyzeImportNotice="";progress();setTimeout(()=>document.querySelector("#w")?.focus(),0);};
+ document.querySelector("#wyzeMeasurementFile").onchange=async event=>{
+   const file=event.target.files?.[0];
+   if(!file)return;
+   try{
+     const parsed=await window.ROAD12_WYZE_IMPORT.parseFile(file,window.XLSX);
+     pendingWyzeImport=window.ROAD12_WYZE_IMPORT.analyze(parsed,state.bodyMeasurements);
+     wyzeImportNotice="";
+     bodyMeasurementsImport();
+   }catch(error){
+     pendingWyzeImport=null;
+     alert(`Could not read this Wyze export: ${error.message}`);
+   }
+ };
+ document.querySelector("#cancelWyzeImport")?.addEventListener("click",()=>{pendingWyzeImport=null;bodyMeasurementsImport();});
+ document.querySelector("#confirmWyzeImport")?.addEventListener("click",()=>{
+   const result=window.ROAD12_WYZE_IMPORT.applyReview(state.bodyMeasurements,pendingWyzeImport);
+   state.bodyMeasurements=result.records;
+   const latest=window.ROAD12_BODY_MEASUREMENTS.current(state.bodyMeasurements,{weight:state.weight,waist:state.waist});
+   if(latest.weight!==null)state.weight=latest.weight;
+   if(latest.waist!==null)state.waist=latest.waist;
+   save();
+   pendingWyzeImport=null;
+   wyzeImportNotice=`Imported ${result.imported} new and updated ${result.updated} existing measurement${result.imported+result.updated===1?"":"s"}. ${result.skipped} duplicate${result.skipped===1?" was":"s were"} skipped.`;
+   bodyMeasurementsImport();
+ });
+}
+
 function progress(){
  if(state.historyView){
    const session=state.history.find(h=>h.id===state.historyView);
@@ -1876,8 +1968,11 @@ function progress(){
  const achievements=earnedAchievements();
  const readiness=currentAdaptiveRecommendation();
  const progression=exerciseProgressionRecommendations();
- const measurements=state.measurementHistory.slice().sort((a,b)=>String(b.recordedAt).localeCompare(String(a.recordedAt))).slice(0,8);
- const weight7=measurementTrend(7,"weight"),weight30=measurementTrend(30,"weight"),waist30=measurementTrend(30,"waist"),strength30=strengthTrend();
+ const measurements=state.bodyMeasurements.slice().sort((a,b)=>String(b.timestamp).localeCompare(String(a.timestamp))).slice(0,8);
+ const currentMeasurements=currentBodyMeasurements();
+ const latestBodyFat=window.ROAD12_BODY_MEASUREMENTS.newestRecord(state.bodyMeasurements,"bodyFatPercent");
+ const latestLean=window.ROAD12_BODY_MEASUREMENTS.newestRecord(state.bodyMeasurements,"leanBodyMassLb");
+ const weight7=measurementRollingAverage(7,"weight"),weightWeek=measurementTrend(7,"weight"),weight30=measurementTrend(30,"weight"),waist30=measurementTrend(30,"waist"),strength30=strengthTrend();
  const weightRepairCandidates=window.ROAD12_PRESCRIPTIONS.recommendedWeightRepairCandidates(state.history);
 
  app.innerHTML=`${phaseReadinessMarkup(readiness)}${lowerAbsProgramMarkup()}${weightHistoryRepairMarkup(weightRepairCandidates)}<section class="card">
@@ -1886,18 +1981,19 @@ function progress(){
    <div class="brief-grid">
      <div><small>SESSIONS</small><strong>${state.history.length}</strong></div>
      <div><small>LIFETIME VOLUME</small><strong>${Math.round(totalLifetimeVolume()).toLocaleString()} lb</strong></div>
-     <div><small>WEIGHT</small><strong>${state.weight} lb</strong></div>
-     <div><small>WAIST</small><strong>${state.waist} in</strong></div>
+     <div><small>WEIGHT</small><strong>${currentMeasurements.weight??"—"} lb</strong></div>
+     <div><small>WAIST</small><strong>${currentMeasurements.waist??"—"} in</strong></div>
    </div>
    <div class="measurement-row">
-     <label>Weight (lb)<input id="w" value="${state.weight}" inputmode="decimal"></label>
-     <label>Waist (in)<input id="wa" value="${state.waist}" inputmode="decimal"></label>
+     <label>Weight (lb)<input id="w" value="${currentMeasurements.weight??""}" inputmode="decimal"></label>
+     <label>Waist (in)<input id="wa" value="${currentMeasurements.waist??""}" inputmode="decimal"></label>
      <button class="secondary" id="saveP">Save check-in</button>
    </div>
-   ${measurements.length?`<div class="measurement-history"><h3>Measurement history</h3>${measurements.map(item=>`<div><time>${formatHistoryDateKey(item.date)}</time><strong>${item.weight??"—"} lb</strong><strong>${item.waist??"—"} in</strong></div>`).join("")}</div>`:""}
+   <button class="secondary body-measurements-open" id="openBodyMeasurements">Body Measurements / Import</button>
+   ${measurements.length?`<div class="measurement-history"><h3>Measurement history</h3>${measurements.map(item=>`<div><time>${formatHistoryDateKey(item.timestamp?.slice(0,10))}</time><strong>${item.weight??"—"} lb</strong><strong>${item.waist??"—"} in</strong></div>`).join("")}</div>`:""}
  </section>
 
- <section class="card composition-trends"><span class="pill">BODY-COMPOSITION TRENDS</span><h2>Direction, not one weigh-in</h2><div class="trend-grid"><div><small>7-DAY WEIGHT</small><strong>${weight7?`${weight7.change>0?"+":""}${weight7.change} lb`:"Collecting"}</strong><span>${weight7?`${weight7.count} check-ins`:"At least two check-ins needed"}</span></div><div><small>30-DAY WEIGHT</small><strong>${weight30?`${weight30.change>0?"+":""}${weight30.change} lb`:"Collecting"}</strong><span>${weight30?`${weight30.count} check-ins`:"At least two check-ins needed"}</span></div><div><small>30-DAY WAIST</small><strong>${waist30?`${waist30.change>0?"+":""}${waist30.change} in`:"Collecting"}</strong><span>${waist30?`${waist30.count} check-ins`:"At least two check-ins needed"}</span></div><div><small>RECENT STRENGTH</small><strong>${strength30===null?"Collecting":`${strength30>0?"+":""}${strength30}%`}</strong><span>Selected volume across recent A/B/C sessions</span></div></div><p class="trend-note">Daily scale weight can move temporarily because of hydration, sodium, glycogen, digestion, and creatine. Readiness uses repeated history—not a single weigh-in.</p></section>
+ <section class="card composition-trends"><span class="pill">BODY-COMPOSITION TRENDS</span><h2>Direction, not one weigh-in</h2><div class="trend-grid"><div><small>7-DAY WEIGHT AVERAGE</small><strong>${weight7?`${weight7.average} lb`:"Collecting"}</strong><span>${weight7?`${weight7.count} check-in${weight7.count===1?"":"s"} in the rolling window`:"Add a weight check-in"}</span></div><div><small>7-DAY CHANGE</small><strong>${weightWeek?`${weightWeek.change>0?"+":""}${weightWeek.change} lb`:"Collecting"}</strong><span>${weightWeek?`${weightWeek.count} check-ins`:"At least two check-ins needed"}</span></div><div><small>30-DAY WEIGHT</small><strong>${weight30?`${weight30.change>0?"+":""}${weight30.change} lb`:"Collecting"}</strong><span>${weight30?`${weight30.count} check-ins`:"At least two check-ins needed"}</span></div><div><small>30-DAY WAIST</small><strong>${waist30?`${waist30.change>0?"+":""}${waist30.change} in`:"Collecting"}</strong><span>${waist30?`${waist30.count} check-ins`:"At least two check-ins needed"}</span></div><div><small>RECENT STRENGTH</small><strong>${strength30===null?"Collecting":`${strength30>0?"+":""}${strength30}%`}</strong><span>Selected volume across recent A/B/C sessions</span></div></div><div class="body-reference-grid"><div><small>LATEST BODY FAT</small><strong>${latestBodyFat?`${latestBodyFat.bodyFatPercent}%`:"Collecting"}</strong><span>${latestBodyFat?`${bodyMeasurementSourceLabel(latestBodyFat.source)} • measured ${bodyMeasurementDate(latestBodyFat)}`:"No body-fat reading yet"}</span></div><div><small>LATEST LEAN BODY MASS</small><strong>${latestLean?`${latestLean.leanBodyMassLb} lb`:"Collecting"}</strong><span>${latestLean?`${bodyMeasurementSourceLabel(latestLean.source)} • measured ${bodyMeasurementDate(latestLean)}`:"No lean-mass reading yet"}</span></div></div><p class="trend-note">Weight and waist are the primary body-composition signals. Consumer-scale composition estimates are stored as supporting trend data. A newer weight-only reading remains body-fat null; the dated reference above comes from the newest reading that actually measured it. Daily scale changes never alter training progression or trigger a fat-loss warning.</p></section>
 
  <section class="card"><span class="pill">EXERCISE PROGRESSION</span><h2>Next-session guidance</h2><p class="muted">Recommendations use exercise-specific completed sets, reps, weight and workout feedback. Nothing changes automatically.</p><div class="exercise-progression-list">${progression.map(item=>{const recommendation=item.recommendation,approved=approvedProgressionFor(item.exercise),key=encodeURIComponent(item.exercise.name);return `<div class="progression-${recommendation.action.toLowerCase()}"><span>${recommendation.action}</span><p><strong>${item.exercise.name}</strong><b>${recommendation.prescription.summary}</b><small>${recommendation.reason}</small>${recommendation.action!=="BUILD"?`<button class="${approved?.sourceSessionId===recommendation.sourceSessionId?"secondary":"primary"} progression-approval" data-approve-progression="${key}">${approved?.sourceSessionId===recommendation.sourceSessionId?"Approved for next session ✓":"Approve next-session target"}</button>`:""}</p></div>`;}).join("")}</div></section>
 
@@ -1943,12 +2039,17 @@ function progress(){
 
  document.querySelector("#saveP").onclick=()=>{
    const weight=Number(document.querySelector("#w").value)||null,waist=Number(document.querySelector("#wa").value)||null;
-   if(weight!==null)state.weight=weight;
-   if(waist!==null)state.waist=waist;
-   state.measurementHistory.push({id:`measurement-${Date.now()}`,date:localDateKey(),recordedAt:new Date().toISOString(),weight,waist,source:"checkIn"});
+   const measurement=window.ROAD12_BODY_MEASUREMENTS.adapters.manual.adapt({weight,waist,timestamp:new Date().toISOString()});
+   if(!measurement)return;
+   state.bodyMeasurements.push(measurement);
+   const legacyMeasurement=window.ROAD12_BODY_MEASUREMENTS.toLegacy(measurement);
+   if(legacyMeasurement)state.measurementHistory.push(legacyMeasurement);
+   if(measurement.weight!==null)state.weight=measurement.weight;
+   if(measurement.waist!==null)state.waist=measurement.waist;
    save();
    progress();
  };
+ document.querySelector("#openBodyMeasurements").onclick=()=>{pendingWyzeImport=null;wyzeImportNotice="";bodyMeasurementsImport();};
  document.querySelector("#acceptLowerAbsPhase2")?.addEventListener("click",()=>{
    state.lowerAbsProgram.phase=2;
    state.lowerAbsProgram.phase2AcceptedAt=new Date().toISOString();

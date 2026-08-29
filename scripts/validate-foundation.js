@@ -113,7 +113,7 @@ if (incompatibleKeys.length) {
   fail(`unexpected versioned storage key(s): ${incompatibleKeys.join(", ")}`);
 }
 
-if (!/const ROAD12_SCHEMA_VERSION=15;/.test(app)) {
+if (!/const ROAD12_SCHEMA_VERSION=16;/.test(app)) {
   fail("app.js does not expose the current progression-data migration schema");
 }
 if (!/version:4,[\s\S]*?bumperPlates:true[\s\S]*?value\.schemaVersion=4;/.test(app)) {
@@ -125,7 +125,7 @@ if (!/bumperPlates:true,/.test(app)) {
 if (!/version:6,[\s\S]*?dumbbells:true,kettlebells:false[\s\S]*?value\.schemaVersion=6;/.test(app)) {
   fail("app.js does not migrate existing road12v5 profiles to separate dumbbells and kettlebells");
 }
-if (!/version:8,[\s\S]*?trainingPhase[\s\S]*?measurementHistory[\s\S]*?cardioHistory[\s\S]*?value\.schemaVersion=8;/.test(app)||!/version:9,[\s\S]*?exerciseFeedback[\s\S]*?approvedProgressions[\s\S]*?value\.schemaVersion=9;/.test(app)||!/version:10,[\s\S]*?cardioTimers[\s\S]*?value\.schemaVersion=10;/.test(app)||!/version:11,[\s\S]*?exerciseTimings[\s\S]*?value\.schemaVersion=11;/.test(app)||!/version:12,[\s\S]*?adherenceBaselineDate[\s\S]*?value\.schemaVersion=12;/.test(app)||!/version:13,[\s\S]*?dumbbellPairWeights:\[10,15,20,25\][\s\S]*?value\.schemaVersion=13;/.test(app)||!/version:14,[\s\S]*?lowerAbsProgram[\s\S]*?value\.schemaVersion=14;/.test(app)||!/version:15,[\s\S]*?kettlebells:true,kettlebellWeights:\[30\][\s\S]*?value\.schemaVersion=15;/.test(app)) {
+if (!/version:8,[\s\S]*?trainingPhase[\s\S]*?measurementHistory[\s\S]*?cardioHistory[\s\S]*?value\.schemaVersion=8;/.test(app)||!/version:9,[\s\S]*?exerciseFeedback[\s\S]*?approvedProgressions[\s\S]*?value\.schemaVersion=9;/.test(app)||!/version:10,[\s\S]*?cardioTimers[\s\S]*?value\.schemaVersion=10;/.test(app)||!/version:11,[\s\S]*?exerciseTimings[\s\S]*?value\.schemaVersion=11;/.test(app)||!/version:12,[\s\S]*?adherenceBaselineDate[\s\S]*?value\.schemaVersion=12;/.test(app)||!/version:13,[\s\S]*?dumbbellPairWeights:\[10,15,20,25\][\s\S]*?value\.schemaVersion=13;/.test(app)||!/version:14,[\s\S]*?lowerAbsProgram[\s\S]*?value\.schemaVersion=14;/.test(app)||!/version:15,[\s\S]*?kettlebells:true,kettlebellWeights:\[30\][\s\S]*?value\.schemaVersion=15;/.test(app)||!/version:16,[\s\S]*?bodyMeasurements[\s\S]*?fromLegacy[\s\S]*?value\.schemaVersion=16;/.test(app)) {
   fail("app.js does not add the Foundation phase, measurement history, and cardio history compatibly");
 }
 if (!/matched 10–45 lb bumper plates/.test(app)) {
