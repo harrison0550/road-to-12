@@ -233,12 +233,12 @@ No confirmed production behavior defects are currently documented.
 
 ### BUG-025 — Wyze import button does not open the file picker
 
-- Status: Resolved in v13.2.0 maintenance build 2026.08.29.4
+- Status: Resolved in v13.2.0 maintenance build 2026.08.29.5
 - Severity: High
 - Area: Progress / Body Measurements / Import
 - Report: Tapping Import Wyze Scale Export in the installed iPhone PWA appeared to do nothing.
-- Cause: The XLSX input was hidden with `display:none` inside a styled label, an unreliable activation pattern in the installed iOS PWA context.
-- Resolution: The build 2026.08.29.3 programmatic picker remained inert on the installed iPhone PWA. Build 2026.08.29.4 removes programmatic activation entirely and places the real, non-hidden file input over the complete visible Import surface, so the user's tap reaches the native control directly.
+- Cause: Formatting backticks around the `.xlsx` filename extension prematurely ended the importer screen's HTML template. Tapping Body Measurements / Import therefore threw a runtime error before any file control could render. Earlier picker-only fixes could not reach the actual fault.
+- Resolution: Build 2026.08.29.5 removes the template-breaking formatting, retains the direct native file input, and verifies in a real browser that Progress opens the importer without console errors and activating the input produces a filechooser event.
 - Regression test: `scripts/test-progress-disclosures.js`
 
 ```markdown

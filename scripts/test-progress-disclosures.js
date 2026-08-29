@@ -8,6 +8,8 @@ const css=fs.readFileSync(path.join(root,"app.css"),"utf8");
 assert.match(app,/<div class="native-file-picker"><span aria-hidden="true">Import Wyze Scale Export<\/span><input id="wyzeMeasurementFile"[^>]+aria-label="Import Wyze Scale XLSX export">/,"the visible Import surface must contain the real native file input");
 assert.doesNotMatch(app,/chooseWyzeMeasurementFile|showPicker|wyzeFileInput\.click\(\)/,"the iPhone picker must not depend on programmatic activation");
 assert.doesNotMatch(app,/<label class="primary import-label">Import Wyze Scale Export/,"the unreliable hidden-input label pattern must not return");
+assert.doesNotMatch(app,/Wyze Scale `\.xlsx` export/,"display copy must not terminate the importer template literal at runtime");
+assert.match(app,/Accepted format: Wyze Scale XLSX export\./,"the importer screen must contain render-safe format guidance");
 assert.match(css,/\.native-file-picker>input\{position:absolute;z-index:1;inset:0;width:100%;height:100%/,"the native input must directly cover the full visible tap target");
 assert.doesNotMatch(css,/\.native-file-picker>input\{[^}]*display:none/,"the Wyze input must remain a real iOS tap target");
 

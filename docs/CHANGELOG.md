@@ -44,6 +44,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Changed
 
+- Advanced the maintenance build to `2026.08.29.5`, rotated the offline caches, and added an end-to-end browser check for Progress-to-import navigation and native filechooser activation.
 - Advanced the maintenance build to `2026.08.29.4`, rotated the offline caches, and changed Wyze selection to a direct native file-input tap target with no programmatic picker activation.
 - Advanced the maintenance build to `2026.08.29.3`, rotated the offline caches, and reorganized the long Progress screen into accessible expandable sections while keeping headline metrics and body-measurement actions immediately visible.
 - Advanced the maintenance build to `2026.08.29.2`, rotated the offline caches, and extended backup validation for all Wyze measurement aliases and source metadata.
@@ -179,7 +180,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Fixed
 
-- Fixed the installed-iPhone Wyze import button by placing the real native file input over the visible Import surface; no hidden label or programmatic file-picker action remains.
+- Fixed the Body Measurements importer failing before render because formatting backticks around `.xlsx` prematurely ended its HTML template. The route now renders without console errors, and the real native file input opens a filechooser when activated.
 - Fixed installed iPhone PWAs continuing to show the prior Play-first animation screen after a new build was published.
 - Fixed Attachment Locker photo controls forcing the iPhone camera; the native image picker can now offer Photo Library, Take Photo, and Files.
 - Fixed active guided exercises falling back to missing-media or approximate legacy imagery because their exact display name had no reviewed animation mapping.

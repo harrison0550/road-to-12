@@ -1925,7 +1925,7 @@ function bodyMeasurementsImport(){
      <div class="native-file-picker"><span aria-hidden="true">Import Wyze Scale Export</span><input id="wyzeMeasurementFile" type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" aria-label="Import Wyze Scale XLSX export"></div>
      <button class="secondary" id="manualMeasurement">Manual Measurement</button>
    </div>
-   <small class="measurement-privacy-note">Accepted format: Wyze Scale `.xlsx` export. Road to 12% does not connect to an undocumented Wyze API or Bluetooth service.</small>
+   <small class="measurement-privacy-note">Accepted format: Wyze Scale XLSX export. Road to 12% does not connect to an undocumented Wyze API or Bluetooth service.</small>
  </section>
  ${review?`<section class="card wyze-import-review" aria-labelledby="wyzeImportReviewTitle">
    <span class="pill">REVIEW BEFORE IMPORT</span>
