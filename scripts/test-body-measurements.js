@@ -42,7 +42,7 @@ assert.strictEqual(volatile.score,stable.score,"single-day scale values must not
 const app=fs.readFileSync(path.join(root,"app.js"),"utf8");
 const index=fs.readFileSync(path.join(root,"index.html"),"utf8");
 const sw=fs.readFileSync(path.join(root,"sw.js"),"utf8");
-assert.match(app,/const ROAD12_SCHEMA_VERSION=16;/);
+assert.match(app,/const ROAD12_SCHEMA_VERSION=17;/);
 assert.match(app,/version:16,[\s\S]*?bodyMeasurements[\s\S]*?fromLegacy[\s\S]*?schemaVersion=16;/);
 assert.match(app,/road12Storage\.migrate\(window\.ROAD12_BACKUP\.merge/,"older backup imports must migrate before replacing live state");
 assert.match(app,/adapters\.manual\.adapt[\s\S]*?state\.bodyMeasurements\.push[\s\S]*?state\.measurementHistory\.push/);

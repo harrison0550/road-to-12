@@ -80,6 +80,7 @@ Standard cards have approximately 14px bottom separation. Avoid nested cards unl
 - Disabled controls must remain legible and expose their disabled state semantically.
 - External-provider previews must plainly identify themselves as local previews, disclose unmapped or incomplete data, and end with an explicit statement that nothing was sent. A preview action must never imply that an account is connected.
 - External-provider posting must remain visually distinct from preview. Show a connected/not-connected text status in Profile, require a confirmation that names the real activity and summarizes exercises, sets, and warnings, and do not expose the posting action while disconnected. Processing, failed, and synced states must use text as well as color; a provider activity link appears only after a confirmed activity ID.
+- External-provider connection must show the full privacy/data-use disclosure before authorization and require an explicit acknowledgement. Keep that disclosure available after connection. Disconnect is destructive: name the provider data that will be deleted, preserve local workout history, wait for backend deletion confirmation before local cleanup, and show a clear success or retry message.
 
 ## Navigation
 

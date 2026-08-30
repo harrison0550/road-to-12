@@ -8,6 +8,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Added
 
+- Added an accessible pre-OAuth Strava disclosure and persistent Strava & Privacy view covering requested scope, data flow, retention, consent withdrawal, deletion, support, monitoring, and non-endorsement.
+- Added a canonical Strava data boundary and schema-17 deletion tombstone so confirmed disconnect removes provider metadata without deleting workouts and older backups cannot restore deleted provider records.
 - Added an undeployed Strava Phase 2A manual proof-of-concept: Profile connection controls, per-installation signed requests, secure Cloudflare OAuth/token handling, explicit real-activity confirmation, validated Full Body A/B/C structured uploads, polling, duplicate-safe reconciliation, failure/retry states, disconnect, and confirmed activity links.
 - Added a Cloudflare Worker and D1 schema that keep Strava provider credentials out of the public PWA, encrypt token material with AES-256-GCM, bind OAuth state to one installation, reject replayed request proofs, and preserve server-side upload/activity identity across browser interruption.
 
@@ -49,6 +51,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Changed
 
+- Advanced the maintenance build to `2026.08.30.2` and rotated the offline caches for the Strava compliance remediation.
+- Changed Strava disconnect to require backend deletion confirmation after token revocation and an atomic D1 purge of OAuth, connection/profile/token, upload/activity/error, and provider timestamp data before local cleanup.
+- Restricted Strava-derived data from coaching, readiness, analytics, AI/model input, and agent contexts; added explicit minimal retention and sanitized rate-limit behavior.
 - Configured the manual-only Strava Phase 2A pilot with a dedicated Cloudflare Worker, D1 database, exact GitHub Pages origin, encrypted provider credentials, verified callback URL, and production browser endpoint. No OAuth connection or live activity upload was performed automatically.
 - Advanced the maintenance build to `2026.08.30.1` and rotated the offline caches so installed PWAs receive the reviewed Strava pilot configuration.
 - Corrected the canonical Strava exercise mappings, added a typo-blocking supported-token allowlist, and made backup merge preserve confirmed/richer provider sync state instead of allowing an older import to downgrade it.
@@ -188,6 +193,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Fixed
 
+- Fixed Strava OAuth callbacks returning to the GitHub Pages account root instead of the Road to 12% application. The Worker now keeps exact-origin CORS validation separate from the full `/road-to-12/` success, cancellation, and failure return URL.
 - Fixed the Body Measurements importer failing before render because formatting backticks around `.xlsx` prematurely ended its HTML template. The route now renders without console errors, and the real native file input opens a filechooser when activated.
 - Fixed installed iPhone PWAs continuing to show the prior Play-first animation screen after a new build was published.
 - Fixed Attachment Locker photo controls forcing the iPhone camera; the native image picker can now offer Photo Library, Take Photo, and Files.

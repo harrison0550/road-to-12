@@ -1,5 +1,5 @@
 /* Keep this query aligned with app-meta.js so Safari cannot reuse stale imported metadata. */
-importScripts("./app-meta.js?build=2026.08.30.1");
+importScripts("./app-meta.js?build=2026.08.30.2");
 
 const CACHE=self.ROAD12_META.serviceWorkerCache;
 const MEDIA_CACHE=CACHE.endsWith("-shell")?`${CACHE.slice(0,-6)}-media`:`${CACHE}-media`;
@@ -13,6 +13,7 @@ const MUTABLE_ASSETS=[
   "exercise-library.js",
   "exercise-identity.js",
   "strava-sync-state.js",
+  "strava-data-boundary.js",
   "strava-strength-payload.js",
   "strava-config.js",
   "strava-client.js",
@@ -37,6 +38,7 @@ const CORE_ASSETS=[
   "./exercise-library.js",
   "./exercise-identity.js",
   "./strava-sync-state.js",
+  "./strava-data-boundary.js",
   "./strava-strength-payload.js",
   "./strava-config.js",
   "./strava-client.js",

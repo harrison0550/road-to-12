@@ -4,7 +4,7 @@
 
 Phase 1 is included in the configured pilot build: Road to 12% validates exercise mappings, determines explicit workout eligibility, generates a deterministic structured-strength payload, and displays that payload in a completed-workout preview. Preview mode makes no network request.
 
-Phase 2A is provisioned as a manual-only pilot. The dedicated Cloudflare Worker and D1 database are deployed, exact-origin CORS is verified, provider credentials and the encryption key exist only as Cloudflare secrets, and the production PWA points to the reviewed Worker endpoint. OAuth connection and the first user-initiated live upload remain pending.
+Phase 2A is provisioned as a manual-only pilot. The dedicated Cloudflare Worker and D1 database are deployed, exact-origin CORS is verified, provider credentials and the encryption key exist only as Cloudflare secrets, and the production PWA points to the reviewed Worker endpoint. OAuth consent has been reached successfully; the first user-initiated live upload remains pending.
 
 ## Phase 1 product rules
 
@@ -90,7 +90,7 @@ Failures use `FAILED` and retain a human-safe `lastError`. The Strava record res
 - `SYNCING -> FAILED`
 - `FAILED -> QUEUED`
 
-`SYNCED` is terminal during normal processing. Phase 1 does not invoke these transitions; the module prepares a safe future boundary. Backup merge preserves a confirmed `SYNCED` record and its provider identifiers when an older or poorer backup contains `NOT_SYNCED` or missing state.
+`SYNCED` is terminal during normal processing. While connected, backup merge preserves a confirmed `SYNCED` record and its provider identifiers when an older or poorer backup contains `NOT_SYNCED` or missing state. Confirmed disconnect is the exception: it removes the provider record and writes a local deletion tombstone so an older backup cannot restore it.
 
 ## Duplicate policy
 
@@ -120,13 +120,16 @@ Implemented and provisioned for a limited manual pilot:
 - A Cloudflare Worker plus D1 persistence owns OAuth exchange, encrypted access/refresh tokens, refresh, revocation, upload submission, polling, and `installationId + externalId` idempotency.
 - A per-installation P-256 key authenticates privileged browser requests. Cloudflare stores only the public key; timestamp and nonce checks reject stale or replayed requests.
 - OAuth requests use only `activity:write`. State is unpredictable, installation-bound, expires after ten minutes, and is consumed once.
+- The exact CORS origin remains `https://harrison0550.github.io`, while the separate OAuth application return URL is `https://harrison0550.github.io/road-to-12/`. Success, denial, and callback failure return to that full application path with the existing `strava` status parameter.
 - Token material is encrypted with AES-256-GCM before D1 storage. The encryption key and Strava application credentials are Worker secrets and never enter the PWA or backup.
 - Eligible session details preserve local Preview and add Post only while connected and online. A second confirmation states that a real activity will be created and shows activity title, exercise count, set count, and warnings.
 - The Worker validates the external ID, title allowlist, `WeightTraining` sport, `json` data type, JSON 1.0 structure, supported exercise tokens, size limits, and prohibited private fields.
 - The current official production contract is multipart `POST /api/v3/uploads` with a JSON file, `data_type=json`, `sport_type=WeightTraining`, `external_id`, and name. Strava's API reference still lists older file-type enums, but the current Uploads guide explicitly documents JSON and is the implemented authority.
 - The Worker stores `uploadId` immediately, polls no more than once per second, and returns only sanitized state. A confirmed `activityId` produces the View on Strava link.
 - Session-detail reconciliation may adopt an existing backend processing, failed, or synced record but never resubmits automatically. Confirmed local `SYNCED` state cannot be downgraded by backup import or poorer backend state.
-- Disconnect revokes the refresh token through Strava's current OAuth revoke endpoint before deleting encrypted credentials. Historical activity IDs remain in workout history.
+- Disconnect revokes the provider token, then atomically deletes the installation's OAuth state, connection/profile/token record, and every upload/activity/error record from D1. Only after the Worker confirms deletion does the PWA remove all Strava provider metadata and activity links from workout history. The original Road to 12% workouts remain intact, and a local tombstone prevents older backups from restoring deleted provider data.
+- `strava-data-boundary.js` is the canonical classification and stripping boundary. Strava-derived records are excluded from coaching, readiness, analytics, AI/model input, and agent contexts.
+- HTTP `429` responses expose only a sanitized rate-limit code and optional `Retry-After`; provider headers are not persisted.
 
 Worker routes:
 

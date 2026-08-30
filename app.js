@@ -195,7 +195,7 @@ if(smithSquatTemplate){
 }
 /* Versioned storage boundary. Migrations must remain ordered and idempotent. */
 const ROAD12_STORAGE_KEY="road12v5";
-const ROAD12_SCHEMA_VERSION=16;
+const ROAD12_SCHEMA_VERSION=17;
 const ADHERENCE_RESET_DATE="2026-08-20";
 const ROAD12_MIGRATIONS=[
   {
@@ -375,6 +375,14 @@ const ROAD12_MIGRATIONS=[
       value.schemaVersion=16;
       return value;
     }
+  },
+  {
+    version:17,
+    up(value){
+      value.stravaDeletion=window.ROAD12_STRAVA_DATA.normalizeMarker(value.stravaDeletion);
+      value.schemaVersion=17;
+      return window.ROAD12_STRAVA_DATA.enforce(value,value.stravaDeletion);
+    }
   }
 ];
 const road12Storage=(()=>{
@@ -409,9 +417,10 @@ const road12Storage=(()=>{
   }
   return {load,write,remove,migrate};
 })();
-const state=road12Storage.load();
+const state=window.ROAD12_STRAVA_DATA.enforce(road12Storage.load());
 let pendingWyzeImport=null;
 let wyzeImportNotice="";
+let stravaConnectionNotice="";
 const progressExpandedSections=new Set();
 Object.assign(state,{tab:state.tab||"home",step:state.step||0,logs:state.logs||{},sessions:state.sessions||0,weight:state.weight||221,waist:state.waist||43,history:state.history||[],selectedDay:Number.isInteger(state.selectedDay)?state.selectedDay:0,coachMode:state.coachMode!==false});
 state.attachmentPhotos=state.attachmentPhotos||{};
@@ -1266,7 +1275,7 @@ function escapeAdaptiveText(value){
  return String(value||"").replace(/[&<>"']/g,character=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[character]);
 }
 function currentAdaptiveRecommendation(){
- return window.ROAD12_ADAPTIVE.phaseReadiness({history:state.history,ratings:state.workoutRatings,sessions:state.workoutSessions,today:localDateKey(),adherenceBaselineDate:state.adherenceBaselineDate,measurements:state.bodyMeasurements,cardio:state.cardioHistory});
+ return window.ROAD12_ADAPTIVE.phaseReadiness({history:state.history.map(window.ROAD12_STRAVA_DATA.stripSession),ratings:state.workoutRatings,sessions:state.workoutSessions,today:localDateKey(),adherenceBaselineDate:state.adherenceBaselineDate,measurements:state.bodyMeasurements,cardio:state.cardioHistory});
 }
 function phaseReadinessMarkup(readiness,compact=false){
  const quality=readiness.dataQualityItems||[];
@@ -1274,7 +1283,8 @@ function phaseReadinessMarkup(readiness,compact=false){
 }
 function exerciseProgressionRecommendations(){
  const definitions=[0,2,4].flatMap(day=>strengthWorkoutForDay(day)).filter(ex=>ex.type==="strength");
- return [...new Map(definitions.map(ex=>[ex.name,ex])).values()].map(ex=>({exercise:ex,recommendation:window.ROAD12_ADAPTIVE.exerciseRecommendation(state.history,state.workoutRatings,ex)}));
+ const coachingHistory=state.history.map(window.ROAD12_STRAVA_DATA.stripSession);
+ return [...new Map(definitions.map(ex=>[ex.name,ex])).values()].map(ex=>({exercise:ex,recommendation:window.ROAD12_ADAPTIVE.exerciseRecommendation(coachingHistory,state.workoutRatings,ex)}));
 }
 function approvedProgressionFor(exercise){
  return window.ROAD12_PRESCRIPTIONS.findApproval(state.approvedProgressions,exercise,name=>window.ROAD12_EXERCISES.resolve(name));
@@ -1284,9 +1294,36 @@ function stravaProfileMarkup(message="Checking secure connection…",status="che
  return `<section class="card strava-connection-card" id="stravaConnectionCard" aria-labelledby="stravaConnectionTitle">
    <span class="pill">STRAVA • MANUAL ONLY</span><h2 id="stravaConnectionTitle">Strength Training connection</h2>
    <p class="strava-connection-status ${status}" role="status">${escapeAdaptiveText(configured?message:"Not configured on this build")}</p>
-   <p class="muted">Eligible Full Body A/B/C sessions can be posted only after you review and confirm them. Automatic sync and cardio posting are off.</p>
+   <p class="muted">Road to 12% requests permission only to upload strength activities you explicitly approve. Automatic sync, activity reading, and cardio posting are off.</p>
+   <button class="text-action" id="stravaPrivacy" type="button">Strava &amp; Privacy</button>
    <div class="strava-connection-actions"></div>
  </section>`;
+}
+function stravaPrivacyMarkup(){
+ return `<span class="pill">STRAVA &amp; PRIVACY</span><h2>What connecting means</h2>
+   <p>Road to 12% requests <strong>activity:write</strong> permission so you can manually upload a reviewed Full Body A/B/C strength workout.</p>
+   <h3>Information stored while connected</h3><ul><li>Your Strava account identifier and name for connection status.</li><li>Encrypted authorization credentials on the secure Worker, never in the PWA backup.</li><li>Upload and activity identifiers needed to finish and display an approved post.</li></ul>
+   <h3>Disconnect and deletion</h3><p>Disconnect Strava revokes authorization and deletes stored Strava-derived credentials, identity, upload, activity, status, timestamp, and error metadata. Your Road to 12% workouts, sets, reps, weights, and progress remain local and are not deleted.</p>
+   <p>Disconnect is the self-service deletion method. For help, use the <a href="https://github.com/harrison0550/road-to-12/issues/new?title=Road%20to%2012%25%20support" target="_blank" rel="noopener">Road to 12% support page</a>; do not include private health or credential information in a public issue.</p>
+   <p class="muted">Strava may monitor or collect API usage information as described in its <a href="https://www.strava.com/legal/api_policy" target="_blank" rel="noopener">API Policy</a> and <a href="https://www.strava.com/legal/privacy" target="_blank" rel="noopener">Privacy Policy</a>. Road to 12% is not made, sponsored, or endorsed by Strava.</p>`;
+}
+function openStravaPrivacy(){
+ const dialog=v42Dialog(`${stravaPrivacyMarkup()}<button class="secondary" id="closeStravaPrivacy" type="button">Close</button>`,`Strava and privacy`,{showClose:false});
+ dialog.querySelector("#closeStravaPrivacy").onclick=closeV42Dialog;
+}
+function beginStravaConnect(statusNode,button){
+ const dialog=v42Dialog(`${stravaPrivacyMarkup()}<label class="adaptive-check"><input id="stravaConsent" type="checkbox"><span>I understand what is stored and how Disconnect Strava deletes it.</span></label><button class="primary" id="continueStrava" type="button" disabled>Continue to Strava</button><button class="secondary" id="cancelStrava" type="button">Cancel</button>`,`Connect Strava`,{showClose:false});
+ const consent=dialog.querySelector("#stravaConsent"),continueButton=dialog.querySelector("#continueStrava");
+ consent.onchange=()=>{continueButton.disabled=!consent.checked;};
+ dialog.querySelector("#cancelStrava").onclick=()=>{closeV42Dialog();button.disabled=false;};
+ continueButton.onclick=async()=>{continueButton.disabled=true;try{const connection=await window.ROAD12_STRAVA_CLIENT.connect();location.assign(connection.authorizeUrl);}catch(error){closeV42Dialog();statusNode.textContent=error.message;button.disabled=false;}};
+}
+function applyConfirmedStravaDeletion(result){
+ if(!result?.deleted||!result?.deletionConfirmed||!result?.deletedAt)throw new Error("The Worker did not confirm Strava data deletion.");
+ const cleaned=window.ROAD12_STRAVA_DATA.clearAfterConfirmedDisconnect(state,result.deletedAt);
+ if(!road12Storage.write(cleaned))throw new Error("Strava data was deleted from the Worker, but this device could not save the local cleanup. Free storage and retry before creating a backup.");
+ Object.keys(state).forEach(key=>delete state[key]);
+ Object.assign(state,cleaned);
 }
 async function refreshStravaProfileCard(){
  const card=document.querySelector("#stravaConnectionCard");
@@ -1306,17 +1343,22 @@ async function refreshStravaProfileCard(){
  try{
    const result=await client.status();
    if(!document.querySelector("#stravaConnectionCard"))return;
-   statusNode.textContent=result.connected?`Connected to Strava${result.athleteName?` as ${result.athleteName}`:""}`:(result.requiresReauth?"Reconnect Strava":"Not Connected");
+   statusNode.textContent=result.connected?`Connected to Strava${result.athleteName?` as ${result.athleteName}`:""}`:(stravaConnectionNotice||(result.requiresReauth?"Reconnect Strava":"Not Connected"));
    statusNode.className=`strava-connection-status ${result.connected?"connected":"not-connected"}`;
    actions.innerHTML=result.connected?'<button class="secondary" id="disconnectStrava" type="button">Disconnect Strava</button>':'<button class="primary" id="connectStrava" type="button">Connect Strava</button>';
    document.querySelector("#connectStrava")?.addEventListener("click",async event=>{
      event.currentTarget.disabled=true;
-     try{const connection=await client.connect();location.assign(connection.authorizeUrl);}catch(error){statusNode.textContent=error.message;event.currentTarget.disabled=false;}
+     beginStravaConnect(statusNode,event.currentTarget);
    });
    document.querySelector("#disconnectStrava")?.addEventListener("click",async event=>{
-     if(!confirm("Disconnect Strava? Existing activity links will remain in workout history."))return;
+     if(!confirm("Disconnect Strava and permanently delete stored Strava authorization, identity, upload, and activity metadata? Your Road to 12% workout history will remain."))return;
      event.currentTarget.disabled=true;
-     try{await client.disconnect();await refreshStravaProfileCard();}catch(error){statusNode.textContent=error.message;event.currentTarget.disabled=false;}
+     try{
+       const result=await client.disconnect();
+       applyConfirmedStravaDeletion(result);
+       stravaConnectionNotice="Strava disconnected. Strava authorization and stored Strava data have been deleted. Your Road to 12% workout history was not affected.";
+       await refreshStravaProfileCard();
+     }catch(error){statusNode.textContent=`Deletion was not confirmed. ${error.message||"Try again."}`;event.currentTarget.disabled=false;}
    });
  }catch(error){
    statusNode.textContent=error.message||"Strava connection status is unavailable.";
@@ -1377,6 +1419,7 @@ function equipment(){
  document.querySelectorAll("[data-clear-photo]").forEach(btn=>btn.onclick=()=>{delete state.attachmentPhotos[btn.dataset.clearPhoto];save();equipment()});
  document.querySelector("#equipmentWorkout").onclick=()=>{startNewSession();setTab("workout")};
  document.querySelector("#imageLicenses").onclick=imageLicenses;
+ document.querySelector("#stravaPrivacy").onclick=openStravaPrivacy;
  refreshStravaProfileCard();
 }
 function saveAttachmentPhoto(key,file){
@@ -1423,6 +1466,7 @@ function openStravaPreview(session){
 function stravaSessionSync(session){
  return session.externalSync?.strava||{status:"NOT_SYNCED",externalId:`road12-${session.id}`,uploadId:null,activityId:null,uploadedAt:null,lastAttemptAt:null,lastError:null};
 }
+function stravaHistoricalPostBlocked(session){return (state.stravaDeletion?.blockedSessionIds||[]).includes(String(session.id||""));}
 function saveStravaBackendState(session,result){
  session.externalSync=session.externalSync||{};
  session.externalSync.strava=window.ROAD12_STRAVA_SYNC.reconcile(stravaSessionSync(session),result);
@@ -1493,6 +1537,7 @@ function confirmStravaUpload(session){
 async function renderStravaSessionActions(session,reconcile=true){
  const container=document.querySelector("#stravaSessionActions");
  if(!container)return;
+ if(stravaHistoricalPostBlocked(session)){container.innerHTML='<p class="muted">Strava data for this historical workout was deleted when the connection was removed. Historical reposting is disabled.</p>';return;}
  const client=window.ROAD12_STRAVA_CLIENT;
  if(!client?.configured()){
    container.innerHTML='<p class="muted">Manual Strava posting is not configured on this build. Local preview remains available.</p>';

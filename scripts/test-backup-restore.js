@@ -35,6 +35,12 @@ const enrichedMerge=backup.merge(
 assert.strictEqual(enrichedMerge.history[0].externalSync.strava.status,"SYNCING");
 assert.strictEqual(enrichedMerge.history[0].externalSync.strava.uploadId,"upload-456");
 assert.strictEqual(enrichedMerge.history[0].externalSync.strava.lastAttemptAt,"2026-08-20T12:05:00.000Z");
+const deletionState={history:[localSynced],stravaDeletion:{version:1,deletedAt:"2026-08-30T12:00:00.000Z",blockedSessionIds:["session-sync"]}};
+const deletionBackup=backup.create({version:"13.2.0",build:"2026.08.30.2"},deletionState,17);
+assert.equal(deletionBackup.state.history[0].externalSync?.strava,undefined,"backup after disconnect retained Strava provider metadata");
+const resurrected=backup.merge(deletionState,{history:[localSynced]});
+assert.equal(resurrected.history[0].externalSync?.strava,undefined,"old backup resurrected deleted Strava provider metadata");
+assert.equal(resurrected.history[0].name,"Full Body C","Strava cleanup deleted the underlying workout");
 const app=fs.readFileSync(path.join(root,"app.js"),"utf8"),index=fs.readFileSync(path.join(root,"index.html"),"utf8"),sw=fs.readFileSync(path.join(root,"sw.js"),"utf8");
 assert(!app.includes('version:"11.3.1"'),"backup export must not hardcode an obsolete version");
 assert(app.includes("ROAD12_BACKUP.validate(payload,ROAD12_SCHEMA_VERSION)"));

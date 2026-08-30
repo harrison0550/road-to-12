@@ -6,10 +6,10 @@ Read this file at the beginning of every Codex or engineering session. It is the
 
 - Product: Road to 12%
 - Version: 13.2.0
-- Build: 2026.08.30.1
+- Build: 2026.08.30.2
 - Last updated: August 30, 2026
-- Service Worker cache: `road12-v13-2-66-shell`
-- Exercise media cache: `road12-v13-2-66-media`
+- Service Worker cache: `road12-v13-2-67-shell`
+- Exercise media cache: `road12-v13-2-67-media`
 - Runtime: static, client-only, offline-first PWA
 - Primary storage key: `road12v5`
 
@@ -29,8 +29,10 @@ Read this file at the beginning of every Codex or engineering session. It is the
 - `exercise-identity.js` owns stable exercise IDs and provider mappings independently of display names.
 - `strava-strength-payload.js` owns the pure, local-only Full Body A/B/C eligibility, equipment-load normalization, and structured Strava preview projection.
 - `strava-sync-state.js` owns canonical Strava provider statuses, allowed transitions, authoritative backend reconciliation, and protective provider-state merge behavior.
+- `strava-data-boundary.js` owns the canonical classification of delete-on-disconnect provider data, safe local workout data, temporary metadata, and backup anti-resurrection behavior. It strips provider records before coaching receives history.
 - `strava-client.js` owns optional manual-only browser communication with the Strava Phase 2A Worker using a per-installation P-256 signing key; it contains no provider credentials and its private installation key is excluded from backups.
 - `worker/strava/` contains the deployed pilot Cloudflare Worker, D1 schema, OAuth/token boundary, upload validation, idempotency, and asynchronous status polling for the approved manual proof of concept.
+- `STRAVA_COMPLIANCE.md` is the current Strava release gate. The disclosure, retention, complete deletion, support, rate-limit, backup, and AI-boundary remediations pass automated tests; the first live upload remains blocked until the remediated Worker/PWA are deployed and the connected pilot account passes live deletion verification.
 - `app.css` contains the current responsive design system.
 - `app-meta.js` is the single source for About/version and cache metadata.
 - `localStorage` holds versioned device-local state and completed history.
@@ -75,14 +77,14 @@ See `KNOWN_BUGS.md` before diagnosing or fixing defects.
 
 ## Active sprint goals
 
-All High Priority tasks for the current sprint are complete. Strava Phase 1 and the Phase 2A manual proof-of-concept are configured for a limited production pilot. The Cloudflare Worker, D1 schema, exact-origin CORS, Strava application credentials, token-encryption secret, callback, and browser Worker URL are provisioned. OAuth connection and the first explicitly approved live upload remain pending; no real activity has been uploaded.
+The active High Priority task is the final Strava compliance deployment gate. Phase 1 and the Phase 2A manual proof-of-concept remain limited to one athlete. Consent disclosure, backend-confirmed deletion, D1 transaction cleanup, local provider stripping, backup anti-resurrection, retention rules, support, sanitized rate-limit handling, and coaching exclusion are implemented and tested. Deploy both boundaries, validate deletion with the connected pilot account, and re-audit before any live activity upload.
 
 Next recommended goals:
 
 1. Improve calendar navigation and filtering without altering schedule truth.
 2. Document adherence and recovery-score formulas.
 3. Preserve v13.2 behavior while gradually creating clearer module boundaries.
-4. Complete the Phase 2A OAuth connection and one deliberate user-initiated Full Body A/B/C live upload, then validate rendering, idempotency, reconciliation, disconnect/reconnect, and token refresh; do not enable automatic sync.
+4. Complete the Phase 2A live disconnect/deletion validation and pass `STRAVA_COMPLIANCE.md`; only then perform one separately approved Full Body A/B/C upload and validate rendering, idempotency, reconciliation, disconnect/reconnect, and token refresh. Do not enable automatic sync.
 4. Validate prescription-outcome signals across additional real Foundation sessions before using them for automatic recommendations.
 5. Re-audit active exercise media when Foundation prescriptions change; keep future-phase media deferred until those workout definitions are approved.
 6. Evaluate the completed four-session lower-ab block before choosing its long-term maintenance or progression path.
@@ -94,10 +96,13 @@ See `CODEX_TASKS.md` for priority and acceptance detail.
 - Strava Phase 2A uses a stronger installation identity than a shared bearer secret: the PWA creates a P-256 signing keypair, Cloudflare stores only the public key, and each privileged request includes a short-lived timestamp, unique nonce, body hash, and signature. The private key is device-local and excluded from backups.
 - Strava access and refresh tokens are encrypted with AES-256-GCM before D1 persistence. The key, client ID, and client secret are Cloudflare secrets and are never repository or browser values.
 - Strava posting is explicit and manual. Only completed Full Body A/B/C sessions are eligible; connection alone cannot post, cardio is excluded, no background job exists, and a real-activity confirmation is required every time.
+- Strava Worker routing keeps `PWA_ORIGIN` origin-only for strict CORS and uses the separate full `PWA_RETURN_URL` for all OAuth callback outcomes so GitHub Pages returns to `/road-to-12/` rather than the account root.
+- Strava disconnect is backend-confirmed and failure-safe. The Worker revokes access and atomically deletes OAuth, connection/profile/token, upload/activity/error, and provider timestamp records before the PWA removes local provider metadata. Local workouts remain intact, and a deletion tombstone blocks older backups from restoring deleted provider data.
+- Strava-derived profile, token, upload, activity, error, link, and provider-timestamp data is excluded from readiness, coaching, analytics, AI/model input, and agent contexts. `strava-data-boundary.js` enforces this classification before coaching receives history.
 
 - Progress keeps its four headline metrics and measurement actions visible, then groups readiness, body trends, progression, recovery, records, achievements, backup, and workout history into native accessible disclosures. Expanded sections remain open during in-screen rerenders. The Body Measurements route is browser-smoke-tested through its rendered importer and filechooser event. The Wyze import surface is covered by the real non-hidden file input so the iPhone tap reaches the native control directly; it must not depend on a label, `showPicker()`, or simulated click.
 - Wyze Scale exports are parsed locally from user-selected `.xlsx` files. The app shows Import, Update, and Duplicate decisions before confirmation, collapses poorer same-weight readings within ten minutes, and enriches exact stored readings on richer re-import. Deterministic identity uses source, timestamp, and weight. Newer weight-only readings remain body-composition-null, while each dashboard reference shows the newest actual measurement date for its field. Manual measurements, workout history, and progression state remain untouched.
-- Schema 16 adds append-only `bodyMeasurements` with shared `manual`, `wyze-import`, and `apple-health` adapters. Current weight and waist are derived independently from the newest valid canonical values while legacy `weight`, `waist`, and `measurementHistory` remain readable and continue to be written by manual check-ins. The seven-day weight display is a rolling average; daily scale values never affect readiness or exercise progression.
+- Schema 17 retains schema-16 append-only `bodyMeasurements` and adds the Strava deletion tombstone. Current weight and waist remain derived independently from the newest valid canonical values while legacy `weight`, `waist`, and `measurementHistory` remain readable and continue to be written by manual check-ins. The seven-day weight display is a rolling average; daily scale values never affect readiness or exercise progression.
 - An approved session weight is the actual editable set default, not placeholder text, so completing an untouched set records what the user saw. Prior-session guidance remains display-only. Progress may repair historical zero-weight sets only after confirmation and only when the completed snapshot contains the exact captured prescription; each change retains an audit record and unknown weights are never inferred. Smith selected-volume calculations include the known 33 lb bar.
 - Workout-preview exercise rows are interactive, non-mutating entry points to a full exercise guide. The preview detail reuses the reviewed automatic animation, setup and execution guidance, equipment-specific coaching, prescription summary, and historical performance lookup without creating or changing an active workout. Returning restores the preview list position.
 - Program Adherence starts from the saved August 20, 2026 baseline for the current installation. Earlier development-era sessions remain visible in Calendar and history but do not affect the metric. Only resolved completed or missed training sessions on or after the baseline count; an unresolved scheduled workout never lowers adherence.
@@ -112,10 +117,10 @@ See `CODEX_TASKS.md` for priority and acceptance detail.
 - Exercise animations always run automatically in focused workout and enlarged exercise views, with a labelled Pause control that returns to the still storyboard. Older official or licensed references remain recorded and credited in Image Sources & Licenses, but are not repeated beneath the approved Road to 12% demonstration.
 - The Service Worker installs the core shell independently, then warms a separate media cache poster-first with bounded concurrency. Older media remains an offline fallback until the new cache completes without failures. See `EXERCISE_MEDIA_AUDIT.md` for the current manifest and validation procedure.
 
-- Backup format v2 records the actual app version, build, storage schema, authoritative schedule, active session, structured history, cardio, measurements, equipment, approved prescriptions, and provider metadata. Import validates the complete envelope before mutating live state and remains compatible with older name-keyed progression records.
+- Backup format v2 records the actual app version, build, storage schema, authoritative schedule, active session, structured history, cardio, measurements, equipment, approved prescriptions, and permitted provider metadata while connected. Import validates the complete envelope before mutating live state. The newest deletion tombstone is applied before history merge so an older backup cannot resurrect deleted Strava metadata; local workouts and older name-keyed progression records remain compatible.
 - An approved exercise target is captured only when the next session containing that stable exercise ID begins. Base Foundation prescriptions remain separate and immutable; actual sets remain user-editable, and completion records followed, partially followed, overridden, or not attempted.
 
-- Strava Strength Training is planned, not connected. New completed strength sessions preserve stable exercise IDs, prescribed-versus-actual data, discrete set results, timestamps, muscles/equipment, and provider sync metadata. OAuth secrets and tokens must live behind a secure backend/serverless boundary; local workout completion remains authoritative and offline.
+- Strava Strength Training is connected for a one-athlete manual pilot, but the first upload remains blocked by live deletion validation. New completed strength sessions preserve stable exercise IDs, prescribed-versus-actual data, discrete set results, timestamps, and muscles/equipment. OAuth secrets and tokens live only behind the Cloudflare Worker; local workout completion remains authoritative and offline.
 
 - Timed cardio uses a prescribed countdown followed by an explicit Keep Going mode. Extended time is derived from wall-clock timestamps, survives iOS suspension, and automatically prefills the matching cardio block at workout completion.
 - Each meaningful cardio block stores its own planned and actual duration, distance, average heart rate, average pace, incline/resistance, and effort. Prescribed timers are cues rather than hard stops, and prior matching performance is shown for comparison.

@@ -117,7 +117,7 @@ assert.strictEqual(mergedSync.lastError,"Older offline error","merge must preser
 const index=fs.readFileSync(path.join(root,"index.html"),"utf8");
 const app=fs.readFileSync(path.join(root,"app.js"),"utf8");
 const sw=fs.readFileSync(path.join(root,"sw.js"),"utf8");
-assert.match(index,/strava-sync-state\.js[^"]*"><\/script><script src="strava-strength-payload\.js/);
+assert.match(index,/strava-sync-state\.js[^"]*"><\/script><script src="strava-data-boundary\.js[^"]*"><\/script><script src="strava-strength-payload\.js/);
 assert(sw.includes('"./strava-sync-state.js"')&&sw.includes('"./strava-strength-payload.js"'),"Phase 1 modules must remain available offline");
 assert(app.includes("Preview Strava Post")&&app.includes("Preview only — nothing has been sent to Strava."));
 const phaseOnePureModules=[fs.readFileSync(path.join(root,"strava-strength-payload.js"),"utf8"),fs.readFileSync(path.join(root,"strava-sync-state.js"),"utf8")].join("\n");

@@ -1,10 +1,15 @@
 import {decryptToken,encryptToken,randomOpaque,sha256,verifyInstallationSignature} from "./security.mjs";
 import {validateUploadPayload} from "./contract.mjs";
-import {connectionByInstallation,consumeNonce,consumeOauthState,createOauthState,disconnect,installationById,markUploadStarted,markUploadState,nowSeconds,registerInstallation,saveConnection,uploadByExternalId} from "./repository.mjs";
+import {connectionByInstallation,consumeNonce,consumeOauthState,createOauthState,deleteStravaData,installationById,markUploadStarted,markUploadState,nowSeconds,registerInstallation,saveConnection,uploadByExternalId} from "./repository.mjs";
 import {exchangeAuthorizationCode,getValidStravaAccessToken,pollUpload,revokeToken,submitStrengthUpload} from "./strava-api.mjs";
 
 const json=(value,status=200,headers={})=>new Response(JSON.stringify(value),{status,headers:{"Content-Type":"application/json","Cache-Control":"no-store",...headers}});
-const publicError=error=>({code:error?.code||"REQUEST_FAILED",message:error?.status&&error.status<500?error.message:"The Strava request could not be completed."});
+const publicError=error=>({code:error?.code||"REQUEST_FAILED",message:error?.status&&error.status<500?error.message:"The Strava request could not be completed.",...(error?.retryAfter?{retryAfter:error.retryAfter}:{})});
+function pwaReturnUrl(env,status){
+  const target=new URL(env.PWA_RETURN_URL);
+  target.searchParams.set("strava",status);
+  return target.toString();
+}
 function cors(request,env){
   const origin=request.headers.get("Origin");
   if(!origin||origin!==env.PWA_ORIGIN)return {};
@@ -28,14 +33,18 @@ async function handle(request,env){
   if(request.method==="OPTIONS")return new Response(null,{status:204,headers:cors(request,env)});
   if(path==="/api/strava/callback"&&request.method==="GET"){
     const state=url.searchParams.get("state"),code=url.searchParams.get("code"),denied=url.searchParams.get("error");
-    if(!state||denied||!code)return Response.redirect(`${env.PWA_ORIGIN}/?strava=denied`,302);
-    const stateRecord=await consumeOauthState(env.DB,{stateHash:await sha256(state),now:nowSeconds()});
-    if(!stateRecord)throw Object.assign(new Error("Strava connection request expired or was already used."),{code:"INVALID_OAUTH_STATE",status:400});
-    const token=await exchangeAuthorizationCode({env,code});
-    const granted=String(token.scope||"").split(/[ ,]+/).filter(Boolean);
-    if(!granted.includes("activity:write"))throw Object.assign(new Error("Strava activity write permission was not granted."),{code:"MISSING_SCOPE",status:403});
-    await saveConnection(env.DB,{installationId:stateRecord.installation_id,athleteId:String(token.athlete?.id||""),athleteName:[token.athlete?.firstname,token.athlete?.lastname].filter(Boolean).join(" ").trim()||null,accessTokenCipher:await encryptToken(token.access_token,env.TOKEN_ENCRYPTION_KEY),refreshTokenCipher:await encryptToken(token.refresh_token,env.TOKEN_ENCRYPTION_KEY),expiresAt:token.expires_at,scopes:granted.join(" "),connectedAt:nowSeconds()});
-    return Response.redirect(`${env.PWA_ORIGIN}/?strava=connected`,302);
+    if(!state||denied||!code)return Response.redirect(pwaReturnUrl(env,"denied"),302);
+    try{
+      const stateRecord=await consumeOauthState(env.DB,{stateHash:await sha256(state),now:nowSeconds()});
+      if(!stateRecord)throw Object.assign(new Error("Strava connection request expired or was already used."),{code:"INVALID_OAUTH_STATE",status:400});
+      const token=await exchangeAuthorizationCode({env,code});
+      const granted=String(token.scope||"").split(/[ ,]+/).filter(Boolean);
+      if(!granted.includes("activity:write"))throw Object.assign(new Error("Strava activity write permission was not granted."),{code:"MISSING_SCOPE",status:403});
+      await saveConnection(env.DB,{installationId:stateRecord.installation_id,athleteId:String(token.athlete?.id||""),athleteName:[token.athlete?.firstname,token.athlete?.lastname].filter(Boolean).join(" ").trim()||null,accessTokenCipher:await encryptToken(token.access_token,env.TOKEN_ENCRYPTION_KEY),refreshTokenCipher:await encryptToken(token.refresh_token,env.TOKEN_ENCRYPTION_KEY),expiresAt:token.expires_at,scopes:granted.join(" "),connectedAt:nowSeconds()});
+      return Response.redirect(pwaReturnUrl(env,"connected"),302);
+    }catch{
+      return Response.redirect(pwaReturnUrl(env,"error"),302);
+    }
   }
   const rawBody=request.method==="POST"?await request.text():"";
   let body={};
@@ -65,8 +74,8 @@ async function handle(request,env){
     if(connection?.refresh_token_cipher){
       await revokeToken({env,token:await decryptToken(connection.refresh_token_cipher,env.TOKEN_ENCRYPTION_KEY)});
     }
-    await disconnect(env.DB,installation.id,nowSeconds());
-    return json({connected:false});
+    const deleted=await deleteStravaData(env.DB,installation.id),deletedAt=new Date().toISOString();
+    return json({connected:false,deleted:true,deletionConfirmed:true,deletedAt,deletedRecords:deleted});
   }
   if(path==="/api/strava/upload"&&request.method==="POST"){
     const validation=validateUploadPayload(body);

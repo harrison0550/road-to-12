@@ -17,7 +17,7 @@ assert.strictEqual(identities.resolve("Kettlebell Swing").id,"road12.hinge.kettl
 assert.strictEqual(identities.resolve("Kettlebell Around the World").id,"road12.core.kettlebell-around-world");
 assert.strictEqual(identities.resolve("Kettlebell Suitcase Carry").id,"road12.carry.kettlebell-suitcase");
 assert.strictEqual(identities.resolve("Future Movement").id,"road12.exercise.future-movement");
-assert.match(app,/ROAD12_SCHEMA_VERSION=16/);
+assert.match(app,/ROAD12_SCHEMA_VERSION=17/);
 assert.match(app,/version:11,[\s\S]*?exerciseTimings[\s\S]*?schemaVersion=11/);
 [
   "exerciseId:identity.id","basePrescription","prescription:effectivePrescription","setNumber:setIndex+1","repetitions:Number(set?.reps)",

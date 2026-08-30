@@ -4,6 +4,7 @@ This file contains implementation-ready work. Move completed user-visible work t
 
 ## High priority
 
+- [ ] Complete the Strava compliance deployment gate in `STRAVA_COMPLIANCE.md`: the disclosure, complete deletion, support, retention, backup, rate-limit, and AI-boundary changes pass automated tests; deploy them, verify live D1/local deletion with the connected pilot account, and re-audit before the first upload.
 - [ ] Validate Foundation readiness weighting against real A/B/C, recovery, cardio, and measurement history before enabling advancement.
 - [ ] Design the Phase 2 Build plan and explicit milestone review/acceptance flow without activating it.
 
@@ -40,7 +41,7 @@ This file contains implementation-ready work. Move completed user-visible work t
 - [x] Convert eligible completed Full Body A/B/C sessions to a local-only validated Strava structured JSON preview with no network behavior.
 - [x] Implement explicit manual structured JSON submission through the Cloudflare Worker, asynchronous polling, interruption-safe reconciliation, and backend idempotency without configuring or deploying it.
 - [x] Provision the Cloudflare Worker, D1 schema, Strava application credentials, callback, exact-origin CORS, encryption secret, and production browser URL.
-- [ ] Conduct one deliberately confirmed Full Body A/B/C live pilot plus duplicate, reconciliation, disconnect/reconnect, and refresh validation before considering Phase 2B.
+- [ ] After `STRAVA_COMPLIANCE.md` passes, conduct one deliberately confirmed Full Body A/B/C live pilot plus duplicate, reconciliation, disconnect/reconnect, and refresh validation before considering Phase 2B.
 - [ ] Design explicit iFIT/Strava cardio source selection and duplicate protection.
 - [x] Define a progressive-overload recommendation data contract.
 - [ ] Research privacy-preserving optional synchronization.

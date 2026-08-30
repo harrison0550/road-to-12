@@ -1,9 +1,10 @@
 (function(root,factory){
   const stravaSync=root.ROAD12_STRAVA_SYNC||(typeof require!=="undefined"?require("./strava-sync-state.js"):null);
-  const api=factory(stravaSync);
+  const stravaData=root.ROAD12_STRAVA_DATA||(typeof require!=="undefined"?require("./strava-data-boundary.js"):null);
+  const api=factory(stravaSync,stravaData);
   if(typeof module!=="undefined"&&module.exports)module.exports=api;
   root.ROAD12_BACKUP=api;
-})(typeof self!=="undefined"?self:globalThis,function(stravaSync){
+})(typeof self!=="undefined"?self:globalThis,function(stravaSync,stravaData){
   const FORMAT="road12-backup";
   const FORMAT_VERSION=2;
   const STATE_KEYS=Object.freeze([
@@ -12,7 +13,7 @@
     "trainingPhase","measurementHistory","bodyMeasurements","cardioHistory","approvedProgressions","lowerAbsProgram","equipment",
     "attachmentPhotos","workoutSessions","scheduleActivatedDate","adherenceBaselineDate","currentSession","logs",
     "exerciseFeedback","cardioTimers","exerciseTimings","selectedDay","previewDay","coachMode",
-    "tab","step","setupReady","historyView","calendarMonth","workoutScroll"
+    "tab","step","setupReady","historyView","calendarMonth","workoutScroll","stravaDeletion"
   ]);
   const ARRAY_KEYS=Object.freeze(["history","measurementHistory","bodyMeasurements","cardioHistory","workoutSessions"]);
   const OBJECT_KEYS=Object.freeze([
@@ -28,8 +29,9 @@
   const clone=value=>value===undefined?undefined:JSON.parse(JSON.stringify(value));
   const isObject=value=>!!value&&typeof value==="object"&&!Array.isArray(value);
   function create(meta,state,schemaVersion){
+    const safeState=stravaData?.enforce?stravaData.enforce(state):state;
     const snapshot={};
-    STATE_KEYS.forEach(key=>{if(state[key]!==undefined)snapshot[key]=clone(state[key]);});
+    STATE_KEYS.forEach(key=>{if(safeState[key]!==undefined)snapshot[key]=clone(safeState[key]);});
     snapshot.schemaVersion=Number(schemaVersion);
     return {
       format:FORMAT,
@@ -113,7 +115,8 @@
       next[key]=Object.assign({},current[key]||{},source[key]||{});
     });
     next.sessions=Math.max(Number(current.sessions)||0,Number(source.sessions)||0,next.history.length);
-    return next;
+    if(stravaData?.newestMarker)next.stravaDeletion=stravaData.newestMarker(current.stravaDeletion,source.stravaDeletion);
+    return stravaData?.enforce?stravaData.enforce(next,next.stravaDeletion):next;
   }
   return Object.freeze({FORMAT,FORMAT_VERSION,STATE_KEYS,create,validate,merge});
 });

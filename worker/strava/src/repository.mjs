@@ -18,12 +18,13 @@ export async function consumeNonce(db,{installationId,nonce,expiresAt,now}){
   }catch{return false;}
 }
 export async function createOauthState(db,{stateHash,installationId,expiresAt}){
+  await db.prepare("DELETE FROM oauth_states WHERE expires_at < ? OR used_at IS NOT NULL").bind(nowSeconds()).run();
   await db.prepare("INSERT INTO oauth_states (state_hash, installation_id, expires_at, used_at) VALUES (?, ?, ?, NULL)").bind(stateHash,installationId,expiresAt).run();
 }
 export async function consumeOauthState(db,{stateHash,now}){
   const record=await db.prepare("SELECT * FROM oauth_states WHERE state_hash = ?").bind(stateHash).first();
   if(!record||record.used_at||record.expires_at<now)return null;
-  const result=await db.prepare("UPDATE oauth_states SET used_at = ? WHERE state_hash = ? AND used_at IS NULL").bind(now,stateHash).run();
+  const result=await db.prepare("DELETE FROM oauth_states WHERE state_hash = ? AND used_at IS NULL").bind(stateHash).run();
   return result?.meta?.changes===1?record:null;
 }
 export async function connectionByInstallation(db,installationId){return db.prepare("SELECT * FROM strava_connections WHERE installation_id = ?").bind(installationId).first();}
@@ -41,8 +42,14 @@ export async function updateConnectionTokens(db,record){
     .bind(record.accessTokenCipher,record.refreshTokenCipher,record.expiresAt,record.installationId).run();
 }
 export async function requireReauth(db,installationId){await db.prepare("UPDATE strava_connections SET requires_reauth = 1 WHERE installation_id = ?").bind(installationId).run();}
-export async function disconnect(db,installationId,now){
-  await db.prepare("UPDATE strava_connections SET access_token_cipher = NULL, refresh_token_cipher = NULL, access_token_expires_at = NULL, disconnected_at = ?, requires_reauth = 0 WHERE installation_id = ?").bind(now,installationId).run();
+export async function deleteStravaData(db,installationId){
+  if(typeof db.batch!=="function")throw Object.assign(new Error("Atomic Strava data deletion is unavailable."),{code:"DELETION_UNAVAILABLE",status:500});
+  const results=await db.batch([
+    db.prepare("DELETE FROM oauth_states WHERE installation_id = ?").bind(installationId),
+    db.prepare("DELETE FROM strava_uploads WHERE installation_id = ?").bind(installationId),
+    db.prepare("DELETE FROM strava_connections WHERE installation_id = ?").bind(installationId)
+  ]);
+  return {oauthStates:Number(results?.[0]?.meta?.changes)||0,uploads:Number(results?.[1]?.meta?.changes)||0,connections:Number(results?.[2]?.meta?.changes)||0};
 }
 export async function uploadByExternalId(db,installationId,externalId){return db.prepare("SELECT * FROM strava_uploads WHERE installation_id = ? AND external_id = ?").bind(installationId,externalId).first();}
 export async function markUploadStarted(db,{installationId,externalId,uploadId,state,now}){

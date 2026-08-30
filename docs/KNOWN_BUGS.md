@@ -17,6 +17,15 @@ No confirmed production behavior defects are currently documented.
 
 ## Resolved
 
+### BUG-026 — Strava OAuth returns to the GitHub Pages account root
+
+- Status: Resolved in the Strava Phase 2A Worker deployment on August 30, 2026
+- Severity: High
+- Area: Strava OAuth / Cloudflare Worker
+- Report: Authorizing Strava stored the connection but redirected to `https://harrison0550.github.io/`, which is not the Road to 12% application path and returns a GitHub Pages 404.
+- Resolution: Retain `PWA_ORIGIN=https://harrison0550.github.io` exclusively for exact-origin CORS and add `PWA_RETURN_URL=https://harrison0550.github.io/road-to-12/` for successful, denied, and failed OAuth callback redirects.
+- Regression test: `scripts/test-strava-worker-routes.mjs`
+
 ### BUG-024 — Smith single-leg squat animation and setup are incorrect
 
 - Status: Resolved in v13.2.0 maintenance build 2026.08.27.1

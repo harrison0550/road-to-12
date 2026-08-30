@@ -5,7 +5,10 @@ const API_BASE="https://www.strava.com/api/v3";
 async function parsed(response){
   let data={};
   try{data=await response.json();}catch{}
-  if(!response.ok)throw Object.assign(new Error("Strava rejected the request."),{code:"STRAVA_REJECTED",status:response.status,providerStatus:data?.status||null});
+  if(!response.ok){
+    const retryAfter=Number(response.headers.get("Retry-After"))||null;
+    throw Object.assign(new Error(response.status===429?"Strava rate limit reached. Try again later.":"Strava rejected the request."),{code:response.status===429?"STRAVA_RATE_LIMITED":"STRAVA_REJECTED",status:response.status,providerStatus:data?.status||null,retryAfter,rateLimit:response.headers.get("X-RateLimit-Limit")||null,rateUsage:response.headers.get("X-RateLimit-Usage")||null});
+  }
   return data;
 }
 function tokenBody(values){const body=new URLSearchParams();Object.entries(values).forEach(([key,value])=>body.set(key,String(value)));return body;}
@@ -47,5 +50,10 @@ export async function pollUpload({accessToken,uploadId,fetchImpl=fetch}){
 export async function revokeToken({env,token,fetchImpl=fetch}){
   const credentials=btoa(`${env.STRAVA_CLIENT_ID}:${env.STRAVA_CLIENT_SECRET}`);
   const response=await fetchImpl("https://www.strava.com/oauth/revoke",{method:"POST",headers:{Authorization:`Basic ${credentials}`,"Content-Type":"application/x-www-form-urlencoded"},body:tokenBody({token,token_type_hint:"refresh_token"})});
-  if(!response.ok)throw Object.assign(new Error("Strava disconnect could not be confirmed."),{code:"REVOCATION_FAILED",status:response.status});
+  if(response.status===401)return {revoked:false,alreadyUnavailable:true};
+  if(!response.ok){
+    const retryAfter=Number(response.headers.get("Retry-After"))||null;
+    throw Object.assign(new Error(response.status===429?"Strava rate limit reached. Try disconnecting again later.":"Strava disconnect could not be confirmed."),{code:response.status===429?"STRAVA_RATE_LIMITED":"REVOCATION_FAILED",status:response.status,retryAfter});
+  }
+  return {revoked:true,alreadyUnavailable:false};
 }

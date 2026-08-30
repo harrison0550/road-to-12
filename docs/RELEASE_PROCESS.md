@@ -144,7 +144,9 @@ The Strava Worker is a separate security-sensitive deployment. A normal GitHub P
 - Confirm the callback domain in the Strava application.
 - Run the Worker security, route, idempotency, polling, privacy, and disconnect tests.
 - Verify that the public PWA bundle contains no provider token or client secret.
-- Run one deliberate manual pilot before considering any automatic behavior.
+- Verify the deployed disconnect path with an authorized pilot account: revoke access, confirm atomic deletion of OAuth/connection/upload/activity/error data in D1, confirm local activity links and provider metadata are removed, preserve Road to 12% workouts, and prove an older backup cannot restore deleted data.
+- Confirm the pre-OAuth disclosure, support/deletion path, data-retention rules, AI exclusion, and sanitized `429` behavior against `STRAVA_COMPLIANCE.md`.
+- Run one deliberate manual pilot only after the compliance gate passes, and stop before considering any automatic behavior.
 
 Document Worker and PWA deployment separately, including removal instructions. Rotating the static PWA build/cache remains required when its public Worker URL or browser client changes.
 

@@ -63,7 +63,8 @@ class FakeD1{
         if(normalized.startsWith("DELETE FROM request_nonces")){for(const [key,value] of db.nonces)if(value.expires_at<args[0])db.nonces.delete(key);return {meta:{changes:1}};}
         if(normalized.startsWith("INSERT INTO request_nonces")){const key=`${args[0]}|${args[1]}`;if(db.nonces.has(key))throw new Error("UNIQUE");db.nonces.set(key,{installation_id:args[0],nonce:args[1],expires_at:args[2]});return {meta:{changes:1}};}
         if(normalized.startsWith("INSERT INTO oauth_states")){db.states.set(args[0],{state_hash:args[0],installation_id:args[1],expires_at:args[2],used_at:null});return {meta:{changes:1}};}
-        if(normalized.startsWith("UPDATE oauth_states")){const record=db.states.get(args[1]);if(!record||record.used_at)return {meta:{changes:0}};record.used_at=args[0];return {meta:{changes:1}};}
+        if(normalized.startsWith("DELETE FROM oauth_states WHERE expires_at")){let changes=0;for(const [key,row] of db.states)if(row.expires_at<args[0]||row.used_at!==null){db.states.delete(key);changes++;}return {meta:{changes}};}
+        if(normalized.startsWith("DELETE FROM oauth_states WHERE state_hash")){const record=db.states.get(args[0]);if(!record||record.used_at!==null)return {meta:{changes:0}};db.states.delete(args[0]);return {meta:{changes:1}};}
         if(normalized.startsWith("INSERT INTO strava_uploads")){const key=`${args[0]}|${args[1]}`,old=db.uploads.get(key)||{};db.uploads.set(key,{...old,installation_id:args[0],external_id:args[1],upload_id:args[2],activity_id:old.activity_id||null,state:args[3],last_attempt_at:args[4],last_polled_at:old.last_polled_at||null,last_error:null,uploaded_at:old.uploaded_at||null});return {meta:{changes:1}};}
         if(normalized.startsWith("UPDATE strava_uploads")){const record=db.uploads.get(`${args[6]}|${args[7]}`);record.state=args[0];if(args[1])record.activity_id=args[1];record.last_error=args[2];if(args[3])record.uploaded_at=args[4];if(args[5])record.last_polled_at=args[5];return {meta:{changes:1}};}
         throw new Error(`Unhandled SQL: ${normalized}`);
@@ -98,6 +99,7 @@ assert.equal(capturedUpload.options.body.get("sport_type"),"WeightTraining");
 assert.equal(capturedUpload.options.body.get("external_id"),"road12-session-phase2a");
 assert.equal(JSON.parse(await capturedUpload.options.body.get("file").text()).version,"1.0");
 await assert.rejects(()=>submitStrengthUpload({accessToken:"access",payload:validPayload(),fetchImpl:async()=>new Response(JSON.stringify({message:"bad"}),{status:400,headers:{"Content-Type":"application/json"}})}),error=>error.code==="STRAVA_REJECTED");
+await assert.rejects(()=>submitStrengthUpload({accessToken:"access",payload:validPayload(),fetchImpl:async()=>new Response(JSON.stringify({message:"limited"}),{status:429,headers:{"Content-Type":"application/json","Retry-After":"30","X-RateLimit-Limit":"200,2000","X-RateLimit-Usage":"200,500"}})}),error=>error.code==="STRAVA_RATE_LIMITED"&&error.retryAfter===30&&error.rateLimit==="200,2000");
 assert.equal((await pollUpload({accessToken:"access",uploadId:"upload-2",fetchImpl:async()=>new Response(JSON.stringify({activity_id:123}),{status:200,headers:{"Content-Type":"application/json"}})})).activity_id,123);
 
 const tokenDb={prepare(){return {bind(){return {async run(){return {meta:{changes:1}};}};}};}};
@@ -116,7 +118,11 @@ const app=fs.readFileSync(path.join(root,"app.js"),"utf8"),client=fs.readFileSyn
 assert(index.includes("strava-config.js")&&index.includes("strava-client.js"));
 assert(sw.includes('"./strava-config.js"')&&sw.includes('"./strava-client.js"'));
 assert(app.includes("Connect Strava")&&app.includes("Post to Strava")&&app.includes("This will create a real activity on Strava.")&&app.includes("View on Strava"));
-assert(app.includes("Post unavailable while offline")&&app.includes("Automatic sync and cardio posting are off."));
+assert(app.includes("Post unavailable while offline")&&app.includes("Automatic sync, activity reading, and cardio posting are off."));
+assert(app.includes("Strava &amp; Privacy")&&app.includes("I understand what is stored")&&app.includes("Road to 12% support page"),"privacy and support disclosure must be visible before OAuth");
+assert(app.includes("applyConfirmedStravaDeletion(result)")&&app.includes("if(!result?.deleted||!result?.deletionConfirmed"),"local deletion must wait for backend confirmation");
+assert(app.includes("Historical reposting is disabled"),"deleted historical workouts must not become repost candidates");
+assert(app.includes("state.history.map(window.ROAD12_STRAVA_DATA.stripSession)"),"Strava provider metadata must be removed before coaching analysis");
 assert(!/setInterval\([^)]*strava|sync on workout completion/i.test(app));
 assert(!backup.includes("road12-strava-installation-v1"));
 assert(!/STRAVA_CLIENT_SECRET|refresh_token|access_token/.test(client),"browser client must not contain provider credential fields");
