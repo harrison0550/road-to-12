@@ -23,7 +23,7 @@ This is an engineering compliance review, not legal advice. Passing automated te
 - Explicit manual posting of completed Full Body A/B/C sessions only.
 - No automatic sync, activity reading, feed replication, background queue, or cardio posting.
 - Browser requests use a per-installation P-256 signing key, bounded timestamps, and one-time nonces.
-- OAuth uses a one-time, installation-bound state that expires after ten minutes and is deleted when consumed. Expired or abandoned state is purged during the next connection attempt.
+- OAuth uses a one-time, installation-bound state that expires after ten minutes and is deleted when consumed. Every Worker request purges expired or abandoned state.
 - Provider access and refresh tokens are stored only by the Worker and encrypted with AES-256-GCM.
 - The structured-strength payload uses `POST https://www.strava.com/api/v3/uploads`, `sport_type=WeightTraining`, `data_type=json`, and a deterministic `external_id`.
 
@@ -59,7 +59,7 @@ The payload excludes body-fat goals, body measurements, RIR, discomfort, form fe
 
 ### Temporary and expiring
 
-- OAuth state: ten-minute maximum, one-time use, deleted on callback and purged when expired;
+- OAuth state: ten-minute maximum, one-time use, deleted on callback, with expired rows purged on every Worker request;
 - request nonces: short-lived replay protection, consumed once and removed when expired;
 - rate-limit response metadata: request-local only and not persisted.
 

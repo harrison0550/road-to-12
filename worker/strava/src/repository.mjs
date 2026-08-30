@@ -27,6 +27,10 @@ export async function consumeOauthState(db,{stateHash,now}){
   const result=await db.prepare("DELETE FROM oauth_states WHERE state_hash = ? AND used_at IS NULL").bind(stateHash).run();
   return result?.meta?.changes===1?record:null;
 }
+export async function purgeExpiredOauthStates(db,now){
+  const result=await db.prepare("DELETE FROM oauth_states WHERE expires_at < ? OR used_at IS NOT NULL").bind(now).run();
+  return Number(result?.meta?.changes)||0;
+}
 export async function connectionByInstallation(db,installationId){return db.prepare("SELECT * FROM strava_connections WHERE installation_id = ?").bind(installationId).first();}
 export async function saveConnection(db,record){
   await db.prepare(`INSERT INTO strava_connections

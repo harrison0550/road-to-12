@@ -35,7 +35,7 @@ The Phase 2A pilot resources were provisioned on August 30, 2026. Secret values 
 
 Except for the OAuth callback, privileged requests use a timestamped, nonce-bound P-256 installation signature. The callback uses a one-time, installation-bound, ten-minute OAuth state.
 
-The Worker stores connection credentials and upload state only while required for the connected, manual-only pilot. OAuth state is single-use and deleted on callback; expired state is purged on the next connection attempt. Request nonces are single-use and short-lived. Rate-limit headers are request-local and are not persisted.
+The Worker stores connection credentials and upload state only while required for the connected, manual-only pilot. OAuth state is single-use and deleted on callback; every Worker request purges expired state. Request nonces are single-use and short-lived. Rate-limit headers are request-local and are not persisted.
 
 `POST /api/strava/disconnect` revokes the provider token and then uses one D1 batch to delete OAuth state, the entire connection/profile/token row, and every upload/activity/error row for the installation. It returns `deletionConfirmed: true` only after that batch succeeds. A provider `401` is treated as already revoked. Any other revoke or database failure returns an error and does not claim deletion.
 

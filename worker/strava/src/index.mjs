@@ -1,6 +1,6 @@
 import {decryptToken,encryptToken,randomOpaque,sha256,verifyInstallationSignature} from "./security.mjs";
 import {validateUploadPayload} from "./contract.mjs";
-import {connectionByInstallation,consumeNonce,consumeOauthState,createOauthState,deleteStravaData,installationById,markUploadStarted,markUploadState,nowSeconds,registerInstallation,saveConnection,uploadByExternalId} from "./repository.mjs";
+import {connectionByInstallation,consumeNonce,consumeOauthState,createOauthState,deleteStravaData,installationById,markUploadStarted,markUploadState,nowSeconds,purgeExpiredOauthStates,registerInstallation,saveConnection,uploadByExternalId} from "./repository.mjs";
 import {exchangeAuthorizationCode,getValidStravaAccessToken,pollUpload,revokeToken,submitStrengthUpload} from "./strava-api.mjs";
 
 const json=(value,status=200,headers={})=>new Response(JSON.stringify(value),{status,headers:{"Content-Type":"application/json","Cache-Control":"no-store",...headers}});
@@ -31,6 +31,7 @@ const uploadResponse=record=>({externalId:record.external_id,state:record.state,
 async function handle(request,env){
   const url=new URL(request.url),path=url.pathname;
   if(request.method==="OPTIONS")return new Response(null,{status:204,headers:cors(request,env)});
+  await purgeExpiredOauthStates(env.DB,nowSeconds());
   if(path==="/api/strava/callback"&&request.method==="GET"){
     const state=url.searchParams.get("state"),code=url.searchParams.get("code"),denied=url.searchParams.get("error");
     if(!state||denied||!code)return Response.redirect(pwaReturnUrl(env,"denied"),302);

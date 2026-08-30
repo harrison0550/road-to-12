@@ -58,6 +58,10 @@ assert.equal(response.status,401);
 
 response=await worker.fetch(await signedRequest("/api/strava/status"),env);
 assert.deepEqual(await response.json(),{connected:false,requiresReauth:false,athleteName:null,connectedAt:null});
+db.states.set("expired-other-installation",{state_hash:"expired-other-installation",installation_id:"other-installation",expires_at:0,used_at:null});
+response=await worker.fetch(await signedRequest("/api/strava/status"),env);
+assert.equal(response.status,200);
+assert.equal(db.states.has("expired-other-installation"),false,"every Worker request must purge expired OAuth state");
 response=await worker.fetch(new Request(`${workerOrigin}/api/strava/status`,{headers:{Origin:`${pwaOrigin}/road-to-12/`}}),env);
 assert.equal(response.status,403,"CORS must compare the exact origin without a pathname");
 response=await worker.fetch(await signedRequest("/api/strava/connect",{method:"POST",body:{}}),env);
