@@ -14,6 +14,8 @@ The public title is exactly `Andy's Home Gym — Full Body A`, B, or C. The gene
 
 Historical Full Body sessions may be previewed only when their saved completion state and actual working sets are sufficient. Preview never changes or rewrites historical records, and no historical workout is automatically posted.
 
+After the compliance disconnect, tombstoned sessions remain blocked. The explicitly approved first pilot permits only the newest eligible completed Full Body session to be re-approved locally after renewed OAuth consent. The other historical sessions remain blocked, and consuming this one approval prevents any later historical candidate. The deterministic external ID remains `road12-<session ID>`; the duplicate-verification action asks the Worker for the same ID and must reuse the stored result without a second provider submission.
+
 ## Verified Strava format
 
 Strava's current Uploads API accepts structured JSON for `WeightTraining`, `HIIT`, `Workout`, and `Crossfit`. A workout includes start time, UTC offset, elapsed time, and a required sets collection. Each set can carry an exercise type, repetitions, kilograms, duration, and start time. Upload processing is asynchronous and supports an external ID for duplicate identification.

@@ -157,6 +157,8 @@ Road to 12% does not sell, license, syndicate, disclose, or proxy Strava data to
 
 The compliance gate is PASS. A first manual Full Body A/B/C upload may be attempted only after the user reconnects through the new disclosure, previews the exact payload, and gives a new explicit confirmation for that specific activity. Stop before creating it.
 
+The user approved the first pilot on August 30, 2026. Build `2026.08.30.3` limits that approval to the newest eligible tombstoned session, records only local consent/consumption metadata, and keeps every other historical session blocked. This exception restores no deleted provider data and changes no scope, polling, cardio, bulk-posting, or automatic-sync rule.
+
 ## Multi-user requirements
 
 Before allowing another athlete, confirm the registered capacity/tier and any subscription or review requirement in the live Strava API settings; add account-level identity binding rather than relying only on a device installation; publish a complete privacy policy and support process; handle off-app revocation/deletion; document subprocessors; and re-audit access, deletion, retention, branding, and rate-limit behavior.

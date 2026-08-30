@@ -11,7 +11,7 @@
     ]),
     safeLocalNonStrava:Object.freeze([
       "road12SessionId","workoutName","exercises","sets","repetitions","locallyLoggedWeights",
-      "road12Timestamps","progressionHistory","coachingFeedback","locallyGeneratedExternalId","deletionTombstone"
+      "road12Timestamps","progressionHistory","coachingFeedback","locallyGeneratedExternalId","deletionTombstone","manualPilotApproval"
     ]),
     temporaryExpiring:Object.freeze(["oauthState","requestNonce","rateLimitMetadata"])
   });
@@ -35,7 +35,8 @@
     return {
       version:1,
       deletedAt:new Date(marker.deletedAt).toISOString(),
-      blockedSessionIds:[...new Set((marker.blockedSessionIds||[]).map(String).filter(Boolean))]
+      blockedSessionIds:[...new Set((marker.blockedSessionIds||[]).map(String).filter(Boolean))],
+      pilotConsumedSessionIds:[...new Set((marker.pilotConsumedSessionIds||[]).map(String).filter(Boolean))]
     };
   }
   function newestMarker(a,b){
@@ -43,12 +44,16 @@
     if(!first)return second;
     if(!second)return first;
     const newest=time(second.deletedAt)>time(first.deletedAt)?second:first;
-    return {version:1,deletedAt:newest.deletedAt,blockedSessionIds:[...new Set([...first.blockedSessionIds,...second.blockedSessionIds])]};
+    return {version:1,deletedAt:newest.deletedAt,blockedSessionIds:[...new Set([...first.blockedSessionIds,...second.blockedSessionIds])],pilotConsumedSessionIds:[...new Set([...first.pilotConsumedSessionIds,...second.pilotConsumedSessionIds])]};
   }
-  function shouldStrip(session,marker){
+  function shouldStrip(session,marker,pilotApproval){
     const record=session?.externalSync?.strava;
     if(!record||!marker)return false;
-    if(marker.blockedSessionIds.includes(String(session.id||"")))return true;
+    if(marker.blockedSessionIds.includes(String(session.id||""))){
+      const approved=pilotApproval?.sessionId===String(session.id||"")&&time(pilotApproval.approvedAt)>time(marker.deletedAt);
+      if(!approved||providerRecordTime(record)<time(pilotApproval.approvedAt))return true;
+      return false;
+    }
     const recordedAt=providerRecordTime(record);
     return !recordedAt||recordedAt<=time(marker.deletedAt);
   }
@@ -56,8 +61,8 @@
     const next=clone(state||{}),normalized=normalizeMarker(marker);
     if(!normalized)return next;
     next.stravaDeletion=normalized;
-    next.history=(next.history||[]).map(session=>shouldStrip(session,normalized)?stripSession(session):session);
-    if(next.currentSession&&shouldStrip(next.currentSession,normalized))next.currentSession=stripSession(next.currentSession);
+    next.history=(next.history||[]).map(session=>shouldStrip(session,normalized,next.stravaPilotApproval)?stripSession(session):session);
+    if(next.currentSession&&shouldStrip(next.currentSession,normalized,next.stravaPilotApproval))next.currentSession=stripSession(next.currentSession);
     return next;
   }
   function clearAfterConfirmedDisconnect(state,deletedAt=new Date().toISOString()){
@@ -69,5 +74,14 @@
     if(next.currentSession)next.currentSession=stripSession(next.currentSession);
     return next;
   }
-  return Object.freeze({CLASSIFICATION,providerRecordTime,stripSession,normalizeMarker,newestMarker,enforce,clearAfterConfirmedDisconnect});
+  function manualPilotCandidate(state,isEligible){
+    if(state?.stravaPilotApproval?.consumedAt||typeof isEligible!=="function")return null;
+    const marker=normalizeMarker(state?.stravaDeletion);
+    if(marker?.pilotConsumedSessionIds?.length)return null;
+    const blocked=new Set((marker?.blockedSessionIds||[]).map(String));
+    return (state?.history||[])
+      .filter(session=>blocked.has(String(session?.id||""))&&isEligible(session))
+      .sort((a,b)=>time(b?.completedAt||b?.endedAt||b?.date)-time(a?.completedAt||a?.endedAt||a?.date))[0]?.id||null;
+  }
+  return Object.freeze({CLASSIFICATION,providerRecordTime,stripSession,normalizeMarker,newestMarker,enforce,clearAfterConfirmedDisconnect,manualPilotCandidate});
 });

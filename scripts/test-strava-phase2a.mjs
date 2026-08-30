@@ -122,6 +122,8 @@ assert(app.includes("Post unavailable while offline")&&app.includes("Automatic s
 assert(app.includes("Strava &amp; Privacy")&&app.includes("I understand what is stored")&&app.includes("Road to 12% support page"),"privacy and support disclosure must be visible before OAuth");
 assert(app.includes("applyConfirmedStravaDeletion(result)")&&app.includes("if(!result?.deleted||!result?.deletionConfirmed"),"local deletion must wait for backend confirmation");
 assert(app.includes("Historical reposting is disabled"),"deleted historical workouts must not become repost candidates");
+assert(app.includes("Use for first Strava pilot")&&app.includes("firstStravaPilotCandidateId"),"only one explicitly re-approved historical pilot must be available");
+assert(app.includes("Verify duplicate protection")&&app.includes("existing Strava activity was reused and no second upload was submitted"),"the manual pilot must expose a no-resubmit idempotency check");
 assert(app.includes("state.history.map(window.ROAD12_STRAVA_DATA.stripSession)"),"Strava provider metadata must be removed before coaching analysis");
 assert(!/setInterval\([^)]*strava|sync on workout completion/i.test(app));
 assert(!backup.includes("road12-strava-installation-v1"));

@@ -113,7 +113,7 @@ if (incompatibleKeys.length) {
   fail(`unexpected versioned storage key(s): ${incompatibleKeys.join(", ")}`);
 }
 
-if (!/const ROAD12_SCHEMA_VERSION=17;/.test(app)) {
+if (!/const ROAD12_SCHEMA_VERSION=18;/.test(app)) {
   fail("app.js does not expose the current progression-data migration schema");
 }
 if (!/version:4,[\s\S]*?bumperPlates:true[\s\S]*?value\.schemaVersion=4;/.test(app)) {

@@ -195,7 +195,7 @@ if(smithSquatTemplate){
 }
 /* Versioned storage boundary. Migrations must remain ordered and idempotent. */
 const ROAD12_STORAGE_KEY="road12v5";
-const ROAD12_SCHEMA_VERSION=17;
+const ROAD12_SCHEMA_VERSION=18;
 const ADHERENCE_RESET_DATE="2026-08-20";
 const ROAD12_MIGRATIONS=[
   {
@@ -382,6 +382,15 @@ const ROAD12_MIGRATIONS=[
       value.stravaDeletion=window.ROAD12_STRAVA_DATA.normalizeMarker(value.stravaDeletion);
       value.schemaVersion=17;
       return window.ROAD12_STRAVA_DATA.enforce(value,value.stravaDeletion);
+    }
+  },
+  {
+    version:18,
+    up(value){
+      const approval=value.stravaPilotApproval;
+      value.stravaPilotApproval=approval&&approval.sessionId?{sessionId:String(approval.sessionId),approvedAt:approval.approvedAt||null,consumedAt:approval.consumedAt||null}:null;
+      value.schemaVersion=18;
+      return value;
     }
   }
 ];
@@ -1444,7 +1453,7 @@ function stravaPreviewSetText(set){
  return set.externalLoadLb===null?work:`${work} @ ${set.externalLoadLb} lb`;
 }
 function openStravaPreview(session){
- const preview=window.ROAD12_STRAVA_PAYLOAD.buildStravaStrengthPayload(session);
+ const preview=window.ROAD12_STRAVA_PAYLOAD.buildStravaStrengthPayload(stravaPayloadSession(session));
  const transportPreview={name:preview.name,sport_type:preview.sportType,external_id:preview.externalId,data_type:preview.dataType,file:preview.file};
  const exerciseRows=preview.exercises.filter(exercise=>exercise.sets.length).map(exercise=>`<article class="strava-preview-exercise">
    <div><h3>${escapeAdaptiveText(exercise.displayName)}</h3><span class="${exercise.mappingStatus}">${exercise.mappingStatus==="mapped"?escapeAdaptiveText(exercise.stravaExerciseType):"Unmapped — will require fallback"}</span></div>
@@ -1466,16 +1475,37 @@ function openStravaPreview(session){
 function stravaSessionSync(session){
  return session.externalSync?.strava||{status:"NOT_SYNCED",externalId:`road12-${session.id}`,uploadId:null,activityId:null,uploadedAt:null,lastAttemptAt:null,lastError:null};
 }
-function stravaHistoricalPostBlocked(session){return (state.stravaDeletion?.blockedSessionIds||[]).includes(String(session.id||""));}
+function stravaPayloadSession(session){
+ const copy=JSON.parse(JSON.stringify(session));
+ copy.externalSync=copy.externalSync||{};
+ copy.externalSync.strava=copy.externalSync.strava||stravaSessionSync(session);
+ return copy;
+}
+function firstStravaPilotCandidateId(){return window.ROAD12_STRAVA_DATA.manualPilotCandidate(state,window.ROAD12_STRAVA_PAYLOAD.isSessionStravaEligible);}
+function stravaHistoricalPostBlocked(session){
+ const id=String(session.id||""),blocked=(state.stravaDeletion?.blockedSessionIds||[]).includes(id);
+ if(!blocked)return false;
+ const approval=state.stravaPilotApproval;
+ if(approval?.sessionId!==id)return true;
+ if(session.externalSync?.strava?.status==="SYNCED"&&session.externalSync.strava.activityId)return false;
+ return !(firstStravaPilotCandidateId()===id&&!approval.consumedAt);
+}
+function consumeStravaPilotApproval(session,record){
+ if(record?.status!=="SYNCED"||state.stravaPilotApproval?.sessionId!==String(session.id||"")||state.stravaPilotApproval.consumedAt)return;
+ state.stravaPilotApproval.consumedAt=new Date().toISOString();
+ state.stravaDeletion=window.ROAD12_STRAVA_DATA.normalizeMarker(state.stravaDeletion);
+ state.stravaDeletion.pilotConsumedSessionIds=[...new Set([...(state.stravaDeletion.pilotConsumedSessionIds||[]),String(session.id)])];
+}
 function saveStravaBackendState(session,result){
  session.externalSync=session.externalSync||{};
  session.externalSync.strava=window.ROAD12_STRAVA_SYNC.reconcile(stravaSessionSync(session),result);
+ consumeStravaPilotApproval(session,session.externalSync.strava);
  save();
  return session.externalSync.strava;
 }
 function stravaActivityUrl(activityId){return `https://www.strava.com/activities/${encodeURIComponent(activityId)}`;}
 function stravaSessionStatusMarkup(record,connected){
- if(record.status==="SYNCED"&&record.activityId)return `<div class="strava-sync-result synced"><strong>Posted to Strava</strong><a href="${stravaActivityUrl(record.activityId)}" target="_blank" rel="noopener">View on Strava</a></div>`;
+ if(record.status==="SYNCED"&&record.activityId)return `<div class="strava-sync-result synced"><strong>Posted to Strava</strong><a href="${stravaActivityUrl(record.activityId)}" target="_blank" rel="noopener">View on Strava</a><button class="secondary" id="verifyStravaDuplicate" type="button">Verify duplicate protection</button></div>`;
  if(record.status==="SYNCING"||record.status==="QUEUED")return '<div class="strava-sync-result processing" role="status"><strong>Processing on Strava…</strong><span>The activity ID will appear after Strava finishes.</span></div>';
  if(record.status==="FAILED")return `<div class="strava-sync-result failed" role="alert"><strong>Strava upload failed</strong><span>${escapeAdaptiveText(record.lastError||"The activity could not be processed.")}</span>${connected?'<button class="secondary" id="retryStravaPost" type="button">Try Again</button>':""}</div>`;
  if(connected&&navigator.onLine)return '<button class="primary" id="postToStrava" type="button">Post to Strava</button>';
@@ -1505,7 +1535,7 @@ async function pollStravaUpload(session,remainingPolls=40){
  }
 }
 function confirmStravaUpload(session){
- const preview=window.ROAD12_STRAVA_PAYLOAD.buildStravaStrengthPayload(session);
+ const preview=window.ROAD12_STRAVA_PAYLOAD.buildStravaStrengthPayload(stravaPayloadSession(session));
  const dialog=v42Dialog(`<span class="pill">REAL STRAVA ACTIVITY</span><h2>Post ${escapeAdaptiveText(preview.name)}?</h2>
    <p><strong>This will create a real activity on Strava.</strong></p>
    <div class="strava-preview-counts"><span>Exercises mapped <strong>${preview.summary.mappedExercises}</strong></span><span>Completed sets <strong>${preview.summary.completedSets}</strong></span><span>Warnings <strong>${preview.warnings.length}</strong></span></div>
@@ -1524,6 +1554,7 @@ function confirmStravaUpload(session){
      let queued=stravaSessionSync(session);
      if(queued.status==="QUEUED")queued=window.ROAD12_STRAVA_SYNC.transition(queued,"SYNCING",{uploadId:result.uploadId||queued.uploadId,lastAttemptAt:new Date().toISOString()});
      session.externalSync.strava=window.ROAD12_STRAVA_SYNC.reconcile(queued,result);
+     consumeStravaPilotApproval(session,session.externalSync.strava);
      save();await renderStravaSessionActions(session,false);
      if(session.externalSync.strava.status==="SYNCING")setTimeout(()=>pollStravaUpload(session),1500);
    }catch(error){
@@ -1537,7 +1568,16 @@ function confirmStravaUpload(session){
 async function renderStravaSessionActions(session,reconcile=true){
  const container=document.querySelector("#stravaSessionActions");
  if(!container)return;
- if(stravaHistoricalPostBlocked(session)){container.innerHTML='<p class="muted">Strava data for this historical workout was deleted when the connection was removed. Historical reposting is disabled.</p>';return;}
+ if(stravaHistoricalPostBlocked(session)){
+   const candidate=String(firstStravaPilotCandidateId()||"")===String(session.id||"");
+   container.innerHTML=candidate?'<p class="muted">This workout\'s prior Strava metadata was deleted. Only this newest eligible session may be re-approved for the one-session manual pilot.</p><button class="secondary" id="approveStravaPilot" type="button">Use for first Strava pilot</button>':'<p class="muted">Strava data for this historical workout was deleted when the connection was removed. Historical reposting is disabled.</p>';
+   container.querySelector("#approveStravaPilot")?.addEventListener("click",()=>{
+     if(!confirm("Use this one completed workout for the approved first Strava pilot? No other historical workout will be enabled."))return;
+     state.stravaPilotApproval={sessionId:String(session.id),approvedAt:new Date().toISOString(),consumedAt:null};
+     save();renderStravaSessionActions(session,false);
+   });
+   return;
+ }
  const client=window.ROAD12_STRAVA_CLIENT;
  if(!client?.configured()){
    container.innerHTML='<p class="muted">Manual Strava posting is not configured on this build. Local preview remains available.</p>';
@@ -1550,6 +1590,16 @@ async function renderStravaSessionActions(session,reconcile=true){
  container.innerHTML=stravaSessionStatusMarkup(record,connection.connected);
  container.querySelector("#postToStrava")?.addEventListener("click",()=>confirmStravaUpload(session));
  container.querySelector("#retryStravaPost")?.addEventListener("click",()=>confirmStravaUpload(session));
+ container.querySelector("#verifyStravaDuplicate")?.addEventListener("click",async event=>{
+   event.currentTarget.disabled=true;
+   const preview=window.ROAD12_STRAVA_PAYLOAD.buildStravaStrengthPayload(stravaPayloadSession(session));
+   try{
+     const result=await client.upload({name:preview.name,sportType:preview.sportType,externalId:preview.externalId,dataType:preview.dataType,file:preview.file});
+     const passed=result?.state==="SYNCED"&&String(result.activityId||"")===String(record.activityId||"");
+     stravaConnectionNotice=passed?"Duplicate protection confirmed: the existing Strava activity was reused and no second upload was submitted.":"Duplicate protection could not be confirmed.";
+     const note=document.createElement("p");note.className=`strava-connection-status ${passed?"connected":"not-connected"}`;note.setAttribute("role",passed?"status":"alert");note.textContent=stravaConnectionNotice;container.appendChild(note);
+   }catch(error){event.currentTarget.disabled=false;const note=document.createElement("p");note.className="strava-connection-status not-connected";note.setAttribute("role","alert");note.textContent=error.message||"Duplicate protection could not be confirmed.";container.appendChild(note);}
+ });
  if(record.status==="SYNCING"&&navigator.onLine)setTimeout(()=>pollStravaUpload(session),1500);
 }
 function sessionDetail(session){

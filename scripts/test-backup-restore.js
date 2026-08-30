@@ -2,6 +2,7 @@ const assert=require("assert");
 const fs=require("fs");
 const path=require("path");
 const backup=require("../backup-restore.js");
+const stravaData=require("../strava-data-boundary.js");
 const root=path.resolve(__dirname,"..");
 
 const state={schemaVersion:16,preferredName:"Andy",weight:210,waist:40,sessions:1,tab:"progress",step:2,history:[{id:"session-1",name:"Full Body A",completedAt:"2026-08-15T12:00:00.000Z",exercises:[{exerciseId:"smith-machine-squat",prescription:{sets:3,reps:10},sets:[{setNumber:1,repetitions:10,weight:70,completed:true}],externalMappings:{strava:{sportType:"WeightTraining"}}}],externalSync:{strava:{status:"NOT_SYNCED"}}}],workoutRatings:{"session-1":"Good"},dailyCheckins:{},achievements:{},trainingProfile:{age:40},trainingPhase:{id:"foundation"},measurementHistory:[{id:"m-1",date:"2026-08-15",weight:210,waist:40}],bodyMeasurements:[{id:"bm-1",source:"manual",timestamp:"2026-08-15T12:00:00.000Z",weight:210,waist:40},{id:"wyze-1",source:"wyze-import",timestamp:"2026-08-16T12:00:00.000Z",sourceTimestamp:"2026.08.16 8:00 AM",sourceRecordNumber:"9",weight:209.8,weightLb:209.8,weightKg:95.2,bmi:27.1,bodyFatPercent:25,muscleMassLb:145,muscleMassPercent:69.1,leanBodyMassLb:157.3,boneMassLb:8.9,bmrKcal:1880,fatMassLb:52.5}],cardioHistory:[{id:"c-1",sessionId:"session-1",name:"Warm-up",actualDurationMinutes:8}],approvedProgressions:{"smith-machine-squat":{exerciseId:"smith-machine-squat",status:"approved",prescription:{sets:3,reps:10,weight:75}}},lowerAbsProgram:{version:1,phase:1,status:"active",completedSessionIds:[],phase2ReadyAt:null,phase2AcceptedAt:null,completedAt:null},equipment:{dumbbells:true,dumbbellPairWeights:[10,15,20,25]},attachmentPhotos:{},workoutSessions:[{id:"scheduled-1",plannedDate:"2026-08-15",scheduledDate:"2026-08-16",status:"rescheduled"}],scheduleActivatedDate:"2026-08-01",adherenceBaselineDate:"2026-08-20",currentSession:{id:"active-1",sessionPrescriptions:{}},logs:{},exerciseFeedback:{},cardioTimers:{},exerciseTimings:{}};
@@ -41,6 +42,19 @@ assert.equal(deletionBackup.state.history[0].externalSync?.strava,undefined,"bac
 const resurrected=backup.merge(deletionState,{history:[localSynced]});
 assert.equal(resurrected.history[0].externalSync?.strava,undefined,"old backup resurrected deleted Strava provider metadata");
 assert.equal(resurrected.history[0].name,"Full Body C","Strava cleanup deleted the underlying workout");
+const pilotState={history:[{id:"older",completedAt:"2026-08-20T12:00:00.000Z",completionStatus:"completed"},{id:"newest",completedAt:"2026-08-28T12:00:00.000Z",completionStatus:"completed"}],stravaDeletion:{version:1,deletedAt:"2026-08-30T12:00:00.000Z",blockedSessionIds:["older","newest"],pilotConsumedSessionIds:[]}};
+assert.equal(stravaData.manualPilotCandidate(pilotState,item=>item.completionStatus==="completed"),"newest","only the newest eligible tombstoned session may be offered for the explicit pilot");
+pilotState.stravaDeletion.pilotConsumedSessionIds.push("newest");
+assert.equal(stravaData.manualPilotCandidate(pilotState,item=>item.completionStatus==="completed"),null,"completing the one-session pilot must prevent every further historical pilot offer");
+pilotState.stravaPilotApproval={sessionId:"newest",approvedAt:"2026-08-30T13:00:00.000Z",consumedAt:"2026-08-30T13:05:00.000Z"};
+pilotState.history[1].externalSync={strava:{status:"SYNCED",externalId:"road12-newest",activityId:"fresh-activity",lastAttemptAt:"2026-08-30T13:01:00.000Z",uploadedAt:"2026-08-30T13:05:00.000Z"}};
+assert.equal(stravaData.enforce(pilotState).history[1].externalSync.strava.activityId,"fresh-activity","fresh provider state created after explicit renewed consent must survive reload");
+const disconnectedAgain=stravaData.clearAfterConfirmedDisconnect(pilotState,"2026-08-30T14:00:00.000Z");
+assert.equal(disconnectedAgain.history[1].externalSync?.strava,undefined,"a later disconnect must delete the pilot provider record again");
+const pilotBackup=backup.create({version:"13.2.0",build:"2026.08.30.3"},pilotState,18);
+assert.equal(pilotBackup.state.stravaPilotApproval.sessionId,"newest");
+assert.deepStrictEqual(pilotBackup.state.stravaDeletion.pilotConsumedSessionIds,["newest"]);
+assert.throws(()=>backup.validate({...pilotBackup,state:{...pilotBackup.state,stravaPilotApproval:{approvedAt:"bad"}}},18),/pilot approval/i);
 const app=fs.readFileSync(path.join(root,"app.js"),"utf8"),index=fs.readFileSync(path.join(root,"index.html"),"utf8"),sw=fs.readFileSync(path.join(root,"sw.js"),"utf8");
 assert(!app.includes('version:"11.3.1"'),"backup export must not hardcode an obsolete version");
 assert(app.includes("ROAD12_BACKUP.validate(payload,ROAD12_SCHEMA_VERSION)"));

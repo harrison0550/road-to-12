@@ -6,10 +6,10 @@ Read this file at the beginning of every Codex or engineering session. It is the
 
 - Product: Road to 12%
 - Version: 13.2.0
-- Build: 2026.08.30.2
+- Build: 2026.08.30.3
 - Last updated: August 30, 2026
-- Service Worker cache: `road12-v13-2-67-shell`
-- Exercise media cache: `road12-v13-2-67-media`
+- Service Worker cache: `road12-v13-2-68-shell`
+- Exercise media cache: `road12-v13-2-68-media`
 - Runtime: static, client-only, offline-first PWA
 - Primary storage key: `road12v5`
 
@@ -77,7 +77,7 @@ See `KNOWN_BUGS.md` before diagnosing or fixing defects.
 
 ## Active sprint goals
 
-All High Priority tasks for the current sprint are complete. The one-athlete Strava Phase 2A compliance gate passed after live disconnect validation: D1 provider data reached zero, the installed PWA removed provider metadata while retaining workouts, and a post-disconnect backup plus restore simulation proved anti-resurrection behavior. No activity was uploaded. The first manual upload remains a separate user-confirmed pilot action.
+All High Priority tasks for the current sprint are complete. The one-athlete Strava Phase 2A compliance gate passed after live disconnect validation. The first manual upload is now explicitly approved for only the newest eligible completed session: Full Body C from August 28, 2026. Build `2026.08.30.3` adds the local one-session approval and duplicate-verification UI; every other tombstoned historical session remains blocked. Reconnection and the actual upload are still pending, and no activity has yet been uploaded.
 
 Next recommended goals:
 
@@ -99,10 +99,11 @@ See `CODEX_TASKS.md` for priority and acceptance detail.
 - Strava Worker routing keeps `PWA_ORIGIN` origin-only for strict CORS and uses the separate full `PWA_RETURN_URL` for all OAuth callback outcomes so GitHub Pages returns to `/road-to-12/` rather than the account root.
 - Strava disconnect is backend-confirmed and failure-safe. The Worker revokes access and atomically deletes OAuth, connection/profile/token, upload/activity/error, and provider timestamp records before the PWA removes local provider metadata. Local workouts remain intact, and a deletion tombstone blocks older backups from restoring deleted provider data.
 - Strava-derived profile, token, upload, activity, error, link, and provider-timestamp data is excluded from readiness, coaching, analytics, AI/model input, and agent contexts. `strava-data-boundary.js` enforces this classification before coaching receives history.
+- Following explicit approval for the first pilot, only the newest eligible tombstoned Full Body session can receive a new manual-upload approval. The approval is local Road to 12% consent metadata, uses a deterministic external ID, enables no background behavior, and is marked consumed after the first confirmed activity. All other historical sessions remain blocked, and a second disconnect deletes the new provider metadata again.
 
 - Progress keeps its four headline metrics and measurement actions visible, then groups readiness, body trends, progression, recovery, records, achievements, backup, and workout history into native accessible disclosures. Expanded sections remain open during in-screen rerenders. The Body Measurements route is browser-smoke-tested through its rendered importer and filechooser event. The Wyze import surface is covered by the real non-hidden file input so the iPhone tap reaches the native control directly; it must not depend on a label, `showPicker()`, or simulated click.
 - Wyze Scale exports are parsed locally from user-selected `.xlsx` files. The app shows Import, Update, and Duplicate decisions before confirmation, collapses poorer same-weight readings within ten minutes, and enriches exact stored readings on richer re-import. Deterministic identity uses source, timestamp, and weight. Newer weight-only readings remain body-composition-null, while each dashboard reference shows the newest actual measurement date for its field. Manual measurements, workout history, and progression state remain untouched.
-- Schema 17 retains schema-16 append-only `bodyMeasurements` and adds the Strava deletion tombstone. Current weight and waist remain derived independently from the newest valid canonical values while legacy `weight`, `waist`, and `measurementHistory` remain readable and continue to be written by manual check-ins. The seven-day weight display is a rolling average; daily scale values never affect readiness or exercise progression.
+- Schema 18 retains schema-16 append-only `bodyMeasurements` and schema-17 Strava deletion tombstone, then adds the explicit one-session manual-pilot approval. Current weight and waist remain derived independently from the newest valid canonical values while legacy `weight`, `waist`, and `measurementHistory` remain readable and continue to be written by manual check-ins. The seven-day weight display is a rolling average; daily scale values never affect readiness or exercise progression.
 - An approved session weight is the actual editable set default, not placeholder text, so completing an untouched set records what the user saw. Prior-session guidance remains display-only. Progress may repair historical zero-weight sets only after confirmation and only when the completed snapshot contains the exact captured prescription; each change retains an audit record and unknown weights are never inferred. Smith selected-volume calculations include the known 33 lb bar.
 - Workout-preview exercise rows are interactive, non-mutating entry points to a full exercise guide. The preview detail reuses the reviewed automatic animation, setup and execution guidance, equipment-specific coaching, prescription summary, and historical performance lookup without creating or changing an active workout. Returning restores the preview list position.
 - Program Adherence starts from the saved August 20, 2026 baseline for the current installation. Earlier development-era sessions remain visible in Calendar and history but do not affect the metric. Only resolved completed or missed training sessions on or after the baseline count; an unresolved scheduled workout never lowers adherence.

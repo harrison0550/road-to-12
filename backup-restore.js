@@ -13,7 +13,7 @@
     "trainingPhase","measurementHistory","bodyMeasurements","cardioHistory","approvedProgressions","lowerAbsProgram","equipment",
     "attachmentPhotos","workoutSessions","scheduleActivatedDate","adherenceBaselineDate","currentSession","logs",
     "exerciseFeedback","cardioTimers","exerciseTimings","selectedDay","previewDay","coachMode",
-    "tab","step","setupReady","historyView","calendarMonth","workoutScroll","stravaDeletion"
+    "tab","step","setupReady","historyView","calendarMonth","workoutScroll","stravaDeletion","stravaPilotApproval"
   ]);
   const ARRAY_KEYS=Object.freeze(["history","measurementHistory","bodyMeasurements","cardioHistory","workoutSessions"]);
   const OBJECT_KEYS=Object.freeze([
@@ -71,6 +71,7 @@
       if(item.sourceTimestamp!==undefined&&item.sourceTimestamp!==null&&typeof item.sourceTimestamp!=="string")throw new Error(`Body measurement entry ${index+1} has an invalid source timestamp.`);
       if(item.sourceRecordNumber!==undefined&&item.sourceRecordNumber!==null&&!(["string","number"].includes(typeof item.sourceRecordNumber)))throw new Error(`Body measurement entry ${index+1} has an invalid source record number.`);
     });
+    if(incoming.stravaPilotApproval!==undefined&&incoming.stravaPilotApproval!==null&&(!isObject(incoming.stravaPilotApproval)||typeof incoming.stravaPilotApproval.sessionId!=="string"))throw new Error("Backup Strava pilot approval is invalid.");
     return {modern,schema,state:clone(incoming)};
   }
   function mergeBy(itemsA=[],itemsB=[],identity){
@@ -115,6 +116,8 @@
       next[key]=Object.assign({},current[key]||{},source[key]||{});
     });
     next.sessions=Math.max(Number(current.sessions)||0,Number(source.sessions)||0,next.history.length);
+    const approvals=[current.stravaPilotApproval,source.stravaPilotApproval].filter(item=>isObject(item)&&item.sessionId);
+    next.stravaPilotApproval=approvals.sort((a,b)=>new Date(b.consumedAt||b.approvedAt||0)-new Date(a.consumedAt||a.approvedAt||0))[0]||null;
     if(stravaData?.newestMarker)next.stravaDeletion=stravaData.newestMarker(current.stravaDeletion,source.stravaDeletion);
     return stravaData?.enforce?stravaData.enforce(next,next.stravaDeletion):next;
   }

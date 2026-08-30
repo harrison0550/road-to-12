@@ -8,6 +8,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Added
 
+- Added a narrow first-pilot workflow that can re-approve only the newest eligible tombstoned Full Body session after renewed consent, plus an in-app duplicate-protection check that reuses the confirmed backend record without submitting another Strava upload.
 - Added an accessible pre-OAuth Strava disclosure and persistent Strava & Privacy view covering requested scope, data flow, retention, consent withdrawal, deletion, support, monitoring, and non-endorsement.
 - Added a canonical Strava data boundary and schema-17 deletion tombstone so confirmed disconnect removes provider metadata without deleting workouts and older backups cannot restore deleted provider records.
 - Added an undeployed Strava Phase 2A manual proof-of-concept: Profile connection controls, per-installation signed requests, secure Cloudflare OAuth/token handling, explicit real-activity confirmation, validated Full Body A/B/C structured uploads, polling, duplicate-safe reconciliation, failure/retry states, disconnect, and confirmed activity links.
@@ -51,6 +52,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Changed
 
+- Advanced the maintenance build to `2026.08.30.3`, schema 18, and cache generation 68 for the explicitly approved one-session Strava pilot. All other deleted historical sessions remain blocked and no automatic or cardio posting is enabled.
 - Advanced the maintenance build to `2026.08.30.2` and rotated the offline caches for the Strava compliance remediation.
 - Changed Strava disconnect to require backend deletion confirmation after token revocation and an atomic D1 purge of OAuth, connection/profile/token, upload/activity/error, and provider timestamp data before local cleanup.
 - Restricted Strava-derived data from coaching, readiness, analytics, AI/model input, and agent contexts; added explicit minimal retention and sanitized rate-limit behavior.
