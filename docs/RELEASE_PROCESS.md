@@ -134,6 +134,20 @@ Release notes should include:
 
 Publish release notes from the matching `CHANGELOG.md` section and keep technical implementation detail secondary.
 
+## Optional Strava Worker deployment
+
+The Strava Worker is a separate security-sensitive deployment. A normal GitHub Pages release must not create, configure, or deploy it implicitly. Before enabling its public URL in `strava-config.js`:
+
+- Apply the reviewed D1 schema.
+- Add Strava credentials and the token-encryption key through Cloudflare secrets, never repository files.
+- Set the exact PWA origin and OAuth callback URL.
+- Confirm the callback domain in the Strava application.
+- Run the Worker security, route, idempotency, polling, privacy, and disconnect tests.
+- Verify that the public PWA bundle contains no provider token or client secret.
+- Run one deliberate manual pilot before considering any automatic behavior.
+
+Document Worker and PWA deployment separately, including removal instructions. Rotating the static PWA build/cache remains required when its public Worker URL or browser client changes.
+
 ## Post-release
 
 1. Confirm the deployed app reports the expected version and build.

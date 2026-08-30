@@ -14,9 +14,10 @@ This folder is the canonical source for product direction, architecture, design 
 - Service Worker and Cache Storage for offline operation
 - Web App Manifest for Home Screen installation
 - Node.js validation scripts in `scripts/`
+- Optional Cloudflare Worker and D1 boundary for the configured manual-only Strava Phase 2A pilot
 - Git for source control and release history
 
-The production app intentionally has no framework, package manager, bundler, server, or cloud database dependency.
+The core production workout app intentionally has no framework, package manager, or bundler dependency and remains fully usable without a server. The optional Strava proof of concept requires its separately deployed Cloudflare Worker and D1 database only for connection and manual posting.
 
 ## Run locally
 
@@ -60,7 +61,10 @@ Also complete the manual and mobile testing checklist in `RELEASE_PROCESS.md`. A
 ├── assets/                  Exercise media and PWA assets
 ├── docs/                    Product and engineering documentation
 ├── scripts/                 Repository validation utilities
+├── worker/strava/           Optional deployed Strava Phase 2A pilot Worker and D1 schema
 ├── app-meta.js              Version, build, and cache metadata
+├── strava-client.js         Signed browser client for the optional Worker
+├── strava-config.js         Public Worker URL only; empty until provisioned
 ├── app.css                  Current production styles
 ├── app.js                   Current application and UI logic
 ├── body-measurements.js     Measurement adapters, summaries, and trends

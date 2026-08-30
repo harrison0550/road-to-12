@@ -21,6 +21,20 @@ assert.throws(()=>backup.validate({...payload,build:null},16),/release metadata/
 const untouched=JSON.stringify(state);
 try{backup.validate({state:{history:null}},16);}catch(_error){}
 assert.equal(JSON.stringify(state),untouched,"invalid validation mutated live data");
+const localSynced={id:"session-sync",name:"Full Body C",completedAt:"2026-08-20T12:00:00.000Z",externalSync:{strava:{status:"SYNCED",activityId:"activity-123",uploadId:"upload-123",uploadedAt:"2026-08-20T13:00:00.000Z",lastAttemptAt:"2026-08-20T12:59:00.000Z",lastError:null,externalId:"road12-session-sync"}}};
+const oldImported={id:"session-sync",name:"Full Body C",completedAt:"2026-08-20T12:00:00.000Z",externalSync:{strava:{status:"NOT_SYNCED",activityId:null,uploadId:null,uploadedAt:null,lastAttemptAt:null,lastError:null,externalId:"road12-session-sync"}}};
+const protectedMerge=backup.merge({history:[localSynced],sessions:1},{history:[oldImported],sessions:1});
+assert.strictEqual(protectedMerge.history[0].externalSync.strava.status,"SYNCED","older backup downgraded a confirmed Strava sync");
+assert.strictEqual(protectedMerge.history[0].externalSync.strava.activityId,"activity-123");
+assert.strictEqual(protectedMerge.history[0].externalSync.strava.uploadId,"upload-123");
+assert.strictEqual(protectedMerge.history[0].externalSync.strava.uploadedAt,"2026-08-20T13:00:00.000Z");
+const enrichedMerge=backup.merge(
+  {history:[{id:"session-enrich",externalSync:{strava:{status:"FAILED",lastAttemptAt:"2026-08-20T12:00:00.000Z",lastError:"Temporary failure",externalId:"road12-session-enrich"}}}]},
+  {history:[{id:"session-enrich",externalSync:{strava:{status:"SYNCING",uploadId:"upload-456",lastAttemptAt:"2026-08-20T12:05:00.000Z",externalId:"road12-session-enrich"}}}]}
+);
+assert.strictEqual(enrichedMerge.history[0].externalSync.strava.status,"SYNCING");
+assert.strictEqual(enrichedMerge.history[0].externalSync.strava.uploadId,"upload-456");
+assert.strictEqual(enrichedMerge.history[0].externalSync.strava.lastAttemptAt,"2026-08-20T12:05:00.000Z");
 const app=fs.readFileSync(path.join(root,"app.js"),"utf8"),index=fs.readFileSync(path.join(root,"index.html"),"utf8"),sw=fs.readFileSync(path.join(root,"sw.js"),"utf8");
 assert(!app.includes('version:"11.3.1"'),"backup export must not hardcode an obsolete version");
 assert(app.includes("ROAD12_BACKUP.validate(payload,ROAD12_SCHEMA_VERSION)"));

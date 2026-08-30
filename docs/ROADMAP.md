@@ -53,7 +53,11 @@ The roadmap communicates direction rather than a guaranteed schedule. Completed 
 
 ### Later
 
-- [ ] Secure opt-in Strava Strength Training sync using structured sets and duplicate-safe upload status
+- [x] Local-only Strava Phase 1 with validated mappings, explicit Full Body A/B/C eligibility, deterministic structured-strength payloads, preview mode, and protective sync metadata
+- [x] Build the undeployed secure Strava Phase 2A Cloudflare OAuth/backend boundary, manual-only structured upload, polling, reconciliation, disconnect, and duplicate-safe activity-ID persistence
+- [x] Provision and review the Phase 2A Cloudflare Worker, D1 database, Strava application, secrets, exact-origin CORS, callback, and browser configuration
+- [ ] Run one explicitly approved live Full Body A/B/C pilot upload and complete duplicate, reconciliation, disconnect/reconnect, and refresh validation
+- [ ] Consider Phase 2B automatic strength sync only after the manual pilot is proven and separately approved
 - [ ] Strava cardio source arbitration that avoids duplicating iFIT activities
 - [x] Canonical manual/Wyze-export/Apple Health body-measurement adapter contract
 - [ ] Native iOS HealthKit bridge with explicit authorization, anchored reads, unit conversion, and duplicate protection

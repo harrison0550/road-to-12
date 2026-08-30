@@ -105,7 +105,15 @@ Optional future synchronization must not make the local store unusable offline.
 
 Provider integrations are downstream consumers of the canonical completed session; they do not own workout truth. Each provider has an independent synchronization record so failures and retries cannot mutate the completed workout.
 
-The static PWA is an untrusted public client. OAuth client secrets, refresh tokens, provider upload conversion, and asynchronous status polling belong in an authenticated backend or serverless boundary. Browser code may request or display sync state but must never embed provider credentials. See `STRAVA_INTEGRATION.md` for the planned Strength Training contract and duplicate policy.
+Strava Phase 1 remains a pure local projection. `strava-strength-payload.js` converts an eligible completed Full Body A/B/C snapshot to preview metadata and Strava JSON 1.0 sets. It owns equipment-aware external-load normalization and never reads storage, renders UI, or performs network work. `strava-sync-state.js` owns canonical provider statuses, allowed transitions, authoritative backend reconciliation, and protective provider-state merging. `exercise-identity.js` owns the bounded documented-token allowlist. `app.js` may display the projection but must not reconstruct or duplicate these rules.
+
+Phase 2A adds an optional manual-only online boundary. `strava-client.js` creates a per-installation P-256 keypair, signs timestamped nonce-bound requests, and calls only the configured Worker URL. Its private installation key remains in a separate browser storage key and is excluded from normal backups. The Cloudflare Worker in `worker/strava/` verifies installation signatures, owns OAuth and provider requests, persists idempotency records in D1, and encrypts Strava token material again at the application layer with AES-256-GCM. D1 access and the encryption key are separate Cloudflare bindings/secrets.
+
+The Worker submits the already-validated Phase 1 file as multipart form data with `data_type=json` and `sport_type=WeightTraining`, then polls Strava's asynchronous upload status. The browser cannot mark a workout `SYNCED` until the Worker returns a confirmed activity ID. Backend `installationId + externalId` state is authoritative after interruption. The browser never retries or resubmits automatically; polling occurs only while an explicitly opened session is in progress.
+
+Backup merge treats confirmed provider state as monotonic: an imported older or poorer record cannot downgrade a local `SYNCED` activity or discard its activity/upload identifiers and timestamps. The completed workout remains immutable; only provider metadata is reconciled.
+
+The static PWA remains an untrusted public client. OAuth client secrets, refresh tokens, provider upload submission, and provider status polling belong in the Cloudflare Worker. Browser code may request or display sanitized state but must never embed provider credentials. The Phase 2A pilot config points to the reviewed HTTPS Worker, but the integration remains optional: without a network or connection, workout completion and local preview remain fully available. See `STRAVA_INTEGRATION.md` for the route, credential, privacy, and duplicate contracts.
 
 ## Service Worker
 

@@ -78,6 +78,8 @@ Standard cards have approximately 14px bottom separation. Avoid nested cards unl
 - Destructive actions require clear wording and confirmation.
 - Avoid more than one visually dominant primary action in a single section.
 - Disabled controls must remain legible and expose their disabled state semantically.
+- External-provider previews must plainly identify themselves as local previews, disclose unmapped or incomplete data, and end with an explicit statement that nothing was sent. A preview action must never imply that an account is connected.
+- External-provider posting must remain visually distinct from preview. Show a connected/not-connected text status in Profile, require a confirmation that names the real activity and summarizes exercises, sets, and warnings, and do not expose the posting action while disconnected. Processing, failed, and synced states must use text as well as color; a provider activity link appears only after a confirmed activity ID.
 
 ## Navigation
 

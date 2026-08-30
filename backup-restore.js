@@ -1,8 +1,9 @@
 (function(root,factory){
-  const api=factory();
+  const stravaSync=root.ROAD12_STRAVA_SYNC||(typeof require!=="undefined"?require("./strava-sync-state.js"):null);
+  const api=factory(stravaSync);
   if(typeof module!=="undefined"&&module.exports)module.exports=api;
   root.ROAD12_BACKUP=api;
-})(typeof self!=="undefined"?self:globalThis,function(){
+})(typeof self!=="undefined"?self:globalThis,function(stravaSync){
   const FORMAT="road12-backup";
   const FORMAT_VERSION=2;
   const STATE_KEYS=Object.freeze([
@@ -76,10 +77,32 @@
     return [...map.values()];
   }
   function sessionIdentity(session,index){return session.id||`${session.completedAt||session.startedAt||session.date||"legacy"}-${session.name||"workout"}-${session.planDay??"unknown"}`;}
+  function mergeSession(localSession,incomingSession){
+    const merged=Object.assign({},clone(localSession||{}),clone(incomingSession||{}));
+    const localStrava=localSession?.externalSync?.strava;
+    const incomingStrava=incomingSession?.externalSync?.strava;
+    if(localStrava||incomingStrava){
+      merged.externalSync=Object.assign({},clone(localSession?.externalSync||{}),clone(incomingSession?.externalSync||{}));
+      merged.externalSync.strava=stravaSync?.mergeRecords
+        ?stravaSync.mergeRecords(localStrava,incomingStrava)
+        :clone(localStrava||incomingStrava);
+    }
+    return merged;
+  }
+  function mergeHistory(currentHistory=[],incomingHistory=[]){
+    const map=new Map();
+    (currentHistory||[]).forEach((session,index)=>{if(isObject(session))map.set(sessionIdentity(session,index),clone(session));});
+    (incomingHistory||[]).forEach((session,index)=>{
+      if(!isObject(session))return;
+      const identity=sessionIdentity(session,index),local=map.get(identity);
+      map.set(identity,local?mergeSession(local,session):clone(session));
+    });
+    return [...map.values()];
+  }
   function merge(current,incoming){
     const next=clone(current||{}),source=clone(incoming||{});
     STATE_KEYS.forEach(key=>{if(source[key]!==undefined)next[key]=source[key];});
-    next.history=mergeBy(current.history||[],source.history||[],sessionIdentity);
+    next.history=mergeHistory(current.history||[],source.history||[]);
     next.workoutSessions=mergeBy(current.workoutSessions||[],source.workoutSessions||[],(item,index)=>item.id||`schedule-${index}`);
     next.measurementHistory=mergeBy(current.measurementHistory||[],source.measurementHistory||[],item=>item.id||`${item.recordedAt||item.date||"measurement"}-${item.weight??""}-${item.waist??""}`);
     next.bodyMeasurements=mergeBy(current.bodyMeasurements||[],source.bodyMeasurements||[],item=>item.id||`${item.source||"measurement"}-${item.timestamp||"unknown"}`);

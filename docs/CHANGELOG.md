@@ -8,6 +8,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Added
 
+- Added an undeployed Strava Phase 2A manual proof-of-concept: Profile connection controls, per-installation signed requests, secure Cloudflare OAuth/token handling, explicit real-activity confirmation, validated Full Body A/B/C structured uploads, polling, duplicate-safe reconciliation, failure/retry states, disconnect, and confirmed activity links.
+- Added a Cloudflare Worker and D1 schema that keep Strava provider credentials out of the public PWA, encrypt token material with AES-256-GCM, bind OAuth state to one installation, reject replayed request proofs, and preserve server-side upload/activity identity across browser interruption.
+
+- Added a completely local Strava Phase 1 preview for eligible completed Full Body A/B/C workouts, including validated structured-set JSON, exact public titles, exercise mapping status, warnings, summary totals, and an explicit nothing-sent notice.
+- Added pure Strava payload and sync-state modules with equipment-aware Smith, dumbbell, cable, and bodyweight normalization; documented pound-to-kilogram conversion; canonical state transitions; and no OAuth, credential, backend, or network behavior.
 - Added an offline Wyze Scale XLSX importer under Progress / Body Measurements with dynamic header discovery, local-time preservation, unit/null normalization, weight-only support, per-reading review, richness-aware duplicate handling, and deterministic re-import enrichment.
 - Added dated body-fat and lean-mass reference cards that never copy older composition values into a newer weight-only reading, plus locally bundled SheetJS CE parsing and license notices.
 - Added schema-16 timestamped `bodyMeasurements` records covering weight, waist, and consumer-scale composition fields, with validated adapters for manual entry, Wyze exports, and a future Apple Health bridge.
@@ -44,6 +49,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Changed
 
+- Configured the manual-only Strava Phase 2A pilot with a dedicated Cloudflare Worker, D1 database, exact GitHub Pages origin, encrypted provider credentials, verified callback URL, and production browser endpoint. No OAuth connection or live activity upload was performed automatically.
+- Advanced the maintenance build to `2026.08.30.1` and rotated the offline caches so installed PWAs receive the reviewed Strava pilot configuration.
+- Corrected the canonical Strava exercise mappings, added a typo-blocking supported-token allowlist, and made backup merge preserve confirmed/richer provider sync state instead of allowing an older import to downgrade it.
 - Advanced the maintenance build to `2026.08.29.5`, rotated the offline caches, and added an end-to-end browser check for Progress-to-import navigation and native filechooser activation.
 - Advanced the maintenance build to `2026.08.29.4`, rotated the offline caches, and changed Wyze selection to a direct native file-input tap target with no programmatic picker activation.
 - Advanced the maintenance build to `2026.08.29.3`, rotated the offline caches, and reorganized the long Progress screen into accessible expandable sections while keeping headline metrics and body-measurement actions immediately visible.

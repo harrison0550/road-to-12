@@ -1,0 +1,16 @@
+name = "road12-strava-phase2a"
+main = "src/index.mjs"
+compatibility_date = "2026-08-29"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "road12-strava"
+database_id = "1241160c-88f0-43c5-87f2-59d042ebf28a"
+
+[vars]
+PWA_ORIGIN = "https://harrison0550.github.io"
+OAUTH_REDIRECT_URI = "https://road12-strava-phase2a.homegym-sync.workers.dev/api/strava/callback"
+
+# Set PWA_ORIGIN and OAUTH_REDIRECT_URI as non-secret Worker variables.
+# Set STRAVA_CLIENT_ID, STRAVA_CLIENT_SECRET, and TOKEN_ENCRYPTION_KEY with
+# `wrangler secret put`; never commit their values here.

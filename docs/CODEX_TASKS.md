@@ -36,8 +36,11 @@ This file contains implementation-ready work. Move completed user-visible work t
 ## Parking lot
 
 - [x] Establish stable exercise identities and export-ready discrete strength-set history.
-- [ ] Build a secure Strava OAuth/backend boundary; never place provider secrets or refresh tokens in the PWA.
-- [ ] Convert completed strength sessions to Strava structured JSON, poll asynchronous uploads, and enforce idempotency.
+- [x] Build an undeployed secure Strava OAuth/backend boundary; never place provider secrets or refresh tokens in the PWA.
+- [x] Convert eligible completed Full Body A/B/C sessions to a local-only validated Strava structured JSON preview with no network behavior.
+- [x] Implement explicit manual structured JSON submission through the Cloudflare Worker, asynchronous polling, interruption-safe reconciliation, and backend idempotency without configuring or deploying it.
+- [x] Provision the Cloudflare Worker, D1 schema, Strava application credentials, callback, exact-origin CORS, encryption secret, and production browser URL.
+- [ ] Conduct one deliberately confirmed Full Body A/B/C live pilot plus duplicate, reconciliation, disconnect/reconnect, and refresh validation before considering Phase 2B.
 - [ ] Design explicit iFIT/Strava cardio source selection and duplicate protection.
 - [x] Define a progressive-overload recommendation data contract.
 - [ ] Research privacy-preserving optional synchronization.
@@ -68,6 +71,10 @@ Copy this block for new work:
 ```
 
 ## Completed this sprint
+
+- [x] Implement secure Strava Phase 2A locally with P-256 installation authentication, one-time OAuth state, encrypted D1 token records, validated manual structured-strength upload, asynchronous polling, duplicate-safe reconciliation, disconnect, offline gating, and no automatic sync or deployment.
+
+- [x] Implement Strava Phase 1 locally: validate all canonical mappings, restrict eligibility to completed Full Body A/B/C, normalize equipment loads, generate privacy-safe JSON previews, formalize sync states, and prevent backup sync-state downgrades without OAuth, a backend, network requests, or deployment.
 
 - [x] Repair the installed-iPhone Wyze XLSX file picker and compact the long Progress screen into accessible state-preserving disclosures without removing metrics, controls, or history.
 - [x] Add a local-first Wyze Scale XLSX importer with dynamic header detection, unit-safe nullable parsing, review-before-confirmation, ten-minute richness-aware deduplication, deterministic re-import safety, exact-record enrichment, current-value summaries, offline packaging, and backup compatibility.

@@ -2,11 +2,17 @@
 
 ## Status
 
-Planned. Road to 12% does not currently connect to Strava, request authorization, upload activities, or contain Strava credentials. The current release only prepares completed strength history for a future secure export.
+Phase 1 is included in the configured pilot build: Road to 12% validates exercise mappings, determines explicit workout eligibility, generates a deterministic structured-strength payload, and displays that payload in a completed-workout preview. Preview mode makes no network request.
 
-## Product intent
+Phase 2A is provisioned as a manual-only pilot. The dedicated Cloudflare Worker and D1 database are deployed, exact-origin CORS is verified, provider credentials and the encryption key exist only as Cloudflare secrets, and the production PWA points to the reviewed Worker endpoint. OAuth connection and the first user-initiated live upload remain pending.
 
-Strength training is the primary integration target. Road to 12% should eventually create one Strava strength activity containing the actual completed exercises and discrete sets. Cardio synchronization is secondary because iFIT may already publish those activities; any future cardio sync must require an explicit source choice and duplicate protection.
+## Phase 1 product rules
+
+Only completed Full Body A, Full Body B, and Full Body C sessions containing at least one valid completed working set are eligible. Eligibility is based on explicit workout identity and completion state, never merely `workoutType === "strength"`. Core + Recovery, treadmill, rowing, cycling, mobility, recovery, cardio-only, previewed, abandoned, partial, and incomplete sessions are excluded.
+
+The public title is exactly `Andy's Home Gym — Full Body A`, B, or C. The generated payload excludes Road to 12%, the body-fat goal, RIR, discomfort, form feedback, progression decisions, coaching details, body measurements, and private notes.
+
+Historical Full Body sessions may be previewed only when their saved completion state and actual working sets are sufficient. Preview never changes or rewrites historical records, and no historical workout is automatically posted.
 
 ## Verified Strava format
 
@@ -18,6 +24,27 @@ Authoritative references, verified August 15, 2026:
 - [Strava API changelog](https://developers.strava.com/docs/changelog/)
 
 Strava identifiers must be stored as strings because remote IDs can exceed JavaScript's safe integer range.
+
+`strava-strength-payload.js` is a pure boundary: it does not access the DOM, storage, or network. It produces preview metadata plus a JSON 1.0 file object with `start_time`, `utc_offset`, `elapsed_time`, and flattened structured sets. Only completed, non-skipped working sets are included. Warm-up and activation sets are excluded. Repetitions must be numeric and unambiguous; ranges such as `12-15` are not guessed.
+
+## Mapping policy
+
+`exercise-identity.js` contains one bounded allowlist of documented Strava tokens used by Road to 12%. Automated validation fails when a canonical mapping falls outside it, protecting against typos. Unknown future movements remain visible in preview with `UNMAPPED_EXERCISE`; they are omitted from the API-specific set list rather than assigned an invented token.
+
+Phase 1 maps all 38 current canonical identities. Smith Machine Hip Thrust uses the documented `BARBELL_HIP_THRUST_WITH_BENCH` approximation because the movement uses a guided bar and an external bench and Strava has no exact Smith-machine equivalent. The mapping is explicit and can be revised without rewriting completed history.
+
+## Load normalization
+
+Road to 12% remains pounds-first internally. The payload boundary converts normalized external resistance to kilograms using `1 lb = 0.45359237 kg`, rounded to three decimal places.
+
+- Smith machine: stored total plate weight plus the known 33 lb Smith bar.
+- Paired dumbbells: the app already stores the combined weight of both dumbbells, so it is not doubled again.
+- Dual cable stacks: the app stores one stack's selector value, so payload resistance is twice the entry.
+- Single cable stack: use the one active stack's selector value directly.
+- Bodyweight: omit external load.
+- Missing or unknown load: omit external load rather than publishing zero.
+
+Strava documents `weight` as kilograms but does not further define paired-implement biomechanics. Phase 1 therefore uses total selected external resistance consistently and exposes the applied rule in preview/test metadata.
 
 ## Security boundary
 
@@ -55,6 +82,16 @@ Provider state is stored beneath the workout, beginning with:
 
 Failures use `FAILED` and retain a human-safe `lastError`. The Strava record reserves `externalId`, `uploadId`, `activityId`, `lastAttemptAt`, and `uploadedAt`. No activity is marked synced until Strava confirms the asynchronous upload.
 
+`strava-sync-state.js` formalizes these allowed transitions:
+
+- `NOT_SYNCED -> QUEUED`
+- `QUEUED -> SYNCING`
+- `SYNCING -> SYNCED`
+- `SYNCING -> FAILED`
+- `FAILED -> QUEUED`
+
+`SYNCED` is terminal during normal processing. Phase 1 does not invoke these transitions; the module prepares a safe future boundary. Backup merge preserves a confirmed `SYNCED` record and its provider identifiers when an older or poorer backup contains `NOT_SYNCED` or missing state.
+
 ## Duplicate policy
 
 - Use the stable Road to 12% session external ID for strength-upload idempotency.
@@ -64,10 +101,47 @@ Failures use `FAILED` and retain a human-safe `lastError`. The Strava record res
 
 ## Delivery phases
 
-1. Complete: stable exercise identities and export-ready completed strength records.
-2. Future: secure backend, OAuth authorization, encrypted token storage, and account disconnect/deletion.
-3. Future: deterministic Road to 12% to Strava JSON conversion with pounds-to-kilograms conversion at the boundary.
-4. Future: offline queue, upload polling, retries, duplicate handling, and user-visible status.
-5. Future: opt-in cardio source arbitration with iFIT duplicate prevention.
+### Phase 1 — local payload and preview
+
+Implemented in the configured pilot build:
+
+- Stable exercise identities and validated mappings.
+- Explicit Full Body A/B/C eligibility.
+- Pure structured-strength payload generation.
+- Equipment-aware load normalization and pound-to-kilogram conversion.
+- Local completed-workout preview with mapping and warning visibility.
+- Formal sync-state transitions and protective backup merging.
+- No OAuth, credentials, backend, fetch, queue, or upload.
+
+### Phase 2A — secure manual proof of concept
+
+Implemented and provisioned for a limited manual pilot:
+
+- A Cloudflare Worker plus D1 persistence owns OAuth exchange, encrypted access/refresh tokens, refresh, revocation, upload submission, polling, and `installationId + externalId` idempotency.
+- A per-installation P-256 key authenticates privileged browser requests. Cloudflare stores only the public key; timestamp and nonce checks reject stale or replayed requests.
+- OAuth requests use only `activity:write`. State is unpredictable, installation-bound, expires after ten minutes, and is consumed once.
+- Token material is encrypted with AES-256-GCM before D1 storage. The encryption key and Strava application credentials are Worker secrets and never enter the PWA or backup.
+- Eligible session details preserve local Preview and add Post only while connected and online. A second confirmation states that a real activity will be created and shows activity title, exercise count, set count, and warnings.
+- The Worker validates the external ID, title allowlist, `WeightTraining` sport, `json` data type, JSON 1.0 structure, supported exercise tokens, size limits, and prohibited private fields.
+- The current official production contract is multipart `POST /api/v3/uploads` with a JSON file, `data_type=json`, `sport_type=WeightTraining`, `external_id`, and name. Strava's API reference still lists older file-type enums, but the current Uploads guide explicitly documents JSON and is the implemented authority.
+- The Worker stores `uploadId` immediately, polls no more than once per second, and returns only sanitized state. A confirmed `activityId` produces the View on Strava link.
+- Session-detail reconciliation may adopt an existing backend processing, failed, or synced record but never resubmits automatically. Confirmed local `SYNCED` state cannot be downgraded by backup import or poorer backend state.
+- Disconnect revokes the refresh token through Strava's current OAuth revoke endpoint before deleting encrypted credentials. Historical activity IDs remain in workout history.
+
+Worker routes:
+
+- `POST /api/install/register`
+- `GET /api/strava/status`
+- `POST /api/strava/connect`
+- `GET /api/strava/callback`
+- `POST /api/strava/upload`
+- `GET /api/strava/upload/:externalId/status`
+- `POST /api/strava/disconnect`
+
+Phase 2A explicitly excludes automatic sync, background queues, bulk history, Core + Recovery, cardio, update/delete propagation, multiple users, silent retry, and scheduled jobs. `strava-config.js` points only to the reviewed Phase 2A Worker. No connection or activity is created without explicit user action.
+
+### Phase 2B — not approved
+
+Automatic strength sync is not implemented. It must not begin until Phase 2A has completed one successful, explicitly approved live pilot and a separate product/security decision authorizes the next phase. Cardio remains excluded until source arbitration prevents iFIT duplication.
 
 Foundation A/B/C, adaptive progression, recovery scheduling, and offline use remain unchanged while this integration matures.

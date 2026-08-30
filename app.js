@@ -651,7 +651,7 @@ function sessionExerciseSnapshot(){
     const actualSets=(state.logs[ex.name]||[]).map((set,setIndex)=>Object.assign({},deepCopy(set||{}),{
       setNumber:setIndex+1,
       repetitions:Number(set?.reps)||0,
-      weight:Number(set?.weight)||0,
+      weight:set?.weight!==""&&set?.weight!==null&&set?.weight!==undefined&&Number.isFinite(Number(set.weight))?Number(set.weight):null,
       weightUnit:"lb",
       setType:set?.setType||"working",
       startedAt:set?.startedAt||null,
@@ -1279,6 +1279,51 @@ function exerciseProgressionRecommendations(){
 function approvedProgressionFor(exercise){
  return window.ROAD12_PRESCRIPTIONS.findApproval(state.approvedProgressions,exercise,name=>window.ROAD12_EXERCISES.resolve(name));
 }
+function stravaProfileMarkup(message="Checking secure connection…",status="checking"){
+ const configured=!!window.ROAD12_STRAVA_CLIENT?.configured();
+ return `<section class="card strava-connection-card" id="stravaConnectionCard" aria-labelledby="stravaConnectionTitle">
+   <span class="pill">STRAVA • MANUAL ONLY</span><h2 id="stravaConnectionTitle">Strength Training connection</h2>
+   <p class="strava-connection-status ${status}" role="status">${escapeAdaptiveText(configured?message:"Not configured on this build")}</p>
+   <p class="muted">Eligible Full Body A/B/C sessions can be posted only after you review and confirm them. Automatic sync and cardio posting are off.</p>
+   <div class="strava-connection-actions"></div>
+ </section>`;
+}
+async function refreshStravaProfileCard(){
+ const card=document.querySelector("#stravaConnectionCard");
+ if(!card)return;
+ const statusNode=card.querySelector(".strava-connection-status"),actions=card.querySelector(".strava-connection-actions");
+ const client=window.ROAD12_STRAVA_CLIENT;
+ if(!client?.configured()){
+   statusNode.textContent="Not configured on this build";
+   actions.innerHTML='<button class="secondary" type="button" disabled>Connect Strava unavailable</button>';
+   return;
+ }
+ if(!navigator.onLine){
+   statusNode.textContent="Connection unavailable while offline";
+   actions.innerHTML='<button class="secondary" type="button" disabled>Connect Strava unavailable offline</button>';
+   return;
+ }
+ try{
+   const result=await client.status();
+   if(!document.querySelector("#stravaConnectionCard"))return;
+   statusNode.textContent=result.connected?`Connected to Strava${result.athleteName?` as ${result.athleteName}`:""}`:(result.requiresReauth?"Reconnect Strava":"Not Connected");
+   statusNode.className=`strava-connection-status ${result.connected?"connected":"not-connected"}`;
+   actions.innerHTML=result.connected?'<button class="secondary" id="disconnectStrava" type="button">Disconnect Strava</button>':'<button class="primary" id="connectStrava" type="button">Connect Strava</button>';
+   document.querySelector("#connectStrava")?.addEventListener("click",async event=>{
+     event.currentTarget.disabled=true;
+     try{const connection=await client.connect();location.assign(connection.authorizeUrl);}catch(error){statusNode.textContent=error.message;event.currentTarget.disabled=false;}
+   });
+   document.querySelector("#disconnectStrava")?.addEventListener("click",async event=>{
+     if(!confirm("Disconnect Strava? Existing activity links will remain in workout history."))return;
+     event.currentTarget.disabled=true;
+     try{await client.disconnect();await refreshStravaProfileCard();}catch(error){statusNode.textContent=error.message;event.currentTarget.disabled=false;}
+   });
+ }catch(error){
+   statusNode.textContent=error.message||"Strava connection status is unavailable.";
+   actions.innerHTML='<button class="secondary" type="button" id="retryStravaStatus">Try again</button>';
+   document.querySelector("#retryStravaStatus")?.addEventListener("click",refreshStravaProfileCard);
+ }
+}
 function equipment(){
  const profile=state.trainingProfile;
  const items=[
@@ -1302,6 +1347,7 @@ function equipment(){
   ["smithBarPad","Smith barbell pad","Used to cushion the Smith bar during hip thrusts."]
  ];
  app.innerHTML=`<section class="card"><h2>Profile</h2><label>What should the app call you?<input id="preferredName" value="${state.preferredName}" autocomplete="given-name"></label><button class="secondary profile-save" id="saveProfile">Save name</button></section>
+ ${stravaProfileMarkup()}
  <section class="card adaptive-profile-card" aria-labelledby="trainingProfileTitle"><span class="pill">TRAINING PROFILE</span><h2 id="trainingProfileTitle">Foundation context</h2><p class="muted">These details provide context for future progression. They remain on this device and never change the current phase automatically.</p>
    <div class="adaptive-profile-grid">
      <label>Age<input id="profileAge" type="number" inputmode="numeric" min="18" max="100" value="${profile.age||""}"></label>
@@ -1331,6 +1377,7 @@ function equipment(){
  document.querySelectorAll("[data-clear-photo]").forEach(btn=>btn.onclick=()=>{delete state.attachmentPhotos[btn.dataset.clearPhoto];save();equipment()});
  document.querySelector("#equipmentWorkout").onclick=()=>{startNewSession();setTab("workout")};
  document.querySelector("#imageLicenses").onclick=imageLicenses;
+ refreshStravaProfileCard();
 }
 function saveAttachmentPhoto(key,file){
  if(!file)return;
@@ -1349,13 +1396,126 @@ function saveAttachmentPhoto(key,file){
  };
  reader.readAsDataURL(file);
 }
+function stravaPreviewSetText(set){
+ const work=set.repetitions!==null?`${set.repetitions} rep${set.repetitions===1?"":"s"}`:`${set.durationSeconds} sec`;
+ return set.externalLoadLb===null?work:`${work} @ ${set.externalLoadLb} lb`;
+}
+function openStravaPreview(session){
+ const preview=window.ROAD12_STRAVA_PAYLOAD.buildStravaStrengthPayload(session);
+ const transportPreview={name:preview.name,sport_type:preview.sportType,external_id:preview.externalId,data_type:preview.dataType,file:preview.file};
+ const exerciseRows=preview.exercises.filter(exercise=>exercise.sets.length).map(exercise=>`<article class="strava-preview-exercise">
+   <div><h3>${escapeAdaptiveText(exercise.displayName)}</h3><span class="${exercise.mappingStatus}">${exercise.mappingStatus==="mapped"?escapeAdaptiveText(exercise.stravaExerciseType):"Unmapped — will require fallback"}</span></div>
+   <ol>${exercise.sets.map(set=>`<li>${escapeAdaptiveText(stravaPreviewSetText(set))}</li>`).join("")}</ol>
+ </article>`).join("")||'<p class="muted">No complete working-set details are available.</p>';
+ const warningRows=preview.warnings.length?`<section class="strava-preview-warnings" aria-labelledby="stravaWarningsTitle"><h3 id="stravaWarningsTitle">Warnings</h3><ul>${preview.warnings.map(item=>`<li><strong>${escapeAdaptiveText(item.code.replaceAll("_"," "))}</strong><span>${escapeAdaptiveText(item.exerciseName?`${item.exerciseName}: ${item.detail}`:item.detail)}</span></li>`).join("")}</ul></section>`:"";
+ v42Dialog(`<div class="strava-preview">
+   <span class="pill">LOCAL PREVIEW</span>
+   <h2>${escapeAdaptiveText(preview.name)}</h2>
+   <p class="strava-preview-eligibility"><strong>Eligible:</strong> ${preview.eligible?"Yes":"No"} • <strong>Payload ready:</strong> ${preview.ready?"Yes":"No"}</p>
+   <div class="brief-grid"><div><small>SETS</small><strong>${preview.summary.completedSets}</strong></div><div><small>REPS</small><strong>${preview.summary.totalReps}</strong></div><div><small>SELECTED VOLUME</small><strong>${Math.round(preview.summary.selectedVolumeLb).toLocaleString()} lb</strong></div><div><small>ELAPSED</small><strong>${preview.summary.elapsedDurationSeconds?formatDuration(preview.summary.elapsedDurationSeconds*1000):"Unavailable"}</strong></div></div>
+   <div class="strava-preview-counts"><span>Structured exercises mapped: <strong>${preview.summary.mappedExercises}</strong></span><span>Unmapped exercises: <strong>${preview.summary.unmappedExercises}</strong></span><span>Completed working sets: <strong>${preview.summary.completedSets}</strong></span></div>
+   <section class="strava-preview-exercises" aria-label="Structured exercise preview">${exerciseRows}</section>
+   ${warningRows}
+   <details class="strava-payload-details"><summary>Structured payload</summary><pre>${escapeAdaptiveText(JSON.stringify(transportPreview,null,2))}</pre></details>
+   <p class="strava-preview-only"><strong>Preview only — nothing has been sent to Strava.</strong></p>
+ </div>`,`Strava post preview`);
+}
+function stravaSessionSync(session){
+ return session.externalSync?.strava||{status:"NOT_SYNCED",externalId:`road12-${session.id}`,uploadId:null,activityId:null,uploadedAt:null,lastAttemptAt:null,lastError:null};
+}
+function saveStravaBackendState(session,result){
+ session.externalSync=session.externalSync||{};
+ session.externalSync.strava=window.ROAD12_STRAVA_SYNC.reconcile(stravaSessionSync(session),result);
+ save();
+ return session.externalSync.strava;
+}
+function stravaActivityUrl(activityId){return `https://www.strava.com/activities/${encodeURIComponent(activityId)}`;}
+function stravaSessionStatusMarkup(record,connected){
+ if(record.status==="SYNCED"&&record.activityId)return `<div class="strava-sync-result synced"><strong>Posted to Strava</strong><a href="${stravaActivityUrl(record.activityId)}" target="_blank" rel="noopener">View on Strava</a></div>`;
+ if(record.status==="SYNCING"||record.status==="QUEUED")return '<div class="strava-sync-result processing" role="status"><strong>Processing on Strava…</strong><span>The activity ID will appear after Strava finishes.</span></div>';
+ if(record.status==="FAILED")return `<div class="strava-sync-result failed" role="alert"><strong>Strava upload failed</strong><span>${escapeAdaptiveText(record.lastError||"The activity could not be processed.")}</span>${connected?'<button class="secondary" id="retryStravaPost" type="button">Try Again</button>':""}</div>`;
+ if(connected&&navigator.onLine)return '<button class="primary" id="postToStrava" type="button">Post to Strava</button>';
+ if(!navigator.onLine)return '<button class="secondary" type="button" disabled>Post unavailable while offline</button>';
+ return '<p class="muted">Connect Strava in Profile to post this workout.</p>';
+}
+async function reconcileStravaSession(session){
+ const record=stravaSessionSync(session);
+ if(!window.ROAD12_STRAVA_CLIENT?.configured()||!navigator.onLine||!record.externalId)return record;
+ if(record.status==="SYNCED"&&record.activityId)return record;
+ try{return saveStravaBackendState(session,await window.ROAD12_STRAVA_CLIENT.uploadStatus(record.externalId));}
+ catch(error){
+   if(error.status===404)return record;
+   if(error.result?.state)return saveStravaBackendState(session,error.result);
+   return record;
+ }
+}
+async function pollStravaUpload(session,remainingPolls=40){
+ if(remainingPolls<=0||!navigator.onLine)return;
+ try{
+   const result=await window.ROAD12_STRAVA_CLIENT.uploadStatus(stravaSessionSync(session).externalId);
+   const record=saveStravaBackendState(session,result);
+   if(state.historyView===session.id)await renderStravaSessionActions(session,false);
+   if(record.status==="SYNCING")setTimeout(()=>pollStravaUpload(session,remainingPolls-1),1500);
+ }catch(error){
+   if(error.result?.state){saveStravaBackendState(session,error.result);if(state.historyView===session.id)await renderStravaSessionActions(session,false);}
+ }
+}
+function confirmStravaUpload(session){
+ const preview=window.ROAD12_STRAVA_PAYLOAD.buildStravaStrengthPayload(session);
+ const dialog=v42Dialog(`<span class="pill">REAL STRAVA ACTIVITY</span><h2>Post ${escapeAdaptiveText(preview.name)}?</h2>
+   <p><strong>This will create a real activity on Strava.</strong></p>
+   <div class="strava-preview-counts"><span>Exercises mapped <strong>${preview.summary.mappedExercises}</strong></span><span>Completed sets <strong>${preview.summary.completedSets}</strong></span><span>Warnings <strong>${preview.warnings.length}</strong></span></div>
+   ${preview.warnings.length?`<div class="strava-preview-warnings"><strong>Review warnings</strong><ul>${preview.warnings.map(item=>`<li>${escapeAdaptiveText(item.code.replaceAll("_"," "))}</li>`).join("")}</ul></div>`:""}
+   <button class="primary" id="confirmPostToStrava" type="button" ${preview.ready?"":"disabled"}>Post to Strava</button><button class="secondary" id="cancelPostToStrava" type="button">Cancel</button>`,`Post workout to Strava`,{showClose:false});
+ dialog.querySelector("#cancelPostToStrava").onclick=closeV42Dialog;
+ dialog.querySelector("#confirmPostToStrava")?.addEventListener("click",async event=>{
+   event.currentTarget.disabled=true;
+   closeV42Dialog();
+   const current=stravaSessionSync(session);
+   session.externalSync=session.externalSync||{};
+   session.externalSync.strava=window.ROAD12_STRAVA_SYNC.transition(current,"QUEUED",{lastAttemptAt:new Date().toISOString(),lastError:null});
+   save();await renderStravaSessionActions(session,false);
+   try{
+     const result=await window.ROAD12_STRAVA_CLIENT.upload({name:preview.name,sportType:preview.sportType,externalId:preview.externalId,dataType:preview.dataType,file:preview.file});
+     let queued=stravaSessionSync(session);
+     if(queued.status==="QUEUED")queued=window.ROAD12_STRAVA_SYNC.transition(queued,"SYNCING",{uploadId:result.uploadId||queued.uploadId,lastAttemptAt:new Date().toISOString()});
+     session.externalSync.strava=window.ROAD12_STRAVA_SYNC.reconcile(queued,result);
+     save();await renderStravaSessionActions(session,false);
+     if(session.externalSync.strava.status==="SYNCING")setTimeout(()=>pollStravaUpload(session),1500);
+   }catch(error){
+     let queued=stravaSessionSync(session);
+     if(queued.status==="QUEUED")queued=window.ROAD12_STRAVA_SYNC.transition(queued,"SYNCING");
+     session.externalSync.strava=window.ROAD12_STRAVA_SYNC.transition(queued,"FAILED",{lastError:error.message||"Strava upload failed.",lastAttemptAt:new Date().toISOString()});
+     save();await renderStravaSessionActions(session,false);
+   }
+ });
+}
+async function renderStravaSessionActions(session,reconcile=true){
+ const container=document.querySelector("#stravaSessionActions");
+ if(!container)return;
+ const client=window.ROAD12_STRAVA_CLIENT;
+ if(!client?.configured()){
+   container.innerHTML='<p class="muted">Manual Strava posting is not configured on this build. Local preview remains available.</p>';
+   return;
+ }
+ let connection={connected:false};
+ if(navigator.onLine){try{connection=await client.status();}catch{} }
+ const record=reconcile?await reconcileStravaSession(session):stravaSessionSync(session);
+ if(!document.querySelector("#stravaSessionActions"))return;
+ container.innerHTML=stravaSessionStatusMarkup(record,connection.connected);
+ container.querySelector("#postToStrava")?.addEventListener("click",()=>confirmStravaUpload(session));
+ container.querySelector("#retryStravaPost")?.addEventListener("click",()=>confirmStravaUpload(session));
+ if(record.status==="SYNCING"&&navigator.onLine)setTimeout(()=>pollStravaUpload(session),1500);
+}
 function sessionDetail(session){
  const totals=sessionTotals(session);
  const cardioBlocks=Array.isArray(session.cardioBlocks)?session.cardioBlocks:(session.cardio?[Object.assign({name:"Cardio"},session.cardio)]:[]);
- app.innerHTML=`<section class="card session-detail-header"><button class="secondary" id="historyBack">Back to history</button><div class="check small-check">✓</div><span class="pill">${session.recoveryIndicator?"RECOVERED WORKOUT":"COMPLETED WORKOUT"}</span><h2>${session.name}</h2><p class="muted">${session.date} • ${formatDuration(session.durationMs)}</p><div class="brief-grid"><div><small>SETS</small><strong>${totals.completedSets}</strong></div><div><small>REPS</small><strong>${totals.totalReps}</strong></div><div><small>SELECTED VOLUME</small><strong>${Math.round(totals.selectedVolume).toLocaleString()} lb</strong></div><div><small>STATUS</small><strong>Saved</strong></div></div>${cardioBlocks.map(block=>`<div class="recovery-note"><strong>${block.name}</strong><br>Target: ${block.plannedDurationMinutes} min • Completed: ${block.actualDurationMinutes} min${block.actualDurationMinutes>block.plannedDurationMinutes?` (+${Number((block.actualDurationMinutes-block.plannedDurationMinutes).toFixed(1))} min)`:""}${block.distance?`<br>Distance: ${block.distance}`:""}${block.averageHeartRate?` • Avg HR: ${block.averageHeartRate} bpm`:""}${block.averagePace?`<br>Avg pace: ${block.averagePace}`:""}${block.inclineResistance?` • Incline/resistance: ${block.inclineResistance}`:""}</div>`).join("")}${session.recoveryIndicator?`<div class="recovery-note"><strong>Recovery workout</strong><br>Originally planned: ${formatHistoryDateKey(session.plannedDate||session.originalScheduledDate)}<br>Completed: ${formatHistoryDateKey(session.completedDate||session.actualCompletionDate||session.dateKey)}</div>`:""}${session.recoveredFromV74?`<div class="recovery-note">This session was recovered from Version 11.3.2. Any values still held in the old workout log are shown below.</div>`:""}</section>
+ app.innerHTML=`<section class="card session-detail-header"><button class="secondary" id="historyBack">Back to history</button><div class="check small-check">✓</div><span class="pill">${session.recoveryIndicator?"RECOVERED WORKOUT":"COMPLETED WORKOUT"}</span><h2>${session.name}</h2><p class="muted">${session.date} • ${formatDuration(session.durationMs)}</p><div class="brief-grid"><div><small>SETS</small><strong>${totals.completedSets}</strong></div><div><small>REPS</small><strong>${totals.totalReps}</strong></div><div><small>SELECTED VOLUME</small><strong>${Math.round(totals.selectedVolume).toLocaleString()} lb</strong></div><div><small>STATUS</small><strong>Saved</strong></div></div>${cardioBlocks.map(block=>`<div class="recovery-note"><strong>${block.name}</strong><br>Target: ${block.plannedDurationMinutes} min • Completed: ${block.actualDurationMinutes} min${block.actualDurationMinutes>block.plannedDurationMinutes?` (+${Number((block.actualDurationMinutes-block.plannedDurationMinutes).toFixed(1))} min)`:""}${block.distance?`<br>Distance: ${block.distance}`:""}${block.averageHeartRate?` • Avg HR: ${block.averageHeartRate} bpm`:""}${block.averagePace?`<br>Avg pace: ${block.averagePace}`:""}${block.inclineResistance?` • Incline/resistance: ${block.inclineResistance}`:""}</div>`).join("")}${session.recoveryIndicator?`<div class="recovery-note"><strong>Recovery workout</strong><br>Originally planned: ${formatHistoryDateKey(session.plannedDate||session.originalScheduledDate)}<br>Completed: ${formatHistoryDateKey(session.completedDate||session.actualCompletionDate||session.dateKey)}</div>`:""}${session.recoveredFromV74?`<div class="recovery-note">This session was recovered from Version 11.3.2. Any values still held in the old workout log are shown below.</div>`:""}${window.ROAD12_STRAVA_PAYLOAD.isSessionStravaEligible(session)?'<button class="primary strava-preview-button" id="previewStravaPost">Preview Strava Post</button><div class="strava-session-actions" id="stravaSessionActions" aria-live="polite"><p class="muted">Checking Strava status…</p></div>':""}</section>
  <section class="card"><h2>Exercises completed</h2><div class="history-exercise-list">${(session.exercises||[]).length?(session.exercises||[]).map(ex=>`<details class="history-exercise" open><summary><span><strong>${ex.name}</strong>${ex.originalExercise?`<small>Substituted for ${ex.originalExercise}</small>`:""}</span><span>${(ex.sets||[]).filter(s=>s?.done).length} sets</span></summary><div class="history-set-head"><span>SET</span><span>${ex.weightEntry?.mode==="dual"?"LB / STACK":"WEIGHT"}</span><span>REPS</span><span>STATUS</span></div>${(ex.sets||[]).map((s,i)=>`<div class="history-set-row"><strong>${i+1}</strong><span>${s?.weight!==undefined&&s?.weight!==""?`${s.weight} lb`:"—"}${ex.weightEntry?.mode==="dual"&&s?.weight?`<small>${Number(s.weight)*2} lb combined selected</small>`:""}</span><span>${s?.reps||"—"}</span><span>${s?.done?"✓ Complete":"Not marked"}</span></div>`).join("")||'<p class="muted">No set details were stored.</p>'}<div class="history-weight-note"><strong>${ex.weightEntry?.label||"Weight used"}</strong><p>${ex.weightEntry?.help||""}</p></div></details>`).join(""):'<p class="muted">The older session record did not contain exercise details.</p>'}</div></section>
  <button class="secondary" id="repeatHistory">Repeat this workout</button>`;
  document.querySelector("#historyBack").onclick=()=>{state.historyView=null;save();progress()};
+ document.querySelector("#previewStravaPost")?.addEventListener("click",()=>openStravaPreview(session));
+ if(window.ROAD12_STRAVA_PAYLOAD.isSessionStravaEligible(session))renderStravaSessionActions(session);
  document.querySelector("#repeatHistory").onclick=()=>{if(confirm("Start a new Full Body A workout? This saved session will not be changed.")){state.historyView=null;startNewSession();setTab("workout")}};
 }
 
@@ -1484,6 +1644,7 @@ function summary(){
    const endedAt=new Date(),startedAt=state.currentSession?.startedAt?new Date(state.currentSession.startedAt):endedAt;
    session={id:state.currentSession?.id||`session-${Date.now()}`,scheduleId:state.currentSession?.scheduleId||null,planDay:Number.isInteger(state.currentSession?.planDay)?state.currentSession.planDay:currentPlanIndex(),date:endedAt.toLocaleDateString(),dateKey:localDateKey(endedAt),completedAt:endedAt.toISOString(),completedDate:localDateKey(endedAt),actualCompletionDate:localDateKey(endedAt),startedAt:startedAt.toISOString(),durationMs:Math.max(0,endedAt-startedAt),name:state.currentSession?.name||weekPlan[currentPlanIndex()].title,exercises:sessionExerciseSnapshot(),equipment:deepCopy(state.equipment)};
    session.endedAt=session.completedAt;
+   session.utcOffsetSeconds=-startedAt.getTimezoneOffset()*60;
    session.elapsedDurationMs=session.durationMs;
    session.activeDurationMs=null;
    session.restDurationMs=null;
@@ -3473,6 +3634,14 @@ save();
    state.tab="home";
    save();
  }
+})();
+
+(function handleStravaOauthReturn(){
+ const params=new URLSearchParams(location.search);
+ if(!params.has("strava"))return;
+ state.tab="equipment";
+ save();
+ history.replaceState(null,"",`${location.pathname}${location.hash||""}`);
 })();
 
 if("serviceWorker" in navigator){
