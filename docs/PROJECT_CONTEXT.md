@@ -32,7 +32,7 @@ Read this file at the beginning of every Codex or engineering session. It is the
 - `strava-data-boundary.js` owns the canonical classification of delete-on-disconnect provider data, safe local workout data, temporary metadata, and backup anti-resurrection behavior. It strips provider records before coaching receives history.
 - `strava-client.js` owns optional manual-only browser communication with the Strava Phase 2A Worker using a per-installation P-256 signing key; it contains no provider credentials and its private installation key is excluded from backups.
 - `worker/strava/` contains the deployed pilot Cloudflare Worker, D1 schema, OAuth/token boundary, upload validation, idempotency, and asynchronous status polling for the approved manual proof of concept.
-- `STRAVA_COMPLIANCE.md` is the current Strava release gate. The disclosure, retention, complete deletion, support, rate-limit, backup, and AI-boundary remediations pass automated tests; the first live upload remains blocked until the remediated Worker/PWA are deployed and the connected pilot account passes live deletion verification.
+- `STRAVA_COMPLIANCE.md` is the current Strava release gate. The disclosure, retention, complete deletion, support, rate-limit, backup, and AI-boundary remediations pass automated and deployed live validation. The gate is PASS; any first upload still requires reconnection, exact payload preview, and a new explicit confirmation for that activity.
 - `app.css` contains the current responsive design system.
 - `app-meta.js` is the single source for About/version and cache metadata.
 - `localStorage` holds versioned device-local state and completed history.
@@ -77,14 +77,14 @@ See `KNOWN_BUGS.md` before diagnosing or fixing defects.
 
 ## Active sprint goals
 
-The active High Priority task is the final Strava compliance deployment gate. Phase 1 and the Phase 2A manual proof-of-concept remain limited to one athlete. Consent disclosure, backend-confirmed deletion, D1 transaction cleanup, local provider stripping, backup anti-resurrection, retention rules, support, sanitized rate-limit handling, and coaching exclusion are implemented and tested. Deploy both boundaries, validate deletion with the connected pilot account, and re-audit before any live activity upload.
+All High Priority tasks for the current sprint are complete. The one-athlete Strava Phase 2A compliance gate passed after live disconnect validation: D1 provider data reached zero, the installed PWA removed provider metadata while retaining workouts, and a post-disconnect backup plus restore simulation proved anti-resurrection behavior. No activity was uploaded. The first manual upload remains a separate user-confirmed pilot action.
 
 Next recommended goals:
 
 1. Improve calendar navigation and filtering without altering schedule truth.
 2. Document adherence and recovery-score formulas.
 3. Preserve v13.2 behavior while gradually creating clearer module boundaries.
-4. Complete the Phase 2A live disconnect/deletion validation and pass `STRAVA_COMPLIANCE.md`; only then perform one separately approved Full Body A/B/C upload and validate rendering, idempotency, reconciliation, disconnect/reconnect, and token refresh. Do not enable automatic sync.
+4. After a new explicit user instruction, reconnect through the disclosure and perform one separately approved Full Body A/B/C upload, then validate rendering, idempotency, reconciliation, disconnect/reconnect, and token refresh. Do not enable automatic sync.
 4. Validate prescription-outcome signals across additional real Foundation sessions before using them for automatic recommendations.
 5. Re-audit active exercise media when Foundation prescriptions change; keep future-phase media deferred until those workout definitions are approved.
 6. Evaluate the completed four-session lower-ab block before choosing its long-term maintenance or progression path.

@@ -2,7 +2,7 @@
 
 Date checked: August 30, 2026
 
-Status: **PASS WITH REQUIRED DEPLOYMENT VALIDATION — no live activity upload is permitted until the Worker and installed PWA deletion flow are verified against the connected pilot account.**
+Status: **PASS — the first manual upload is cleared for a separate, explicit user confirmation. No activity was uploaded during remediation or validation.**
 
 This is an engineering compliance review, not legal advice. Passing automated tests does not by itself establish compliance.
 
@@ -127,29 +127,35 @@ Road to 12% does not sell, license, syndicate, disclose, or proxy Strava data to
 | A. API purpose | PASS WITH RECOMMENDATION | Personal manual strength posting is appropriately narrow. Update the registered app description to the recommended wording above. |
 | B. Authentication and consent | PASS | One-time OAuth, explicit acknowledgement, and only `activity:write` are implemented. |
 | C. User consent/data disclosure | PASS | Collection, exclusion, withdrawal, deletion, confirmation, support, monitoring, and non-endorsement disclosures are accessible before and after connection. |
-| D. Data deletion | PASS IN AUTOMATED TESTS; LIVE VALIDATION REQUIRED | The backend-confirmed transaction and local anti-resurrection cleanup pass fault-injection tests. Verify the deployed Worker/D1 and installed PWA before upload. |
+| D. Data deletion | PASS | The backend-confirmed transaction, local cleanup, and anti-resurrection behavior pass fault-injection tests and the live connected-pilot deletion test. |
 | E. Data access | PASS | Signed installation-bound requests expose only that installation's connection/upload state. |
 | F. Token and secret security | PASS WITH RECOMMENDATION | Tokens remain encrypted server-side and credentials remain Cloudflare secrets. Reconfirm secret-name inventory and logging after deployment without exposing values. |
 | G. Data minimization | PASS | Only the validated public title and required strength fields can enter the upload payload. |
 | H. Branding | PASS WITH RECOMMENDATION | Plain text is non-endorsing and confirmed links say `View on Strava`. |
 | I. Rate limits/polling | PASS | Polling is manual, bounded, no faster than documented guidance, and `429` is handled without persisting provider headers. |
 | J. Activity upload | PASS | The current contract supports JSON `WeightTraining` uploads with structured sets, kilograms, `external_id`, and asynchronous status polling. |
-| K. Data storage/API restrictions | PASS IN IMPLEMENTATION; LIVE VALIDATION REQUIRED | Minimal connected-state retention and complete disconnect deletion are implemented; deployment must be verified. |
+| K. Data storage/API restrictions | PASS | Minimal connected-state retention and complete disconnect deletion are implemented and verified against the deployed Worker, D1, installed PWA, and a post-disconnect backup. |
 | L. AI/model use | PASS WITH REQUIRED GUARDRAIL | Provider records are stripped before coaching and remain prohibited from every AI/model/agent context. |
 | M. Third-party/commercial access | PASS FOR SINGLE-ATHLETE PILOT | This remains a one-athlete pilot. Any broader access requires a new review. |
 | N. Support/contact | PASS | The in-app privacy view links to a support/deletion request path and warns against sharing sensitive data. |
 | O. Terms monitoring | PASS | Sources, check dates, restrictions, deployment gate, and recheck triggers are recorded here. |
 
-## Remaining gate before first live upload
+## Live validation evidence
 
-1. Deploy only the remediated Worker and PWA build.
-2. Confirm the deployed secret names and non-secret routing variables without displaying secret values.
-3. With the currently connected pilot account, invoke **Disconnect Strava**.
-4. Verify the UI reports confirmed deletion and preserves Road to 12% workout history.
-5. Verify D1 has no connection, athlete, token, OAuth-state, upload, activity, error, or provider timestamp records for that installation.
-6. Import or inspect an older backup and confirm the deletion tombstone prevents provider metadata from returning.
-7. Reconnect through the new disclosure only if needed for the later manual-upload pilot.
-8. Rerun this checklist and change the gate to PASS. Do not upload an activity as part of this validation.
+- Deployed PWA: build `2026.08.30.2`, schema 17, cache `road12-v13-2-67-shell`.
+- Deployed Worker: version `63c13689-955b-4aa3-980f-55bf9295f12c`.
+- Required Cloudflare secret names were present; no secret values were read or displayed.
+- Before disconnect, the connected pilot had the expected connection, athlete, encrypted token, and OAuth-state records and had no upload/activity/error record.
+- The user manually invoked Disconnect Strava in the installed PWA. The post-disconnect backup proves the browser received backend confirmation, applied local cleanup, and wrote its deletion tombstone.
+- After disconnect and expiry cleanup, D1 counts were zero for connections, athlete identity, encrypted tokens, OAuth states, uploads, activity IDs, and provider errors.
+- The post-disconnect backup contained no prohibited provider field and no Strava activity link. Workout history, exercise snapshots, and actual-set records remained present.
+- A restore simulation using the post-disconnect tombstone and an older provider-bearing session produced zero restored Strava records while preserving the underlying workout.
+- All 36 automated test/validation scripts passed after the final Worker retention correction.
+- No Strava activity upload was attempted.
+
+## Cleared pilot action
+
+The compliance gate is PASS. A first manual Full Body A/B/C upload may be attempted only after the user reconnects through the new disclosure, previews the exact payload, and gives a new explicit confirmation for that specific activity. Stop before creating it.
 
 ## Multi-user requirements
 

@@ -4,7 +4,7 @@ This file contains implementation-ready work. Move completed user-visible work t
 
 ## High priority
 
-- [ ] Complete the Strava compliance deployment gate in `STRAVA_COMPLIANCE.md`: the disclosure, complete deletion, support, retention, backup, rate-limit, and AI-boundary changes pass automated tests; deploy them, verify live D1/local deletion with the connected pilot account, and re-audit before the first upload.
+- [x] Complete the Strava compliance deployment gate in `STRAVA_COMPLIANCE.md`: deploy disclosure, complete deletion, support, retention, backup, rate-limit, and AI-boundary changes; verify live D1/local deletion and backup anti-resurrection with the connected pilot account; re-audit before the first upload.
 - [ ] Validate Foundation readiness weighting against real A/B/C, recovery, cardio, and measurement history before enabling advancement.
 - [ ] Design the Phase 2 Build plan and explicit milestone review/acceptance flow without activating it.
 
