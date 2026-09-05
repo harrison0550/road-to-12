@@ -27,6 +27,7 @@ The roadmap communicates direction rather than a guaranteed schedule. Completed 
 - [x] Add the iFIT rower and available 10/15/20/25 lb dumbbells to the weekly program without replacing existing exercises
 - [x] Add targeted biceps accessories, a review-gated four-session lower-ab progression, and pelvic-floor relaxation/mobility without replacing Foundation A/B/C
 - [x] Establish distinct Foundation chest presses: Smith Machine Bench Press on A, GMWD Converging Chest Press on B, and Low-Incline Dumbbell Press on C, with engagement-aware progression and legacy-history preservation
+- [x] Replace the Full Body C behind-the-back cable curl with a revision-safe Seated Concentration Curl and supplied offline guide/sequence assets
 - [x] Add Smith Machine Hip Thrust to Full Body C with the owned bar pad, complete strength tracking, and approved offline movement guidance
 - [x] Refresh Home with the Concept B Training Command Center design
 - [x] Add automated scheduling regression tests

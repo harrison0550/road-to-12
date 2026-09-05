@@ -192,8 +192,20 @@ function validateMediaFile(media, label, kind, missing, invalid) {
     } else if (entry.mediaType === "still") {
       validateMediaFile(entry.media, `${label} still`, "still", missing, invalid);
       requireListed(entry.media, `${label} still`);
+    } else if (entry.mediaType === "movement-sequence") {
+      validateMediaFile(entry.media, `${label} guide`, "still", missing, invalid);
+      requireListed(entry.media, `${label} guide`);
+      if (typeof entry.movementSequence !== "string" || !entry.movementSequence.trim()) {
+        invalid.push(`${label}: movement-sequence media must provide a movementSequence asset`);
+      } else {
+        validateMediaFile(entry.movementSequence, `${label} movement sequence`, "still", missing, invalid);
+        requireListed(entry.movementSequence, `${label} movement sequence`);
+      }
+      if (typeof entry.movementSequenceAlt !== "string" || entry.movementSequenceAlt.trim().length < 30) {
+        invalid.push(`${label}: movement-sequence alternative text is missing or too generic`);
+      }
     } else {
-      invalid.push(`${label}: mediaType must be animation or still`);
+      invalid.push(`${label}: mediaType must be animation, still, or movement-sequence`);
     }
 
     if (entry.reference) {

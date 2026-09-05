@@ -126,6 +126,8 @@ function generateLiveFoundationWorkouts() {
     "armAccessoryForDay",
     "fullBodyBWorkout",
     "smithMachineHipThrustExercise",
+    "behindBackCableCurlExercise",
+    "seatedConcentrationCurlExercise",
     "fullBodyCWorkout",
     "strengthWorkoutForDay",
     "workoutForDay",
@@ -148,7 +150,8 @@ function generateLiveFoundationWorkouts() {
     const equipmentLabels={};
     const LEGACY_FOUNDATION_PROGRAM_REVISION="foundation-kettlebell-2026-08-27";
     const PREVIOUS_FOUNDATION_PROGRAM_REVISION="foundation-smith-hip-thrust-2026-08-28";
-    const FOUNDATION_PROGRAM_REVISION="foundation-gmwd-chest-press-2026-09-04";
+    const GMWD_FOUNDATION_PROGRAM_REVISION="foundation-gmwd-chest-press-2026-09-04";
+    const FOUNDATION_PROGRAM_REVISION="foundation-concentration-curl-2026-09-04";
     ${workoutFunctionNames.map((name) => extractFunction(appSource, name)).join("\n")}
     this.__foundationWorkouts=[0,1,2,3,4,5].map(day=>workoutForDay(day));
   `;
@@ -219,7 +222,7 @@ const activeFoundationExercises = [
   "Cable Straight Arm Pushdown",
   "High to Low Cable Chop",
   "Dumbbell Romanian Deadlift",
-  "Behind-the-Back Single-Arm Cable Curl",
+  "Seated Concentration Curl",
   "Treadmill HIIT Intervals",
   "Zone 2 Warm-Up",
   "Zone 2 Cardio",
@@ -289,6 +292,14 @@ assert.strictEqual(library.entries["Rower Technique"].mediaType, "animation");
 for (const name of activeFoundationExercises) {
   const entry = library.entries[name];
   assert(entry, `${name} must resolve by its exact guided-workout name`);
+  if (name === "Seated Concentration Curl") {
+    assert.strictEqual(entry.mediaType, "movement-sequence");
+    assert.match(entry.media, /seated-concentration-curl-guide\.png$/i);
+    assert.match(entry.movementSequence, /seated-concentration-curl-sequence\.png$/i);
+    assert(fs.existsSync(path.join(root, entry.media)), `${name} guide image must exist locally`);
+    assert(fs.existsSync(path.join(root, entry.movementSequence)), `${name} movement sequence must exist locally`);
+    continue;
+  }
   assert.strictEqual(
     entry.mediaType,
     "animation",
@@ -408,7 +419,7 @@ assert(vBarEntry.equipment.some((item)=>/angled V-bar pressdown attachment/i.tes
 assert.strictEqual(
   new Set(activeFoundationExercises.map((name) => library.entries[name].media)).size,
   56,
-  "the audit should resolve the 63 active names to 56 distinct reviewed animations",
+  "the audit should resolve 62 animated active names to 55 distinct reviewed animations plus the concentration-curl movement guide",
 );
 
 for (const name of ["Hanging Knee Raise", "Decline Bench Reverse Crunch", "Hanging Garhammer Raise"]) {
@@ -416,5 +427,5 @@ for (const name of ["Hanging Knee Raise", "Decline Bench Reverse Crunch", "Hangi
 }
 
 console.log(
-  "Foundation animation coverage passed: live workoutForDay(0..5) output matches all 63 audited names, resolves to 56 reviewed animations, and all three review-gated Phase 2 movements are ready.",
+  "Foundation media coverage passed: live workoutForDay(0..5) output matches all 63 audited names, including the concentration-curl movement guide, and all three review-gated Phase 2 movements are ready.",
 );

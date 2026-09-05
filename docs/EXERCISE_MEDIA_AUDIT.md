@@ -3,14 +3,15 @@
 ## Status
 
 - Audit date: September 4, 2026
-- Release target: version 13.2.0, build 2026.09.04.1
+- Release target: version 13.2.0, build 2026.09.04.2
 - Active guided exercise names mapped: 63 of 63
 - Review-gated lower-ab Phase 2 names mapped: 3 of 3
 - Visible Library-only setup entries mapped: 1 of 1
 - Distinct reviewed movement animations: 61
 - New Road to 12% animations in the August 23 expansion: 13
 - Previously approved Road to 12% animations retained: 6
-- Offline cache targets: `road12-v13-2-69-shell` and `road12-v13-2-69-media`
+- Supplied static movement-sequence guides: 1
+- Offline cache targets: `road12-v13-2-70-shell` and `road12-v13-2-70-media`
 
 This audit covers the exercise names that can appear in the current Foundation A/B/C, Cardio + Mobility, Core + Recovery, and Zone 2 guided flows; the three explicitly approved movements gated behind the lower-ab Phase 2 review; and the Stationary Bike Setup entry visible only in the Exercise Library. It does not approve media for unimplemented Build, Upper / Lower, or Hypertrophy / Definition workouts.
 
@@ -24,9 +25,13 @@ Each active guided exercise resolves by its exact display name through `ROAD12_E
 - A media type and review date.
 - A retained reviewed, licensed, or official reference when it is an exact, non-conflicting match.
 
-The written setup, execution, cues, and safety guidance remain authoritative. App-created movement artwork supplements those instructions; it must not be presented as licensed footage or as a substitute for the written coaching.
+An explicitly supplied static movement-sequence entry may instead contain one primary guide and one ordered sequence image with separate alternative text. The written setup, execution, cues, and safety guidance remain authoritative. App-created movement artwork supplements those instructions; it must not be presented as licensed footage or as a substitute for the written coaching.
 
-Several exact workout names intentionally share one accurate animation. Easy treadmill warm-ups, cooldowns, and recovery walks use the same easy-walk asset, while their written prescriptions remain distinct. The current 63 active names therefore map to 56 distinct animations. The three gated Phase 2 movements plus retained legacy and alias mappings bring the reviewed registry to 61 distinct animations across 77 exact-name mappings.
+Several exact workout names intentionally share one accurate animation. Easy treadmill warm-ups, cooldowns, and recovery walks use the same easy-walk asset, while their written prescriptions remain distinct. The current 63 active names therefore map to 55 distinct GIF animations plus the supplied Seated Concentration Curl movement guide. The three gated Phase 2 movements plus retained legacy and alias mappings bring the reviewed registry to 61 distinct animations across 77 exact-name mappings, plus the concentration-curl guide.
+
+## September 4 Seated Concentration Curl update
+
+Future Full Body C sessions replace the Behind-the-Back Single-Arm Cable Curl with Seated Concentration Curl while retaining the older animation and stable identity for completed history and active older revisions. The supplied `seated-concentration-curl-guide.png` and `seated-concentration-curl-sequence.png` show the established red-shirt trainer, elbow braced against the inner thigh, a fixed upper arm, neutral wrist, controlled curl, and slow return. Both files are included in the offline media manifest.
 
 ## September 4 GMWD chest-press update
 

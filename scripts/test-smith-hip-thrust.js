@@ -18,8 +18,8 @@ assert.match(app, /Smith Machine Hip Thrust[\s\S]*?legs extending into the cage/
 assert.match(app, /Smith Machine Hip Thrust[\s\S]*?Smith barbell pad securely around the center of the bar/);
 assert.match(app, /Smith Machine Hip Thrust[\s\S]*?attachmentCard:\{key:"smithBarPad",name:"Smith barbell pad",qty:1\}/);
 assert.match(app, /Smith Machine Hip Thrust[\s\S]*?Do not include the 33 lb Smith bar; the app adds it separately/);
-assert.match(app, /const includeHipThrust=!activeSession\|\|state\.currentSession\.programRevision===FOUNDATION_PROGRAM_REVISION/);
-assert.match(app, /dayIndex===4\?fullBodyCWorkout\(includeHipThrust\)/);
+assert.match(app, /const includeHipThrust=!activeSession\|\|\[PREVIOUS_FOUNDATION_PROGRAM_REVISION,GMWD_FOUNDATION_PROGRAM_REVISION,FOUNDATION_PROGRAM_REVISION\]\.includes\(state\.currentSession\.programRevision\)/);
+assert.match(app, /dayIndex===4\?fullBodyCWorkout\(includeHipThrust,useGmwdChest,useConcentrationCurl\)/);
 assert.match(app, /\["smithBarPad","Smith barbell pad","Used to cushion the Smith bar during hip thrusts\."\]/);
 
 const entry = library.entries["Smith Machine Hip Thrust"];

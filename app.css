@@ -2037,6 +2037,9 @@ header .reset,#reset,.reset-button{display:none!important}
 .original-asset-button{overflow:hidden;background:#090d12}
 .original-asset-button img{width:100%;max-height:520px;object-fit:contain;background:#090d12}
 .original-asset-button span{color:#8ee9b9}
+.movement-sequence-guide{margin:12px 0 0;padding:10px;border:1px solid #34414d;border-radius:16px;background:#090d12}
+.movement-sequence-guide img{display:block;width:100%;max-height:520px;object-fit:contain;border-radius:10px;background:#090d12}
+.movement-sequence-guide figcaption{padding:9px 2px 2px;color:var(--muted);font-size:12px;font-weight:800;text-align:center}
 .motion-controls{display:flex;align-items:center;gap:12px;margin-top:12px}
 .motion-controls .secondary{width:auto;min-width:150px;min-height:48px;margin:0;padding:12px 16px}
 .motion-controls small{color:var(--muted);line-height:1.45}

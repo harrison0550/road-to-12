@@ -6,10 +6,10 @@ Read this file at the beginning of every Codex or engineering session. It is the
 
 - Product: Road to 12%
 - Version: 13.2.0
-- Build: 2026.09.04.1
+- Build: 2026.09.04.2
 - Last updated: September 4, 2026
-- Service Worker cache: `road12-v13-2-69-shell`
-- Exercise media cache: `road12-v13-2-69-media`
+- Service Worker cache: `road12-v13-2-70-shell`
+- Exercise media cache: `road12-v13-2-70-media`
 - Runtime: static, client-only, offline-first PWA
 - Primary storage key: `road12v5`
 
@@ -77,7 +77,7 @@ See `KNOWN_BUGS.md` before diagnosing or fixing defects.
 
 ## Active sprint goals
 
-The GMWD converging chest-press program update is deployed in build `2026.09.04.1`, including corrected media for the compact red V1 machine. The one-athlete Strava Phase 2A compliance gate, first manual Full Body C pilot, actual Strava rendering, and duplicate/idempotency verification passed; automatic sync, cardio posting, read scopes, bulk history, and Phase 2B remain disabled. Extra Activity + iFIT screenshot import remains implemented locally for review and is not deployed.
+Build `2026.09.04.2` deploys the revision-safe Seated Concentration Curl replacement in future Full Body C sessions with both supplied offline guides and single-dumbbell progression. The prior behind-the-back cable curl remains intact for completed history and older active revisions. The one-athlete Strava Phase 2A compliance gate, first manual Full Body C pilot, actual Strava rendering, and duplicate/idempotency verification passed; automatic sync, cardio posting, read scopes, bulk history, and Phase 2B remain disabled. Extra Activity + iFIT screenshot import remains implemented locally for review and is not deployed.
 
 Next recommended goals:
 
@@ -112,6 +112,7 @@ See `CODEX_TASKS.md` for priority and acceptance detail.
 - Thursday Core + Recovery includes a conservative first-exposure block using the owned 30 lb kettlebell: Around the World, two-hand Swing, and Suitcase Carry. It is inserted after the easy warm-up and preserves Dead Bug, Bird Dog, Side Plank, phased lower-ab work, and mobility. Advanced kettlebell lifts remain deferred until technique and recovery evidence exist.
 - Full Body B uses the no-bench Smith Machine Single-Leg Squat and adds two sets of V-Bar Triceps Pushdown with one high front-post pulley. Seated Cable Row explicitly uses the owned rotating close-grip double-D handle. The prior split-squat display name remains an alias of the same stable exercise ID, and the session program revision prevents the new additive V-bar block from entering an older active workout.
 - Future Full Body A sessions use Smith Machine Bench Press, Full Body B uses GMWD Converging Chest Press, and Full Body C uses Low-Incline Dumbbell Press. GMWD sets record plate weight per side and derive total external load without assuming machine-arm weight. Its first three exposures hold aggressive load progression while rep quality, 2–3 RIR, and chest engagement establish a baseline. The prior Cable Chest Press and Incline Cable Press definitions, stable IDs, media, completed history, and older A/B/C session revisions remain available and unchanged.
+- Future Full Body C sessions use two sets of Seated Concentration Curl in place of the prior behind-the-back cable curl. The movement records one dumbbell, uses 10–15 reps per arm at 2–3 RIR with rep-before-load double progression, and retains the prior curl for completed history and active older revisions.
 - Both new chest presses include a visible technique card, optional non-working activation set, chest-engagement feedback, and conservative engagement-aware progression. Activation completion is resumable inside the active session but is excluded from working volume, personal records, progression evidence, and completed exercise history.
 - Full Body A adds two sets of Alternating Dumbbell Curl and Full Body C adds two sets of Behind-the-Back Single-Arm Cable Curl. These are additive accessories and do not replace existing Foundation work.
 - Core + Recovery owns a separate four-session lower-ab track. Phase 1 remains active for two completed Thursday sessions; the app then requires explicit review and acceptance before substituting the three Phase 2 movements. Calendar time alone never advances it. Tuesday and Saturday include the same five-minute pelvic-floor relaxation/mobility sequence.

@@ -32,6 +32,7 @@
     ["road12.curl.cable","Cable Curl","CABLE_BICEPS_CURL",[]],
     ["road12.curl.dumbbell-alternating","Alternating Dumbbell Curl","STANDING_DUMBBELL_BICEPS_CURL",[]],
     ["road12.curl.cable-behind-back-single-arm","Behind-the-Back Single-Arm Cable Curl","CABLE_BICEPS_CURL",[]],
+    ["road12.curl.dumbbell-concentration","Seated Concentration Curl","STANDING_DUMBBELL_BICEPS_CURL",[]],
     ["road12.deadlift.smith-rdl","Smith Machine RDL","ROMANIAN_DEADLIFTS",[]],
     ["road12.lunge.smith-bulgarian","Smith Machine Single-Leg Squat","SMITH_MACHINE_LUNGE",["Smith Bulgarian Split Squat"]],
     ["road12.triceps.v-bar-pushdown","V-Bar Triceps Pushdown","CABLE_TRICEPS_PUSHDOWN",[]],

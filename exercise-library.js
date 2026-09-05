@@ -435,6 +435,10 @@
 
   function registerAnimation(name, config) {
     const previous = entries[name] || {};
+    if (config.mediaType === "movement-sequence") {
+      entries[name] = Object.assign({}, previous, config);
+      return;
+    }
     let reference = config.reference || null;
     if (config.retainPreviousReference !== false && !reference && previous.media && previous.mediaType !== "animation" && !/\.gif(?:$|\?)/i.test(previous.media)) {
       reference = Object.freeze(Object.assign({}, previous, { mediaType: "still" }));
@@ -753,6 +757,25 @@
       secondaryMuscles: ["Brachialis", "Forearms"],
       equipment: ["RitFit M1 cable station", "One low front-post pulley", "One D-handle"],
       commonMistakes: ["Turning toward the machine", "Letting the elbow drift forward", "Using torso momentum", "Choosing too much resistance"]
+    },
+    "Seated Concentration Curl": {
+      slug: "seated-concentration-curl",
+      sourceType: "app-original",
+      provider: "Road to 12%",
+      providerUrl: "",
+      author: "Road to 12%",
+      sourceExercise: "Seated single-dumbbell concentration curl",
+      media: "assets/exercise-library/generated/seated-concentration-curl-guide.png",
+      movementSequence: "assets/exercise-library/generated/seated-concentration-curl-sequence.png",
+      mediaAlt: "Instructional guide of the Road to 12% trainer performing a seated concentration curl with one elbow braced against the inner thigh",
+      movementSequenceAlt: "Movement sequence of the seated trainer curling one dumbbell toward the shoulder while the braced upper arm and torso remain still",
+      mediaType: "movement-sequence",
+      reviewedOn: mediaReviewDate,
+      primaryMuscles: ["Biceps"],
+      secondaryMuscles: ["Brachialis", "Forearm flexors"],
+      equipment: ["One dumbbell", "Stable bench or seat"],
+      commonMistakes: ["Swinging the torso", "Lifting the elbow from the inner thigh", "Bending the wrist", "Dropping the weight through the eccentric"],
+      rightsNote: "App-created instructional guide supplied for Road to 12%. Written setup and movement cues remain the authoritative coaching guide."
     },
     "Reverse Crunch": {
       slug: "reverse-crunch", reviewedOn: "2026-08-28",

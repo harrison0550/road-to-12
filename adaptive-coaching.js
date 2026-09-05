@@ -41,7 +41,7 @@
   function latestFeedback(item){return item?.exercise?.feedback||item?.session?.exerciseFeedback?.[item?.exercise?.name]||null;}
   function nextLoad(current,definition){
     const name=definition.name||"",mode=definition.weightEntry?.mode||"total";
-    if(definition.weightEntry?.paired||name.includes("Dumbbell")){
+    if(definition.weightEntry?.paired===true||(definition.weightEntry?.paired===undefined&&name.includes("Dumbbell"))){
       const availablePairTotals=[20,30,40,50];
       return availablePairTotals.find(weight=>weight>current)||current;
     }

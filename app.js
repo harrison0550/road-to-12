@@ -83,6 +83,7 @@ function listMarkup(items,emptyText){
 }
 function mediaStatus(entry){
  if(entry.mediaType==="animation")return "MOVEMENT ANIMATION";
+ if(entry.mediaType==="movement-sequence")return "MOVEMENT GUIDE";
  if(entry.sourceType==="official-manual")return "OFFICIAL RITFIT GUIDE";
  if(entry.sourceType==="app-original")return "POSTURE ILLUSTRATION";
  return "REVIEWED LICENSED MEDIA";
@@ -95,6 +96,7 @@ function mediaChip(entry){
 function libraryMediaLabel(entry){
  if(!entry)return "No reviewed image";
  if(entry.mediaType==="animation")return "App-created animation";
+ if(entry.mediaType==="movement-sequence")return "App-created movement guide";
  if(entry.sourceType==="official-manual")return "Official RitFit guide";
  if(entry.sourceType==="app-original")return "App-created guide";
  return "Reviewed licensed guide";
@@ -129,7 +131,8 @@ function licensedMediaMarkup(ex){
    <button type="button" class="exercise-asset-button ${entry.sourceType==="app-original"?"original-asset-button":"licensed-asset-button"}" id="openAsset">
      <span class="motion-media-viewport"><img class="exercise-asset-image" width="600" height="600" src="${displayAsset}" alt="${entry.mediaAlt}" data-motion-image data-poster-src="${isAnimation?entry.motionPoster:displayAsset}" data-animation-src="${isAnimation?entry.media:""}"></span>
      <span>Tap to enlarge</span>
-   </button>
+    </button>
+   ${entry.movementSequence?`<figure class="movement-sequence-guide"><img src="${entry.movementSequence}" alt="${entry.movementSequenceAlt||entry.mediaAlt}"><figcaption>Movement sequence</figcaption></figure>`:""}
    ${isAnimation?`<div class="motion-controls"><button type="button" class="secondary" data-motion-toggle aria-pressed="true">Pause animation</button><small>Animation plays automatically. Pause it at any time.</small></div>`:""}
  </section>`;
 }
@@ -485,7 +488,8 @@ const weekPlan=[
 ];
 const LEGACY_FOUNDATION_PROGRAM_REVISION="foundation-kettlebell-2026-08-27";
 const PREVIOUS_FOUNDATION_PROGRAM_REVISION="foundation-smith-hip-thrust-2026-08-28";
-const FOUNDATION_PROGRAM_REVISION="foundation-gmwd-chest-press-2026-09-04";
+const GMWD_FOUNDATION_PROGRAM_REVISION="foundation-gmwd-chest-press-2026-09-04";
+const FOUNDATION_PROGRAM_REVISION="foundation-concentration-curl-2026-09-04";
 Object.assign(weekPlan[0],{
   detail:"Guided strength - chest, back, quads, shoulders and arms",
   time:"60\u201370 min",
@@ -506,7 +510,7 @@ Object.assign(weekPlan[3],{
 Object.assign(weekPlan[4],{
   detail:"Third weekly guided full-body strength session with added glute and biceps work",
   time:"65\u201375 min",
-  items:[...weekPlan[4].items.slice(0,9),"Behind-the-Back Single-Arm Cable Curl",...weekPlan[4].items.slice(9)]
+  items:[...weekPlan[4].items.slice(0,9),"Seated Concentration Curl",...weekPlan[4].items.slice(9)]
 });
 Object.assign(weekPlan[5],{
   detail:"Longer easy bike, rower or treadmill session plus pelvic-floor relaxation",
@@ -3149,7 +3153,38 @@ function smithMachineHipThrustExercise(){
   });
 }
 
-function fullBodyCWorkout(includeHipThrust=true,includeLowInclinePress=true){
+function behindBackCableCurlExercise(){
+  return cloneExerciseByName("Cable Curl",{
+    name:"Behind-the-Back Single-Arm Cable Curl",sets:2,reps:"12-15",
+    muscles:"Biceps, brachialis and forearms",
+    setup:["Set one front-post pulley to the lowest position","Attach one D-handle","Stand outside the cage with your back to the active post","Take one small step forward into a staggered stance"],
+    steps:["Hold the handle in the working hand with the palm facing forward.","Let the upper arm trail slightly behind the torso while maintaining cable tension.","Keep the elbow fixed behind the body and curl the handle toward the shoulder.","Pause briefly, then lower slowly before switching arms."],
+    cues:["Face away from the machine.","Keep the elbow behind the torso.","Use a light load and no body swing."],
+    m1:{pinLeft:1,pinRight:null,attachment:"One D-handle",bench:"No bench",facing:"Face away from the active front post",stance:"Staggered stance one small step forward",start:"Working arm nearly straight just behind the hip",finish:"Curl the handle toward the shoulder while the elbow stays behind the torso",view:"Strict side view",pinNote:"Use one front-post pulley at position 1."},
+    why:"Adds a lengthened-position biceps movement without replacing Friday's existing pulling or arm work.",
+    weightRecommendation:"Start with the lightest practical selector setting and keep the shoulder and torso completely still.",
+    requires:["ritfitM1"],attachmentCard:{key:"dHandles",name:"One D-handle",qty:1},
+    weightEntry:{mode:"single",label:"Weight selected on the active stack",help:"Enter the selector setting on the one low cable stack used for this exercise."},
+    correctedGuide:null,demoImage:"assets/exercise-library/generated/behind-the-back-single-arm-cable-curl-motion-guide.webp"
+  });
+}
+
+function seatedConcentrationCurlExercise(){
+  return cloneExerciseByName("Cable Curl",{
+    name:"Seated Concentration Curl",type:"strength",sets:2,reps:"10-15",rest:60,
+    unilateral:true,muscles:"Biceps, brachialis and forearm flexors",
+    setup:["Sit near the front of a stable bench with both feet planted","Hold one dumbbell in the working hand","Brace the working elbow against the inside of the same-side thigh","Keep the wrist neutral and the upper arm fixed"],
+    steps:["Begin with the arm nearly straight without locking the elbow.","Curl the single dumbbell toward the shoulder while the upper arm stays still.","Pause and squeeze the biceps without twisting the wrist.","Lower for two to three seconds, then complete the other arm."],
+    cues:["One dumbbell; complete the prescribed reps per arm.","Keep the elbow braced against the inner thigh.","No torso swing.","Control the lowering phase and focus on the squeeze."],
+    why:"Preserves Friday's direct biceps volume with a strict single-dumbbell movement that limits torso momentum.",
+    weightRecommendation:"Use one owned dumbbell that allows 10 to 15 clean reps per arm with 2 to 3 reps in reserve.",
+    targetRirRange:[2,3],progressionModel:"double-progression",requires:["dumbbells","bench"],substituteId:null,attachmentCard:null,m1:null,
+    weightEntry:{mode:"total",paired:false,label:"One dumbbell weight",help:"Enter the weight of the single dumbbell used. Complete the listed repetitions per arm; do not combine both arms."},
+    correctedGuide:null,demoImage:"assets/exercise-library/generated/seated-concentration-curl-guide.png"
+  });
+}
+
+function fullBodyCWorkout(includeHipThrust=true,includeLowInclinePress=true,useConcentrationCurl=true){
   const hipThrust=includeHipThrust?[smithMachineHipThrustExercise()]:[];
   return [
     cloneExerciseByName("Treadmill Walk"),
@@ -3201,19 +3236,7 @@ function fullBodyCWorkout(includeHipThrust=true,includeLowInclinePress=true){
       demoImage:"assets/phase2/cable-straight-arm-pushdown.jpg"
     }),
     cloneExerciseByName("Rope Triceps Pushdown"),
-    cloneExerciseByName("Cable Curl",{
-      name:"Behind-the-Back Single-Arm Cable Curl",sets:2,reps:"12-15",
-      muscles:"Biceps, brachialis and forearms",
-      setup:["Set one front-post pulley to the lowest position","Attach one D-handle","Stand outside the cage with your back to the active post","Take one small step forward into a staggered stance"],
-      steps:["Hold the handle in the working hand with the palm facing forward.","Let the upper arm trail slightly behind the torso while maintaining cable tension.","Keep the elbow fixed behind the body and curl the handle toward the shoulder.","Pause briefly, then lower slowly before switching arms."],
-      cues:["Face away from the machine.","Keep the elbow behind the torso.","Use a light load and no body swing."],
-      m1:{pinLeft:1,pinRight:null,attachment:"One D-handle",bench:"No bench",facing:"Face away from the active front post",stance:"Staggered stance one small step forward",start:"Working arm nearly straight just behind the hip",finish:"Curl the handle toward the shoulder while the elbow stays behind the torso",view:"Strict side view",pinNote:"Use one front-post pulley at position 1."},
-      why:"Adds a lengthened-position biceps movement without replacing Friday's existing pulling or arm work.",
-      weightRecommendation:"Start with the lightest practical selector setting and keep the shoulder and torso completely still.",
-      requires:["ritfitM1"],attachmentCard:{key:"dHandles",name:"One D-handle",qty:1},
-      weightEntry:{mode:"single",label:"Weight selected on the active stack",help:"Enter the selector setting on the one low cable stack used for this exercise."},
-      correctedGuide:null,demoImage:"assets/exercise-library/generated/behind-the-back-single-arm-cable-curl-motion-guide.webp"
-    }),
+    useConcentrationCurl?seatedConcentrationCurlExercise():behindBackCableCurlExercise(),
     cloneExerciseByName("Rope Triceps Pushdown",{
       name:"High to Low Cable Chop",sets:2,reps:10,
       muscles:"Obliques, abdominals, shoulders and hips",
@@ -3243,11 +3266,12 @@ function fullBodyCWorkout(includeHipThrust=true,includeLowInclinePress=true){
 function strengthWorkoutForDay(dayIndex){
   const activeSession=!!state.currentSession&&!state.currentSession.completedId&&state.currentSession.planDay===dayIndex;
   const preservePreChestDefinition=activeSession&&!state.currentSession.programRevision;
-  const compatibleRevisions=[LEGACY_FOUNDATION_PROGRAM_REVISION,PREVIOUS_FOUNDATION_PROGRAM_REVISION,FOUNDATION_PROGRAM_REVISION];
+  const compatibleRevisions=[LEGACY_FOUNDATION_PROGRAM_REVISION,PREVIOUS_FOUNDATION_PROGRAM_REVISION,GMWD_FOUNDATION_PROGRAM_REVISION,FOUNDATION_PROGRAM_REVISION];
   const includeCurrentAttachments=!activeSession||compatibleRevisions.includes(state.currentSession.programRevision);
-  const includeHipThrust=!activeSession||[PREVIOUS_FOUNDATION_PROGRAM_REVISION,FOUNDATION_PROGRAM_REVISION].includes(state.currentSession.programRevision);
-  const useGmwdChest=!activeSession||state.currentSession.programRevision===FOUNDATION_PROGRAM_REVISION;
-  const baseWorkout=dayIndex===0?(preservePreChestDefinition?data:fullBodyAWorkout()):dayIndex===2?fullBodyBWorkout(preservePreChestDefinition,includeCurrentAttachments,useGmwdChest):dayIndex===4?fullBodyCWorkout(includeHipThrust,useGmwdChest):data;
+  const includeHipThrust=!activeSession||[PREVIOUS_FOUNDATION_PROGRAM_REVISION,GMWD_FOUNDATION_PROGRAM_REVISION,FOUNDATION_PROGRAM_REVISION].includes(state.currentSession.programRevision);
+  const useGmwdChest=!activeSession||[GMWD_FOUNDATION_PROGRAM_REVISION,FOUNDATION_PROGRAM_REVISION].includes(state.currentSession.programRevision);
+  const useConcentrationCurl=!activeSession||state.currentSession.programRevision===FOUNDATION_PROGRAM_REVISION;
+  const baseWorkout=dayIndex===0?(preservePreChestDefinition?data:fullBodyAWorkout()):dayIndex===2?fullBodyBWorkout(preservePreChestDefinition,includeCurrentAttachments,useGmwdChest):dayIndex===4?fullBodyCWorkout(includeHipThrust,useGmwdChest,useConcentrationCurl):data;
   const dumbbellAccessory=dumbbellAccessoryForDay(dayIndex);
   const armAccessory=armAccessoryForDay(dayIndex);
   const workoutData=[...baseWorkout,...[dumbbellAccessory,armAccessory].filter(Boolean)];
