@@ -608,6 +608,15 @@
       equipment: ["RitFit M1 Pro Smith station", "Gator flat bench", "Optional matched bumper plates"],
       commonMistakes: ["Placing the bench outside the correct bar path", "Flaring the elbows beyond a controlled angle", "Letting the shoulders roll forward", "Bouncing the bar or forcing depth"]
     },
+    "GMWD Converging Chest Press": {
+      slug: "gmwd-converging-chest-press",
+      sourceExercise: "Plate-loaded independent-arm converging chest press",
+      mediaAlt: "Movement animation of the red-shirt trainer pressing both independent plate-loaded machine arms forward and inward from mid-chest while keeping the shoulder blades against the pad",
+      primaryMuscles: ["Chest"],
+      secondaryMuscles: ["Triceps", "Anterior delts"],
+      equipment: ["GMWD independent converging chest press", "Matching weight plates on both arms"],
+      commonMistakes: ["Setting the handles above mid-chest", "Letting the elbows rise above shoulder level", "Aggressively locking the elbows", "Rushing the lowering phase", "Adding load before reliable chest engagement"]
+    },
     "Low-Incline Dumbbell Press": {
       slug: "low-incline-dumbbell-press",
       sourceExercise: "Low-incline dumbbell chest press",

@@ -41,6 +41,10 @@ const safetyChecks = [
     ["lower-to-middle chest", "flat bench", "complete red RitFit cage", "shoulder blades pinned"],
   ],
   [
+    "GMWD Converging Chest Press",
+    ["independent", "plate-loaded", "forward and inward", "shoulder blades against the pad"],
+  ],
+  [
     "Low-Incline Dumbbell Press",
     ["two matching dumbbells", "upper chest", "low-incline bench", "feet planted"],
   ],

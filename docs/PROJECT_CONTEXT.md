@@ -6,10 +6,10 @@ Read this file at the beginning of every Codex or engineering session. It is the
 
 - Product: Road to 12%
 - Version: 13.2.0
-- Build: 2026.08.30.3
-- Last updated: August 30, 2026
-- Service Worker cache: `road12-v13-2-68-shell`
-- Exercise media cache: `road12-v13-2-68-media`
+- Build: 2026.09.04.1
+- Last updated: September 4, 2026
+- Service Worker cache: `road12-v13-2-69-shell`
+- Exercise media cache: `road12-v13-2-69-media`
 - Runtime: static, client-only, offline-first PWA
 - Primary storage key: `road12v5`
 
@@ -77,14 +77,14 @@ See `KNOWN_BUGS.md` before diagnosing or fixing defects.
 
 ## Active sprint goals
 
-All High Priority tasks for the current sprint are complete. The one-athlete Strava Phase 2A compliance gate passed after live disconnect validation. The first manual upload is now explicitly approved for only the newest eligible completed session: Full Body C from August 28, 2026. Build `2026.08.30.3` adds the local one-session approval and duplicate-verification UI; every other tombstoned historical session remains blocked. Reconnection and the actual upload are still pending, and no activity has yet been uploaded.
+The GMWD converging chest-press program update is deployed in build `2026.09.04.1`, including corrected media for the compact red V1 machine. The one-athlete Strava Phase 2A compliance gate, first manual Full Body C pilot, actual Strava rendering, and duplicate/idempotency verification passed; automatic sync, cardio posting, read scopes, bulk history, and Phase 2B remain disabled. Extra Activity + iFIT screenshot import remains implemented locally for review and is not deployed.
 
 Next recommended goals:
 
 1. Improve calendar navigation and filtering without altering schedule truth.
 2. Document adherence and recovery-score formulas.
 3. Preserve v13.2 behavior while gradually creating clearer module boundaries.
-4. After a new explicit user instruction, reconnect through the disclosure and perform one separately approved Full Body A/B/C upload, then validate rendering, idempotency, reconciliation, disconnect/reconnect, and token refresh. Do not enable automatic sync.
+4. Review the Extra Activity + iFIT screenshot privacy disclosure and Cloudflare Workers AI behavior before any PWA or Worker deployment.
 4. Validate prescription-outcome signals across additional real Foundation sessions before using them for automatic recommendations.
 5. Re-audit active exercise media when Foundation prescriptions change; keep future-phase media deferred until those workout definitions are approved.
 6. Evaluate the completed four-session lower-ab block before choosing its long-term maintenance or progression path.
@@ -107,11 +107,11 @@ See `CODEX_TASKS.md` for priority and acceptance detail.
 - An approved session weight is the actual editable set default, not placeholder text, so completing an untouched set records what the user saw. Prior-session guidance remains display-only. Progress may repair historical zero-weight sets only after confirmation and only when the completed snapshot contains the exact captured prescription; each change retains an audit record and unknown weights are never inferred. Smith selected-volume calculations include the known 33 lb bar.
 - Workout-preview exercise rows are interactive, non-mutating entry points to a full exercise guide. The preview detail reuses the reviewed automatic animation, setup and execution guidance, equipment-specific coaching, prescription summary, and historical performance lookup without creating or changing an active workout. Returning restores the preview list position.
 - Program Adherence starts from the saved August 20, 2026 baseline for the current installation. Earlier development-era sessions remain visible in Calendar and history but do not affect the metric. Only resolved completed or missed training sessions on or after the baseline count; an unresolved scheduled workout never lowers adherence.
-- The current Phase 1 Foundation program has complete exact-name media coverage: 62 currently active guided names resolve to 55 distinct movement animations. Three review-gated lower-ab Phase 2 movements are also approved and cached. Legacy and alias mappings bring the registry to 60 distinct GIFs across 76 exact-name mappings. Shared warm-up, cooldown, recovery, pelvic-mobility, and alias names may reuse one accurate movement asset while keeping written prescriptions distinct. The visible Library-only Stationary Bike Setup uses a reviewed static setup guide.
+- The current deployed Phase 1 Foundation program has complete exact-name media coverage: 63 active guided names resolve to 56 distinct movement animations. Three review-gated lower-ab Phase 2 movements are also approved and cached. Shared warm-up, cooldown, recovery, pelvic-mobility, and alias names may reuse one accurate movement asset while keeping written prescriptions distinct. The visible Library-only Stationary Bike Setup uses a reviewed static setup guide.
 - Future Full Body C sessions add three sets of Smith Machine Hip Thrust immediately after the Smith squat. The bench stays completely outside the front opening, both feet face into the cage, the owned bar pad protects the hip crease, and the 33 lb Smith bar remains separate from entered plate weight. A new program-revision boundary keeps this additive movement out of an already-active older session.
 - Thursday Core + Recovery includes a conservative first-exposure block using the owned 30 lb kettlebell: Around the World, two-hand Swing, and Suitcase Carry. It is inserted after the easy warm-up and preserves Dead Bug, Bird Dog, Side Plank, phased lower-ab work, and mobility. Advanced kettlebell lifts remain deferred until technique and recovery evidence exist.
 - Full Body B uses the no-bench Smith Machine Single-Leg Squat and adds two sets of V-Bar Triceps Pushdown with one high front-post pulley. Seated Cable Row explicitly uses the owned rotating close-grip double-D handle. The prior split-squat display name remains an alias of the same stable exercise ID, and the session program revision prevents the new additive V-bar block from entering an older active workout.
-- New Full Body A sessions use Smith Machine Bench Press and new Full Body B sessions use Low-Incline Dumbbell Press. The prior Cable Chest Press and Incline Cable Press definitions, stable IDs, media, and completed history remain available. A session-level `programRevision` preserves either old press when an A/B workout was already active before build 2026.08.26.1.
+- Future Full Body A sessions use Smith Machine Bench Press, Full Body B uses GMWD Converging Chest Press, and Full Body C uses Low-Incline Dumbbell Press. GMWD sets record plate weight per side and derive total external load without assuming machine-arm weight. Its first three exposures hold aggressive load progression while rep quality, 2–3 RIR, and chest engagement establish a baseline. The prior Cable Chest Press and Incline Cable Press definitions, stable IDs, media, completed history, and older A/B/C session revisions remain available and unchanged.
 - Both new chest presses include a visible technique card, optional non-working activation set, chest-engagement feedback, and conservative engagement-aware progression. Activation completion is resumable inside the active session but is excluded from working volume, personal records, progression evidence, and completed exercise history.
 - Full Body A adds two sets of Alternating Dumbbell Curl and Full Body C adds two sets of Behind-the-Back Single-Arm Cable Curl. These are additive accessories and do not replace existing Foundation work.
 - Core + Recovery owns a separate four-session lower-ab track. Phase 1 remains active for two completed Thursday sessions; the app then requires explicit review and acceptance before substituting the three Phase 2 movements. Calendar time alone never advances it. Tuesday and Saturday include the same five-minute pelvic-floor relaxation/mobility sequence.

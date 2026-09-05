@@ -63,6 +63,7 @@ Standard cards have approximately 14px bottom separation. Avoid nested cards unl
 - Use specialized border color sparingly for warnings, recommendations, or completion.
 - Historical-data review cards use an amber treatment, explain the exact evidence and affected records, and require a clear user choice before changing saved facts. Provide a non-mutating Keep as recorded alternative.
 - Technique-first exercise cards use a subtle red-tinted border, an ordered setup list, and one short high-emphasis cue. Optional activation cards must clearly state that the set does not count toward working volume or records, use a minimum 44px completion control, and collapse multi-column tempo cues to one column on 360px-wide screens.
+- Plate-loaded independent-arm machines must label the editable value `Weight per side`, show `LB / SIDE` in set rows, and display the derived total external load nearby. Never make the athlete infer whether a field expects one side or both sides.
 
 ## Buttons and touch targets
 

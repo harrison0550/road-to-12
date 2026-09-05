@@ -73,6 +73,7 @@ Copy this block for new work:
 
 ## Completed this sprint
 
+- [x] Add the owned GMWD independent converging chest press to future Full Body B sessions, move low-incline dumbbell press to C, preserve older active/history revisions, add explicit per-side load semantics, reviewed offline guidance, conservative double progression, backup coverage, and a supported generic Strava chest-press mapping.
 - [x] Implement secure Strava Phase 2A locally with P-256 installation authentication, one-time OAuth state, encrypted D1 token records, validated manual structured-strength upload, asynchronous polling, duplicate-safe reconciliation, disconnect, offline gating, and no automatic sync or deployment.
 
 - [x] Implement Strava Phase 1 locally: validate all canonical mappings, restrict eligibility to completed Full Body A/B/C, normalize equipment loads, generate privacy-safe JSON previews, formalize sync states, and prevent backup sync-state downgrades without OAuth, a backend, network requests, or deployment.

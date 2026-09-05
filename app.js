@@ -471,19 +471,21 @@ state.equipment=Object.assign({
   dumbbellPairWeights:[10,15,20,25],
   kettlebells:true,
   kettlebellWeights:[30],
+  gmwdConvergingChestPress:true,
   olympicBarbell:false
 },state.equipment||{});
 const weekPlan=[
  {short:"MON",icon:"🏋️",title:"Full Body A",detail:"Guided strength • chest, back, quads and shoulders",action:"workout",time:"55–65 min",focus:"Full-body strength",items:["Treadmill warm-up","Mobility","Smith Machine Squat","Cable Shoulder Press","Cable Curl","Smith Machine Bench Press","Seated Cable Row","Lat Pulldown","Rope Triceps Pushdown","Dumbbell Lateral Raise","Treadmill cooldown"],setup:"Smith and cable stations → 10 lb dumbbells"},
  {short:"TUE",icon:"🚶",title:"Cardio + Mobility",detail:"Incline treadmill, rowing technique and mobility recovery",action:"cardio",time:"45–50 min",focus:"Recovery, rowing skill and aerobic base",items:["5-minute easy treadmill warm-up","20–25 minute incline walk at conversational pace","8-minute easy iFIT rowing technique","Hip flexor stretch","Hamstring stretch","Chest and shoulder mobility","Easy cooldown"],setup:"Treadmill → iFIT rower → floor/wall mobility"},
- {short:"WED",icon:"💪",title:"Full Body B",detail:"Alternate guided full-body strength session",action:"upcoming",time:"60–70 min",focus:"Back, legs, chest and arms",items:["Treadmill warm-up","Hip hinge mobility","Smith Machine RDL","Smith Machine Single-Leg Squat","Smith Machine Calf Raise","Low-Incline Dumbbell Press","Single Arm Cable Row","Lat Pulldown","V-Bar Triceps Pushdown","Cable Lateral Raise","Cable Crunch","Cable Hammer Curl","Dumbbell Floor Press","Cooldown"],setup:"Smith station → low-incline bench and dumbbells → cable stations"},
+ {short:"WED",icon:"💪",title:"Full Body B",detail:"Alternate guided full-body strength session",action:"upcoming",time:"60–70 min",focus:"Back, legs, chest and arms",items:["Treadmill warm-up","Hip hinge mobility","Smith Machine RDL","Smith Machine Single-Leg Squat","Smith Machine Calf Raise","GMWD Converging Chest Press","Single Arm Cable Row","Lat Pulldown","V-Bar Triceps Pushdown","Cable Lateral Raise","Cable Crunch","Cable Hammer Curl","Dumbbell Floor Press","Cooldown"],setup:"Smith station → GMWD chest press → cable stations"},
  {short:"THU",icon:"🧘",title:"Core + Recovery",detail:"Kettlebell technique, core training, stretching and easy movement",action:"recovery",time:"35–45 min",focus:"Kettlebell skill, core control and mobility",items:["Easy walk or row","Kettlebell Around the World","Kettlebell Swing","Kettlebell Suitcase Carry","Dead bug","Bird dog","Side plank from knees","Hip mobility","Upper-back mobility","Slow breathing cooldown"],setup:"30 lb kettlebell → floor space; optional treadmill or rower"},
- {short:"FRI",icon:"🏋️",title:"Full Body C",detail:"Third weekly guided full-body strength session",action:"upcoming",time:"65–75 min",focus:"Legs, glutes, pushing, pulling and arms",items:["Treadmill warm-up","Hip hinge mobility","Smith Machine Squat","Smith Machine Hip Thrust","Cable Shoulder Press","Rear Delt Cable Fly","Cable Face Pull","Cable Straight Arm Pushdown","Rope Triceps Pushdown","High to Low Cable Chop","Dumbbell Romanian Deadlift","Treadmill HIIT Intervals","Cooldown"],setup:"Smith station and outside bench → cable stations → 15 lb dumbbells → treadmill"},
+ {short:"FRI",icon:"🏋️",title:"Full Body C",detail:"Third weekly guided full-body strength session",action:"upcoming",time:"70–80 min",focus:"Legs, glutes, pushing, pulling and arms",items:["Treadmill warm-up","Hip hinge mobility","Smith Machine Squat","Smith Machine Hip Thrust","Low-Incline Dumbbell Press","Cable Shoulder Press","Rear Delt Cable Fly","Cable Face Pull","Cable Straight Arm Pushdown","Rope Triceps Pushdown","High to Low Cable Chop","Dumbbell Romanian Deadlift","Treadmill HIIT Intervals","Cooldown"],setup:"Smith station and outside bench → low-incline dumbbell press → cable stations → treadmill"},
  {short:"SAT",icon:"❤️",title:"Zone 2 Cardio",detail:"Longer easy bike, rower or treadmill session",action:"cardio",time:"35–50 min",focus:"Fat-loss supporting aerobic work",items:["5-minute easy warm-up","25–40 minutes at a pace where you can speak in sentences","5-minute cooldown","Light stretching"],setup:"Choose treadmill, rower or KICKR CORE"},
  {short:"SUN",icon:"📏",title:"Recovery + Check-in",detail:"Rest, measurements and weekly review",action:"progress",time:"10–20 min",focus:"Recovery and progress review",items:["Morning body weight","Waist measurement","Optional progress photos","Review completed workouts","Plan the coming week","Full rest or gentle walk"],setup:"No gym setup required"}
 ];
-const PREVIOUS_FOUNDATION_PROGRAM_REVISION="foundation-kettlebell-2026-08-27";
-const FOUNDATION_PROGRAM_REVISION="foundation-smith-hip-thrust-2026-08-28";
+const LEGACY_FOUNDATION_PROGRAM_REVISION="foundation-kettlebell-2026-08-27";
+const PREVIOUS_FOUNDATION_PROGRAM_REVISION="foundation-smith-hip-thrust-2026-08-28";
+const FOUNDATION_PROGRAM_REVISION="foundation-gmwd-chest-press-2026-09-04";
 Object.assign(weekPlan[0],{
   detail:"Guided strength - chest, back, quads, shoulders and arms",
   time:"60\u201370 min",
@@ -525,6 +527,7 @@ const equipmentLabels={
   bumperPlates:"Olympic bumper plates",
   dumbbells:"Dumbbells",
   kettlebells:"Kettlebells",
+  gmwdConvergingChestPress:"GMWD converging chest press",
   olympicBarbell:"Free Olympic barbell"
 };
 function hasRequirements(ex){
@@ -670,6 +673,8 @@ function sessionExerciseSnapshot(){
       setNumber:setIndex+1,
       repetitions:Number(set?.reps)||0,
       weight:set?.weight!==""&&set?.weight!==null&&set?.weight!==undefined&&Number.isFinite(Number(set.weight))?Number(set.weight):null,
+      weightPerSide:ex.weightEntry?.mode==="perSide"&&Number.isFinite(Number(set?.weightPerSide??set?.weight))?Number(set?.weightPerSide??set?.weight):null,
+      totalExternalLoadLb:ex.weightEntry?.mode==="perSide"&&Number.isFinite(Number(set?.totalExternalLoadLb??Number(set?.weightPerSide??set?.weight)*2))?Number(set?.totalExternalLoadLb??Number(set?.weightPerSide??set?.weight)*2):null,
       weightUnit:"lb",
       setType:set?.setType||"working",
       startedAt:set?.startedAt||null,
@@ -1112,7 +1117,7 @@ function lastCompletedWeight(ex){
  const isSmith=ex.name.includes("Smith")&&mode==="total";
  const label=isSmith
    ?`${weight} lb plates total (${weight+SMITH_BAR_WEIGHT_LB} lb working weight)`
-   :mode==="dual"?`${weight} lb per stack`:`${weight} lb`;
+   :mode==="dual"?`${weight} lb per stack`:mode==="perSide"?`${weight} lb per side (${weight*2} lb total external load)`:`${weight} lb`;
  return {label,date:v1131DateLabel(match.session)};
 }
 
@@ -1129,10 +1134,10 @@ function sets(ex){
  const captured=window.ROAD12_PRESCRIPTIONS.forExercise(state.currentSession,ex,name=>window.ROAD12_EXERCISES.resolve(name));
  const target=window.ROAD12_PRESCRIPTIONS.effective(state.currentSession,ex,name=>window.ROAD12_EXERCISES.resolve(name));
  return `<section class="card timer-card"><h3>${target.sets} sets × ${target.reps}${targetUnit}</h3>
- ${captured?`<div class="approved-prescription"><small>PRESCRIBED FOR THIS SESSION · ${captured.action}</small><strong>${captured.prescription.summary||`${target.sets} sets × ${target.reps} reps${target.weight!=null?` at ${target.weight} ${target.weightUnit}`:""}`}</strong><span>Record what you actually perform below. You can override any target.</span></div>`:""}<div class="weight-entry-explainer"><span>${entry.mode==="dual"?"↔️":entry.mode==="single"?"1️⃣":"🏋️"}</span><div><strong>${displayedLabel}</strong><p>${entry.help}</p>${previous?`<small class="previous-weight">Last completed: <b>${previous.label}</b> on ${previous.date}</small>`:'<small class="previous-weight">No previous completed weight yet.</small>'}${entry.mode==="dual"?`<small>Example: left 20 lb + right 20 lb → enter <b>20</b>; combined selected stack weight is 40 lb.</small>`:""}</div></div>
- <div class="set-table-head"><span>SET</span><span>${isBodyweight?"LOAD":entry.mode==="dual"?"LB / STACK":isSmithAddedWeight?"PLATES TOTAL":"WEIGHT LB"}</span><span>${repLabel}</span><span>DONE</span></div>
- ${state.logs[ex.name].map((v,i)=>{const weightValue=isBodyweight?"":window.ROAD12_PRESCRIPTIONS.inputWeight(v?.weight,target.weight);return `<div class="set-row"><strong>${i+1}</strong>${isBodyweight?`<span class="bodyweight-load">Bodyweight</span>`:`<input data-w="${i}" inputmode="decimal" placeholder="${entry.mode==="dual"?"per stack":isSmithAddedWeight?"both sides":"lb"}" aria-label="${displayedLabel}, set ${i+1}" value="${weightValue}">`}<input data-r="${i}" inputmode="numeric" aria-label="${repLabel.toLowerCase()}, set ${i+1}" value="${v?.reps||window.ROAD12_PRESCRIPTIONS.minimumReps(target.reps)}"><button data-d="${i}" class="${v?.done?"done":""}" aria-label="${v?.done?"Mark set incomplete":"Mark set complete"}">${v?.done?"✓":"○"}</button>${entry.mode==="dual"&&weightValue!==""?`<small class="combined-weight">Combined selected: ${Number(weightValue)*2} lb</small>`:""}</div>`;}).join("")}
- <div class="exercise-feedback"><div><small>QUICK EXERCISE FEEDBACK</small><strong>Help tune the next session</strong></div><label>Reps left in reserve<select id="exerciseRir"><option value="">Choose</option>${[0,1,2,3,4].map(value=>`<option value="${value}" ${String(feedback.rir)===String(value)?"selected":""}>${value===4?"4+":value}</option>`).join("")}</select></label><label>Form quality<select id="exerciseForm"><option value="">Choose</option><option ${feedback.form==="Clean"?"selected":""}>Clean</option><option ${feedback.form==="Breaking down"?"selected":""}>Breaking down</option></select></label>${ex.engagementTarget?`<label>${ex.engagementTarget==="upper chest"?"Upper chest":"Chest"} engagement<select id="exerciseEngagement"><option value="">Choose</option>${["Strong","Moderate","Low","None"].map(value=>`<option ${engagementRating===value?"selected":""}>${value}</option>`).join("")}</select></label>`:""}<label class="feedback-check"><input id="exerciseDiscomfort" type="checkbox" ${feedback.discomfort?"checked":""}><span>Pain or discomfort was present</span></label><p>If pain is sharp, worsening, or unusual, stop the movement. This feedback can recommend a deload but does not diagnose an injury.</p></div>
+ ${captured?`<div class="approved-prescription"><small>PRESCRIBED FOR THIS SESSION · ${captured.action}</small><strong>${captured.prescription.summary||`${target.sets} sets × ${target.reps} reps${target.weight!=null?` at ${target.weight} ${target.weightUnit}`:""}`}</strong><span>Record what you actually perform below. You can override any target.</span></div>`:""}<div class="weight-entry-explainer"><span>${entry.mode==="dual"?"↔️":entry.mode==="single"?"1️⃣":"🏋️"}</span><div><strong>${displayedLabel}</strong><p>${entry.help}</p>${previous?`<small class="previous-weight">Last completed: <b>${previous.label}</b> on ${previous.date}</small>`:'<small class="previous-weight">No previous completed weight yet.</small>'}${entry.mode==="dual"?`<small>Example: left 20 lb + right 20 lb → enter <b>20</b>; combined selected stack weight is 40 lb.</small>`:entry.mode==="perSide"?`<small>Example: 25 lb on the left + 25 lb on the right → enter <b>25</b>; total external load is 50 lb.</small>`:""}</div></div>
+ <div class="set-table-head"><span>SET</span><span>${isBodyweight?"LOAD":entry.mode==="dual"?"LB / STACK":entry.mode==="perSide"?"LB / SIDE":isSmithAddedWeight?"PLATES TOTAL":"WEIGHT LB"}</span><span>${repLabel}</span><span>DONE</span></div>
+ ${state.logs[ex.name].map((v,i)=>{const weightValue=isBodyweight?"":window.ROAD12_PRESCRIPTIONS.inputWeight(v?.weight,target.weight);return `<div class="set-row"><strong>${i+1}</strong>${isBodyweight?`<span class="bodyweight-load">Bodyweight</span>`:`<input data-w="${i}" inputmode="decimal" placeholder="${entry.mode==="dual"?"per stack":entry.mode==="perSide"?"per side":isSmithAddedWeight?"both sides":"lb"}" aria-label="${displayedLabel}, set ${i+1}" value="${weightValue}">`}<input data-r="${i}" inputmode="numeric" aria-label="${repLabel.toLowerCase()}, set ${i+1}" value="${v?.reps||window.ROAD12_PRESCRIPTIONS.minimumReps(target.reps)}"><button data-d="${i}" class="${v?.done?"done":""}" aria-label="${v?.done?"Mark set incomplete":"Mark set complete"}">${v?.done?"✓":"○"}</button>${["dual","perSide"].includes(entry.mode)&&weightValue!==""?`<small class="combined-weight">${entry.mode==="perSide"?"Total external load":"Combined selected"}: ${Number(weightValue)*2} lb</small>`:""}</div>`;}).join("")}
+ <div class="exercise-feedback"><div><small>QUICK EXERCISE FEEDBACK</small><strong>Help tune the next session</strong></div><label>Reps left in reserve<select id="exerciseRir"><option value="">Choose</option>${[0,1,2,3,4].map(value=>`<option value="${value}" ${String(feedback.rir)===String(value)?"selected":""}>${value===4?"4+":value}</option>`).join("")}</select></label><label>Form quality<select id="exerciseForm"><option value="">Choose</option><option ${feedback.form==="Clean"?"selected":""}>Clean</option><option ${feedback.form==="Breaking down"?"selected":""}>Breaking down</option></select></label>${ex.engagementTarget?`<label>${ex.engagementTarget==="upper chest"?"Upper chest":"Chest"} engagement<select id="exerciseEngagement"><option value="">Choose</option>${["Strong","Moderate","Low","None",...(ex.minimumProgressionExposures?["Mostly front delts/triceps"]:[])].map(value=>`<option ${engagementRating===value?"selected":""}>${value}</option>`).join("")}</select></label>`:""}<label class="feedback-check"><input id="exerciseDiscomfort" type="checkbox" ${feedback.discomfort?"checked":""}><span>Pain or discomfort was present</span></label><p>If pain is sharp, worsening, or unusual, stop the movement. This feedback can recommend a deload but does not diagnose an injury.</p></div>
  <div class="timer" id="timer" role="status" aria-live="polite">Rest ${String(Math.floor(ex.rest/60)).padStart(2,"0")}:${String(ex.rest%60).padStart(2,"0")}</div><div class="rest-coach-message" id="restCoach">Recover and prepare for your next set.</div><div class="timer-controls"><button class="secondary" id="rest">Start rest timer</button><button class="secondary" id="stopTimer">Stop timer</button></div></section>`}
 function captureExerciseFeedback(ex){
  const rir=document.querySelector("#exerciseRir")?.value||"";
@@ -1144,13 +1149,18 @@ function captureExerciseFeedback(ex){
  save();
 }
 function timed(ex){const cardio=isMeaningfulCardioBlock(ex),runtime=state.cardioTimers[ex.name];return `<section class="card timer-card"><h3>${ex.duration}</h3>${cardio?'<p class="cardio-timer-note">The countdown is your target. When it finishes, tap <strong>Keep going</strong> to continue tracking total cardio time.</p>':""}<div class="timer" id="timer" role="status" aria-live="polite">${ex.duration.includes(":")?ex.duration:"Ready"}</div>${cardio?'<div class="cardio-total" id="cardioTotal" aria-live="polite">Total cardio: 00:00</div>':""}${ex.duration.includes(":")?`<div class="timer-controls"><button class="primary" id="rest">${runtime?.status?"Restart target":"Start timer"}</button>${cardio?'<button class="primary keep-going" id="keepGoing" hidden>Keep going</button>':""}<button class="secondary" id="stopTimer">Stop timer</button></div>`:""}</section>`}
+function loadEntryFields(ex,weight){
+ const numeric=weight!==""&&weight!==null&&weight!==undefined&&Number.isFinite(Number(weight))?Number(weight):null;
+ return ex.weightEntry?.mode==="perSide"
+   ?{weight,weightPerSide:numeric,totalExternalLoadLb:numeric===null?null:numeric*2}
+   :{weight};
+}
 function bindSets(ex){
  document.querySelectorAll("[data-w],[data-r]").forEach(input=>input.onchange=()=>{
    const i=Number(input.dataset.w??input.dataset.r);
    const existing=state.logs[ex.name][i]||{};
-   state.logs[ex.name][i]=Object.assign({},existing,{
+   state.logs[ex.name][i]=Object.assign({},existing,loadEntryFields(ex,document.querySelector(`[data-w="${i}"]`)?.value||(ex.weightEntry?.mode==="bodyweight"?0:"")),{
      startedAt:existing.startedAt||new Date().toISOString(),
-     weight:document.querySelector(`[data-w="${i}"]`)?.value||(ex.weightEntry?.mode==="bodyweight"?0:""),
      reps:document.querySelector(`[data-r="${i}"]`)?.value||ex.reps
    });
    save();
@@ -1161,7 +1171,7 @@ function bindSets(ex){
    const r=document.querySelector(`[data-r="${i}"]`).value;
    const done=!state.logs[ex.name][i]?.done;
    const existing=state.logs[ex.name][i]||{},now=new Date().toISOString();
-   state.logs[ex.name][i]=Object.assign({},existing,{weight:w,reps:r,done,startedAt:existing.startedAt||now,completedAt:done?now:null});
+   state.logs[ex.name][i]=Object.assign({},existing,loadEntryFields(ex,w),{reps:r,done,startedAt:existing.startedAt||now,completedAt:done?now:null});
    save();
    b.classList.toggle("done",done);
    b.textContent=done?"✓":"○";
@@ -1383,8 +1393,9 @@ function equipment(){
   ["treadmill","🏃","iFIT treadmill","Used for warm-ups, cooldowns and cardio."],
   ["rower","🚣","iFIT rower","Available for technique and cardio sessions."],
   ["kickrCore","🚴","Wahoo KICKR CORE","Available for cycling sessions."],
-  ["bumperPlates","⚫","Olympic bumper plates","Available in weights from 10–45 lb for Smith-machine loading."],
-  ["dumbbells","🔩","Dumbbells","Available fixed pairs: 10, 15, 20 and 25 lb."],
+ ["bumperPlates","⚫","Olympic bumper plates","Available in weights from 10–45 lb for Smith-machine loading."],
+  ["gmwdConvergingChestPress","🏋️","GMWD converging chest press","Plate-loaded independent arms provide the Full Body B chest press."],
+ ["dumbbells","🔩","Dumbbells","Available fixed pairs: 10, 15, 20 and 25 lb."],
   ["kettlebells","⚫","Kettlebell — 30 lb","Owned fixed-weight bell for swings, carries and controlled core work."],
   ["olympicBarbell","🏋️‍♂️","Free Olympic barbell","This refers to free-barbell work, not the M1 Smith bar."]
  ];
@@ -1606,7 +1617,7 @@ function sessionDetail(session){
  const totals=sessionTotals(session);
  const cardioBlocks=Array.isArray(session.cardioBlocks)?session.cardioBlocks:(session.cardio?[Object.assign({name:"Cardio"},session.cardio)]:[]);
  app.innerHTML=`<section class="card session-detail-header"><button class="secondary" id="historyBack">Back to history</button><div class="check small-check">✓</div><span class="pill">${session.recoveryIndicator?"RECOVERED WORKOUT":"COMPLETED WORKOUT"}</span><h2>${session.name}</h2><p class="muted">${session.date} • ${formatDuration(session.durationMs)}</p><div class="brief-grid"><div><small>SETS</small><strong>${totals.completedSets}</strong></div><div><small>REPS</small><strong>${totals.totalReps}</strong></div><div><small>SELECTED VOLUME</small><strong>${Math.round(totals.selectedVolume).toLocaleString()} lb</strong></div><div><small>STATUS</small><strong>Saved</strong></div></div>${cardioBlocks.map(block=>`<div class="recovery-note"><strong>${block.name}</strong><br>Target: ${block.plannedDurationMinutes} min • Completed: ${block.actualDurationMinutes} min${block.actualDurationMinutes>block.plannedDurationMinutes?` (+${Number((block.actualDurationMinutes-block.plannedDurationMinutes).toFixed(1))} min)`:""}${block.distance?`<br>Distance: ${block.distance}`:""}${block.averageHeartRate?` • Avg HR: ${block.averageHeartRate} bpm`:""}${block.averagePace?`<br>Avg pace: ${block.averagePace}`:""}${block.inclineResistance?` • Incline/resistance: ${block.inclineResistance}`:""}</div>`).join("")}${session.recoveryIndicator?`<div class="recovery-note"><strong>Recovery workout</strong><br>Originally planned: ${formatHistoryDateKey(session.plannedDate||session.originalScheduledDate)}<br>Completed: ${formatHistoryDateKey(session.completedDate||session.actualCompletionDate||session.dateKey)}</div>`:""}${session.recoveredFromV74?`<div class="recovery-note">This session was recovered from Version 11.3.2. Any values still held in the old workout log are shown below.</div>`:""}${window.ROAD12_STRAVA_PAYLOAD.isSessionStravaEligible(session)?'<button class="primary strava-preview-button" id="previewStravaPost">Preview Strava Post</button><div class="strava-session-actions" id="stravaSessionActions" aria-live="polite"><p class="muted">Checking Strava status…</p></div>':""}</section>
- <section class="card"><h2>Exercises completed</h2><div class="history-exercise-list">${(session.exercises||[]).length?(session.exercises||[]).map(ex=>`<details class="history-exercise" open><summary><span><strong>${ex.name}</strong>${ex.originalExercise?`<small>Substituted for ${ex.originalExercise}</small>`:""}</span><span>${(ex.sets||[]).filter(s=>s?.done).length} sets</span></summary><div class="history-set-head"><span>SET</span><span>${ex.weightEntry?.mode==="dual"?"LB / STACK":"WEIGHT"}</span><span>REPS</span><span>STATUS</span></div>${(ex.sets||[]).map((s,i)=>`<div class="history-set-row"><strong>${i+1}</strong><span>${s?.weight!==undefined&&s?.weight!==""?`${s.weight} lb`:"—"}${ex.weightEntry?.mode==="dual"&&s?.weight?`<small>${Number(s.weight)*2} lb combined selected</small>`:""}</span><span>${s?.reps||"—"}</span><span>${s?.done?"✓ Complete":"Not marked"}</span></div>`).join("")||'<p class="muted">No set details were stored.</p>'}<div class="history-weight-note"><strong>${ex.weightEntry?.label||"Weight used"}</strong><p>${ex.weightEntry?.help||""}</p></div></details>`).join(""):'<p class="muted">The older session record did not contain exercise details.</p>'}</div></section>
+ <section class="card"><h2>Exercises completed</h2><div class="history-exercise-list">${(session.exercises||[]).length?(session.exercises||[]).map(ex=>`<details class="history-exercise" open><summary><span><strong>${ex.name}</strong>${ex.originalExercise?`<small>Substituted for ${ex.originalExercise}</small>`:""}</span><span>${(ex.sets||[]).filter(s=>s?.done).length} sets</span></summary><div class="history-set-head"><span>SET</span><span>${ex.weightEntry?.mode==="dual"?"LB / STACK":ex.weightEntry?.mode==="perSide"?"LB / SIDE":"WEIGHT"}</span><span>REPS</span><span>STATUS</span></div>${(ex.sets||[]).map((s,i)=>`<div class="history-set-row"><strong>${i+1}</strong><span>${s?.weight!==undefined&&s?.weight!==""?`${s.weight} lb`:"—"}${ex.weightEntry?.mode==="dual"&&s?.weight?`<small>${Number(s.weight)*2} lb combined selected</small>`:ex.weightEntry?.mode==="perSide"&&s?.weight?`<small>${Number(s.totalExternalLoadLb??Number(s.weight)*2)} lb total external load</small>`:""}</span><span>${s?.reps||"—"}</span><span>${s?.done?"✓ Complete":"Not marked"}</span></div>`).join("")||'<p class="muted">No set details were stored.</p>'}<div class="history-weight-note"><strong>${ex.weightEntry?.label||"Weight used"}</strong><p>${ex.weightEntry?.help||""}</p></div></details>`).join(""):'<p class="muted">The older session record did not contain exercise details.</p>'}</div></section>
  <button class="secondary" id="repeatHistory">Repeat this workout</button>`;
  document.querySelector("#historyBack").onclick=()=>{state.historyView=null;save();progress()};
  document.querySelector("#previewStravaPost")?.addEventListener("click",()=>openStravaPreview(session));
@@ -2913,6 +2924,23 @@ function lowInclineDumbbellPressExercise(){
   });
 }
 
+function gmwdConvergingChestPressExercise(){
+  return cloneExerciseByName("Cable Chest Press",{
+    name:"GMWD Converging Chest Press",type:"strength",sets:3,reps:"10–12",rest:90,
+    muscles:"Chest, triceps and anterior delts",
+    setup:["Lie back with the shoulder blades gently retracted and kept against the pad","Adjust the seat or body position so the handles begin around mid-chest level","Load the same plate weight on both independent arms","Keep the elbows slightly below shoulder level"],
+    steps:["Brace against the pad and begin with the chest engaged.","Press both independent arms forward and inward along the converging path.","Stop just short of an aggressive elbow lockout and briefly squeeze the chest.","Lower for 2–3 seconds while keeping the shoulder blades against the pad.","Repeat with clean, controlled motion and equal effort from both arms."],
+    cues:["Press forward and inward.","Keep the elbows slightly below the shoulders.","Use a 2–3 second lowering phase.","Prioritize pec engagement over load."],
+    why:"Adds an independent-arm, plate-loaded press to Full Body B so the chest can work through a stable converging path without repeating the Smith or dumbbell press used on the other strength days.",
+    weightRecommendation:"For the first three exposures, choose a conservative plate load and prioritize clean reps and pec engagement. If the front delts or triceps dominate, retain the load and adjust the seat, handle height and shoulder-blade position before progressing.",
+    requires:["gmwdConvergingChestPress","bumperPlates"],substituteId:null,attachmentCard:null,m1:null,
+    demoImage:null,correctedGuide:null,videoResource:null,youtubeQuery:null,
+    weightEntry:{mode:"perSide",label:"Weight per side",help:"Enter the plate weight loaded on ONE side. The app doubles it to calculate total external load. No machine-arm weight is assumed."},
+    engagementTarget:"chest",progressionRirRange:[2,3],minimumProgressionExposures:3,chestActivation:true,
+    chestSetup:{title:"Chest Setup",instructions:["Lie back with the shoulder blades gently retracted and kept against the pad.","Adjust the seat or body position so the handles begin around mid-chest level.","Keep the elbows slightly below shoulder level.","Press the independent arms forward and inward along the converging path.","Avoid aggressive lockout.","Control the lowering phase for 2–3 seconds.","Briefly squeeze the chest at the end of the press.","Prioritize chest engagement over load."],cue:"Press forward and inward with the pecs while the shoulder blades stay gently pinned to the pad."}
+  });
+}
+
 /* Retained for legacy history, progression references, and future library access.
    This definition is intentionally not scheduled by the current Foundation plan. */
 function legacyInclineCablePressExercise(){
@@ -2995,7 +3023,7 @@ function armAccessoryForDay(dayIndex){
   });
 }
 
-function fullBodyBWorkout(useLegacyChest=false,includeVBar=true){
+function fullBodyBWorkout(useLegacyChest=false,includeVBar=true,useGmwdChest=true){
   const smithWeightEntry={
     mode:"total",
     label:"Total plate weight across both sides",
@@ -3040,7 +3068,7 @@ function fullBodyBWorkout(useLegacyChest=false,includeVBar=true){
       requires:["ritfitM1"],substituteId:null,
       demoImage:"assets/phase2/smith-machine-calf-raise.jpg",weightEntry:smithWeightEntry
     }),
-    useLegacyChest?legacyInclineCablePressExercise():lowInclineDumbbellPressExercise(),
+    useLegacyChest?legacyInclineCablePressExercise():useGmwdChest?gmwdConvergingChestPressExercise():lowInclineDumbbellPressExercise(),
     cloneExerciseByName("Seated Cable Row",{
       name:"Single Arm Cable Row",sets:3,reps:10,
       muscles:"Lats, mid-back, rear shoulder, biceps and core",
@@ -3121,7 +3149,7 @@ function smithMachineHipThrustExercise(){
   });
 }
 
-function fullBodyCWorkout(includeHipThrust=true){
+function fullBodyCWorkout(includeHipThrust=true,includeLowInclinePress=true){
   const hipThrust=includeHipThrust?[smithMachineHipThrustExercise()]:[];
   return [
     cloneExerciseByName("Treadmill Walk"),
@@ -3133,6 +3161,7 @@ function fullBodyCWorkout(includeHipThrust=true){
       weightRecommendation:"Start with the empty Smith bar and add plates only when all eight reps remain smooth and controlled."
     }),
     ...hipThrust,
+    ...(includeLowInclinePress?[lowInclineDumbbellPressExercise()]:[]),
     cloneExerciseByName("Cable Shoulder Press"),
     cloneExerciseByName("Cable Shoulder Press",{
       name:"Rear Delt Cable Fly",sets:2,reps:12,
@@ -3214,9 +3243,11 @@ function fullBodyCWorkout(includeHipThrust=true){
 function strengthWorkoutForDay(dayIndex){
   const activeSession=!!state.currentSession&&!state.currentSession.completedId&&state.currentSession.planDay===dayIndex;
   const preservePreChestDefinition=activeSession&&!state.currentSession.programRevision;
-  const includeCurrentAttachments=!activeSession||[PREVIOUS_FOUNDATION_PROGRAM_REVISION,FOUNDATION_PROGRAM_REVISION].includes(state.currentSession.programRevision);
-  const includeHipThrust=!activeSession||state.currentSession.programRevision===FOUNDATION_PROGRAM_REVISION;
-  const baseWorkout=dayIndex===0?(preservePreChestDefinition?data:fullBodyAWorkout()):dayIndex===2?fullBodyBWorkout(preservePreChestDefinition,includeCurrentAttachments):dayIndex===4?fullBodyCWorkout(includeHipThrust):data;
+  const compatibleRevisions=[LEGACY_FOUNDATION_PROGRAM_REVISION,PREVIOUS_FOUNDATION_PROGRAM_REVISION,FOUNDATION_PROGRAM_REVISION];
+  const includeCurrentAttachments=!activeSession||compatibleRevisions.includes(state.currentSession.programRevision);
+  const includeHipThrust=!activeSession||[PREVIOUS_FOUNDATION_PROGRAM_REVISION,FOUNDATION_PROGRAM_REVISION].includes(state.currentSession.programRevision);
+  const useGmwdChest=!activeSession||state.currentSession.programRevision===FOUNDATION_PROGRAM_REVISION;
+  const baseWorkout=dayIndex===0?(preservePreChestDefinition?data:fullBodyAWorkout()):dayIndex===2?fullBodyBWorkout(preservePreChestDefinition,includeCurrentAttachments,useGmwdChest):dayIndex===4?fullBodyCWorkout(includeHipThrust,useGmwdChest):data;
   const dumbbellAccessory=dumbbellAccessoryForDay(dayIndex);
   const armAccessory=armAccessoryForDay(dayIndex);
   const workoutData=[...baseWorkout,...[dumbbellAccessory,armAccessory].filter(Boolean)];

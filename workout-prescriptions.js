@@ -11,7 +11,7 @@
     return resolved&&(resolved.id||resolved.exerciseId)||name;
   }
   function basePrescription(exercise){
-    return {sets:Number(exercise&&exercise.sets)||0,reps:exercise&&exercise.reps||0,weight:null,weightUnit:"lb",restSeconds:Number(exercise&&exercise.rest)||0};
+    return {sets:Number(exercise&&exercise.sets)||0,reps:exercise&&exercise.reps||0,weight:null,weightUnit:exercise?.weightEntry?.mode==="perSide"?"lb per side":"lb",restSeconds:Number(exercise&&exercise.rest)||0};
   }
   function findApproval(approvals,exercise,resolver){
     if(!approvals||!exercise)return null;
@@ -54,6 +54,7 @@
     let weight=Number(set?.weight)||0;
     if(isSmithPlateEntry(exercise))weight+=Number(smithBarWeight)||0;
     if(exercise?.weightEntry?.mode==="dual")weight*=2;
+    if(exercise?.weightEntry?.mode==="perSide")weight*=2;
     return weight;
   }
   function recommendedWeightRepairCandidates(history=[]){

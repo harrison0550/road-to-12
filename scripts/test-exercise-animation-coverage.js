@@ -119,6 +119,7 @@ function generateLiveFoundationWorkouts() {
     "coreRecoveryWorkout",
     "zone2CardioWorkout",
     "smithMachineBenchPressExercise",
+    "gmwdConvergingChestPressExercise",
     "lowInclineDumbbellPressExercise",
     "fullBodyAWorkout",
     "dumbbellAccessoryForDay",
@@ -143,8 +144,11 @@ function generateLiveFoundationWorkouts() {
   };
   const harness = `
     const data=window.WORKOUT_DATA;
-    const state={history:[],lowerAbsProgram:{phase2AcceptedAt:null,completedSessionIds:[]},equipment:{ritfitM1:true,bench:true,treadmill:true,rower:true,kickrCore:true,bumperPlates:true,dumbbells:true,kettlebells:true,kettlebellWeights:[30],olympicBarbell:false}};
+    const state={history:[],lowerAbsProgram:{phase2AcceptedAt:null,completedSessionIds:[]},equipment:{ritfitM1:true,bench:true,treadmill:true,rower:true,kickrCore:true,bumperPlates:true,dumbbells:true,kettlebells:true,kettlebellWeights:[30],gmwdConvergingChestPress:true,olympicBarbell:false}};
     const equipmentLabels={};
+    const LEGACY_FOUNDATION_PROGRAM_REVISION="foundation-kettlebell-2026-08-27";
+    const PREVIOUS_FOUNDATION_PROGRAM_REVISION="foundation-smith-hip-thrust-2026-08-28";
+    const FOUNDATION_PROGRAM_REVISION="foundation-gmwd-chest-press-2026-09-04";
     ${workoutFunctionNames.map((name) => extractFunction(appSource, name)).join("\n")}
     this.__foundationWorkouts=[0,1,2,3,4,5].map(day=>workoutForDay(day));
   `;
@@ -182,6 +186,7 @@ const activeFoundationExercises = [
   "Smith Machine RDL",
   "Smith Machine Single-Leg Squat",
   "Smith Machine Calf Raise",
+  "GMWD Converging Chest Press",
   "Low-Incline Dumbbell Press",
   "Single Arm Cable Row",
   "Cable Lateral Raise",
@@ -223,8 +228,8 @@ const activeFoundationExercises = [
 
 assert.strictEqual(
   new Set(activeFoundationExercises).size,
-  62,
-  "the active Foundation media audit must cover 62 distinct exercise names",
+  63,
+  "the active Foundation media audit must cover 63 distinct exercise names",
 );
 
 const liveFoundationWorkouts = generateLiveFoundationWorkouts();
@@ -325,8 +330,18 @@ assert.strictEqual(smithBench.weightEntry?.mode, "total");
 assert.match(smithBench.weightEntry?.help || "", /Do not include the 33 lb Smith bar/i);
 assert.strictEqual(smithBench.engagementTarget, "chest");
 assert.deepStrictEqual(Array.from(smithBench.firstExposureRirRange), [3, 4]);
-const lowInclinePress = liveFoundationWorkouts[2].find((exercise) => exercise.name === "Low-Incline Dumbbell Press");
-assert(lowInclinePress, "Full Body B must schedule Low-Incline Dumbbell Press");
+const gmwdPress = liveFoundationWorkouts[2].find((exercise) => exercise.name === "GMWD Converging Chest Press");
+assert(gmwdPress, "Full Body B must schedule GMWD Converging Chest Press");
+assert.strictEqual(gmwdPress.sets, 3);
+assert.strictEqual(gmwdPress.reps, "10–12");
+assert.strictEqual(gmwdPress.rest, 90);
+assert.strictEqual(gmwdPress.weightEntry?.mode, "perSide");
+assert.strictEqual(gmwdPress.weightEntry?.label, "Weight per side");
+assert.strictEqual(gmwdPress.engagementTarget, "chest");
+assert.deepStrictEqual(Array.from(gmwdPress.progressionRirRange), [2, 3]);
+assert.strictEqual(gmwdPress.minimumProgressionExposures, 3);
+const lowInclinePress = liveFoundationWorkouts[4].find((exercise) => exercise.name === "Low-Incline Dumbbell Press");
+assert(lowInclinePress, "Full Body C must schedule Low-Incline Dumbbell Press");
 assert.strictEqual(lowInclinePress.sets, 3);
 assert.strictEqual(lowInclinePress.reps, 10);
 assert.strictEqual(lowInclinePress.rest, 90);
@@ -334,7 +349,7 @@ assert.strictEqual(lowInclinePress.weightEntry?.mode, "total");
 assert.strictEqual(lowInclinePress.weightEntry?.paired, true);
 assert.strictEqual(lowInclinePress.engagementTarget, "upper chest");
 assert.deepStrictEqual(Array.from(lowInclinePress.progressionRirRange), [2, 3]);
-assert(!liveFoundationWorkouts[4].some((exercise) => ["Smith Machine Bench Press", "Low-Incline Dumbbell Press"].includes(exercise.name)), "Full Body C chest volume must remain unchanged");
+assert(!liveFoundationWorkouts[0].some((exercise) => ["GMWD Converging Chest Press", "Low-Incline Dumbbell Press"].includes(exercise.name)), "Full Body A must retain its Smith bench assignment");
 const latPulldowns = liveExercises.filter((exercise) => exercise.name === "Lat Pulldown");
 assert.strictEqual(latPulldowns.length, 2, "Full Body A and B must each contain Lat Pulldown");
 for (const exercise of latPulldowns) {
@@ -392,8 +407,8 @@ assert(vBarEntry.equipment.some((item)=>/angled V-bar pressdown attachment/i.tes
 
 assert.strictEqual(
   new Set(activeFoundationExercises.map((name) => library.entries[name].media)).size,
-  55,
-  "the audit should resolve the 62 active names to 55 distinct reviewed animations",
+  56,
+  "the audit should resolve the 63 active names to 56 distinct reviewed animations",
 );
 
 for (const name of ["Hanging Knee Raise", "Decline Bench Reverse Crunch", "Hanging Garhammer Raise"]) {
@@ -401,5 +416,5 @@ for (const name of ["Hanging Knee Raise", "Decline Bench Reverse Crunch", "Hangi
 }
 
 console.log(
-  "Foundation animation coverage passed: live workoutForDay(0..5) output matches all 62 audited names, resolves to 55 reviewed animations, and all three review-gated Phase 2 movements are ready.",
+  "Foundation animation coverage passed: live workoutForDay(0..5) output matches all 63 audited names, resolves to 56 reviewed animations, and all three review-gated Phase 2 movements are ready.",
 );

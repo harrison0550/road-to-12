@@ -24,6 +24,7 @@
     ["road12.squat.goblet","Goblet Squat","GOBLET_SQUAT",[]],
     ["road12.press.cable-chest","Cable Chest Press","CHEST_PRESS",[]],
     ["road12.press.smith-bench","Smith Machine Bench Press","BENCH_PRESS_GENERIC",[]],
+    ["road12.press.gmwd-converging-chest-press","GMWD Converging Chest Press","CHEST_PRESS",[]],
     ["road12.row.seated-cable","Seated Cable Row","SEATED_CABLE_ROW",[]],
     ["road12.pull.lat-pulldown","Lat Pulldown","LAT_PULLDOWN",["Lat Pull Down"]],
     ["road12.press.cable-shoulder","Cable Shoulder Press","SHOULDER_PRESS_GENERIC",[]],

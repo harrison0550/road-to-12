@@ -223,6 +223,18 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Removed
 
+## [13.2.0] - 2026-09-04 (Build 2026.09.04.1)
+
+### Added
+
+- Added the owned compact red GMWD Independent Converging Chest Press Machine to My Equipment and future Full Body B sessions, with three 10–12-rep sets, 2–3 RIR guidance, engagement-aware setup coaching, reviewed offline motion guidance using the correct machine and established Road to 12% trainer, and rep-before-load double progression.
+- Added explicit `Weight per side` logging for the GMWD press. Completed sets preserve per-side plate weight and derive total external load as exactly twice that value without assuming machine-arm weight; backup and Strava projections retain the same semantics.
+
+### Changed
+
+- Moved Low-Incline Dumbbell Press to future Full Body C sessions so Foundation chest training is Smith bench on A, GMWD converging press on B, and low-incline dumbbell press on C, while active and completed older revisions remain unchanged.
+- Rotated the PWA shell and exercise-media caches so installed apps receive the corrected GMWD poster and looping animation.
+
 ## [13.2.0] - 2026-07-30
 
 Current production build: `2026.07.30.1`.

@@ -28,6 +28,11 @@
     return profile;
   }
   function completedSets(exercise){return (exercise?.sets||[]).filter(set=>set?.done);}
+  function repRange(value){
+    const values=String(value??"").match(/\d+(?:\.\d+)?/g)?.map(Number)||[];
+    const minimum=values[0]||0,maximum=values[1]||minimum;
+    return {minimum,maximum};
+  }
   function exerciseTrend(history=[],name){
     return history.map(session=>({session,exercise:(session.exercises||[]).find(item=>item.name===name)}))
       .filter(item=>item.exercise&&completedSets(item.exercise).length)
@@ -45,18 +50,26 @@
       return availableSingleWeights.find(weight=>weight>current)||current;
     }
     if(name.includes("Smith"))return current+10;
+    if(mode==="perSide")return current+5;
     if(mode==="dual"||mode==="single")return current+5;
     return current+5;
   }
   function prescription(action,sets,definition){
     const weights=sets.map(set=>Number(set.weight)||0).filter(weight=>weight>=0);
     const currentWeight=weights.length?weights[weights.length-1]:0;
-    const currentReps=Number(definition.reps)||Math.max(0,...sets.map(set=>Number(set.reps)||0));
+    const range=repRange(definition.reps);
+    const performedReps=sets.map(set=>Number(set.reps)||0).filter(Boolean);
+    const currentReps=range.minimum||Math.max(0,...performedReps);
     const currentSets=Number(definition.sets)||sets.length;
     if(action==="PROGRESS"){
+      const completedMinimum=performedReps.length?Math.min(...performedReps):currentReps;
+      if(range.maximum>range.minimum&&completedMinimum<range.maximum){
+        const reps=Math.min(range.maximum,Math.max(range.minimum,completedMinimum+1));
+        return {sets:currentSets,reps,weight:currentWeight,weightUnit:definition.weightEntry?.mode==="perSide"?"lb per side":"lb",summary:`${currentSets} × ${reps} at ${currentWeight} lb${definition.weightEntry?.mode==="perSide"?" per side":""}`};
+      }
       const weight=nextLoad(currentWeight,definition);
       return weight>currentWeight
-        ?{sets:currentSets,reps:currentReps,weight,summary:`${currentSets} × ${currentReps} at ${weight} lb`}
+        ?{sets:currentSets,reps:currentReps,weight,weightUnit:definition.weightEntry?.mode==="perSide"?"lb per side":"lb",summary:`${currentSets} × ${currentReps} at ${weight} lb${definition.weightEntry?.mode==="perSide"?" per side":""}`}
         :{sets:currentSets,reps:currentReps+2,weight:currentWeight,summary:`${currentSets} × ${currentReps+2} at ${currentWeight} lb`};
     }
     if(action==="DELOAD"){
@@ -67,25 +80,25 @@
   }
   function exerciseRecommendation(history=[],ratings={},definition={}){
     const exposures=exerciseTrend(history,definition.name);
-    if(!exposures.length)return {action:"BUILD",reason:"Establish a reliable working-weight baseline with controlled completed sets.",confidence:"collecting",prescription:{sets:Number(definition.sets)||0,reps:Number(definition.reps)||0,weight:null,summary:`${Number(definition.sets)||0} × ${Number(definition.reps)||0} • choose a controlled baseline`}};
+    if(!exposures.length){const target=repRange(definition.reps).minimum;return {action:"BUILD",reason:"Establish a reliable working-weight baseline with controlled completed sets.",confidence:"collecting",prescription:{sets:Number(definition.sets)||0,reps:target,weight:null,weightUnit:definition.weightEntry?.mode==="perSide"?"lb per side":"lb",summary:`${Number(definition.sets)||0} × ${target} • choose a controlled baseline`}};}
     const latest=exposures[exposures.length-1],sets=completedSets(latest.exercise);
     const prescribed=Number(definition.sets)||sets.length;
-    const target=Number(definition.reps)||0;
+    const target=repRange(definition.reps).minimum;
     const allTargets=sets.length>=prescribed&&sets.every(set=>(Number(set.reps)||0)>=target);
     const rating=ratings[latest.session.id]||"";
     const feedback=latestFeedback(latest);
     const engagement=feedback?.muscleEngagement?.rating||"";
     const engagementRequired=!!definition.engagementTarget;
-    const lowEngagement=["Low","None"].includes(engagement);
-    const recentLowEngagement=exposures.filter(item=>["Low","None"].includes(latestFeedback(item)?.muscleEngagement?.rating)).length;
+    const lowEngagement=["Low","None","Mostly front delts/triceps"].includes(engagement);
+    const recentLowEngagement=exposures.filter(item=>["Low","None","Mostly front delts/triceps"].includes(latestFeedback(item)?.muscleEngagement?.rating)).length;
     const intendedRir=exposures.length<=1&&definition.firstExposureRirRange?definition.firstExposureRirRange:definition.progressionRirRange;
     const rir=feedback?.rir===null||feedback?.rir===undefined||feedback?.rir===""?null:Number(feedback.rir);
     const rirInRange=!intendedRir||(rir!==null&&rir>=Number(intendedRir[0])&&rir<=Number(intendedRir[1]));
     let action="HOLD",reason="Quality work is complete; hold this prescription while the app gathers another recovery and performance signal.",confidence="moderate";
     if(feedback?.discomfort===true||feedback?.form==="Breaking down"||["Too Hard","Exhausting","Tough"].includes(rating)){action="DELOAD";reason=feedback?.discomfort===true?"Discomfort was recorded, so reduce the next exposure and prioritize a pain-free movement.":"Recent difficulty or form breakdown favors a temporary reduction before progressing.";}
     else if(!allTargets){action="HOLD";reason="Repeat the current prescription until every working set reaches its rep target.";}
-    else if(lowEngagement||(engagementRequired&&recentLowEngagement>=2)){action="HOLD";reason=recentLowEngagement>=2?"Hold load and flag this exercise for coaching review because target-muscle engagement has remained low.":"Hold load while improving target-muscle engagement.";confidence=recentLowEngagement>=2?"high":"moderate";}
-    else if(exposures.length<2){action="HOLD";reason="One successful exposure is encouraging; repeat it once to confirm the result.";confidence="collecting";}
+    else if(lowEngagement||(engagementRequired&&recentLowEngagement>=2)){action="HOLD";reason=engagement==="Mostly front delts/triceps"?"Retain the load and adjust seat position, handle height, and shoulder-blade setup before progressing.":recentLowEngagement>=2?"Hold load and flag this exercise for coaching review because target-muscle engagement has remained low.":"Hold load while improving target-muscle engagement.";confidence=recentLowEngagement>=2?"high":"moderate";}
+    else if(exposures.length<Math.max(2,Number(definition.minimumProgressionExposures)||2)){action="HOLD";reason=definition.minimumProgressionExposures?`Complete ${definition.minimumProgressionExposures} clean exposures before increasing load; prioritize setup and target-muscle engagement.`:"One successful exposure is encouraging; repeat it once to confirm the result.";confidence="collecting";}
     else if(engagementRequired&&!engagement){action="HOLD";reason="Record target-muscle engagement before increasing this exercise.";confidence="collecting";}
     else if(engagementRequired&&(!["Strong","Moderate"].includes(engagement)||feedback?.form!=="Clean"||!rirInRange)){action="HOLD";reason="Repeat the current load until form, target-muscle engagement, and reps in reserve all match the intended range.";}
     else if(feedback?.rir!==null&&feedback?.rir!==undefined&&feedback.rir!==""&&Number(feedback.rir)<=1){action="HOLD";reason="The target was completed near your limit. Repeat it before increasing the challenge.";}
@@ -134,5 +147,5 @@
     return {phase:PHASES[0],nextPhase:PHASES[1],score,locked:true,exposure,adherence:Math.round(adherence*100),reasons,dataQuality,dataQualityLabel:dataQuality>=80?"Strong evidence":dataQuality>=50?"Building evidence":"Early data",dataQualityItems};
   }
   function applyRecommendation(exercises=[]){return exercises.map(exercise=>Object.assign({},exercise));}
-  return {PHASES,DEFAULT_PROFILE,normalizeProfile,exerciseRecommendation,phaseReadiness,applyRecommendation};
+  return {PHASES,DEFAULT_PROFILE,normalizeProfile,repRange,exerciseRecommendation,phaseReadiness,applyRecommendation};
 });

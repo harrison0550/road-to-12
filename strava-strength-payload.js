@@ -32,9 +32,11 @@
   function normalizeExternalLoadLb(exercise,set){
     const mode=exercise?.weightEntry?.mode||"total";
     if(mode==="bodyweight")return {loadLb:null,rule:"bodyweight"};
-    if(set?.weight===""||set?.weight===null||set?.weight===undefined||!Number.isFinite(Number(set.weight)))return {loadLb:null,rule:"missing"};
-    const entered=Number(set.weight);
+    const recorded=mode==="perSide"?(set?.weightPerSide??set?.weight):set?.weight;
+    if(recorded===""||recorded===null||recorded===undefined||!Number.isFinite(Number(recorded)))return {loadLb:null,rule:"missing"};
+    const entered=Number(recorded);
     if(isSmithExercise(exercise))return {loadLb:round(entered+SMITH_BAR_WEIGHT_LB),rule:"smith-total-plates-plus-bar"};
+    if(mode==="perSide")return {loadLb:entered>0?round(entered*2):null,rule:"plate-loaded-per-side-combined"};
     if(mode==="dual")return {loadLb:entered>0?round(entered*2):null,rule:"dual-stack-combined"};
     if(mode==="single")return {loadLb:entered>0?round(entered):null,rule:"single-stack"};
     if(mode==="total"&&exercise?.weightEntry?.paired)return {loadLb:entered>0?round(entered):null,rule:"paired-dumbbells-combined"};
