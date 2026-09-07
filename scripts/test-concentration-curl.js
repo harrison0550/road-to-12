@@ -18,7 +18,7 @@ assert.match(app,/function seatedConcentrationCurlExercise\(\)[\s\S]*?name:"Seat
 assert.match(app,/unilateral:true[\s\S]*?targetRirRange:\[2,3\],progressionModel:"double-progression"/);
 assert.match(app,/weightEntry:\{mode:"total",paired:false,label:"One dumbbell weight"[\s\S]*?do not combine both arms/);
 assert.match(app,/useConcentrationCurl\?seatedConcentrationCurlExercise\(\):behindBackCableCurlExercise\(\)/);
-assert.match(app,/const useConcentrationCurl=!activeSession\|\|state\.currentSession\.programRevision===FOUNDATION_PROGRAM_REVISION/);
+assert.match(app,/const useConcentrationCurl=!activeSession\|\|\[CONCENTRATION_FOUNDATION_PROGRAM_REVISION,FOUNDATION_PROGRAM_REVISION\]\.includes\(state\.currentSession\.programRevision\)/);
 
 const exercise={exerciseId:identity.id,name:identity.name,displayName:identity.name,type:"strength",sets:2,reps:"10-15",rest:60,requires:["dumbbells","bench"],weightEntry:{mode:"total",paired:false,label:"One dumbbell weight"}};
 const normalized=strava.normalizeExternalLoadLb(exercise,{weight:20,completed:true,repetitions:12});

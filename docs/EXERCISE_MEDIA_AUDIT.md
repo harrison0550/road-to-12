@@ -2,18 +2,22 @@
 
 ## Status
 
-- Audit date: September 4, 2026
-- Release target: version 13.2.0, build 2026.09.04.2
+- Audit date: September 6, 2026
+- Release target: version 13.2.0, build 2026.09.06.1
 - Active guided exercise names mapped: 63 of 63
 - Review-gated lower-ab Phase 2 names mapped: 3 of 3
 - Visible Library-only setup entries mapped: 1 of 1
 - Distinct reviewed movement animations: 61
 - New Road to 12% animations in the August 23 expansion: 13
 - Previously approved Road to 12% animations retained: 6
-- Supplied static movement-sequence guides: 1
-- Offline cache targets: `road12-v13-2-70-shell` and `road12-v13-2-70-media`
+- Supplied static movement-sequence guides: 2
+- Offline cache targets: `road12-v13-2-71-shell` and `road12-v13-2-71-media`
 
 This audit covers the exercise names that can appear in the current Foundation A/B/C, Cardio + Mobility, Core + Recovery, and Zone 2 guided flows; the three explicitly approved movements gated behind the lower-ab Phase 2 review; and the Stationary Bike Setup entry visible only in the Exercise Library. It does not approve media for unimplemented Build, Upper / Lower, or Hypertrophy / Definition workouts.
+
+## Standing cable hamstring curl release
+
+The current program revision replaces the Full Body C Dumbbell Romanian Deadlift slot with Standing Single-Leg Cable Hamstring Curl while retaining the old RDL animation and identity for completed history and active older revisions. The supplied `standing-single-leg-cable-hamstring-curl-guide.png` and `standing-single-leg-cable-hamstring-curl-sequence.png` show the established red-shirt trainer facing the M1-style tower, one ankle connected to a low cable, one hand lightly supporting balance, a mostly vertical working thigh, knee flexion toward the glute, and a controlled return without hip extension. Both assets are in the production offline manifest.
 
 ## Media contract
 

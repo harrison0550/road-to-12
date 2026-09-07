@@ -85,6 +85,25 @@
       equipment: ["Two 15 lb dumbbells"],
       commonMistakes: ["Turning the hinge into a squat", "Rounding the back", "Letting the weights drift forward", "Leaning backward at the finish"]
     }),
+    "Standing Single-Leg Cable Hamstring Curl": {
+      slug: "standing-single-leg-cable-hamstring-curl",
+      sourceType: "app-original",
+      provider: "Road to 12%",
+      providerUrl: "",
+      author: "Road to 12%",
+      sourceExercise: "Standing unilateral cable hamstring curl",
+      media: "assets/exercise-library/generated/standing-single-leg-cable-hamstring-curl-guide.png",
+      movementSequence: "assets/exercise-library/generated/standing-single-leg-cable-hamstring-curl-sequence.png",
+      mediaAlt: "Side-view guide of the red-shirt trainer facing an M1-style tower with one ankle strapped to a low cable and one hand lightly supporting balance",
+      movementSequenceAlt: "Four-position movement sequence showing the trainer keep the working thigh vertical while curling the strapped heel toward the glute and returning under control",
+      mediaType: "movement-sequence",
+      reviewedOn: mediaReviewDate,
+      primaryMuscles: ["Hamstrings"],
+      secondaryMuscles: ["Calves", "Glute stabilizers"],
+      equipment: ["RitFit M1 Pro", "One lower front-post cable", "Ankle / Velcro strap"],
+      commonMistakes: ["Rotating the hips", "Swinging the working thigh", "Kicking the whole leg backward", "Arching the low back", "Dropping the eccentric"],
+      rightsNote: "App-created instructional guide supplied for Road to 12%. Written setup and movement cues remain the authoritative coaching guide."
+    },
     "Dead Bug": road12Illustration({
       sourceExercise: "Alternating dead bug",
       media: "dead-bug-animation.gif",

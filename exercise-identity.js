@@ -16,7 +16,7 @@
     "PLANK_HOLD","ROMANIAN_DEADLIFTS","ROW_GENERIC","SEATED_CABLE_ROW",
     "SHOULDER_PRESS_GENERIC","SMITH_MACHINE_LUNGE","SMITH_MACHINE_SQUAT",
     "STANDING_CALF_RAISE","STANDING_DUMBBELL_BICEPS_CURL","STRAIGHT_ARM_PULLDOWN",
-    "SUITCASE_CARRY","UP_TO_DOWN_CABLE_TWIST"
+    "STANDING_LEG_CURL","SUITCASE_CARRY","UP_TO_DOWN_CABLE_TWIST"
   ]);
   const stravaSupportedExerciseTypeSet=new Set(stravaSupportedExerciseTypes);
   const definitions=[
@@ -47,6 +47,7 @@
     ["road12.lateral-raise.dumbbell","Dumbbell Lateral Raise","LATERAL_RAISE_GENERIC",[]],
     ["road12.press.dumbbell-floor","Dumbbell Floor Press","DUMBBELL_FLOOR_PRESS",[]],
     ["road12.deadlift.dumbbell-rdl","Dumbbell Romanian Deadlift","DUMBBELL_ROMANIAN_DEADLIFTS",["Dumbbell RDL"]],
+    ["road12.hamstring.cable-standing-single-leg-curl","Standing Single-Leg Cable Hamstring Curl","STANDING_LEG_CURL",[]],
     ["road12.fly.cable-rear-delt","Rear Delt Cable Fly","CABLE_REAR_DELT_FLY",[]],
     ["road12.pull.cable-face","Cable Face Pull","FACE_PULL",[]],
     ["road12.pull.cable-straight-arm","Cable Straight Arm Pushdown","STRAIGHT_ARM_PULLDOWN",[]],

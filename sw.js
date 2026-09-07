@@ -1,5 +1,5 @@
 /* Keep this query aligned with app-meta.js so Safari cannot reuse stale imported metadata. */
-importScripts("./app-meta.js?build=2026.09.04.2");
+importScripts("./app-meta.js?build=2026.09.06.1");
 
 const CACHE=self.ROAD12_META.serviceWorkerCache;
 const MEDIA_CACHE=CACHE.endsWith("-shell")?`${CACHE.slice(0,-6)}-media`:`${CACHE}-media`;
@@ -60,6 +60,8 @@ const MEDIA_ASSETS=[
   "./assets/exercise-library/generated/behind-the-back-single-arm-cable-curl-motion-guide.webp",
   "./assets/exercise-library/generated/seated-concentration-curl-guide.png",
   "./assets/exercise-library/generated/seated-concentration-curl-sequence.png",
+  "./assets/exercise-library/generated/standing-single-leg-cable-hamstring-curl-guide.png",
+  "./assets/exercise-library/generated/standing-single-leg-cable-hamstring-curl-sequence.png",
   "./assets/exercise-library/generated/decline-bench-reverse-crunch-motion-guide.webp",
   "./assets/exercise-library/generated/forearm-plank-posterior-pelvic-tilt-motion-guide.webp",
   "./assets/exercise-library/generated/hanging-garhammer-raise-motion-guide.webp",

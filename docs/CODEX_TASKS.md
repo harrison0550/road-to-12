@@ -73,6 +73,7 @@ Copy this block for new work:
 
 ## Completed this sprint
 
+- [x] Replace the future Full Body C Dumbbell Romanian Deadlift slot with Standing Single-Leg Cable Hamstring Curl, add the ankle-strap setup and supplied offline guides, preserve historical RDL records, validate independent progression plus single-stack Strava normalization, and deploy build `2026.09.06.1`.
 - [x] Replace the future Full Body C behind-the-back cable curl with Seated Concentration Curl, preserve older history and active revisions, install the supplied offline guides, record one dumbbell, and retain normal double progression and a supported Strava mapping.
 - [x] Add the owned GMWD independent converging chest press to future Full Body B sessions, move low-incline dumbbell press to C, preserve older active/history revisions, add explicit per-side load semantics, reviewed offline guidance, conservative double progression, backup coverage, and a supported generic Strava chest-press mapping.
 - [x] Implement secure Strava Phase 2A locally with P-256 installation authentication, one-time OAuth state, encrypted D1 token records, validated manual structured-strength upload, asynchronous polling, duplicate-safe reconciliation, disconnect, offline gating, and no automatic sync or deployment.

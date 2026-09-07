@@ -10,13 +10,13 @@ assert.match(app, /title:"Zone 2 Cardio"[\s\S]*?Choose treadmill, rower or KICKR
 
 assert.match(app, /name:"Dumbbell Lateral Raise",reps:12/, "Full Body A must add the lateral raise accessory");
 assert.match(app, /name:"Dumbbell Floor Press",reps:12/, "Full Body B must add the floor press accessory");
-assert.match(app, /name:"Dumbbell Romanian Deadlift",reps:12/, "Full Body C must add the Romanian deadlift accessory");
+assert.match(app, /name:"Standing Single-Leg Cable Hamstring Curl",sets:3,reps:"10-15"/, "Full Body C must replace the Romanian deadlift accessory with the cable hamstring curl");
 assert.match(app, /name:"V-Bar Triceps Pushdown",sets:2,reps:12/, "Full Body B must add two conservative V-bar pushdown sets");
 assert.match(app, /name:"V-Bar Triceps Pushdown"[\s\S]*?attachmentCard:\{key:"vBar"/, "the V-bar movement must show the user's exact attachment card");
 assert.match(app, /cloneExerciseByName\("Rope Triceps Pushdown"\)/, "the existing rope pushdown must remain scheduled");
 assert.match(app, /Rotating close-grip double-D row handle/, "the owned row attachment must be identified exactly");
 assert.match(app, /version:7,[\s\S]*?dumbbells:true,rower:true,kettlebells:false/, "confirmed equipment must remain enabled for existing saved profiles");
-assert.match(app, /type:"strength",sets:2,rest:60,requires:\["dumbbells"\]/, "dumbbell accessories must use two conservative sets and require dumbbells");
+assert.match(app, /type:"strength",sets:2,rest:60,requires:\["dumbbells"\]/, "the retained dumbbell accessories must use two conservative sets and require dumbbells");
 assert.match(app, /combined weight of both dumbbells[\s\S]*?Available pairs are 10, 15, 20 and 25 lb per hand/, "weight entry must explain combined dumbbell weight and every available pair");
 assert.match(app, /const workoutData=\[\.\.\.baseWorkout,\.\.\.\[dumbbellAccessory,armAccessory\]\.filter\(Boolean\)\];/, "accessories must be appended without replacing the existing strength workout");
 assert.match(app, /if\(ex\.type==="cooldown"\)return 7;/, "cooldowns must remain ordered after added accessories");

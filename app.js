@@ -482,14 +482,15 @@ const weekPlan=[
  {short:"TUE",icon:"🚶",title:"Cardio + Mobility",detail:"Incline treadmill, rowing technique and mobility recovery",action:"cardio",time:"45–50 min",focus:"Recovery, rowing skill and aerobic base",items:["5-minute easy treadmill warm-up","20–25 minute incline walk at conversational pace","8-minute easy iFIT rowing technique","Hip flexor stretch","Hamstring stretch","Chest and shoulder mobility","Easy cooldown"],setup:"Treadmill → iFIT rower → floor/wall mobility"},
  {short:"WED",icon:"💪",title:"Full Body B",detail:"Alternate guided full-body strength session",action:"upcoming",time:"60–70 min",focus:"Back, legs, chest and arms",items:["Treadmill warm-up","Hip hinge mobility","Smith Machine RDL","Smith Machine Single-Leg Squat","Smith Machine Calf Raise","GMWD Converging Chest Press","Single Arm Cable Row","Lat Pulldown","V-Bar Triceps Pushdown","Cable Lateral Raise","Cable Crunch","Cable Hammer Curl","Dumbbell Floor Press","Cooldown"],setup:"Smith station → GMWD chest press → cable stations"},
  {short:"THU",icon:"🧘",title:"Core + Recovery",detail:"Kettlebell technique, core training, stretching and easy movement",action:"recovery",time:"35–45 min",focus:"Kettlebell skill, core control and mobility",items:["Easy walk or row","Kettlebell Around the World","Kettlebell Swing","Kettlebell Suitcase Carry","Dead bug","Bird dog","Side plank from knees","Hip mobility","Upper-back mobility","Slow breathing cooldown"],setup:"30 lb kettlebell → floor space; optional treadmill or rower"},
- {short:"FRI",icon:"🏋️",title:"Full Body C",detail:"Third weekly guided full-body strength session",action:"upcoming",time:"70–80 min",focus:"Legs, glutes, pushing, pulling and arms",items:["Treadmill warm-up","Hip hinge mobility","Smith Machine Squat","Smith Machine Hip Thrust","Low-Incline Dumbbell Press","Cable Shoulder Press","Rear Delt Cable Fly","Cable Face Pull","Cable Straight Arm Pushdown","Rope Triceps Pushdown","High to Low Cable Chop","Dumbbell Romanian Deadlift","Treadmill HIIT Intervals","Cooldown"],setup:"Smith station and outside bench → low-incline dumbbell press → cable stations → treadmill"},
+ {short:"FRI",icon:"🏋️",title:"Full Body C",detail:"Third weekly guided full-body strength session",action:"upcoming",time:"70–80 min",focus:"Legs, glutes, pushing, pulling and arms",items:["Treadmill warm-up","Hip hinge mobility","Smith Machine Squat","Smith Machine Hip Thrust","Low-Incline Dumbbell Press","Cable Shoulder Press","Rear Delt Cable Fly","Cable Face Pull","Cable Straight Arm Pushdown","Rope Triceps Pushdown","High to Low Cable Chop","Standing Single-Leg Cable Hamstring Curl","Treadmill HIIT Intervals","Cooldown"],setup:"Smith station and outside bench → low-incline dumbbell press → cable stations → treadmill"},
  {short:"SAT",icon:"❤️",title:"Zone 2 Cardio",detail:"Longer easy bike, rower or treadmill session",action:"cardio",time:"35–50 min",focus:"Fat-loss supporting aerobic work",items:["5-minute easy warm-up","25–40 minutes at a pace where you can speak in sentences","5-minute cooldown","Light stretching"],setup:"Choose treadmill, rower or KICKR CORE"},
  {short:"SUN",icon:"📏",title:"Recovery + Check-in",detail:"Rest, measurements and weekly review",action:"progress",time:"10–20 min",focus:"Recovery and progress review",items:["Morning body weight","Waist measurement","Optional progress photos","Review completed workouts","Plan the coming week","Full rest or gentle walk"],setup:"No gym setup required"}
 ];
 const LEGACY_FOUNDATION_PROGRAM_REVISION="foundation-kettlebell-2026-08-27";
 const PREVIOUS_FOUNDATION_PROGRAM_REVISION="foundation-smith-hip-thrust-2026-08-28";
 const GMWD_FOUNDATION_PROGRAM_REVISION="foundation-gmwd-chest-press-2026-09-04";
-const FOUNDATION_PROGRAM_REVISION="foundation-concentration-curl-2026-09-04";
+const CONCENTRATION_FOUNDATION_PROGRAM_REVISION="foundation-concentration-curl-2026-09-04";
+const FOUNDATION_PROGRAM_REVISION="foundation-cable-hamstring-curl-2026-09-04";
 Object.assign(weekPlan[0],{
   detail:"Guided strength - chest, back, quads, shoulders and arms",
   time:"60\u201370 min",
@@ -1410,6 +1411,7 @@ function equipment(){
   ["latBar","Lat pulldown bar","Used for lat pulldowns."],
   ["rowHandle","Rotating close-grip double-D row handle","Used for seated cable rows."],
   ["vBar","Angled V-bar pressdown attachment","Used for V-bar triceps pushdowns."],
+  ["ankleStrap","Ankle / Velcro strap","Used for standing single-leg cable hamstring curls."],
   ["smithBarPad","Smith barbell pad","Used to cushion the Smith bar during hip thrusts."]
  ];
  app.innerHTML=`<section class="card"><h2>Profile</h2><label>What should the app call you?<input id="preferredName" value="${state.preferredName}" autocomplete="given-name"></label><button class="secondary profile-save" id="saveProfile">Save name</button></section>
@@ -2969,7 +2971,7 @@ function fullBodyAWorkout(){
   });
 }
 
-function dumbbellAccessoryForDay(dayIndex){
+function dumbbellAccessoryForDay(dayIndex,useCableHamstringCurl=true){
   const shared={
     type:"strength",sets:2,rest:60,requires:["dumbbells"],substituteId:null,
     weightEntry:{mode:"total",paired:true,label:"Combined dumbbell weight",help:"Enter the combined weight of both dumbbells. Available pairs are 10, 15, 20 and 25 lb per hand."}
@@ -2992,15 +2994,31 @@ function dumbbellAccessoryForDay(dayIndex){
     weightRecommendation:"Begin with two 10 lb dumbbells. Use two 15 lb dumbbells only if every repetition remains smooth.",
     demoImage:"assets/exercise-library/original/dumbbell-floor-press-animation.gif"
   });
-  if(dayIndex===4)return Object.assign(cloneExerciseByName("Hip Hinge"),shared,{
-    name:"Dumbbell Romanian Deadlift",reps:12,muscles:"Hamstrings, glutes, upper back and grip",
-    setup:["Use both 15 lb dumbbells","Stand with feet hip width and weights in front of the thighs","Keep knees soft and spine long"],
-    steps:["Brace your trunk and push your hips backward.","Lower the dumbbells close to your legs until the hamstrings feel loaded.","Stop before your back rounds.","Drive the hips forward and stand tall without leaning back."],
-    cues:["This is a hinge, not a squat.","Keep the dumbbells close.","Move slowly through the lowering phase."],
-    why:"Adds a controlled free-weight hinge using the available 15 lb dumbbells.",
-    weightRecommendation:"Use both 15 lb dumbbells for 30 lb combined. Reduce range before sacrificing position.",
-    demoImage:"assets/exercise-library/original/dumbbell-romanian-deadlift-animation.gif"
-  });
+  if(dayIndex===4){
+    if(!useCableHamstringCurl)return Object.assign(cloneExerciseByName("Hip Hinge"),shared,{
+      name:"Dumbbell Romanian Deadlift",reps:12,muscles:"Hamstrings, glutes, upper back and grip",
+      setup:["Use both 15 lb dumbbells","Stand with feet hip width and weights in front of the thighs","Keep knees soft and spine long"],
+      steps:["Brace your trunk and push your hips backward.","Lower the dumbbells close to your legs until the hamstrings feel loaded.","Stop before your back rounds.","Drive the hips forward and stand tall without leaning back."],
+      cues:["This is a hinge, not a squat.","Keep the dumbbells close.","Move slowly through the lowering phase."],
+      why:"Adds a controlled free-weight hinge using the available 15 lb dumbbells.",
+      weightRecommendation:"Use both 15 lb dumbbells for 30 lb combined. Reduce range before sacrificing position.",
+      demoImage:"assets/exercise-library/original/dumbbell-romanian-deadlift-animation.gif"
+    });
+    return Object.assign(cloneExerciseByName("Cable Curl"),shared,{
+      name:"Standing Single-Leg Cable Hamstring Curl",sets:3,reps:"10-15",rest:60,unilateral:true,
+      muscles:"Hamstrings, calves and glute stabilizers",
+      setup:["Attach the ankle / Velcro strap to one lower front-post cable","Secure the strap around the working ankle","Face the machine and hold the upright lightly for balance","Stand tall with ribs stacked over the pelvis and hips square","Keep the working thigh mostly vertical"],
+      steps:["Maintain cable tension and bend only at the knee.","Curl the heel toward the glute without kicking the whole leg backward.","Briefly squeeze the hamstring while the hips and thigh remain still.","Lower for two to three seconds without arching the low back.","Complete the prescribed repetitions, then switch legs."],
+      cues:["Keep hips square.","Thigh stays still.","Curl heel toward glute.","Do not arch low back.","Control the return."],
+      why:"Preserves direct hamstring training while removing the loaded hip-hinge pattern that caused low-back discomfort.",
+      weightRecommendation:"Treat the first session as calibration. Choose a light one-stack setting that allows 10 to 15 controlled reps per leg with 2 to 3 reps in reserve.",
+      targetRirRange:[2,3],progressionModel:"double-progression",minimumProgressionExposures:2,
+      requires:["ritfitM1"],substituteId:null,attachmentCard:{key:"ankleStrap",name:"Ankle / Velcro strap",qty:1},
+      m1:{pinLeft:1,pinRight:null,attachment:"Ankle / Velcro strap on one low cable",bench:"No bench",facing:"Face the active front post",stance:"Tall single-leg stance with support hand on the upright",start:"Working knee nearly straight with cable tension",finish:"Heel curled toward the glute while the thigh stays vertical",view:"Side view",pinNote:"Use one front-post pulley at position 1."},
+      weightEntry:{mode:"single",label:"Weight selected on one stack",help:"Enter the selector weight used on the ONE active cable stack. Repetitions are per leg; do not double or combine the load."},
+      correctedGuide:null,demoImage:"assets/exercise-library/generated/standing-single-leg-cable-hamstring-curl-guide.png"
+    });
+  }
   return null;
 }
 
@@ -3266,13 +3284,14 @@ function fullBodyCWorkout(includeHipThrust=true,includeLowInclinePress=true,useC
 function strengthWorkoutForDay(dayIndex){
   const activeSession=!!state.currentSession&&!state.currentSession.completedId&&state.currentSession.planDay===dayIndex;
   const preservePreChestDefinition=activeSession&&!state.currentSession.programRevision;
-  const compatibleRevisions=[LEGACY_FOUNDATION_PROGRAM_REVISION,PREVIOUS_FOUNDATION_PROGRAM_REVISION,GMWD_FOUNDATION_PROGRAM_REVISION,FOUNDATION_PROGRAM_REVISION];
+  const compatibleRevisions=[LEGACY_FOUNDATION_PROGRAM_REVISION,PREVIOUS_FOUNDATION_PROGRAM_REVISION,GMWD_FOUNDATION_PROGRAM_REVISION,CONCENTRATION_FOUNDATION_PROGRAM_REVISION,FOUNDATION_PROGRAM_REVISION];
   const includeCurrentAttachments=!activeSession||compatibleRevisions.includes(state.currentSession.programRevision);
-  const includeHipThrust=!activeSession||[PREVIOUS_FOUNDATION_PROGRAM_REVISION,GMWD_FOUNDATION_PROGRAM_REVISION,FOUNDATION_PROGRAM_REVISION].includes(state.currentSession.programRevision);
-  const useGmwdChest=!activeSession||[GMWD_FOUNDATION_PROGRAM_REVISION,FOUNDATION_PROGRAM_REVISION].includes(state.currentSession.programRevision);
-  const useConcentrationCurl=!activeSession||state.currentSession.programRevision===FOUNDATION_PROGRAM_REVISION;
+  const includeHipThrust=!activeSession||[PREVIOUS_FOUNDATION_PROGRAM_REVISION,GMWD_FOUNDATION_PROGRAM_REVISION,CONCENTRATION_FOUNDATION_PROGRAM_REVISION,FOUNDATION_PROGRAM_REVISION].includes(state.currentSession.programRevision);
+  const useGmwdChest=!activeSession||[GMWD_FOUNDATION_PROGRAM_REVISION,CONCENTRATION_FOUNDATION_PROGRAM_REVISION,FOUNDATION_PROGRAM_REVISION].includes(state.currentSession.programRevision);
+  const useConcentrationCurl=!activeSession||[CONCENTRATION_FOUNDATION_PROGRAM_REVISION,FOUNDATION_PROGRAM_REVISION].includes(state.currentSession.programRevision);
+  const useCableHamstringCurl=!activeSession||state.currentSession.programRevision===FOUNDATION_PROGRAM_REVISION;
   const baseWorkout=dayIndex===0?(preservePreChestDefinition?data:fullBodyAWorkout()):dayIndex===2?fullBodyBWorkout(preservePreChestDefinition,includeCurrentAttachments,useGmwdChest):dayIndex===4?fullBodyCWorkout(includeHipThrust,useGmwdChest,useConcentrationCurl):data;
-  const dumbbellAccessory=dumbbellAccessoryForDay(dayIndex);
+  const dumbbellAccessory=dumbbellAccessoryForDay(dayIndex,useCableHamstringCurl);
   const armAccessory=armAccessoryForDay(dayIndex);
   const workoutData=[...baseWorkout,...[dumbbellAccessory,armAccessory].filter(Boolean)];
   const group=ex=>{

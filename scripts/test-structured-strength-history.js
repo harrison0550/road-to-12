@@ -16,6 +16,8 @@ assert.strictEqual(identities.resolve("V-Bar Triceps Pushdown").id,"road12.trice
 assert.strictEqual(identities.resolve("Kettlebell Swing").id,"road12.hinge.kettlebell-swing");
 assert.strictEqual(identities.resolve("Kettlebell Around the World").id,"road12.core.kettlebell-around-world");
 assert.strictEqual(identities.resolve("Kettlebell Suitcase Carry").id,"road12.carry.kettlebell-suitcase");
+assert.strictEqual(identities.resolve("Standing Single-Leg Cable Hamstring Curl").id,"road12.hamstring.cable-standing-single-leg-curl");
+assert.strictEqual(identities.resolve("Standing Single-Leg Cable Hamstring Curl").externalMappings.strava.exerciseType,"STANDING_LEG_CURL");
 assert.strictEqual(identities.resolve("Future Movement").id,"road12.exercise.future-movement");
 assert.match(app,/ROAD12_SCHEMA_VERSION=18/);
 assert.match(app,/version:11,[\s\S]*?exerciseTimings[\s\S]*?schemaVersion=11/);

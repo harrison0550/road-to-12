@@ -51,7 +51,6 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Added concrete next-session prescriptions with explicit user approval and in-workout approved-target guidance.
 
 ### Changed
-
 - Advanced the maintenance build to `2026.08.30.3`, schema 18, and cache generation 68 for the explicitly approved one-session Strava pilot. All other deleted historical sessions remain blocked and no automatic or cardio posting is enabled.
 - Advanced the maintenance build to `2026.08.30.2` and rotated the offline caches for the Strava compliance remediation.
 - Changed Strava disconnect to require backend deletion confirmation after token revocation and an atomic D1 purge of OAuth, connection/profile/token, upload/activity/error, and provider timestamp data before local cleanup.
@@ -222,6 +221,13 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Moved Easy Treadmill Cooldown and Post-Workout Stretch to the end of Full Body A instead of between the Smith and cable blocks.
 
 ### Removed
+
+## [13.2.0] - 2026-09-06 (Build 2026.09.06.1)
+
+### Changed
+
+- Replaced Dumbbell Romanian Deadlift in future Full Body C sessions with three sets of Standing Single-Leg Cable Hamstring Curl. The new movement uses one low M1 cable and ankle strap, records one stack without doubling, begins with independent calibration history, and preserves all historical RDL sessions and older active revisions.
+- Added the supplied offline standing-curl setup guide and four-position movement sequence, then rotated the PWA shell and media caches for installed-app delivery.
 
 ## [13.2.0] - 2026-09-04 (Build 2026.09.04.2)
 
