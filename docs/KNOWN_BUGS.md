@@ -17,6 +17,16 @@ No confirmed production behavior defects are currently documented.
 
 ## Resolved
 
+### BUG-027 — Home readiness card does not open Training readiness
+
+- Status: Resolved in v13.3.0 build 2026.09.07.2
+- Severity: Medium
+- Area: Home / Progress Navigation
+- Report: The Home Foundation/Build readiness card displayed the correct readiness state but did nothing when tapped, forcing the user to open Progress and find Training readiness manually.
+- Cause: The compact Home card rendered readiness content without an interactive binding or a pending Progress scroll target.
+- Resolution: The full card now routes through the existing Progress tab, expands the single existing Training readiness disclosure, and scrolls it into view after rendering. Manual Progress navigation retains its usual position.
+- Regression test: `scripts/test-home-readiness-navigation.js`
+
 ### BUG-026 — Strava OAuth returns to the GitHub Pages account root
 
 - Status: Resolved in the Strava Phase 2A Worker deployment on August 30, 2026

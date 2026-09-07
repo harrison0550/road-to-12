@@ -478,6 +478,7 @@ let pendingExtraActivity=null;
 let pendingExtraThumbnail=null;
 let extraActivityNotice="";
 const progressExpandedSections=new Set();
+let pendingProgressTarget=null;
 Object.assign(state,{tab:state.tab||"home",step:state.step||0,logs:state.logs||{},sessions:state.sessions||0,weight:state.weight||221,waist:state.waist||43,history:state.history||[],selectedDay:Number.isInteger(state.selectedDay)?state.selectedDay:0,coachMode:state.coachMode!==false});
 state.attachmentPhotos=state.attachmentPhotos||{};
 state.currentSession=state.currentSession||null;
@@ -1373,15 +1374,16 @@ function currentAdaptiveRecommendation(){
  return window.ROAD12_ADAPTIVE.phaseReadiness({history:state.history.map(window.ROAD12_STRAVA_DATA.stripSession),ratings:state.workoutRatings,sessions:state.workoutSessions,today:localDateKey(),adherenceBaselineDate:state.adherenceBaselineDate,measurements:state.bodyMeasurements,cardio:state.cardioHistory,trainingPhase:state.trainingPhase});
 }
 function phaseReadinessMarkup(readiness,compact=false){
- if(state.trainingPhase?.id==="build")return `<section class="card phase-readiness-card ${compact?"compact":""}" aria-labelledby="phaseReadinessTitle"><div class="phase-readiness-heading"><div><span class="pill">BUILD • PHASE 2</span><h2 id="phaseReadinessTitle">Build phase active</h2></div><strong>In progress</strong></div><p>Your accepted Upper/Lower program is active. Foundation history, working weights, and progression evidence remain available.</p>${compact?"":`<div class="phase-lock-note"><strong>Program version</strong><span>${escapeAdaptiveText(state.buildProgramVersion||state.trainingPhase.programVersion||"Build")}</span></div>`}</section>`;
+ const navigation=compact?' role="link" tabindex="0" data-readiness-link aria-label="View training readiness details"':"";
+ if(state.trainingPhase?.id==="build")return `<section class="card phase-readiness-card ${compact?"compact":""}" aria-labelledby="phaseReadinessTitle"${navigation}><div class="phase-readiness-heading"><div><span class="pill">BUILD • PHASE 2</span><h2 id="phaseReadinessTitle">Build phase active</h2></div><strong>In progress</strong></div><p>Your accepted Upper/Lower program is active. Foundation history, working weights, and progression evidence remain available.</p>${compact?"":`<div class="phase-lock-note"><strong>Program version</strong><span>${escapeAdaptiveText(state.buildProgramVersion||state.trainingPhase.programVersion||"Build")}</span></div>`}</section>`;
  const quality=readiness.dataQualityItems||[];
  const status=readiness.eligible?"Review available":"Collecting data";
  const summary=readiness.eligible
    ?"You have completed the Foundation evidence requirements. Review the Build plan when you are ready; your current schedule will not change until you explicitly accept it."
    :"You're progressing toward the next training phase. Foundation A/B/C stays active while Road to 12% gathers enough quality evidence.";
  const blocker=!readiness.eligible&&readiness.blockers?.[0]?`<p class="phase-primary-blocker"><strong>Next requirement:</strong> ${escapeAdaptiveText(readiness.blockers[0])}.</p>`:"";
- const review=readiness.eligible?'<button class="primary review-build-plan" type="button">Review Build Plan</button>':"";
- return `<section class="card phase-readiness-card ${compact?"compact":""}" aria-labelledby="phaseReadinessTitle"><div class="phase-readiness-heading"><div><span class="pill">FOUNDATION • PHASE 1</span><h2 id="phaseReadinessTitle">${readiness.score}% ready for Build</h2></div><strong>${status}</strong></div><div class="phase-readiness-track" role="progressbar" aria-label="Foundation phase readiness" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${readiness.score}"><span style="width:${readiness.score}%"></span></div><p>${summary}</p>${blocker}${review}${compact?"":`<div class="readiness-quality"><div><small>READINESS DATA QUALITY</small><strong>${readiness.dataQuality}% • ${readiness.dataQualityLabel}</strong></div><div class="data-quality-grid">${quality.map(item=>`<div class="${item.ready?"ready":"collecting"} ${item.required===false?"context-only":""}"><span>${item.ready?"✓":"…"}</span><p><strong>${item.label}</strong><small>${item.value}</small></p></div>`).join("")}</div></div><div class="readiness-reasons">${readiness.reasons.map(reason=>`<div class="${reason.status}"><span aria-hidden="true">${reason.status==="positive"?"✓":reason.status==="hold"?"!":"…"}</span><p><strong>${reason.label}</strong><small>${reason.detail}</small></p></div>`).join("")}</div><div class="phase-lock-note"><strong>${readiness.eligible?"Build review is unlocked.":"Phase advancement is locked."}</strong><span>${readiness.eligible?"Eligibility does not alter the schedule. Build begins only after a validated plan is available and you accept it.":escapeAdaptiveText(readiness.blockers.join(" • "))}</span></div>`}</section>`;
+ const review=readiness.eligible&&!compact?'<button class="primary review-build-plan" type="button">Review Build Plan</button>':"";
+ return `<section class="card phase-readiness-card ${compact?"compact":""}" aria-labelledby="phaseReadinessTitle"${navigation}><div class="phase-readiness-heading"><div><span class="pill">FOUNDATION • PHASE 1</span><h2 id="phaseReadinessTitle">${readiness.score}% ready for Build</h2></div><strong>${status}</strong></div><div class="phase-readiness-track" role="progressbar" aria-label="Foundation phase readiness" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${readiness.score}"><span style="width:${readiness.score}%"></span></div><p>${summary}</p>${blocker}${review}${compact?"":`<div class="readiness-quality"><div><small>READINESS DATA QUALITY</small><strong>${readiness.dataQuality}% • ${readiness.dataQualityLabel}</strong></div><div class="data-quality-grid">${quality.map(item=>`<div class="${item.ready?"ready":"collecting"} ${item.required===false?"context-only":""}"><span>${item.ready?"✓":"…"}</span><p><strong>${item.label}</strong><small>${item.value}</small></p></div>`).join("")}</div></div><div class="readiness-reasons">${readiness.reasons.map(reason=>`<div class="${reason.status}"><span aria-hidden="true">${reason.status==="positive"?"✓":reason.status==="hold"?"!":"…"}</span><p><strong>${reason.label}</strong><small>${reason.detail}</small></p></div>`).join("")}</div><div class="phase-lock-note"><strong>${readiness.eligible?"Build review is unlocked.":"Phase advancement is locked."}</strong><span>${readiness.eligible?"Eligibility does not alter the schedule. Build begins only after a validated plan is available and you accept it.":escapeAdaptiveText(readiness.blockers.join(" • "))}</span></div>`}</section>`;
 }
 function buildReviewTemplatesMarkup(){
  return Object.values(window.ROAD12_BUILD?.TEMPLATES||{}).map(template=>`<section class="build-review-section build-template-preview"><div><span class="pill">${escapeAdaptiveText(template.emphasis.toUpperCase())}</span><h3>${escapeAdaptiveText(template.name)}</h3><small>${escapeAdaptiveText(template.time)} • ${window.ROAD12_BUILD.strengthSetCount(template)} working sets</small></div><ol>${template.exercises.map(exercise=>`<li><strong>${escapeAdaptiveText(exercise.name)}</strong>${exercise.sets?`<span>${exercise.sets} × ${escapeAdaptiveText(exercise.reps)} • ${exercise.targetRirRange.join("–")} RIR</span>`:"<span>Preparation / recovery</span>"}</li>`).join("")}</ol></section>`).join("");
@@ -1418,6 +1420,36 @@ function openBuildPlanReview(){
 }
 function bindBuildReviewButtons(){
  document.querySelectorAll(".review-build-plan").forEach(button=>button.addEventListener("click",openBuildPlanReview));
+}
+function openProgressSection(id){
+ pendingProgressTarget=id;
+ progressExpandedSections.add(id);
+ state.historyView=null;
+ setTab("progress");
+}
+function bindHomeReadinessNavigation(){
+ const card=document.querySelector("[data-readiness-link]");
+ if(!card)return;
+ const activate=event=>{
+   if(event.type==="keydown"&&!['Enter',' '].includes(event.key))return;
+   if(event.type==="keydown")event.preventDefault();
+   openProgressSection("readiness");
+ };
+ card.addEventListener("click",activate);
+ card.addEventListener("keydown",activate);
+}
+function scrollToPendingProgressTarget(){
+ if(!pendingProgressTarget)return;
+ requestAnimationFrame(()=>{
+   const id=pendingProgressTarget;
+   pendingProgressTarget=null;
+   const target=document.querySelector(`[data-progress-section="${id}"]`);
+   if(!target)return;
+   target.open=true;
+   const reduceMotion=window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+   target.scrollIntoView({behavior:reduceMotion?"auto":"smooth",block:"start"});
+   target.querySelector("summary")?.focus({preventScroll:true});
+ });
 }
 function exerciseProgressionRecommendations(){
  const days=state.trainingPhase?.id==="build"?[0,1,3,4]:[0,2,4];
@@ -2337,6 +2369,7 @@ function home(){
  <section class="command-checkin" aria-label="Latest check-in"><div><small>WEIGHT</small><strong>${bodyMeasurements.weight??"—"} lb</strong></div><div><small>WAIST</small><strong>${bodyMeasurements.waist??"—"} in</strong></div></section>`;
 
  bindBuildReviewButtons();
+ bindHomeReadinessNavigation();
  document.querySelector("#viewLatestAchievement")?.addEventListener("click",()=>{
    state.historyView=latest.id;
    state.tab="progress";
@@ -2620,6 +2653,7 @@ function progress(){
    save();
    progress();
  });
+ scrollToPendingProgressTarget();
 }
 
 function exercise(ex,workoutData=activeWorkout()){

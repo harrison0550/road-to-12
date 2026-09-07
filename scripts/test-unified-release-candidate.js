@@ -39,9 +39,9 @@ assert.deepStrictEqual(migrate(unified21),unified21);
 
 function roundTrip(state){
   const normalized=backup.merge({},state);
-  const first=backup.create({version:"13.3.0",build:"2026.09.07.1"},normalized,21);
+  const first=backup.create({version:"13.3.0",build:"2026.09.07.2"},normalized,21);
   const restored=backup.merge({},backup.validate(JSON.parse(JSON.stringify(first)),21).state);
-  const second=backup.create({version:"13.3.0",build:"2026.09.07.1"},restored,21);
+  const second=backup.create({version:"13.3.0",build:"2026.09.07.2"},restored,21);
   assert.deepStrictEqual(second.state,first.state);
   return second.state;
 }
@@ -73,6 +73,6 @@ assert.equal(strava.isSessionStravaEligible({...strengthSession("Upper A","build
 
 assert.match(index,/build-upper-lower-program\.js/);assert.match(index,/extra-activity\.js/);assert.doesNotMatch(index,/build-program\.js/);
 assert(sw.includes('"./build-upper-lower-program.js"'));assert(sw.includes('"./extra-activity.js"'));assert(!sw.includes('"./build-program.js"'));
-assert.match(app,/const ROAD12_SCHEMA_VERSION=21;/);assert.match(index,/build=2026\.09\.07\.1/);assert.match(sw,/app-meta\.js\?build=2026\.09\.07\.1/);
+assert.match(app,/const ROAD12_SCHEMA_VERSION=21;/);assert.match(index,/build=2026\.09\.07\.2/);assert.match(sw,/app-meta\.js\?build=2026\.09\.07\.2/);
 
 console.log("Unified release candidate tests passed: schema 21 collision recovery, combined backup roundtrips, canonical Build Strava eligibility, Extra Activity isolation, and stale-module removal.");

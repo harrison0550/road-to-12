@@ -14,6 +14,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Removed
 
+## [13.3.0] - 2026-09-07 (Build 2026.09.07.2)
+
+### Fixed
+
+- Made the entire Home training-readiness card an accessible deep link to the existing Training readiness disclosure in Progress. The route activates the Progress tab, expands the existing section, waits for rendering, and scrolls its title into view while preserving normal manual Progress navigation.
+
 ## [13.3.0] - 2026-09-07 (Build 2026.09.07.1)
 
 ### Added

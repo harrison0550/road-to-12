@@ -78,6 +78,8 @@ Copy this block for new work:
 
 ## Completed this sprint
 
+- [x] Repair the v13.3.0 Home readiness card so the full accessible card routes to Progress and scrolls to the single existing Training readiness disclosure without changing readiness or transition logic.
+
 - [x] Replace the artificial 85% readiness cap with auditable Foundation eligibility, phase-start session qualification, specific blockers, a review milestone, schema-19 transition history, and a hard template-validation stop that prevents premature Build activation.
 
 - [x] Replace the future Full Body C Dumbbell Romanian Deadlift slot with Standing Single-Leg Cable Hamstring Curl, add the ankle-strap setup and supplied offline guides, preserve historical RDL records, validate independent progression plus single-stack Strava normalization, and deploy build `2026.09.06.1`.

@@ -6,11 +6,11 @@ Read this file at the beginning of every Codex or engineering session. It is the
 
 - Product: Road to 12%
 - Version: 13.3.0
-- Build: 2026.09.07.1
+- Build: 2026.09.07.2
 - Last updated: September 7, 2026
-- Service Worker cache: `road12-v13-3-72-shell`
-- Exercise media cache: `road12-v13-3-72-media`
-- Deployment status: approved controlled production deployment for installed-PWA smoke testing; final release acceptance remains pending the manual checklist
+- Service Worker cache: `road12-v13-3-73-shell`
+- Exercise media cache: `road12-v13-3-73-media`
+- Deployment status: targeted Home readiness navigation hotfix deployed for continued installed-PWA smoke testing; final release acceptance remains pending the manual checklist
 - Runtime: static, client-only, offline-first PWA
 - Primary storage key: `road12v5`
 
@@ -75,12 +75,13 @@ Historical regressions requiring automated coverage:
 - BUG-022: Development-era incomplete sessions reduce Program Adherence — resolved in build 2026.08.20.4 with a non-destructive August 20 adherence baseline.
 - BUG-023: Displayed approved weights save as zero unless retyped — resolved in build 2026.08.26.2 with actual input defaults and explicit evidence-based history repair.
 - BUG-024: Smith single-leg squat guide showed the wrong stance/setup — resolved in build 2026.08.27.1 with a forward-facing, no-bench, unsupported-rear-foot prescription and approved animation.
+- BUG-027: Home readiness card did not open the existing Progress readiness details — resolved in build 2026.09.07.2 with render-safe deep-link scrolling.
 
 See `KNOWN_BUGS.md` before diagnosing or fixing defects.
 
 ## Active sprint goals
 
-Build `2026.09.07.1` is the controlled production release for installed-PWA smoke testing. It combines the approved four-day Build transition with Extra Activity/iFIT infrastructure under schema 21, preserves both intermediate schema-19 shapes, removes the obsolete three-day runtime, and enables manual Strava preview only for completed Foundation A/B/C or canonical Build Upper/Lower strength sessions. Automatic phase activation, Strava autosync, cardio posting, read scopes, bulk history, and Phase 2B remain disabled. Final GO remains pending the installed-iPhone checklist.
+Build `2026.09.07.2` is the controlled production release for installed-PWA smoke testing. It includes the targeted Home-to-Progress readiness deep link on top of the approved four-day Build transition and Extra Activity/iFIT infrastructure under schema 21. Automatic phase activation, Strava autosync, cardio posting, read scopes, bulk history, and Phase 2B remain disabled. Final GO remains pending the installed-iPhone checklist.
 
 Next recommended goals:
 
