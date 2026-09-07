@@ -6,6 +6,7 @@
 - Release target: version 13.2.0, build 2026.09.06.1
 - Active guided exercise names mapped: 63 of 63
 - Review-gated lower-ab Phase 2 names mapped: 3 of 3
+- Undeployed Build v1 exercise names mapped: 41 of 41 occurrences; 0 new assets required
 - Visible Library-only setup entries mapped: 1 of 1
 - Distinct reviewed movement animations: 61
 - New Road to 12% animations in the August 23 expansion: 13
@@ -13,7 +14,7 @@
 - Supplied static movement-sequence guides: 2
 - Offline cache targets: `road12-v13-2-71-shell` and `road12-v13-2-71-media`
 
-This audit covers the exercise names that can appear in the current Foundation A/B/C, Cardio + Mobility, Core + Recovery, and Zone 2 guided flows; the three explicitly approved movements gated behind the lower-ab Phase 2 review; and the Stationary Bike Setup entry visible only in the Exercise Library. It does not approve media for unimplemented Build, Upper / Lower, or Hypertrophy / Definition workouts.
+This audit covers the exercise names that can appear in the current Foundation A/B/C, Cardio + Mobility, Core + Recovery, and Zone 2 guided flows; all movements selected for the undeployed Build v1 A/B/C templates; the three explicitly approved movements gated behind the lower-ab Phase 2 review; and the Stationary Bike Setup entry visible only in the Exercise Library. Every Build v1 movement is an exact-name reuse of reviewed Foundation media, so Build adds no new visual asset. Upper / Lower and Hypertrophy / Definition remain out of scope.
 
 ## Standing cable hamstring curl release
 
@@ -216,7 +217,7 @@ The repository currently contains RitFit poster crops that were supplied for thi
 ## Future scope
 
 - Re-audit this manifest when the approved Foundation exercise list changes.
-- Create Phase 2 Build media only after the Build workout definitions and milestone acceptance flow are reviewed and approved.
+- Re-audit Build media if a later template revision introduces any exercise not already covered by an exact reviewed Foundation entry.
 - Do not generate speculative Phase 3 or Phase 4 assets before their exercise prescriptions exist.
 - Continue preferring exact official or appropriately licensed references where available, while preserving an offline app-created guide when it has been reviewed and approved.
 - Consider content-hashed or shared immutable media caching so future shell rotations do not redownload unchanged GIFs.

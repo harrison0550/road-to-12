@@ -19,7 +19,7 @@ assert.strictEqual(identities.resolve("Kettlebell Suitcase Carry").id,"road12.ca
 assert.strictEqual(identities.resolve("Standing Single-Leg Cable Hamstring Curl").id,"road12.hamstring.cable-standing-single-leg-curl");
 assert.strictEqual(identities.resolve("Standing Single-Leg Cable Hamstring Curl").externalMappings.strava.exerciseType,"STANDING_LEG_CURL");
 assert.strictEqual(identities.resolve("Future Movement").id,"road12.exercise.future-movement");
-assert.match(app,/ROAD12_SCHEMA_VERSION=18/);
+assert.match(app,/ROAD12_SCHEMA_VERSION=21/);
 assert.match(app,/version:11,[\s\S]*?exerciseTimings[\s\S]*?schemaVersion=11/);
 [
   "exerciseId:identity.id","basePrescription","prescription:effectivePrescription","setNumber:setIndex+1","repetitions:Number(set?.reps)",

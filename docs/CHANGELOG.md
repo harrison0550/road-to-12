@@ -8,6 +8,31 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Added
 
+### Changed
+
+### Fixed
+
+### Removed
+
+## [13.3.0] - 2026-09-07 (Build 2026.09.07.1)
+
+### Added
+
+- Replaced the brittle Workers AI JSON-schema dependency with a constrained one-label-per-line vision response parsed and normalized inside the Worker.
+- Added field-level confidence, malformed/duplicate label handling, consistency checks, and a successful incomplete-extraction path that keeps editable manual review available.
+- Preserved in-memory preprocessing, explicit consent, screenshot/raw-response non-persistence, backup exclusion, and Extra Activity's Strava isolation.
+- Corrected screenshot review so an unreadable date remains blank instead of silently defaulting to the current date.
+
+- Assembled the undeployed `13.3.0` unified release candidate containing both Extra Activity/iFIT infrastructure and the approved four-day Upper/Lower Build transition.
+- Added unified schema-21 reconciliation for pre-19 state, both independent schema-19 field shapes, schema-20 Build state, and schema-21 backups without manufacturing activities, transitions, or Build activation.
+- Added combined backup validation for Extra Activity, phase transitions, Build version/anchor, schedules, active sessions, history, progression, measurements, cardio, and Strava compliance state while excluding screenshot bytes.
+- Integrated the undeployed four-day Upper/Lower Build program with the explicit Foundation-complete review and schedule projection. The approved 22/19/21/20-set templates are the only production Build definitions and activate only after every readiness/template gate passes and the athlete explicitly selects Start Build Phase.
+- Added a deterministic next-intact-Monday activation rule with Sunday, pre-workout Monday, active/completed Monday, Wednesday, and Friday regression cases. Existing session IDs are retained; completed, missed, past, rescheduled, active, and pre-anchor Foundation rows remain unchanged, while future weekly rows become Upper A, Lower A, Cardio/Recovery, Upper B, Lower B, Cardio, and Rest/Recovery.
+- Added an undeployed Foundation → Build eligibility engine with phase-start filtering, explicit A/B/C/session/rating/adherence/data-quality/baseline gates, actionable blockers, uncapped scoring, an auditable eligibility timestamp, and a review-only milestone experience.
+- Added intermediate schema-19 `phaseTransitions` persistence and backup validation/merge support, now reconciled by unified schema 21 so an explicit future phase acceptance remains auditable without manufacturing transitions for old backups.
+- Added an explicit Build review showing every exercise, set/rep target, session duration, emphasis, and 2–3 RIR target. Eligible users may accept or stay in Foundation; no phase changes automatically.
+- Added schema-20 Build program/version persistence and future-only schedule activation, with schema 21 adding collision-safe Extra Activity reconciliation. Acceptance preserves active and completed Foundation sessions, past dates, cardio/recovery days, stable exercise history, backup compatibility, and manual-only Strava boundaries.
+
 - Added a narrow first-pilot workflow that can re-approve only the newest eligible tombstoned Full Body session after renewed consent, plus an in-app duplicate-protection check that reuses the confirmed backend record without submitting another Strava upload.
 - Added an accessible pre-OAuth Strava disclosure and persistent Strava & Privacy view covering requested scope, data flow, retention, consent withdrawal, deletion, support, monitoring, and non-endorsement.
 - Added a canonical Strava data boundary and schema-17 deletion tombstone so confirmed disconnect removes provider metadata without deleting workouts and older backups cannot restore deleted provider records.
@@ -51,6 +76,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Added concrete next-session prescriptions with explicit user approval and in-workout approved-target guidance.
 
 ### Changed
+- Updated manual Strava strength eligibility to recognize canonical `build-upper-a`, `build-lower-a`, `build-upper-b`, and `build-lower-b` sessions while keeping cardio, recovery, incomplete sessions, and Extra Activity ineligible.
+- Removed the obsolete three-day Build prototype from production HTML, offline caches, runtime fallback behavior, and active validation.
+- Prepared release-candidate metadata `13.3.0`, build `2026.09.07.1`, schema 21, and cache generation 72 without deploying it.
 - Advanced the maintenance build to `2026.08.30.3`, schema 18, and cache generation 68 for the explicitly approved one-session Strava pilot. All other deleted historical sessions remain blocked and no automatic or cardio posting is enabled.
 - Advanced the maintenance build to `2026.08.30.2` and rotated the offline caches for the Strava compliance remediation.
 - Changed Strava disconnect to require backend deletion confirmation after token revocation and an atomic D1 purge of OAuth, connection/profile/token, upload/activity/error, and provider timestamp data before local cleanup.

@@ -2,9 +2,10 @@ import {decryptToken,encryptToken,randomOpaque,sha256,verifyInstallationSignatur
 import {validateUploadPayload} from "./contract.mjs";
 import {connectionByInstallation,consumeNonce,consumeOauthState,createOauthState,deleteStravaData,installationById,markUploadStarted,markUploadState,nowSeconds,purgeExpiredOauthStates,registerInstallation,saveConnection,uploadByExternalId} from "./repository.mjs";
 import {exchangeAuthorizationCode,getValidStravaAccessToken,pollUpload,revokeToken,submitStrengthUpload} from "./strava-api.mjs";
+import {extractExtraActivityScreenshot} from "./extra-activity-parser.mjs";
 
 const json=(value,status=200,headers={})=>new Response(JSON.stringify(value),{status,headers:{"Content-Type":"application/json","Cache-Control":"no-store",...headers}});
-const publicError=error=>({code:error?.code||"REQUEST_FAILED",message:error?.status&&error.status<500?error.message:"The Strava request could not be completed.",...(error?.retryAfter?{retryAfter:error.retryAfter}:{})});
+const publicError=error=>({code:error?.code||"REQUEST_FAILED",message:error?.status&&error.status<500||String(error?.code||"").startsWith("AI_")||error?.code==="PARSER_UNAVAILABLE"?error.message:"The Strava request could not be completed.",...(error?.diagnosticCategory?{diagnosticCategory:error.diagnosticCategory}:{}),...(error?.retryAfter?{retryAfter:error.retryAfter}:{})});
 function pwaReturnUrl(env,status){
   const target=new URL(env.PWA_RETURN_URL);
   target.searchParams.set("strava",status);
@@ -59,6 +60,12 @@ async function handle(request,env){
     return json({registered:true,installationId:record.id});
   }
   const installation=await authenticate(request,env,rawBody);
+  if(path==="/api/extra-activity/parse-screenshot"&&request.method==="POST"){
+    const allowedKeys=new Set(["imageDataUrl"]);
+    if(Object.keys(body).some(key=>!allowedKeys.has(key)))throw Object.assign(new Error("Screenshot request contains unsupported data."),{code:"INVALID_SCREENSHOT_REQUEST",status:400});
+    const result=await extractExtraActivityScreenshot({env,imageDataUrl:body.imageDataUrl});
+    return json(result);
+  }
   if(path==="/api/strava/status"&&request.method==="GET"){
     const connection=await connectionByInstallation(env.DB,installation.id);
     return json({connected:!!connection&&!connection.disconnected_at&&!connection.requires_reauth,requiresReauth:!!connection?.requires_reauth,athleteName:connection?.athlete_name||null,connectedAt:connection?.connected_at?new Date(connection.connected_at*1000).toISOString():null});

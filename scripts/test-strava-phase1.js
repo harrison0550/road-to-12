@@ -52,12 +52,17 @@ const fullBodySession=(name="Full Body C")=>({
   ]
 });
 
-["Full Body A","Full Body B","Full Body C"].forEach(name=>assert.strictEqual(payloads.isSessionStravaEligible(fullBodySession(name)),true,`${name} should be eligible`));
+["Full Body A","Full Body B","Full Body C","Upper A","Lower A","Upper B","Lower B"].forEach(name=>assert.strictEqual(payloads.isSessionStravaEligible(fullBodySession(name)),true,`${name} should be eligible`));
+const buildPreview=payloads.buildStravaStrengthPayload({...fullBodySession("Unexpected display label"),id:"build-session-b",templateId:"build-upper-b",externalSync:{strava:{externalId:"road12-build-session-b",status:"NOT_SYNCED"}}});
+assert.strictEqual(buildPreview.name,"Andy's Home Gym — Upper B");
+assert.strictEqual(buildPreview.ready,true,"completed Build sessions must remain manually previewable");
+["Build A","Build B","Build C"].forEach(name=>assert.strictEqual(payloads.isSessionStravaEligible(fullBodySession(name)),false,`${name} is obsolete and must remain ineligible`));
 assert.strictEqual(payloads.isSessionStravaEligible(fullBodySession("Core + Recovery")),false);
 assert.strictEqual(payloads.isSessionStravaEligible(fullBodySession("Treadmill Cardio")),false);
 assert.strictEqual(payloads.isSessionStravaEligible({...fullBodySession("Full Body A"),completionStatus:"inProgress"}),false);
 assert.strictEqual(payloads.isSessionStravaEligible({...fullBodySession("Full Body B"),completionStatus:"abandoned"}),false);
 assert.strictEqual(payloads.isSessionStravaEligible({...fullBodySession("Full Body C"),exercises:[]}),false);
+assert.strictEqual(payloads.isSessionStravaEligible({...fullBodySession("Upper A"),sessionOrigin:"extra"}),false,"Extra Activity must never become Strava-eligible even if fields resemble strength history");
 
 assert.deepStrictEqual(payloads.normalizeExternalLoadLb(exercise("Smith Machine Squat",{mode:"total"},[]),{weight:100}),{loadLb:133,rule:"smith-total-plates-plus-bar"});
 assert.deepStrictEqual(payloads.normalizeExternalLoadLb(exercise("Dumbbell Romanian Deadlift",{mode:"total",paired:true},[]),{weight:50}),{loadLb:50,rule:"paired-dumbbells-combined"});

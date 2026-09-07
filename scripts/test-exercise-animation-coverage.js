@@ -5,7 +5,7 @@ const vm = require("node:vm");
 
 const root = path.resolve(__dirname, "..");
 const context = { self: {} };
-vm.runInNewContext(
+  vm.runInNewContext(
   fs.readFileSync(path.join(root, "exercise-library.js"), "utf8"),
   context,
   { filename: "exercise-library.js" },
@@ -102,7 +102,7 @@ function extractFunction(source, name) {
   throw new Error(`Unable to extract ${name}() from app.js`);
 }
 
-function generateLiveFoundationWorkouts() {
+function generateLiveWorkouts(phaseId="foundation") {
   const appSource = fs.readFileSync(path.join(root, "app.js"), "utf8");
   const workoutFunctionNames = [
     "hasRequirements",
@@ -129,6 +129,8 @@ function generateLiveFoundationWorkouts() {
     "behindBackCableCurlExercise",
     "seatedConcentrationCurlExercise",
     "fullBodyCWorkout",
+    "buildExerciseCatalog",
+    "buildWorkoutForDay",
     "strengthWorkoutForDay",
     "workoutForDay",
   ];
@@ -139,6 +141,8 @@ function generateLiveFoundationWorkouts() {
     workoutContext,
     { filename: "data.js" },
   );
+  vm.runInContext(fs.readFileSync(path.join(root,"build-upper-lower-program.js"),"utf8"),workoutContext,{filename:"build-upper-lower-program.js"});
+  workoutContext.window.ROAD12_BUILD=workoutContext.ROAD12_BUILD;
   workoutContext.window.ROAD12_ADAPTIVE = {
     applyRecommendation(exercises) {
       return exercises.map((exercise) => Object.assign({}, exercise));
@@ -146,7 +150,7 @@ function generateLiveFoundationWorkouts() {
   };
   const harness = `
     const data=window.WORKOUT_DATA;
-    const state={history:[],lowerAbsProgram:{phase2AcceptedAt:null,completedSessionIds:[]},equipment:{ritfitM1:true,bench:true,treadmill:true,rower:true,kickrCore:true,bumperPlates:true,dumbbells:true,kettlebells:true,kettlebellWeights:[30],gmwdConvergingChestPress:true,olympicBarbell:false}};
+    const state={history:[],trainingPhase:{id:${JSON.stringify(phaseId)}},lowerAbsProgram:{phase2AcceptedAt:null,completedSessionIds:[]},equipment:{ritfitM1:true,bench:true,treadmill:true,rower:true,kickrCore:true,bumperPlates:true,dumbbells:true,kettlebells:true,kettlebellWeights:[30],gmwdConvergingChestPress:true,olympicBarbell:false}};
     const equipmentLabels={};
     const LEGACY_FOUNDATION_PROGRAM_REVISION="foundation-kettlebell-2026-08-27";
     const PREVIOUS_FOUNDATION_PROGRAM_REVISION="foundation-smith-hip-thrust-2026-08-28";
@@ -154,11 +158,12 @@ function generateLiveFoundationWorkouts() {
     const CONCENTRATION_FOUNDATION_PROGRAM_REVISION="foundation-concentration-curl-2026-09-04";
     const FOUNDATION_PROGRAM_REVISION="foundation-cable-hamstring-curl-2026-09-04";
     ${workoutFunctionNames.map((name) => extractFunction(appSource, name)).join("\n")}
-    this.__foundationWorkouts=[0,1,2,3,4,5].map(day=>workoutForDay(day));
+    this.__workouts=[0,1,2,3,4,5].map(day=>workoutForDay(day));
   `;
   vm.runInContext(harness, workoutContext, { filename: "foundation-workout-harness.js" });
-  return Array.from(workoutContext.__foundationWorkouts, (workout) => Array.from(workout));
+  return Array.from(workoutContext.__workouts, (workout) => Array.from(workout));
 }
+function generateLiveFoundationWorkouts(){return generateLiveWorkouts("foundation");}
 
 // This is the complete set of distinct exercise names used by the active
 // Monday-through-Saturday Foundation workouts. Aliases are intentional where
@@ -237,6 +242,23 @@ assert.strictEqual(
 );
 
 const liveFoundationWorkouts = generateLiveFoundationWorkouts();
+const liveBuildWorkouts=generateLiveWorkouts("build");
+const buildProgram=require(path.join(root,"build-upper-lower-program.js"));
+const foundationStrengthSets=[0,2,4].map(day=>liveFoundationWorkouts[day].filter(exercise=>exercise.type==="strength").reduce((sum,exercise)=>sum+(Number(exercise.sets)||0),0));
+const buildStrengthSets=[0,1,3,4].map(day=>liveBuildWorkouts[day].filter(exercise=>exercise.type==="strength").reduce((sum,exercise)=>sum+(Number(exercise.sets)||0),0));
+assert.deepStrictEqual(foundationStrengthSets,[22,26,27],"Foundation working-set baseline changed unexpectedly");
+assert.deepStrictEqual(buildStrengthSets,[22,19,21,20],"Build working-set allocation changed unexpectedly");
+assert.strictEqual(buildStrengthSets.reduce((sum,value)=>sum+value,0),82,"Build must use the approved 82-set weekly strength allocation");
+[0,1,3,4].forEach(day=>{
+  const template=buildProgram.templateForPlanDay(day);
+  assert.deepStrictEqual(liveBuildWorkouts[day].map(exercise=>exercise.name),template.exercises.map(exercise=>exercise.name),`${template.name} runtime output must exactly match its approved template`);
+  liveBuildWorkouts[day].filter(exercise=>exercise.type==="strength").forEach(exercise=>{
+    const spec=template.exercises.find(item=>item.name===exercise.name);
+    assert.strictEqual(exercise.sets,spec.sets,`${exercise.name} runtime sets changed`);
+    assert.strictEqual(exercise.reps,spec.reps,`${exercise.name} runtime rep range changed`);
+    assert.deepStrictEqual(Array.from(exercise.progressionRirRange),[2,3],`${exercise.name} must retain the Build effort target`);
+  });
+});
 const liveExerciseNames = new Set(
   liveFoundationWorkouts.flatMap((workout) => workout.map((exercise) => exercise.name)),
 );

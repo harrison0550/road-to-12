@@ -12,6 +12,9 @@ PWA_ORIGIN = "https://harrison0550.github.io"
 PWA_RETURN_URL = "https://harrison0550.github.io/road-to-12/"
 OAUTH_REDIRECT_URI = "https://road12-strava-phase2a.homegym-sync.workers.dev/api/strava/callback"
 
+[ai]
+binding = "AI"
+
 # Set PWA_ORIGIN, PWA_RETURN_URL, and OAUTH_REDIRECT_URI as non-secret Worker variables.
 # Set STRAVA_CLIENT_ID, STRAVA_CLIENT_SECRET, and TOKEN_ENCRYPTION_KEY with
 # `wrangler secret put`; never commit their values here.

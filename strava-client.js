@@ -80,5 +80,6 @@
   const disconnect=()=>authenticatedRequest("/api/strava/disconnect",{method:"POST",body:{}});
   const upload=payload=>authenticatedRequest("/api/strava/upload",{method:"POST",body:payload});
   const uploadStatus=externalId=>authenticatedRequest(`/api/strava/upload/${encodeURIComponent(externalId)}/status`);
-  return Object.freeze({STORAGE_KEY,configured,generateInstallation,readInstallation,installation,sha256,canonicalRequest,signedHeaders,ensureRegistered,status,connect,disconnect,upload,uploadStatus});
+  const parseExtraActivityScreenshot=imageDataUrl=>authenticatedRequest("/api/extra-activity/parse-screenshot",{method:"POST",body:{imageDataUrl}});
+  return Object.freeze({STORAGE_KEY,configured,generateInstallation,readInstallation,installation,sha256,canonicalRequest,signedHeaders,ensureRegistered,status,connect,disconnect,upload,uploadStatus,parseExtraActivityScreenshot});
 });

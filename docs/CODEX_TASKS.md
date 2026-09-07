@@ -5,8 +5,13 @@ This file contains implementation-ready work. Move completed user-visible work t
 ## High priority
 
 - [x] Complete the Strava compliance deployment gate in `STRAVA_COMPLIANCE.md`: deploy disclosure, complete deletion, support, retention, backup, rate-limit, and AI-boundary changes; verify live D1/local deletion and backup anti-resurrection with the connected pilot account; re-audit before the first upload.
-- [ ] Validate Foundation readiness weighting against real A/B/C, recovery, cardio, and measurement history before enabling advancement.
-- [ ] Design the Phase 2 Build plan and explicit milestone review/acceptance flow without activating it.
+- [x] Validate and implement the Foundation readiness weighting and explicit eligibility gates against qualified post-phase A/B/C history.
+- [x] Add the Phase 2 Build milestone review/acceptance shell with a template-validation gate; Start Build is available only after validated templates, live eligibility, and explicit acceptance.
+- [x] Author versioned Phase 2 Build A/B/C-emphasis definitions, exact preview UI, future-only activation, backup/version persistence, and Foundation/Strava regression coverage. Keep undeployed until explicitly requested.
+- [x] Author and validate the approved four-day Upper/Lower Build templates with exact exercise order, prescriptions, RIR, canonical identity, media, and weekly-volume checks.
+- [x] Integrate the approved four-day Upper/Lower templates with the explicit transition review and deterministic next-intact-Monday scheduler while preserving Foundation history and preventing duplicate sessions.
+- [x] Reconcile the four-day Build and Extra Activity candidates under schema 21, remove the obsolete three-day runtime, correct canonical Build Strava eligibility, and pass the combined automated release suite.
+- [ ] Complete the manual installed-PWA smoke checklist for the controlled `13.3.0` production release before final acceptance.
 
 - [x] Add an offline adaptive training profile with explainable, confirm-before-apply volume, cardio, and progression recommendations.
 - [x] Add deterministic tests for recovery sequence shifting.
@@ -72,6 +77,8 @@ Copy this block for new work:
 ```
 
 ## Completed this sprint
+
+- [x] Replace the artificial 85% readiness cap with auditable Foundation eligibility, phase-start session qualification, specific blockers, a review milestone, schema-19 transition history, and a hard template-validation stop that prevents premature Build activation.
 
 - [x] Replace the future Full Body C Dumbbell Romanian Deadlift slot with Standing Single-Leg Cable Hamstring Curl, add the ankle-strap setup and supplied offline guides, preserve historical RDL records, validate independent progression plus single-stack Strava normalization, and deploy build `2026.09.06.1`.
 - [x] Replace the future Full Body C behind-the-back cable curl with Seated Concentration Curl, preserve older history and active revisions, install the supplied offline guides, record one dumbbell, and retain normal double progression and a supported Strava mapping.

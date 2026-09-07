@@ -8,6 +8,7 @@ This Cloudflare Worker is the only trusted boundary for the manual Strava proof 
 - D1 database `road12-strava`, bound as `DB` and initialized with `schema.sql`.
 - Worker secrets: `STRAVA_CLIENT_ID`, `STRAVA_CLIENT_SECRET`, and `TOKEN_ENCRYPTION_KEY`.
 - Worker variables: `PWA_ORIGIN`, `PWA_RETURN_URL`, and `OAUTH_REDIRECT_URI`.
+- Workers AI binding: `AI`, used only for the optional, user-confirmed iFIT screenshot parser.
 
 `TOKEN_ENCRYPTION_KEY` must be a base64url-encoded 32-byte random key. Never commit its value. `OAUTH_REDIRECT_URI` is the public Worker callback URL ending in `/api/strava/callback`; its domain must be allowed by the Strava application. `PWA_ORIGIN` is the exact GitHub Pages origin, without a pathname or trailing slash, and is used only for CORS validation. `PWA_RETURN_URL` is the full Road to 12% application URL and includes `/road-to-12/`.
 
@@ -21,7 +22,7 @@ This Cloudflare Worker is the only trusted boundary for the manual Strava proof 
 6. Deploy the Worker.
 7. Put the deployed HTTPS Worker URL in the PWA's `strava-config.js`, run all validation, rotate the PWA build/cache, and deploy the PWA separately.
 
-The Phase 2A pilot resources were provisioned on August 30, 2026. Secret values remain only in Cloudflare and are not represented by this repository. The first OAuth connection and live upload still require explicit user action.
+The Phase 2A pilot resources were provisioned on August 30, 2026. Secret values remain only in Cloudflare and are not represented by this repository. The first manual Full Body C pilot upload and duplicate-protection check succeeded on August 30, 2026; automatic sync remains disabled.
 
 ## Routes
 
@@ -32,6 +33,9 @@ The Phase 2A pilot resources were provisioned on August 30, 2026. Secret values 
 - `POST /api/strava/upload`
 - `GET /api/strava/upload/:externalId/status`
 - `POST /api/strava/disconnect`
+- `POST /api/extra-activity/parse-screenshot`
+
+The screenshot route accepts one authenticated JPEG, PNG, or WebP data URL, asks the bound Workers AI vision model for a constrained one-label-per-line response, and parses, normalizes, and cross-checks that text inside the Worker. It does not depend on Workers AI JSON Mode. The route returns proposed fields, per-field confidence, and consistency warnings for editable review. Incomplete extraction remains a successful manual-review result. The route does not write the image, prompt, literal model response, or candidate to D1 or any other storage, and it rejects request bodies that include Strava activity data. The screenshot parser can be deployed only after the account owner accepts the model's required Meta license and reviews the disclosure shown before upload.
 
 Except for the OAuth callback, privileged requests use a timestamped, nonce-bound P-256 installation signature. The callback uses a one-time, installation-bound, ten-minute OAuth state.
 

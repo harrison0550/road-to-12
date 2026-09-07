@@ -4,14 +4,24 @@
   if(typeof module!=="undefined"&&module.exports)module.exports=api;
   root.ROAD12_STRAVA_PAYLOAD=api;
 })(typeof self!=="undefined"?self:globalThis,function(identities){
-  const ELIGIBLE_WORKOUTS=Object.freeze(["Full Body A","Full Body B","Full Body C"]);
+  const ELIGIBLE_WORKOUTS=Object.freeze(["Full Body A","Full Body B","Full Body C","Upper A","Lower A","Upper B","Lower B"]);
+  const ELIGIBLE_BUILD_TEMPLATES=Object.freeze({
+    "build-upper-a":"Upper A",
+    "build-lower-a":"Lower A",
+    "build-upper-b":"Upper B",
+    "build-lower-b":"Lower B"
+  });
   const SMITH_BAR_WEIGHT_LB=33;
   const LB_TO_KG=0.45359237;
   const round=(value,places=3)=>Number(Number(value).toFixed(places));
   const clone=value=>value==null?value:JSON.parse(JSON.stringify(value));
   const finitePositive=value=>Number.isFinite(Number(value))&&Number(value)>0;
   function lbToKg(value){return Number.isFinite(Number(value))?round(Number(value)*LB_TO_KG):null;}
-  function workoutName(session){return ELIGIBLE_WORKOUTS.includes(String(session?.name||"").trim())?String(session.name).trim():null;}
+  function workoutName(session){
+    const templateName=ELIGIBLE_BUILD_TEMPLATES[String(session?.templateId||"").trim()];
+    if(templateName)return templateName;
+    return ELIGIBLE_WORKOUTS.includes(String(session?.name||"").trim())?String(session.name).trim():null;
+  }
   function numericRepetitions(value){
     if(typeof value==="number")return Number.isInteger(value)&&value>0?value:null;
     const text=String(value??"").trim();
@@ -64,7 +74,7 @@
     return (session?.exercises||[]).flatMap(exercise=>(exercise.sets||[]).map((set,index)=>normalizeSet(exercise,set,index)).filter(Boolean));
   }
   function isSessionStravaEligible(session){
-    return session?.completionStatus==="completed"&&!!workoutName(session)&&validCompletedSets(session).length>0;
+    return session?.sessionOrigin!=="extra"&&session?.completionStatus==="completed"&&!!workoutName(session)&&validCompletedSets(session).length>0;
   }
   function elapsedSeconds(session){
     const stored=Number(session?.elapsedDurationMs??session?.durationMs);
@@ -111,7 +121,7 @@
     const elapsed=elapsedSeconds(session);
     const offset=utcOffsetSeconds(session,options,startTime);
     const externalId=session?.externalSync?.strava?.externalId||null;
-    if(!eligible)warnings.push({exerciseId:null,exerciseName:null,code:"INELIGIBLE_SESSION",detail:"Only completed Full Body A, B, or C sessions with a valid completed working set are eligible."});
+    if(!eligible)warnings.push({exerciseId:null,exerciseName:null,code:"INELIGIBLE_SESSION",detail:"Only completed Foundation or Build A, B, or C strength sessions with a valid completed working set are eligible."});
     if(!startTime)warnings.push({exerciseId:null,exerciseName:null,code:"MISSING_START_TIME",detail:"The session has no recorded start time."});
     if(elapsed===null)warnings.push({exerciseId:null,exerciseName:null,code:"MISSING_ELAPSED_TIME",detail:"The session has no reliable elapsed duration."});
     if(offset===null)warnings.push({exerciseId:null,exerciseName:null,code:"MISSING_UTC_OFFSET",detail:"The session UTC offset is unavailable."});
@@ -142,7 +152,7 @@
     };
   }
   return Object.freeze({
-    ELIGIBLE_WORKOUTS,SMITH_BAR_WEIGHT_LB,lbToKg,numericRepetitions,isCompletedWorkingSet,
+    ELIGIBLE_WORKOUTS,ELIGIBLE_BUILD_TEMPLATES,SMITH_BAR_WEIGHT_LB,lbToKg,numericRepetitions,isCompletedWorkingSet,
     normalizeExternalLoadLb,normalizeSet,isSessionStravaEligible,buildStravaStrengthPayload
   });
 });

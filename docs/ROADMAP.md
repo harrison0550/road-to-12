@@ -15,6 +15,8 @@ The roadmap communicates direction rather than a guaranteed schedule. Completed 
 
 ## Next release — v13.3
 
+- [x] Assemble the unified Build + Extra Activity release candidate with schema-21 collision recovery, combined backup preservation, canonical Upper/Lower Strava eligibility, and no obsolete three-day runtime fallback
+- [ ] Complete installed-PWA smoke testing and obtain explicit final acceptance for the controlled 13.3.0 production release
 - [x] Establish the four-phase training journey and locked multi-signal Foundation readiness model
 - [x] Add exercise-specific PROGRESS / BUILD / HOLD / DELOAD guidance
 - [x] Add exercise feedback and approval-based next-session prescriptions
@@ -23,7 +25,7 @@ The roadmap communicates direction rather than a guaranteed schedule. Completed 
 - [x] Add resumable Keep Going timing with automatic cardio-duration capture
 - [x] Make approved exercise prescriptions actionable in the next matching session with outcome tracking
 - [x] Add validated, versioned backup/restore for authoritative offline state
-- [ ] Validate and mature the readiness algorithm before enabling Phase 2 review
+- [x] Validate and mature the readiness algorithm and enable the non-activating Phase 2 review milestone
 - [x] Add the iFIT rower and available 10/15/20/25 lb dumbbells to the weekly program without replacing existing exercises
 - [x] Add targeted biceps accessories, a review-gated four-session lower-ab progression, and pelvic-floor relaxation/mobility without replacing Foundation A/B/C
 - [x] Establish distinct Foundation chest presses: Smith Machine Bench Press on A, GMWD Converging Chest Press on B, and Low-Incline Dumbbell Press on C, with engagement-aware progression and legacy-history preservation
@@ -49,9 +51,11 @@ The roadmap communicates direction rather than a guaranteed schedule. Completed 
 - [ ] Explainable AI training recommendations
 - [ ] Exercise search and filtering
 - [x] Progressive-overload recommendation foundation
-- [ ] Phase 2 Build workout definitions and milestone acceptance experience
+- [x] Author versioned Phase 2 Build A/B/C workout definitions and connect them to the explicit readiness review/acceptance boundary without automatic activation
+- [x] Define the approved four-day Upper/Lower successor templates with exact exercise order, prescriptions, priority volume, identity, and media validation
+- [x] Integrate the four-day Upper/Lower templates into the explicit phase review and deterministic Monday-anchored scheduler without automatic activation or deployment
 - [ ] Cardio trend-based progression using repeated performance patterns
-- [ ] Review and approve Phase 2 Build exercise media only after its workout definitions and milestone plan are accepted
+- [x] Audit Build v1 media coverage; all selected movements reuse exact-name reviewed Foundation media, so no new visual asset is required
 
 ### Later
 

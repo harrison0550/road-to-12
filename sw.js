@@ -1,5 +1,5 @@
 /* Keep this query aligned with app-meta.js so Safari cannot reuse stale imported metadata. */
-importScripts("./app-meta.js?build=2026.09.06.1");
+importScripts("./app-meta.js?build=2026.09.07.1");
 
 const CACHE=self.ROAD12_META.serviceWorkerCache;
 const MEDIA_CACHE=CACHE.endsWith("-shell")?`${CACHE.slice(0,-6)}-media`:`${CACHE}-media`;
@@ -19,7 +19,9 @@ const MUTABLE_ASSETS=[
   "strava-client.js",
   "data.js",
   "adaptive-coaching.js",
+  "build-upper-lower-program.js",
   "body-measurements.js",
+  "extra-activity.js",
   "vendor/xlsx.mini.min.js",
   "wyze-xlsx-import.js",
   "backup-restore.js",
@@ -44,7 +46,9 @@ const CORE_ASSETS=[
   "./strava-client.js",
   "./data.js",
   "./adaptive-coaching.js",
+  "./build-upper-lower-program.js",
   "./body-measurements.js",
+  "./extra-activity.js",
   "./vendor/xlsx.mini.min.js",
   "./wyze-xlsx-import.js",
   "./backup-restore.js",

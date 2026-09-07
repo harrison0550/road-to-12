@@ -10,12 +10,12 @@
   const STATE_KEYS=Object.freeze([
     "schemaVersion","preferredName","weight","waist","sessions","history","workoutRatings",
     "dailyCheckins","achievements","trainingProfile","adaptiveRecommendation","acceptedAdaptivePlan",
-    "trainingPhase","measurementHistory","bodyMeasurements","cardioHistory","approvedProgressions","lowerAbsProgram","equipment",
+    "trainingPhase","phaseTransitions","buildProgramVersion","measurementHistory","bodyMeasurements","cardioHistory","extraActivities","approvedProgressions","lowerAbsProgram","equipment",
     "attachmentPhotos","workoutSessions","scheduleActivatedDate","adherenceBaselineDate","currentSession","logs",
     "exerciseFeedback","cardioTimers","exerciseTimings","selectedDay","previewDay","coachMode",
     "tab","step","setupReady","historyView","calendarMonth","workoutScroll","stravaDeletion","stravaPilotApproval"
   ]);
-  const ARRAY_KEYS=Object.freeze(["history","measurementHistory","bodyMeasurements","cardioHistory","workoutSessions"]);
+  const ARRAY_KEYS=Object.freeze(["history","phaseTransitions","measurementHistory","bodyMeasurements","cardioHistory","extraActivities","workoutSessions"]);
   const OBJECT_KEYS=Object.freeze([
     "workoutRatings","dailyCheckins","achievements","trainingProfile","trainingPhase","approvedProgressions",
     "lowerAbsProgram","equipment","attachmentPhotos","logs","exerciseFeedback","cardioTimers","exerciseTimings"
@@ -32,6 +32,9 @@
     const safeState=stravaData?.enforce?stravaData.enforce(state):state;
     const snapshot={};
     STATE_KEYS.forEach(key=>{if(safeState[key]!==undefined)snapshot[key]=clone(safeState[key]);});
+    if(Array.isArray(snapshot.extraActivities))snapshot.extraActivities=snapshot.extraActivities.map(item=>{
+      const clean=clone(item);delete clean.imageDataUrl;delete clean.screenshot;delete clean.thumbnail;return clean;
+    });
     snapshot.schemaVersion=Number(schemaVersion);
     return {
       format:FORMAT,
@@ -62,6 +65,9 @@
     (incoming.workoutSessions||[]).forEach((session,index)=>{
       if(!isObject(session)||typeof session.id!=="string"||typeof session.plannedDate!=="string"||typeof session.scheduledDate!=="string")throw new Error(`Scheduled workout entry ${index+1} is invalid.`);
     });
+    (incoming.phaseTransitions||[]).forEach((transition,index)=>{
+      if(!isObject(transition)||typeof transition.from!=="string"||typeof transition.to!=="string"||!Number.isFinite(new Date(transition.acceptedAt).getTime())||!isObject(transition.evidenceSnapshot))throw new Error(`Phase transition entry ${index+1} is invalid.`);
+    });
     (incoming.measurementHistory||[]).forEach((item,index)=>{if(!isObject(item))throw new Error(`Measurement entry ${index+1} is invalid.`);});
     (incoming.bodyMeasurements||[]).forEach((item,index)=>{
       if(!isObject(item)||typeof item.id!=="string"||!["manual","wyze-import","apple-health"].includes(item.source)||!Number.isFinite(new Date(item.timestamp).getTime()))throw new Error(`Body measurement entry ${index+1} is invalid.`);
@@ -70,6 +76,10 @@
       });
       if(item.sourceTimestamp!==undefined&&item.sourceTimestamp!==null&&typeof item.sourceTimestamp!=="string")throw new Error(`Body measurement entry ${index+1} has an invalid source timestamp.`);
       if(item.sourceRecordNumber!==undefined&&item.sourceRecordNumber!==null&&!(["string","number"].includes(typeof item.sourceRecordNumber)))throw new Error(`Body measurement entry ${index+1} has an invalid source record number.`);
+    });
+    (incoming.extraActivities||[]).forEach((item,index)=>{
+      if(!isObject(item)||typeof item.id!=="string"||item.sessionOrigin!=="extra"||item.isScheduled!==false||typeof item.date!=="string")throw new Error(`Extra activity entry ${index+1} is invalid.`);
+      if(item.imageDataUrl||item.screenshot||item.thumbnail)throw new Error(`Extra activity entry ${index+1} contains unsupported screenshot data.`);
     });
     if(incoming.stravaPilotApproval!==undefined&&incoming.stravaPilotApproval!==null&&(!isObject(incoming.stravaPilotApproval)||typeof incoming.stravaPilotApproval.sessionId!=="string"))throw new Error("Backup Strava pilot approval is invalid.");
     return {modern,schema,state:clone(incoming)};
@@ -107,11 +117,13 @@
     STATE_KEYS.forEach(key=>{if(source[key]!==undefined)next[key]=source[key];});
     next.history=mergeHistory(current.history||[],source.history||[]);
     next.workoutSessions=mergeBy(current.workoutSessions||[],source.workoutSessions||[],(item,index)=>item.id||`schedule-${index}`);
+    next.phaseTransitions=mergeBy(current.phaseTransitions||[],source.phaseTransitions||[],(item,index)=>item.id||`${item.from||"phase"}-${item.to||"phase"}-${item.acceptedAt||index}`);
     next.measurementHistory=mergeBy(current.measurementHistory||[],source.measurementHistory||[],item=>item.id||`${item.recordedAt||item.date||"measurement"}-${item.weight??""}-${item.waist??""}`);
     next.bodyMeasurements=mergeBy(current.bodyMeasurements||[],source.bodyMeasurements||[],item=>item.id||`${item.source||"measurement"}-${item.timestamp||"unknown"}`);
     next.cardioHistory=mergeBy(current.cardioHistory||[],source.cardioHistory||[],(item,index)=>item.id||[
       item.sessionId||"legacy",item.exerciseId||item.name||"cardio",item.completedAt||item.date||index
     ].join(":"));
+    next.extraActivities=mergeBy(current.extraActivities||[],source.extraActivities||[],(item,index)=>item.id||`extra-${item.date||"unknown"}-${index}`);
     ["workoutRatings","dailyCheckins","achievements","approvedProgressions","attachmentPhotos","exerciseFeedback"].forEach(key=>{
       next[key]=Object.assign({},current[key]||{},source[key]||{});
     });

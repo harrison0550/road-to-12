@@ -18,7 +18,7 @@ assert.match(app, /function fullBodyBWorkout\(useLegacyChest=false,includeVBar=t
 assert.match(app, /function fullBodyCWorkout\(includeHipThrust=true,includeLowInclinePress=true,useConcentrationCurl=true\)[\s\S]*?lowInclineDumbbellPressExercise\(\)/, "future Full Body C sessions must use Low-Incline Dumbbell Press");
 assert.match(app, /preservePreChestDefinition=activeSession&&!state\.currentSession\.programRevision/, "an active pre-chest workout must keep its original chest definitions");
 assert.match(app, /compatibleRevisions=\[LEGACY_FOUNDATION_PROGRAM_REVISION,PREVIOUS_FOUNDATION_PROGRAM_REVISION,GMWD_FOUNDATION_PROGRAM_REVISION,CONCENTRATION_FOUNDATION_PROGRAM_REVISION,FOUNDATION_PROGRAM_REVISION\]/, "active workout revision compatibility must remain explicit");
-assert.match(app, /programRevision:FOUNDATION_PROGRAM_REVISION/, "new sessions must capture the current Foundation-program revision boundary");
+assert.match(app, /programRevision:sessionPhaseId==="build"\?window\.ROAD12_BUILD\.VERSION:FOUNDATION_PROGRAM_REVISION/, "new sessions must capture the correct versioned Foundation or Build program boundary");
 assert.match(app, /function legacyInclineCablePressExercise\(\)/, "the previous incline cable definition must remain available for legacy history and reference");
 assert.match(app, /const legacy=\[legacyInclineCablePressExercise\(\)\]/, "the legacy incline cable definition must remain accessible in the Exercise Library");
 

@@ -47,7 +47,8 @@ async function signedRequest(path,{method="GET",body=null,signatureOverride=null
 }
 const encryptionKey=bytesToBase64Url(crypto.getRandomValues(new Uint8Array(32)));
 const pwaReturnUrl=`${pwaOrigin}/road-to-12/`;
-const env={DB:db,PWA_ORIGIN:pwaOrigin,PWA_RETURN_URL:pwaReturnUrl,OAUTH_REDIRECT_URI:`${workerOrigin}/api/strava/callback`,STRAVA_CLIENT_ID:"client-id",STRAVA_CLIENT_SECRET:"client-secret",TOKEN_ENCRYPTION_KEY:encryptionKey};
+const extractedScreenshot=`ACTIVITY: Outdoor Run\nDATE: August 30, 2026\nSTART: 3:37 PM\nEND: 5:03 PM\nDURATION: 1:25:43\nDISTANCE: 5.25 mi\nPACE: 16:19/mi\nACTIVE_CALORIES: 584\nTOTAL_CALORIES: 584\nAVERAGE_HR: null\nINCLINE: null`;
+const env={DB:db,PWA_ORIGIN:pwaOrigin,PWA_RETURN_URL:pwaReturnUrl,OAUTH_REDIRECT_URI:`${workerOrigin}/api/strava/callback`,STRAVA_CLIENT_ID:"client-id",STRAVA_CLIENT_SECRET:"client-secret",TOKEN_ENCRYPTION_KEY:encryptionKey,AI:{run:async()=>({response:extractedScreenshot})}};
 const registerBody={installationId,publicKeyJwk};
 let response=await worker.fetch(await signedRequest("/api/install/register",{method:"POST",body:registerBody}),env);
 assert.equal(response.status,200);
@@ -58,6 +59,10 @@ assert.equal(response.status,401);
 
 response=await worker.fetch(await signedRequest("/api/strava/status"),env);
 assert.deepEqual(await response.json(),{connected:false,requiresReauth:false,athleteName:null,connectedAt:null});
+response=await worker.fetch(await signedRequest("/api/extra-activity/parse-screenshot",{method:"POST",body:{imageDataUrl:"data:image/png;base64,ZmFrZQ=="}}),env);
+assert.equal(response.status,200);assert.equal((await response.json()).candidate.distance,5.25,"authenticated screenshot parser must return a review candidate without requiring Strava connection");
+response=await worker.fetch(await signedRequest("/api/extra-activity/parse-screenshot",{method:"POST",body:{imageDataUrl:"data:image/png;base64,ZmFrZQ==",stravaActivity:{id:"forbidden"}}}),env);
+assert.equal(response.status,400,"screenshot parsing must reject mixed or unsupported provider data");
 db.states.set("expired-other-installation",{state_hash:"expired-other-installation",installation_id:"other-installation",expires_at:0,used_at:null});
 response=await worker.fetch(await signedRequest("/api/strava/status"),env);
 assert.equal(response.status,200);

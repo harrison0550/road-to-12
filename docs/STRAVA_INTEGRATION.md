@@ -108,7 +108,7 @@ Failures use `FAILED` and retain a human-safe `lastError`. The Strava record res
 Implemented in the configured pilot build:
 
 - Stable exercise identities and validated mappings.
-- Explicit Full Body A/B/C eligibility.
+- Explicit eligibility for completed Foundation Full Body A/B/C and canonical Build Upper A/Lower A/Upper B/Lower B strength sessions; cardio, recovery, incomplete sessions, and Extra Activity remain excluded.
 - Pure structured-strength payload generation.
 - Equipment-aware load normalization and pound-to-kilogram conversion.
 - Local completed-workout preview with mapping and warning visibility.

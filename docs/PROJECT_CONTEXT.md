@@ -2,14 +2,15 @@
 
 Read this file at the beginning of every Codex or engineering session. It is the concise handoff for the current production state. Consult the linked canonical documents before making changes.
 
-## Current production
+## Current release
 
 - Product: Road to 12%
-- Version: 13.2.0
-- Build: 2026.09.06.1
-- Last updated: September 6, 2026
-- Service Worker cache: `road12-v13-2-71-shell`
-- Exercise media cache: `road12-v13-2-71-media`
+- Version: 13.3.0
+- Build: 2026.09.07.1
+- Last updated: September 7, 2026
+- Service Worker cache: `road12-v13-3-72-shell`
+- Exercise media cache: `road12-v13-3-72-media`
+- Deployment status: approved controlled production deployment for installed-PWA smoke testing; final release acceptance remains pending the manual checklist
 - Runtime: static, client-only, offline-first PWA
 - Primary storage key: `road12v5`
 
@@ -19,15 +20,17 @@ Read this file at the beginning of every Codex or engineering session. It is the
 - `app.js` owns screen rendering, workout flow, scheduling, recovery, and progress behavior.
 - `scheduling.js` owns pure recovery and date-shifting rules without DOM or storage access.
 - `adaptive-coaching.js` owns pure phase-readiness and exercise-progression projections without mutating workout definitions.
+- `build-upper-lower-program.js` is the only production Build module. It owns the approved four-day Upper/Lower templates, validation, and pure future-schedule activation projection. It cannot activate without validated templates and explicit eligible-user acceptance, and it anchors midweek acceptance to the next intact unresolved Monday. The obsolete three-day prototype is not loaded or cached.
 - `workout-prescriptions.js` captures an approved target into the next matching session and classifies the completed prescription outcome without mutating Foundation definitions.
 - `backup-restore.js` owns versioned backup creation, untrusted-input validation, and compatibility-preserving merge rules.
 - `body-measurements.js` owns the canonical timestamped body-measurement model, source adapters, current-value derivation, rolling averages, and trend calculations.
+- `extra-activity.js` owns unscheduled manual/iFIT activity normalization, validation, duplicate detection, stable identity, and screenshot-free backup records. The Worker screenshot adapter uses constrained labeled plain text rather than JSON Mode, returns incomplete reads for editable manual completion, and never persists image bytes or raw model output. Extra Activity never alters the planned schedule or qualifies for Strava posting.
 - `wyze-xlsx-import.js` owns pure Wyze XLSX header discovery, local-time/unit/null parsing, review status, deterministic deduplication, and confirmed enrichment; the vendored XLSX reader is part of the offline shell.
 - `workout-navigation.js` owns testable workout scroll capture, restoration, and intentional advancement behavior.
 - `data.js` contains workout definitions.
 - `exercise-library.js` contains reviewed exercise education metadata plus animation, pause-state poster, and retained-reference mappings.
 - `exercise-identity.js` owns stable exercise IDs and provider mappings independently of display names.
-- `strava-strength-payload.js` owns the pure, local-only Full Body A/B/C eligibility, equipment-load normalization, and structured Strava preview projection.
+- `strava-strength-payload.js` owns pure, local-only eligibility for completed Full Body A/B/C and canonical Build Upper/Lower strength sessions, equipment-load normalization, and structured Strava preview projection.
 - `strava-sync-state.js` owns canonical Strava provider statuses, allowed transitions, authoritative backend reconciliation, and protective provider-state merge behavior.
 - `strava-data-boundary.js` owns the canonical classification of delete-on-disconnect provider data, safe local workout data, temporary metadata, and backup anti-resurrection behavior. It strips provider records before coaching receives history.
 - `strava-client.js` owns optional manual-only browser communication with the Strava Phase 2A Worker using a per-installation P-256 signing key; it contains no provider credentials and its private installation key is excluded from backups.
@@ -77,14 +80,14 @@ See `KNOWN_BUGS.md` before diagnosing or fixing defects.
 
 ## Active sprint goals
 
-Build `2026.09.06.1` deploys the revision-safe Standing Single-Leg Cable Hamstring Curl replacement in future Full Body C sessions with both supplied offline guides, single-stack logging, and independent calibration/progression. The prior Dumbbell Romanian Deadlift remains intact for completed history and older active revisions. The Seated Concentration Curl replacement remains active with its supplied offline guides and single-dumbbell progression. The one-athlete Strava Phase 2A compliance gate, first manual Full Body C pilot, actual Strava rendering, and duplicate/idempotency verification passed; automatic sync, cardio posting, read scopes, bulk history, and Phase 2B remain disabled. Extra Activity + iFIT screenshot import remains implemented locally for review and is not deployed.
+Build `2026.09.07.1` is the controlled production release for installed-PWA smoke testing. It combines the approved four-day Build transition with Extra Activity/iFIT infrastructure under schema 21, preserves both intermediate schema-19 shapes, removes the obsolete three-day runtime, and enables manual Strava preview only for completed Foundation A/B/C or canonical Build Upper/Lower strength sessions. Automatic phase activation, Strava autosync, cardio posting, read scopes, bulk history, and Phase 2B remain disabled. Final GO remains pending the installed-iPhone checklist.
 
 Next recommended goals:
 
 1. Improve calendar navigation and filtering without altering schedule truth.
-2. Document adherence and recovery-score formulas.
+2. Complete the manual installed-PWA smoke checklist for the controlled production build before final release acceptance; never infer eligibility from an older backup.
 3. Preserve v13.2 behavior while gradually creating clearer module boundaries.
-4. Review the Extra Activity + iFIT screenshot privacy disclosure and Cloudflare Workers AI behavior before any PWA or Worker deployment.
+4. Reconfirm the Extra Activity disclosure and one-image/no-persistence boundary during the manual smoke test before any future screenshot transmission or Worker update.
 4. Validate prescription-outcome signals across additional real Foundation sessions before using them for automatic recommendations.
 5. Re-audit active exercise media when Foundation prescriptions change; keep future-phase media deferred until those workout definitions are approved.
 6. Evaluate the completed four-session lower-ab block before choosing its long-term maintenance or progression path.
@@ -95,7 +98,7 @@ See `CODEX_TASKS.md` for priority and acceptance detail.
 
 - Strava Phase 2A uses a stronger installation identity than a shared bearer secret: the PWA creates a P-256 signing keypair, Cloudflare stores only the public key, and each privileged request includes a short-lived timestamp, unique nonce, body hash, and signature. The private key is device-local and excluded from backups.
 - Strava access and refresh tokens are encrypted with AES-256-GCM before D1 persistence. The key, client ID, and client secret are Cloudflare secrets and are never repository or browser values.
-- Strava posting is explicit and manual. Only completed Full Body A/B/C sessions are eligible; connection alone cannot post, cardio is excluded, no background job exists, and a real-activity confirmation is required every time.
+- Strava posting is explicit and manual. Only completed Foundation Full Body A/B/C or Build Upper A/Lower A/Upper B/Lower B strength sessions are eligible; canonical Build template IDs take precedence over display labels. Connection alone cannot post, Extra Activity and cardio are excluded, no background job exists, and a real-activity confirmation is required every time.
 - Strava Worker routing keeps `PWA_ORIGIN` origin-only for strict CORS and uses the separate full `PWA_RETURN_URL` for all OAuth callback outcomes so GitHub Pages returns to `/road-to-12/` rather than the account root.
 - Strava disconnect is backend-confirmed and failure-safe. The Worker revokes access and atomically deletes OAuth, connection/profile/token, upload/activity/error, and provider timestamp records before the PWA removes local provider metadata. Local workouts remain intact, and a deletion tombstone blocks older backups from restoring deleted provider data.
 - Strava-derived profile, token, upload, activity, error, link, and provider-timestamp data is excluded from readiness, coaching, analytics, AI/model input, and agent contexts. `strava-data-boundary.js` enforces this classification before coaching receives history.
@@ -130,7 +133,7 @@ See `CODEX_TASKS.md` for priority and acceptance detail.
 - Progress shows seven- and thirty-day weight direction, thirty-day waist direction, and recent strength-volume direction. Readiness reports evidence quality separately from readiness so sparse data cannot look authoritative.
 - Strength exercises collect optional reps-in-reserve, form-quality, and discomfort feedback. Progress then proposes a concrete next-session prescription that the user must approve; approval remains advisory and never rewrites workout definitions or completed history.
 
-- Foundation A/B/C is Phase 1 of a four-phase journey: Foundation, Build, Upper / Lower, and Hypertrophy / Definition. Readiness is multi-signal, capped while validation is immature, and cannot advance the phase or replace the schedule without an explicit milestone review and acceptance.
+- Foundation A/B/C is Phase 1 of a four-phase journey: Foundation, Build, Upper / Lower, and Hypertrophy / Definition. The undeployed readiness revision removes the artificial 85% cap and uses only qualified sessions on or after the saved phase start. Build review requires four A, four B, four C, twelve total qualified strength sessions, complete acceptable ratings across the latest six, at least 85% adherence, at least 80% evidence quality, and eight reliable baselines. Eligibility does not alter the schedule. The undeployed Build v1 templates now satisfy the separate template-validation gate, but transition still requires explicit eligible-user acceptance; staying in Foundation performs no mutation.
 - Exercise guidance is PROGRESS, BUILD, HOLD, or DELOAD per movement using actual completed sets, reps, weight and feedback. Whole-workout ratings are supporting evidence only.
 - Cardio stores planned and actual duration separately with optional distance, average heart rate, pace/incline, effort and notes. Body check-ins append immutable measurement observations rather than overwriting trend history.
 - Dumbbell Lateral Raise, Dumbbell Floor Press, and Dumbbell Romanian Deadlift use user-approved, locally stored two-position animations in the established red-shirt instructional style; the written coaching remains authoritative.

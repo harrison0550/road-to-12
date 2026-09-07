@@ -198,8 +198,17 @@ if(smithSquatTemplate){
 }
 /* Versioned storage boundary. Migrations must remain ordered and idempotent. */
 const ROAD12_STORAGE_KEY="road12v5";
-const ROAD12_SCHEMA_VERSION=18;
+const ROAD12_SCHEMA_VERSION=21;
 const ADHERENCE_RESET_DATE="2026-08-20";
+/* Build remains opt-in. This flag validates the authored templates; readiness
+   and explicit acceptance are still separate gates. */
+const BUILD_WORKOUT_TEMPLATE_VALIDATED=window.ROAD12_BUILD?.validation?.valid===true
+  &&Object.values(window.ROAD12_BUILD.TEMPLATES).every(template=>template.exercises.every(exercise=>{
+    const hasMedia=!!LICENSED_EXERCISE_LIBRARY.entries?.[exercise.name];
+    if(!exercise.sets)return hasMedia;
+    const mapping=window.ROAD12_EXERCISES.resolve(exercise.name).externalMappings.strava;
+    return hasMedia&&!!mapping&&window.ROAD12_EXERCISES.isSupportedStravaExerciseType(mapping.exerciseType);
+  }));
 const ROAD12_MIGRATIONS=[
   {
     version:1,
@@ -395,6 +404,38 @@ const ROAD12_MIGRATIONS=[
       value.schemaVersion=18;
       return value;
     }
+  },
+  {
+    version:19,
+    up(value){
+      /* Add transition history without manufacturing a transition for an older
+         backup. Foundation history and its original start date are untouched. */
+      value.phaseTransitions=Array.isArray(value.phaseTransitions)?value.phaseTransitions:[];
+      value.schemaVersion=19;
+      return value;
+    }
+  },
+  {
+    version:20,
+    up(value){
+      /* Add the approved Build program identity without activating it or
+         rewriting Foundation sessions. */
+      value.buildProgramVersion=value.buildProgramVersion||null;
+      value.schemaVersion=20;
+      return value;
+    }
+  },
+  {
+    version:21,
+    up(value){
+      /* Reconcile both independently-created schema-19 candidates. Presence,
+         rather than the intermediate version number, determines what survives. */
+      value.extraActivities=Array.isArray(value.extraActivities)?value.extraActivities:[];
+      value.phaseTransitions=Array.isArray(value.phaseTransitions)?value.phaseTransitions:[];
+      value.buildProgramVersion=value.buildProgramVersion||null;
+      value.schemaVersion=21;
+      return value;
+    }
   }
 ];
 const road12Storage=(()=>{
@@ -433,6 +474,9 @@ const state=window.ROAD12_STRAVA_DATA.enforce(road12Storage.load());
 let pendingWyzeImport=null;
 let wyzeImportNotice="";
 let stravaConnectionNotice="";
+let pendingExtraActivity=null;
+let pendingExtraThumbnail=null;
+let extraActivityNotice="";
 const progressExpandedSections=new Set();
 Object.assign(state,{tab:state.tab||"home",step:state.step||0,logs:state.logs||{},sessions:state.sessions||0,weight:state.weight||221,waist:state.waist||43,history:state.history||[],selectedDay:Number.isInteger(state.selectedDay)?state.selectedDay:0,coachMode:state.coachMode!==false});
 state.attachmentPhotos=state.attachmentPhotos||{};
@@ -450,6 +494,8 @@ state.trainingProfile=window.ROAD12_ADAPTIVE.normalizeProfile(state.trainingProf
 state.adaptiveRecommendation=state.adaptiveRecommendation||null;
 state.acceptedAdaptivePlan=state.acceptedAdaptivePlan||null;
 state.trainingPhase=state.trainingPhase||{id:"foundation",number:1,startedAt:localDateKey(),status:"active",advancementLocked:true};
+state.phaseTransitions=Array.isArray(state.phaseTransitions)?state.phaseTransitions:[];
+state.buildProgramVersion=state.buildProgramVersion||state.trainingPhase?.programVersion||null;
 state.measurementHistory=Array.isArray(state.measurementHistory)?state.measurementHistory:[];
 state.bodyMeasurements=Array.isArray(state.bodyMeasurements)?state.bodyMeasurements:[];
 {
@@ -458,6 +504,7 @@ state.bodyMeasurements=Array.isArray(state.bodyMeasurements)?state.bodyMeasureme
   if(currentMeasurements.waist!==null)state.waist=currentMeasurements.waist;
 }
 state.cardioHistory=Array.isArray(state.cardioHistory)?state.cardioHistory:[];
+state.extraActivities=Array.isArray(state.extraActivities)?state.extraActivities:[];
 state.cardioTimers=state.cardioTimers&&typeof state.cardioTimers==="object"?state.cardioTimers:{};
 state.exerciseFeedback=state.exerciseFeedback&&typeof state.exerciseFeedback==="object"?state.exerciseFeedback:{};
 state.approvedProgressions=state.approvedProgressions&&typeof state.approvedProgressions==="object"?state.approvedProgressions:{};
@@ -519,6 +566,30 @@ Object.assign(weekPlan[5],{
   items:[...weekPlan[5].items.slice(0,-1),"5-minute pelvic-floor relaxation",weekPlan[5].items.at(-1)],
   setup:"Choose treadmill, rower or KICKR CORE \u2192 floor space"
 });
+
+function buildPlanForDay(dayIndex){
+ const template=window.ROAD12_BUILD?.templateForPlanDay(dayIndex);
+ if(!template){
+   if(dayIndex===2)return {...weekPlan[3],short:"WED",title:"Cardio + Recovery",detail:"Existing core, mobility and easy recovery work",phaseId:"build",templateVersion:window.ROAD12_BUILD?.VERSION};
+   return {...weekPlan[dayIndex],phaseId:"build",templateVersion:window.ROAD12_BUILD?.VERSION};
+ }
+ const setupByDay={
+   0:"Smith station → GMWD chest press → front-post cables → dumbbells",
+   1:"Smith station → front-post cable station → floor space",
+   3:"Front-post cable stations → dumbbells",
+   4:"Smith station → front-post cable station → floor space"
+ };
+ return {
+   short:weekPlan[dayIndex].short,icon:"🏋️",title:template.name,
+   detail:`Build upper/lower strength • ${template.emphasis.toLowerCase()}`,
+   action:dayIndex===0?"workout":"upcoming",time:template.time,focus:template.emphasis,
+   items:template.exercises.map(exercise=>exercise.name),setup:setupByDay[dayIndex],
+   phaseId:"build",templateId:template.id,templateVersion:template.version
+ };
+}
+function trainingPlanForDay(dayIndex,phaseId=state.trainingPhase?.id){
+ return phaseId==="build"?buildPlanForDay(dayIndex):weekPlan[dayIndex];
+}
 
 const app=document.querySelector("#app"), nav=[...document.querySelectorAll("nav button")];
 let timerId=null, remaining=0, timerEndsAt=null, timerAudioContext=null, activeTimerExercise=null;
@@ -779,7 +850,7 @@ function showPreviewExerciseDetails(ex,dayIndex){
  window.scrollTo({top:0,behavior:"auto"});
 }
 function showDayPlan(dayIndex=state.selectedDay){
- const day=weekPlan[dayIndex],isToday=dayIndex===currentPlanIndex();
+ const day=trainingPlanForDay(dayIndex),isToday=dayIndex===currentPlanIndex();
  const previewExercises=day.action==="progress"?[]:workoutForDay(dayIndex);
  const previewItems=day.action==="progress"?day.items:previewExercises.map(exercise=>exercise.name);
  app.innerHTML=`<section class="card day-preview-card"><button class="secondary" id="previewBack">Back to schedule</button><div class="preview-title"><span class="large-icon">${day.icon}</span><div><span class="pill">${day.short} PREVIEW</span><h2>${day.title}</h2><p class="muted">${day.detail}</p></div></div><div class="brief-grid"><div><small>TIME</small><strong>${day.time}</strong></div><div><small>FOCUS</small><strong>${day.focus}</strong></div><div><small>STATUS</small><strong>${isToday&&todayCompleted()?"Completed":isToday?"Today":"Preview"}</strong></div><div><small>SETUP FLOW</small><strong>${day.setup}</strong></div></div></section>
@@ -1299,14 +1370,58 @@ function escapeAdaptiveText(value){
  return String(value||"").replace(/[&<>"']/g,character=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[character]);
 }
 function currentAdaptiveRecommendation(){
- return window.ROAD12_ADAPTIVE.phaseReadiness({history:state.history.map(window.ROAD12_STRAVA_DATA.stripSession),ratings:state.workoutRatings,sessions:state.workoutSessions,today:localDateKey(),adherenceBaselineDate:state.adherenceBaselineDate,measurements:state.bodyMeasurements,cardio:state.cardioHistory});
+ return window.ROAD12_ADAPTIVE.phaseReadiness({history:state.history.map(window.ROAD12_STRAVA_DATA.stripSession),ratings:state.workoutRatings,sessions:state.workoutSessions,today:localDateKey(),adherenceBaselineDate:state.adherenceBaselineDate,measurements:state.bodyMeasurements,cardio:state.cardioHistory,trainingPhase:state.trainingPhase});
 }
 function phaseReadinessMarkup(readiness,compact=false){
+ if(state.trainingPhase?.id==="build")return `<section class="card phase-readiness-card ${compact?"compact":""}" aria-labelledby="phaseReadinessTitle"><div class="phase-readiness-heading"><div><span class="pill">BUILD • PHASE 2</span><h2 id="phaseReadinessTitle">Build phase active</h2></div><strong>In progress</strong></div><p>Your accepted Upper/Lower program is active. Foundation history, working weights, and progression evidence remain available.</p>${compact?"":`<div class="phase-lock-note"><strong>Program version</strong><span>${escapeAdaptiveText(state.buildProgramVersion||state.trainingPhase.programVersion||"Build")}</span></div>`}</section>`;
  const quality=readiness.dataQualityItems||[];
- return `<section class="card phase-readiness-card ${compact?"compact":""}" aria-labelledby="phaseReadinessTitle"><div class="phase-readiness-heading"><div><span class="pill">FOUNDATION • PHASE 1</span><h2 id="phaseReadinessTitle">${readiness.score}% ready for Build</h2></div><strong>${readiness.locked?"Collecting data":"Review available"}</strong></div><div class="phase-readiness-track" role="progressbar" aria-label="Foundation phase readiness" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${readiness.score}"><span style="width:${readiness.score}%"></span></div><p>You're progressing toward the next training phase. Foundation A/B/C stays active while Road to 12% gathers enough quality evidence.</p>${compact?"":`<div class="readiness-quality"><div><small>READINESS DATA QUALITY</small><strong>${readiness.dataQuality}% • ${readiness.dataQualityLabel}</strong></div><div class="data-quality-grid">${quality.map(item=>`<div class="${item.ready?"ready":"collecting"}"><span>${item.ready?"✓":"…"}</span><p><strong>${item.label}</strong><small>${item.value}</small></p></div>`).join("")}</div></div><div class="readiness-reasons">${readiness.reasons.map(reason=>`<div class="${reason.status}"><span aria-hidden="true">${reason.status==="positive"?"✓":reason.status==="hold"?"!":"…"}</span><p><strong>${reason.label}</strong><small>${reason.detail}</small></p></div>`).join("")}</div><div class="phase-lock-note"><strong>Phase advancement is locked.</strong><span>No workout schedule will change until the readiness policy is mature and you explicitly accept a reviewed Phase 2 plan.</span></div>`}</section>`;
+ const status=readiness.eligible?"Review available":"Collecting data";
+ const summary=readiness.eligible
+   ?"You have completed the Foundation evidence requirements. Review the Build plan when you are ready; your current schedule will not change until you explicitly accept it."
+   :"You're progressing toward the next training phase. Foundation A/B/C stays active while Road to 12% gathers enough quality evidence.";
+ const blocker=!readiness.eligible&&readiness.blockers?.[0]?`<p class="phase-primary-blocker"><strong>Next requirement:</strong> ${escapeAdaptiveText(readiness.blockers[0])}.</p>`:"";
+ const review=readiness.eligible?'<button class="primary review-build-plan" type="button">Review Build Plan</button>':"";
+ return `<section class="card phase-readiness-card ${compact?"compact":""}" aria-labelledby="phaseReadinessTitle"><div class="phase-readiness-heading"><div><span class="pill">FOUNDATION • PHASE 1</span><h2 id="phaseReadinessTitle">${readiness.score}% ready for Build</h2></div><strong>${status}</strong></div><div class="phase-readiness-track" role="progressbar" aria-label="Foundation phase readiness" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${readiness.score}"><span style="width:${readiness.score}%"></span></div><p>${summary}</p>${blocker}${review}${compact?"":`<div class="readiness-quality"><div><small>READINESS DATA QUALITY</small><strong>${readiness.dataQuality}% • ${readiness.dataQualityLabel}</strong></div><div class="data-quality-grid">${quality.map(item=>`<div class="${item.ready?"ready":"collecting"} ${item.required===false?"context-only":""}"><span>${item.ready?"✓":"…"}</span><p><strong>${item.label}</strong><small>${item.value}</small></p></div>`).join("")}</div></div><div class="readiness-reasons">${readiness.reasons.map(reason=>`<div class="${reason.status}"><span aria-hidden="true">${reason.status==="positive"?"✓":reason.status==="hold"?"!":"…"}</span><p><strong>${reason.label}</strong><small>${reason.detail}</small></p></div>`).join("")}</div><div class="phase-lock-note"><strong>${readiness.eligible?"Build review is unlocked.":"Phase advancement is locked."}</strong><span>${readiness.eligible?"Eligibility does not alter the schedule. Build begins only after a validated plan is available and you accept it.":escapeAdaptiveText(readiness.blockers.join(" • "))}</span></div>`}</section>`;
+}
+function buildReviewTemplatesMarkup(){
+ return Object.values(window.ROAD12_BUILD?.TEMPLATES||{}).map(template=>`<section class="build-review-section build-template-preview"><div><span class="pill">${escapeAdaptiveText(template.emphasis.toUpperCase())}</span><h3>${escapeAdaptiveText(template.name)}</h3><small>${escapeAdaptiveText(template.time)} • ${window.ROAD12_BUILD.strengthSetCount(template)} working sets</small></div><ol>${template.exercises.map(exercise=>`<li><strong>${escapeAdaptiveText(exercise.name)}</strong>${exercise.sets?`<span>${exercise.sets} × ${escapeAdaptiveText(exercise.reps)} • ${exercise.targetRirRange.join("–")} RIR</span>`:"<span>Preparation / recovery</span>"}</li>`).join("")}</ol></section>`).join("");
+}
+function openBuildPlanReview(){
+ const readiness=currentAdaptiveRecommendation();
+ if(!readiness.eligible)return;
+ const unavailable=!BUILD_WORKOUT_TEMPLATE_VALIDATED;
+ const dialog=v42Dialog(`<span class="pill">FOUNDATION COMPLETE</span><h2>Review Build Phase</h2>
+   <p>You have completed the current Foundation evidence requirements through consistent A/B/C training, reliable exercise baselines, completed working sets, and usable recovery ratings.</p>
+   <section class="build-review-section"><h3>What changes in Build</h3><p><strong>Build changes lifting frequency from 3 strength days per week to 4 strength days per week.</strong></p><p>The new Upper/Lower split distributes focused volume across shorter sessions.</p></section>
+   <section class="build-review-section"><h3>Priority areas</h3><p>Build places extra emphasis on Chest, Biceps, Calves, and Abs/Core while keeping the rest of the body balanced.</p></section>
+   <section class="build-review-section"><h3>What stays the same</h3><ul><li>Cardio remains integrated with strength training.</li><li>Your Foundation history, working weights, feedback, and measurements stay intact.</li><li>You remain in control of the transition and can stay in Foundation.</li></ul></section>
+   <section class="build-review-section"><h3>Your Build week</h3><p>Monday — Upper A<br>Tuesday — Lower A<br>Wednesday — Cardio / Recovery<br>Thursday — Upper B<br>Friday — Lower B<br>Saturday — Cardio<br>Sunday — Rest / Recovery</p><p>Foundation history stays intact, exercise progression carries forward, and cardio/recovery remains part of the plan. Build begins only if you select Start Build Phase.</p></section>
+   ${buildReviewTemplatesMarkup()}
+   ${unavailable?'<p class="build-plan-unavailable" id="buildPlanUnavailable"><strong>Build activation is not available yet.</strong> Build workout programming still needs review and approval before it can replace your Foundation schedule.</p>':""}
+   <button class="primary" id="startBuildPhase" type="button" ${unavailable?'disabled aria-describedby="buildPlanUnavailable"':""}>Start Build Phase</button>
+   <button class="secondary" id="stayInFoundation" type="button">Stay in Foundation</button>`,`Review Build Phase`,{showClose:false});
+ dialog.querySelector("#stayInFoundation").onclick=closeV42Dialog;
+ dialog.querySelector("#startBuildPhase")?.addEventListener("click",()=>{
+   const acceptedAt=new Date().toISOString(),acceptanceDate=localDateKey();
+   const scheduleResult=window.ROAD12_BUILD.activateSchedule({acceptanceDate,eligible:readiness.eligible,templatesValidated:BUILD_WORKOUT_TEMPLATE_VALIDATED,history:state.history,currentSession:state.currentSession,workoutSessions:state.workoutSessions});
+   if(!scheduleResult.activated)return;
+   const result=window.ROAD12_ADAPTIVE.acceptBuildPhase({trainingPhase:state.trainingPhase,phaseTransitions:state.phaseTransitions,readiness,buildTemplateValidated:BUILD_WORKOUT_TEMPLATE_VALIDATED,acceptedAt,acceptanceDate,firstBuildDate:scheduleResult.firstBuildDate,buildProgramVersion:window.ROAD12_BUILD.VERSION});
+   if(!result.activated)return;
+   state.trainingPhase=result.trainingPhase;
+   state.phaseTransitions=result.phaseTransitions;
+   state.workoutSessions=scheduleResult.workoutSessions;
+   state.buildProgramVersion=window.ROAD12_BUILD.VERSION;
+   save();
+   closeV42Dialog();
+   render();
+ });
+}
+function bindBuildReviewButtons(){
+ document.querySelectorAll(".review-build-plan").forEach(button=>button.addEventListener("click",openBuildPlanReview));
 }
 function exerciseProgressionRecommendations(){
- const definitions=[0,2,4].flatMap(day=>strengthWorkoutForDay(day)).filter(ex=>ex.type==="strength");
+ const days=state.trainingPhase?.id==="build"?[0,1,3,4]:[0,2,4];
+ const definitions=days.flatMap(day=>strengthWorkoutForDay(day)).filter(ex=>ex.type==="strength");
  const coachingHistory=state.history.map(window.ROAD12_STRAVA_DATA.stripSession);
  return [...new Map(definitions.map(ex=>[ex.name,ex])).values()].map(ex=>({exercise:ex,recommendation:window.ROAD12_ADAPTIVE.exerciseRecommendation(coachingHistory,state.workoutRatings,ex)}));
 }
@@ -1655,7 +1770,7 @@ function greeting(){
 function tomorrowPlan(){
  const today=new Date().getDay();
  const mondayIndex=(today+6)%7;
- return weekPlan[(mondayIndex+1)%7];
+ return trainingPlanForDay((mondayIndex+1)%7);
 }
 function todayCheckin(){
  const key=localDateKey();
@@ -1754,7 +1869,7 @@ function summary(){
    session=state.history.find(h=>h.id===state.currentSession.completedId);
  }else{
    const endedAt=new Date(),startedAt=state.currentSession?.startedAt?new Date(state.currentSession.startedAt):endedAt;
-   session={id:state.currentSession?.id||`session-${Date.now()}`,scheduleId:state.currentSession?.scheduleId||null,planDay:Number.isInteger(state.currentSession?.planDay)?state.currentSession.planDay:currentPlanIndex(),date:endedAt.toLocaleDateString(),dateKey:localDateKey(endedAt),completedAt:endedAt.toISOString(),completedDate:localDateKey(endedAt),actualCompletionDate:localDateKey(endedAt),startedAt:startedAt.toISOString(),durationMs:Math.max(0,endedAt-startedAt),name:state.currentSession?.name||weekPlan[currentPlanIndex()].title,exercises:sessionExerciseSnapshot(),equipment:deepCopy(state.equipment)};
+   session={id:state.currentSession?.id||`session-${Date.now()}`,scheduleId:state.currentSession?.scheduleId||null,planDay:Number.isInteger(state.currentSession?.planDay)?state.currentSession.planDay:currentPlanIndex(),date:endedAt.toLocaleDateString(),dateKey:localDateKey(endedAt),completedAt:endedAt.toISOString(),completedDate:localDateKey(endedAt),actualCompletionDate:localDateKey(endedAt),startedAt:startedAt.toISOString(),durationMs:Math.max(0,endedAt-startedAt),name:state.currentSession?.name||trainingPlanForDay(currentPlanIndex(),state.currentSession?.trainingPhase?.id).title,templateId:state.currentSession?.templateId||null,templateVersion:state.currentSession?.templateVersion||null,exercises:sessionExerciseSnapshot(),equipment:deepCopy(state.equipment)};
    session.endedAt=session.completedAt;
    session.utcOffsetSeconds=-startedAt.getTimezoneOffset()*60;
    session.elapsedDurationMs=session.durationMs;
@@ -2045,6 +2160,117 @@ function importV1131Backup(file){
  reader.readAsText(file);
 }
 
+function extraEscape(value){return String(value??"").replace(/[&<>"']/g,character=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[character]);}
+function extraDurationDisplay(seconds){
+ const value=Number(seconds);
+ if(!Number.isFinite(value)||value<0)return "";
+ return [Math.floor(value/3600),Math.floor(value%3600/60),Math.floor(value%60)].map(part=>String(part).padStart(2,"0")).join(":");
+}
+function extraDurationSeconds(value){
+ const parts=String(value||"").trim().split(":").map(Number);
+ if(parts.some(part=>!Number.isFinite(part)||part<0))return null;
+ if(parts.length===3)return parts[0]*3600+parts[1]*60+parts[2];
+ if(parts.length===2)return parts[0]*60+parts[1];
+ return parts.length===1?parts[0]*60:null;
+}
+function extraPaceSeconds(value){
+ const match=String(value||"").trim().match(/^(\d+):(\d{2})/);
+ return match?Number(match[1])*60+Number(match[2]):null;
+}
+function extraActivitySummary(item){
+ const duration=extraDurationDisplay(Number(item.elapsedDurationMs)/1000)||"Duration not recorded";
+ const distance=item.distance!==null&&item.distance!==undefined?`${item.distance} ${item.distanceUnit||"mi"}`:null;
+ const pace=item.averagePace!==null&&item.averagePace!==undefined?window.ROAD12_EXTRA_ACTIVITY.paceDisplay(item.averagePace):null;
+ return [distance,duration,pace,item.activeCalories!==null&&item.activeCalories!==undefined?`${item.activeCalories} active cal`:null].filter(Boolean).join(" • ");
+}
+function extraActivityFields(candidate){
+ const item=window.ROAD12_EXTRA_ACTIVITY.normalizeCandidate(candidate||{}),confidence=item.confidence||{};
+ const low=field=>["LOW","NOT_FOUND"].includes(confidence[field])?" low-confidence":"";
+ const options=window.ROAD12_EXTRA_ACTIVITY.CATEGORIES.map(category=>`<option${item.activityCategory===category?" selected":""}>${category}</option>`).join("");
+ return `<div class="extra-activity-grid">
+   <label class="${low("sourceActivityName")}">Activity<select id="extraCategory">${options}</select></label>
+   <label class="${low("sourceActivityName")}">Source activity name<input id="extraSourceName" value="${extraEscape(item.sourceActivityName||"")}" placeholder="Example: Outdoor Run"></label>
+   <label class="${low("date")}">Date<input id="extraDate" type="date" value="${extraEscape(item.date||(pendingExtraThumbnail?"":localDateKey()))}"></label>
+   <label class="${low("startTime")}">Start time<input id="extraStart" type="time" value="${extraEscape(item.startTime||"")}"></label>
+   <label class="${low("endTime")}">End time<input id="extraEnd" type="time" value="${extraEscape(item.endTime||"")}"></label>
+   <label class="${low("durationSeconds")}">Duration (HH:MM:SS)<input id="extraDuration" inputmode="numeric" value="${extraDurationDisplay(item.durationSeconds)}" placeholder="01:25:43"></label>
+   <label class="${low("distance")}">Distance<input id="extraDistance" inputmode="decimal" value="${item.distance??""}"></label>
+   <label>Distance unit<select id="extraDistanceUnit"><option value="mi"${item.distanceUnit!=="km"?" selected":""}>mi</option><option value="km"${item.distanceUnit==="km"?" selected":""}>km</option></select></label>
+   <label class="${low("averagePaceSecondsPerMile")}">Average pace<input id="extraPace" inputmode="numeric" value="${extraEscape(item.averagePaceDisplay||"")}" placeholder="16:19/mi"></label>
+   <label class="${low("averageHeartRate")}">Average heart rate<input id="extraHeartRate" inputmode="numeric" value="${item.averageHeartRate??""}"></label>
+   <label class="${low("activeCalories")}">Active calories<input id="extraActiveCalories" inputmode="numeric" value="${item.activeCalories??""}"></label>
+   <label class="${low("totalCalories")}">Total calories<input id="extraTotalCalories" inputmode="numeric" value="${item.totalCalories??""}"></label>
+   <label class="${low("inclineResistance")}">Incline / resistance<input id="extraIncline" value="${extraEscape(item.inclineResistance||"")}"></label>
+   <label>Effort<select id="extraEffort"><option value="">Not recorded</option><option>Easy</option><option>Moderate</option><option>Hard</option></select></label>
+   <label class="extra-notes">Notes<textarea id="extraNotes" placeholder="Optional"></textarea></label>
+ </div>`;
+}
+function extraCandidateFromForm(){
+ const value=id=>document.querySelector(id)?.value||null;
+ return window.ROAD12_EXTRA_ACTIVITY.validate({
+   source:pendingExtraActivity?.source||"manual",sourceActivityName:value("#extraSourceName"),activityCategory:value("#extraCategory"),
+   date:value("#extraDate"),startTime:value("#extraStart"),endTime:value("#extraEnd"),durationSeconds:extraDurationSeconds(value("#extraDuration")),
+   distance:value("#extraDistance"),distanceUnit:value("#extraDistanceUnit"),averagePaceSecondsPerMile:extraPaceSeconds(value("#extraPace")),
+   averagePaceDisplay:value("#extraPace"),averageHeartRate:value("#extraHeartRate"),activeCalories:value("#extraActiveCalories"),
+   totalCalories:value("#extraTotalCalories"),inclineResistance:value("#extraIncline"),confidence:pendingExtraActivity?.confidence||{}
+ });
+}
+function fileAsDataUrl(file){return new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=()=>reject(new Error("The selected image could not be read."));reader.readAsDataURL(file);});}
+async function optimizedScreenshot(file){
+ if(!file?.type?.match(/^image\/(jpeg|png|webp)$/i))throw new Error("Choose a JPEG, PNG, or WebP workout screenshot.");
+ const original=await fileAsDataUrl(file);
+ const image=await new Promise((resolve,reject)=>{const element=new Image();element.onload=()=>resolve(element);element.onerror=()=>reject(new Error("The selected image could not be opened."));element.src=original;});
+ const fitted=window.ROAD12_EXTRA_ACTIVITY.fitImageWithin(image.naturalWidth,image.naturalHeight);
+ const canvas=document.createElement("canvas");canvas.width=fitted.width;canvas.height=fitted.height;
+ canvas.getContext("2d").drawImage(image,0,0,canvas.width,canvas.height);
+ return canvas.toDataURL("image/jpeg",.84);
+}
+function extraActivityReview(){
+ const candidate=window.ROAD12_EXTRA_ACTIVITY.validate(pendingExtraActivity||{date:localDateKey(),source:"manual"});
+ app.innerHTML=`<section class="card extra-activity-review"><button class="secondary" id="cancelExtraActivity">Back</button><span class="pill">${pendingExtraThumbnail?"REVIEW IMPORT":"MANUAL ENTRY"}</span><h2>Review Extra Activity</h2><p class="muted">This is saved separately from your training schedule. Review every value before saving.</p>
+   ${pendingExtraThumbnail?`<img class="extra-screenshot-preview" src="${pendingExtraThumbnail}" alt="Selected workout-summary screenshot preview">`:""}
+   ${candidate.warnings.length?`<div class="extra-validation-warning" role="status"><strong>Some extracted values may not agree. Please review.</strong><ul>${candidate.warnings.map(item=>`<li>${extraEscape(item)}</li>`).join("")}</ul></div>`:""}
+   ${pendingExtraThumbnail?'<p class="confidence-note"><strong>Highlighted fields need extra attention.</strong> Missing information stays blank.</p>':""}
+   ${extraActivityFields(candidate)}
+   <button class="primary" id="saveExtraActivity">Save Extra Activity</button></section>`;
+ document.querySelector("#cancelExtraActivity").onclick=()=>{pendingExtraActivity=null;pendingExtraThumbnail=null;extraActivityEntry();};
+ document.querySelector("#saveExtraActivity").onclick=()=>{
+   const reviewed=extraCandidateFromForm();
+   if(!reviewed.date||reviewed.durationSeconds===null){alert("Enter a date and activity duration before saving.");return;}
+   const duplicates=window.ROAD12_EXTRA_ACTIVITY.duplicates(reviewed,state.extraActivities);
+   if(duplicates.length&&!confirm("This activity may already be logged. Save it anyway?"))return;
+   const record=window.ROAD12_EXTRA_ACTIVITY.createRecord(reviewed,{method:pendingExtraThumbnail?"screenshot":"manual",effort:document.querySelector("#extraEffort").value,notes:document.querySelector("#extraNotes").value});
+   if(state.extraActivities.some(item=>item.id===record.id)&&!confirm("An activity with the same stable identity already exists. Save another copy?"))return;
+   if(state.extraActivities.some(item=>item.id===record.id))record.id=`${record.id}-${Date.now().toString(36)}`;
+   state.extraActivities.push(window.ROAD12_EXTRA_ACTIVITY.backupSafe(record));save();pendingExtraActivity=null;pendingExtraThumbnail=null;extraActivityNotice="Extra activity saved without changing your planned schedule.";state.tab="home";render();
+ };
+}
+function screenshotDisclosure(file){
+ const dialog=v42Dialog(`<span class="pill">SCREENSHOT PRIVACY</span><h2>Process workout screenshot?</h2><p>To read workout details automatically, this image will be securely sent to the Road to 12% Cloudflare Worker and processed by <strong>Cloudflare Workers AI</strong> using Llama 3.2 Vision.</p><p>The image is not saved to Road to 12%, D1, or your backup. Cloudflare states that Workers AI customer content is not used to train its models or improve its services without explicit consent.</p><p>No Strava-derived data is included.</p><label class="adaptive-check"><input id="extraScreenshotConsent" type="checkbox"><span>I understand and want to process this image.</span></label><button class="primary" id="confirmExtraScreenshot" disabled>Process Screenshot</button><button class="secondary" id="cancelExtraScreenshot">Cancel</button>`,`Screenshot processing`,{showClose:false});
+ const consent=dialog.querySelector("#extraScreenshotConsent"),confirmButton=dialog.querySelector("#confirmExtraScreenshot");consent.onchange=()=>confirmButton.disabled=!consent.checked;
+ dialog.querySelector("#cancelExtraScreenshot").onclick=closeV42Dialog;
+ confirmButton.onclick=async()=>{
+   confirmButton.disabled=true;confirmButton.textContent="Reading screenshot…";
+   try{
+     const imageDataUrl=await optimizedScreenshot(file);pendingExtraThumbnail=imageDataUrl;
+     const result=await window.ROAD12_STRAVA_CLIENT.parseExtraActivityScreenshot(imageDataUrl);
+     pendingExtraActivity=window.ROAD12_EXTRA_ACTIVITY.validate(result.candidate||{});closeV42Dialog();extraActivityReview();
+   }catch(error){
+     closeV42Dialog();pendingExtraActivity={source:"iFIT",date:localDateKey(),confidence:{},warnings:["We couldn't read all of the workout details. Complete the fields manually."]};
+     extraActivityReview();
+   }
+ };
+}
+function extraActivityEntry(){
+ const returnTab=["home","calendar","progress"].includes(state.tab)?state.tab:"home";
+ app.innerHTML=`<section class="card extra-activity-entry"><button class="secondary" id="extraActivityBack">Back</button><span class="pill">EXTRA ACTIVITY</span><h2>Log Extra Activity</h2><p>Record cardio performed outside the Road to 12% schedule. It will not complete, replace, or move a planned workout.</p>${extraActivityNotice?`<p class="measurement-import-notice" role="status">${extraEscape(extraActivityNotice)}</p>`:""}
+   <div class="extra-entry-actions"><label class="primary native-extra-picker"><span>Import Workout Screenshot</span><input id="extraScreenshotFile" type="file" accept="image/jpeg,image/png,image/webp,image/*" aria-label="Import workout screenshot from Photos or Files"></label><button class="secondary" id="manualExtraActivity">Enter Manually</button></div>
+   <small>iFIT screenshot recognition is optional. Nothing is saved until you review and confirm the extracted values.</small></section>`;
+ document.querySelector("#extraActivityBack").onclick=()=>{state.tab=returnTab;render();};
+ document.querySelector("#manualExtraActivity").onclick=()=>{pendingExtraActivity={source:"manual",date:localDateKey(),confidence:{}};pendingExtraThumbnail=null;extraActivityReview();};
+ document.querySelector("#extraScreenshotFile").onchange=event=>{const file=event.target.files?.[0];if(file)screenshotDisclosure(file);event.target.value="";};
+}
+
 function home(){
   syncSelectedDayToCalendar();
   ensureWorkoutSchedule();
@@ -2062,7 +2288,7 @@ function home(){
   const nextDayIndex=selectedSession
     ?selectedSession.planDay
     :Number.isInteger(primarySession?.planDay)?primarySession.planDay:state.selectedDay;
-  const nextPlan=weekPlan[nextDayIndex];
+  const nextPlan=trainingPlanForDay(nextDayIndex,selectedSession?.trainingPhase?.id||primarySession?.phaseId||state.trainingPhase?.id);
   const nextIsFuture=!!primarySession&&primarySession.scheduledDate>todayKey;
   const nextDateLabel=primarySession
     ?parseDateKey(primarySession.scheduledDate).toLocaleDateString(undefined,{weekday:"long",month:"short",day:"numeric"})
@@ -2070,20 +2296,22 @@ function home(){
   const metrics=v42Metrics();
   const adaptiveRecommendation=currentAdaptiveRecommendation();
   const weekStart=parseDateKey(todayKey);weekStart.setDate(weekStart.getDate()-currentPlanIndex());
-  const weekDays=weekPlan.map((day,index)=>{
+  const weekDays=weekPlan.map((_foundationDay,index)=>{
     const date=new Date(weekStart);date.setDate(weekStart.getDate()+index);
     const key=localDateKey(date),entries=sessionsForDate(key);
     const session=entries.find(item=>item.status!=="restDay")||entries[0];
+    const day=trainingPlanForDay(index,session?.phaseId||state.trainingPhase?.id);
     const status=session?.status||"scheduled";
     const statusInfo=V42_STATUS[status]||V42_STATUS.scheduled;
     const isToday=key===todayKey;
     return `<button class="command-day ${isToday?"today":""} status-${status}" data-day="${index}" aria-label="${day.short}, ${isToday?"Today, ":""}${statusInfo.label}"><strong>${day.short.slice(0,1)}</strong><small>${isToday?"Today":day.short[0]+day.short.slice(1).toLowerCase()}</small><span aria-hidden="true">${statusInfo.icon}</span><em>${statusInfo.label}</em></button>`;
   }).join("");
   const followingSession=nextHomeWorkoutSession(state.workoutSessions,state.history,todayKey,primarySession?.id);
-  const followingPlan=followingSession?weekPlan[followingSession.planDay]:null;
+  const followingPlan=followingSession?trainingPlanForDay(followingSession.planDay,followingSession.phaseId||state.trainingPhase?.id):null;
   const primaryLabel=active?"WORKOUT IN PROGRESS":nextIsFuture?`UP NEXT • ${nextDateLabel}`:"TODAY";
   const latestTotals=latest?sessionTotals(latest):null;
   const bodyMeasurements=currentBodyMeasurements();
+  const latestExtra=state.extraActivities.slice().sort((a,b)=>String(b.startedAt||b.date).localeCompare(String(a.startedAt||a.date)))[0]||null;
 
  app.innerHTML=`<section class="card command-week" aria-labelledby="commandWeekTitle">
    <div class="command-section-heading"><div><small>THIS WEEK</small><h2 id="commandWeekTitle">Training command center</h2></div><button class="history-count-button" id="openHistory">${historyCount} saved</button></div>
@@ -2095,6 +2323,8 @@ function home(){
    ${nextIsFuture&&!active&&!selectedSession?'<button class="primary" id="previewNextWorkout">Preview workout</button>':`<button class="primary" id="startWorkout">${active?"Resume workout":nextIsFuture?"Start early":"Start workout"}</button>`}
    <button class="secondary command-preview" id="previewSelected">View workout details</button>
  </section>
+ <button class="card extra-activity-launch" id="logExtraActivity"><span aria-hidden="true">＋</span><span><small>OUTSIDE YOUR PLAN</small><strong>Log Extra Activity</strong><em>Walk, run, treadmill, row, cycle or other cardio</em></span><b aria-hidden="true">›</b></button>
+ ${extraActivityNotice?`<p class="extra-save-notice" role="status">${extraEscape(extraActivityNotice)}</p>`:""}
  <section class="card home-command-metrics" aria-label="Training metrics">
    <div><span class="metric-ring adherence-ring" style="--metric-progress:${metrics.adherence}%"><strong>${metrics.adherence}%</strong></span><small>Adherence</small></div>
    <div><span class="metric-ring recovery-ring" style="--metric-progress:${metrics.recovery}%"><strong>${metrics.recovery}</strong></span><small>Recovery</small></div>
@@ -2103,8 +2333,10 @@ function home(){
  ${phaseReadinessMarkup(adaptiveRecommendation,true)}
  ${followingPlan?`<button class="card command-up-next" id="previewFollowingWorkout"><span class="up-next-icon">${followingPlan.icon}</span><span><small>UP NEXT • ${parseDateKey(followingSession.scheduledDate).toLocaleDateString(undefined,{weekday:"short",month:"short",day:"numeric"})}</small><strong>${followingPlan.title}</strong><em>${followingPlan.time}</em></span><b aria-hidden="true">›</b></button>`:""}
  ${latest?`<section class="card command-achievement"><span class="achievement-icon">✓</span><div><small>LATEST ACHIEVEMENT</small><strong>${latest.name||"Completed workout"}</strong><span>${v1131DateLabel(latest)} • ${latestTotals.completedSets} sets</span></div><button class="secondary" id="viewLatestAchievement">View</button></section>`:""}
+ ${latestExtra?`<section class="card command-extra-recent"><span aria-hidden="true">＋</span><div><small>RECENT EXTRA ACTIVITY</small><strong>${extraEscape(latestExtra.sourceActivityName||latestExtra.activityCategory)}</strong><span>${extraEscape(extraActivitySummary(latestExtra))}</span></div><em>Extra</em></section>`:""}
  <section class="command-checkin" aria-label="Latest check-in"><div><small>WEIGHT</small><strong>${bodyMeasurements.weight??"—"} lb</strong></div><div><small>WAIST</small><strong>${bodyMeasurements.waist??"—"} in</strong></div></section>`;
 
+ bindBuildReviewButtons();
  document.querySelector("#viewLatestAchievement")?.addEventListener("click",()=>{
    state.historyView=latest.id;
    state.tab="progress";
@@ -2120,6 +2352,7 @@ function home(){
  document.querySelector("#previewSelected")?.addEventListener("click",()=>showDayPlan(nextDayIndex));
  document.querySelector("#previewNextWorkout")?.addEventListener("click",()=>showDayPlan(nextDayIndex));
  document.querySelector("#previewFollowingWorkout")?.addEventListener("click",()=>showDayPlan(followingSession.planDay));
+ document.querySelector("#logExtraActivity")?.addEventListener("click",()=>{extraActivityNotice="";extraActivityEntry();});
  document.querySelectorAll("[data-day]").forEach(button=>{
    button.onclick=()=>{
      state.selectedDay=Number(button.dataset.day);
@@ -2313,6 +2546,8 @@ function progress(){
    <div class="achievement-grid">${achievements.length?achievements.map(([a,d])=>`<div><span>✓</span><strong>${a}</strong><small>${d}</small></div>`).join(""):'<p class="muted">Your first achievement unlocks after one completed workout.</p>'}</div>
  </section>`)}
 
+ ${progressDisclosure("extra-activity-history","Extra cardio & activity",`${state.extraActivities.length} EXTRA ACTIVIT${state.extraActivities.length===1?"Y":"IES"}`,`<section class="card"><div class="section-title-row"><div><small>PLANNED SCHEDULE UNCHANGED</small><h2>Extra activity</h2></div><button class="secondary compact-action" id="progressLogExtra">Log Extra Activity</button></div>${state.extraActivities.length?`<div class="extra-activity-history">${state.extraActivities.slice().sort((a,b)=>String(b.startedAt||b.date).localeCompare(String(a.startedAt||a.date))).map(item=>`<article><span aria-hidden="true">＋</span><div><small>EXTRA • ${extraEscape(item.source||"manual")}</small><strong>${extraEscape(item.sourceActivityName||item.activityCategory)}</strong><p>${extraEscape(extraActivitySummary(item))}</p><time>${formatHistoryDateKey(item.date)}</time></div></article>`).join("")}</div>`:'<p class="muted">No extra activities logged yet.</p>'}</section>`)}
+
  ${progressDisclosure("workout-history","Workout history",`${state.history.length} COMPLETED SESSION${state.history.length===1?"":"S"}`,`<section class="card">
    <h2>Workout history</h2>
    ${state.history.length?state.history.slice().reverse().map(h=>{
@@ -2329,6 +2564,7 @@ function progress(){
    const id=section.dataset.progressSection;
    if(section.open)progressExpandedSections.add(id);else progressExpandedSections.delete(id);
  }));
+ bindBuildReviewButtons();
  document.querySelector("#saveP").onclick=()=>{
    const weight=Number(document.querySelector("#w").value)||null,waist=Number(document.querySelector("#wa").value)||null;
    const measurement=window.ROAD12_BODY_MEASUREMENTS.adapters.manual.adapt({weight,waist,timestamp:new Date().toISOString()});
@@ -2342,6 +2578,7 @@ function progress(){
    progress();
  };
  document.querySelector("#openBodyMeasurements").onclick=()=>{pendingWyzeImport=null;wyzeImportNotice="";bodyMeasurementsImport();};
+ document.querySelector("#progressLogExtra")?.addEventListener("click",()=>{extraActivityNotice="";extraActivityEntry();});
  document.querySelector("#acceptLowerAbsPhase2")?.addEventListener("click",()=>{
    state.lowerAbsProgram.phase=2;
    state.lowerAbsProgram.phase2AcceptedAt=new Date().toISOString();
@@ -2516,7 +2753,7 @@ function recordLowerAbsCompletion(session){
   }
 }
 
-function lowerAbsProgramExercises(){
+function lowerAbsProgramExercises(phase=currentLowerAbsPhase()){
   const bodyweight={
     type:"strength",
     rest:45,
@@ -2524,7 +2761,7 @@ function lowerAbsProgramExercises(){
     substituteId:null,
     weightEntry:{mode:"bodyweight",label:"Bodyweight",help:"No external weight is needed. Record the repetitions or hold time you actually complete."}
   };
-  if(currentLowerAbsPhase()===2)return [
+  if(phase===2)return [
     Object.assign(cloneExerciseByName("Bodyweight Squat"),bodyweight,{
       name:"Hanging Knee Raise",sets:3,reps:"10-12",muscles:"Lower abdominals, deep core and grip",
       setup:["Use the M1 front pull-up bar","Take a shoulder-width overhand grip","Begin in a still active hang"],
@@ -3281,8 +3518,40 @@ function fullBodyCWorkout(includeHipThrust=true,includeLowInclinePress=true,useC
   ];
 }
 
-function strengthWorkoutForDay(dayIndex){
+function buildExerciseCatalog(){
+ const definitions=[
+   ...fullBodyAWorkout(),
+   ...fullBodyBWorkout(false,true,true),
+   ...fullBodyCWorkout(true,true,true),
+   ...lowerAbsProgramExercises(1),
+   ...[0,2,4].flatMap(day=>[dumbbellAccessoryForDay(day,true),armAccessoryForDay(day)].filter(Boolean))
+ ];
+ return new Map(definitions.map(exercise=>[exercise.name,exercise]));
+}
+function buildWorkoutForDay(dayIndex){
+ const template=window.ROAD12_BUILD?.templateForPlanDay(dayIndex);
+ if(!template)return [];
+ const catalog=buildExerciseCatalog();
+ return template.exercises.map(spec=>{
+   const source=catalog.get(spec.name);
+   if(!source)return null;
+   const exercise=deepCopy(source);
+   if(spec.sets)Object.assign(exercise,{
+     sets:spec.sets,reps:spec.reps,rest:spec.rest,
+     targetRirRange:[...spec.targetRirRange],progressionRirRange:[...spec.targetRirRange],
+     progressionModel:"double-progression"
+   });
+   return Object.assign(exercise,{
+     buildPurpose:spec.purpose,buildTemplateId:template.id,
+     buildTemplateVersion:template.version,trainingPhaseId:"build"
+   });
+ }).filter(Boolean).map(resolveExercise).filter(exercise=>!exercise.unavailable);
+}
+
+function strengthWorkoutForDay(dayIndex,phaseOverride=null){
   const activeSession=!!state.currentSession&&!state.currentSession.completedId&&state.currentSession.planDay===dayIndex;
+  const sessionPhase=phaseOverride||(activeSession?state.currentSession.trainingPhase?.id:state.trainingPhase?.id);
+  if(sessionPhase==="build")return buildWorkoutForDay(dayIndex);
   const preservePreChestDefinition=activeSession&&!state.currentSession.programRevision;
   const compatibleRevisions=[LEGACY_FOUNDATION_PROGRAM_REVISION,PREVIOUS_FOUNDATION_PROGRAM_REVISION,GMWD_FOUNDATION_PROGRAM_REVISION,CONCENTRATION_FOUNDATION_PROGRAM_REVISION,FOUNDATION_PROGRAM_REVISION];
   const includeCurrentAttachments=!activeSession||compatibleRevisions.includes(state.currentSession.programRevision);
@@ -3303,13 +3572,16 @@ function strengthWorkoutForDay(dayIndex){
     .sort((a,b)=>group(a.ex)-group(b.ex)||a.index-b.index).map(x=>x.ex);
 }
 
-function workoutForDay(dayIndex=currentPlanIndex()){
+function workoutForDay(dayIndex=currentPlanIndex(),phaseOverride=null){
   let workoutData;
-  if(dayIndex===1)workoutData=cardioMobilityWorkout();
+  const phaseId=phaseOverride||state.currentSession?.trainingPhase?.id||state.trainingPhase?.id;
+  if(phaseId==="build"&&window.ROAD12_BUILD?.templateForPlanDay(dayIndex))workoutData=buildWorkoutForDay(dayIndex);
+  else if(phaseId==="build"&&dayIndex===2)workoutData=coreRecoveryWorkout();
+  else if(dayIndex===1)workoutData=cardioMobilityWorkout();
   else if(dayIndex===3)workoutData=coreRecoveryWorkout();
   else if(dayIndex===5)workoutData=zone2CardioWorkout();
   else if(dayIndex===6)workoutData=[];
-  else workoutData=strengthWorkoutForDay(dayIndex);
+  else workoutData=strengthWorkoutForDay(dayIndex,phaseOverride);
   return window.ROAD12_ADAPTIVE.applyRecommendation(workoutData);
 }
 
@@ -3328,8 +3600,9 @@ function startNewSession(dayIndex=currentPlanIndex(),selectedSchedule=null){
    .sort((a,b)=>(a.status==="rescheduled"?-1:1)-(b.status==="rescheduled"?-1:1))[0];
  const isRecovered=!!selectedSchedule&&selectedSchedule.scheduledDate<todayKey;
  const sessionDay=Number.isInteger(todaySchedule?.planDay)?todaySchedule.planDay:dayIndex;
- const plan=weekPlan[sessionDay];
- const sessionPrescriptions=window.ROAD12_PRESCRIPTIONS.capture(workoutForDay(sessionDay).filter(ex=>ex.type==="strength"),state.approvedProgressions,name=>window.ROAD12_EXERCISES.resolve(name));
+ const sessionPhaseId=selectedSchedule?.phaseId||state.trainingPhase?.id;
+ const plan=trainingPlanForDay(sessionDay,sessionPhaseId);
+ const sessionPrescriptions=window.ROAD12_PRESCRIPTIONS.capture(workoutForDay(sessionDay,sessionPhaseId).filter(ex=>ex.type==="strength"),state.approvedProgressions,name=>window.ROAD12_EXERCISES.resolve(name));
  if(todaySchedule&&!isRecovered&&todaySchedule.status!=="rescheduled")todaySchedule.status="inProgress";
  state.logs={};
  state.exerciseFeedback={};
@@ -3345,8 +3618,10 @@ function startNewSession(dayIndex=currentPlanIndex(),selectedSchedule=null){
    recoveredWorkout:isRecovered,
    plannedDate:isRecovered?selectedSchedule.plannedDate:null,
    originalScheduledDate:isRecovered?selectedSchedule.scheduledDate:null,
-   trainingPhase:deepCopy(state.trainingPhase),
-   programRevision:FOUNDATION_PROGRAM_REVISION,
+   trainingPhase:deepCopy(sessionPhaseId==="build"?state.trainingPhase:{id:"foundation",number:1,status:"active",advancementLocked:true}),
+   programRevision:sessionPhaseId==="build"?window.ROAD12_BUILD.VERSION:FOUNDATION_PROGRAM_REVISION,
+   templateId:sessionPhaseId==="build"?plan.templateId:null,
+   templateVersion:sessionPhaseId==="build"?plan.templateVersion:null,
    equipment:deepCopy(state.equipment),
    sessionPrescriptions
  };
@@ -3388,7 +3663,7 @@ function workoutLanding(){
  const dayIndex=selectedSession
    ?selectedSession.planDay
    :currentPlanIndex();
- const plan=weekPlan[dayIndex];
+ const plan=trainingPlanForDay(dayIndex,selectedSession?.trainingPhase?.id||state.trainingPhase?.id);
  const workoutData=workoutForDay(dayIndex);
  const hasActive=resumableSession;
  const linkedSchedule=selectedSession?.scheduleId?state.workoutSessions.find(item=>item.id===selectedSession.scheduleId):null;
@@ -3474,8 +3749,16 @@ function addCalendarDays(key,amount){
 function planIndexForDate(date){
  return (date.getDay()+6)%7;
 }
-function workoutTypeForPlan(index){
- if([0,2,4].includes(index))return "strength";
+function phaseIdForScheduledDate(key){
+ if(state.trainingPhase?.id!=="build")return "foundation";
+ const acceptedTransition=[...(state.phaseTransitions||[])].reverse().find(item=>item?.to==="build");
+ const effectiveDate=String(acceptedTransition?.firstBuildDate||state.trainingPhase.startedAt||"").slice(0,10);
+ return effectiveDate&&key>=effectiveDate?"build":"foundation";
+}
+function workoutTypeForPlan(index,phaseId=state.trainingPhase?.id){
+ if(phaseId==="build"&&[0,1,3,4].includes(index))return "strength";
+ if(phaseId==="build"&&index===2)return "recovery";
+ if(phaseId!=="build"&&[0,2,4].includes(index))return "strength";
  if([1,5].includes(index))return "cardio";
  if(index===3)return "mobility";
  if(index===6)return "recovery";
@@ -3491,15 +3774,21 @@ function ensureWorkoutSchedule(){
    const planDay=planIndexForDate(date);
    const id=`planned-${key}`;
    if(known.has(id))continue;
-   const type=workoutTypeForPlan(planDay);
+   const phaseId=phaseIdForScheduledDate(key);
+   const type=workoutTypeForPlan(planDay,phaseId);
+   const plan=trainingPlanForDay(planDay,phaseId);
+   const buildTemplate=phaseId==="build"?window.ROAD12_BUILD.templateForPlanDay(planDay):null;
    state.workoutSessions.push({
      id,
      plannedDate:key,
      scheduledDate:key,
      planDay,
-     name:weekPlan[planDay].title,
+     name:plan.title,
      workoutType:type,
-     status:planDay===6?"restDay":key<localDateKey()?"missed":"scheduled"
+     status:planDay===6?"restDay":key<localDateKey()?"missed":"scheduled",
+     phaseId,
+     templateId:buildTemplate?.id||null,
+     templateVersion:buildTemplate?.version||null
    });
  }
  state.history.forEach(historyItem=>{
@@ -3508,8 +3797,8 @@ function ensureWorkoutSchedule(){
    const planDay=planIndexForDate(parseDateKey(key));
    state.workoutSessions.push({
      id:`planned-${key}`,plannedDate:key,scheduledDate:key,planDay,
-     name:historyItem.name||weekPlan[planDay].title,
-     workoutType:workoutTypeForPlan(planDay),status:"completed"
+     name:historyItem.name||trainingPlanForDay(planDay,historyItem.trainingPhase?.id).title,
+     workoutType:workoutTypeForPlan(planDay,historyItem.trainingPhase?.id),status:"completed"
    });
    known.add(`planned-${key}`);
  });
@@ -3598,16 +3887,18 @@ function calendar(){
  for(let day=1;day<=lastDay;day++){
    const key=dateKeyFromParts(year,month+1,day);
    const entries=sessionsForDate(key);
+   const extras=state.extraActivities.filter(item=>item.date===key);
    const primary=entries.find(item=>item.status!=="restDay")||entries[0];
    const count=entries.filter(item=>item.status!=="restDay").length;
-   cells.push(`<button class="calendar-day ${primary?`status-${primary.status}`:""} ${key===localDateKey()?"today":""}" data-calendar-day="${key}" aria-label="${parseDateKey(key).toLocaleDateString(undefined,{month:"long",day:"numeric"})}, ${primary?`${V42_STATUS[primary.status].label}, ${V42_TYPES[primary.workoutType].label}`:"No workout"}">
+   cells.push(`<button class="calendar-day ${primary?`status-${primary.status}`:""} ${extras.length?"has-extra-activity":""} ${key===localDateKey()?"today":""}" data-calendar-day="${key}" aria-label="${parseDateKey(key).toLocaleDateString(undefined,{month:"long",day:"numeric"})}, ${primary?`${V42_STATUS[primary.status].label}, ${V42_TYPES[primary.workoutType].label}`:"No planned workout"}${extras.length?`, ${extras.length} extra activity`:""}">
      <strong>${day}</strong>
      <span title="${primary?V42_STATUS[primary.status].label:"No workout"}">${primary?V42_STATUS[primary.status].icon:""}</span>
      <span title="${primary?V42_TYPES[primary.workoutType].label:"No workout"}">${primary?V42_TYPES[primary.workoutType].icon:""}</span>
      ${count>1?`<small>+${count-1}</small>`:""}
+     ${extras.length?`<i title="Extra activity" aria-hidden="true">＋</i>`:""}
    </button>`);
  }
- app.innerHTML=`<section class="card calendar-card">
+ app.innerHTML=`<button class="card extra-activity-launch calendar-extra-launch" id="calendarLogExtra"><span aria-hidden="true">＋</span><span><small>OUTSIDE YOUR PLAN</small><strong>Log Extra Activity</strong><em>Add cardio without changing the schedule</em></span><b aria-hidden="true">›</b></button><section class="card calendar-card">
    <span class="pill">WORKOUT CALENDAR</span>
    <div class="calendar-heading"><button class="calendar-arrow" id="previousMonth" aria-label="Previous month">‹</button><h2>${first.toLocaleDateString(undefined,{month:"long",year:"numeric"})}</h2><button class="calendar-arrow" id="nextMonth" aria-label="Next month">›</button></div>
    <div class="calendar-weekdays">${["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].map(day=>`<span>${day}</span>`).join("")}</div>
@@ -3621,6 +3912,7 @@ function calendar(){
    <div class="legend-grid">${Object.entries(V42_TYPES).filter(([key])=>key!=="rest").map(([key,item])=>`<button data-legend-kind="type" data-legend-key="${key}"><span>${item.icon}</span>${item.label}</button>`).join("")}</div>
  </section>`;
  document.querySelector("#previousMonth").onclick=()=>{base.setMonth(month-1);state.calendarMonth=localDateKey(base).slice(0,7);save();calendar()};
+ document.querySelector("#calendarLogExtra").onclick=()=>{extraActivityNotice="";extraActivityEntry();};
  document.querySelector("#nextMonth").onclick=()=>{base.setMonth(month+1);state.calendarMonth=localDateKey(base).slice(0,7);save();calendar()};
  document.querySelectorAll("[data-calendar-day]").forEach(button=>button.onclick=()=>openCalendarDay(button.dataset.calendarDay));
  document.querySelectorAll("[data-legend-kind]").forEach(button=>button.onclick=()=>explainCalendarItem(button.dataset.legendKind,button.dataset.legendKey));
@@ -3628,6 +3920,7 @@ function calendar(){
 }
 function openCalendarDay(key){
  const entries=sessionsForDate(key);
+ const extras=state.extraActivities.filter(item=>item.date===key);
  const todayKey=localDateKey();
  const isIncomplete=item=>!["completed","restDay"].includes(item.status);
  const isPastIncomplete=item=>item.scheduledDate<todayKey&&isIncomplete(item);
@@ -3643,7 +3936,7 @@ function openCalendarDay(key){
      ${item.plannedDate!==item.scheduledDate?`<p>Originally planned for ${parseDateKey(item.plannedDate).toLocaleDateString()}.</p>`:""}
      ${item.reason?`<p>Reason: ${V42_REASONS[item.reason]}</p>`:""}
      ${isStartable(item)?`<div class="recovery-actions"><button class="primary" data-start-calendar-workout="${item.id}">Start Workout</button>${isPastIncomplete(item)?`<button class="secondary" data-reschedule-recovery="${item.id}">Reschedule</button>`:""}</div>`:""}
-   </article>`).join("")}</div>`,dateLabel);
+   </article>`).join("")}${extras.map(item=>`<article class="calendar-extra-detail"><div class="calendar-detail-title"><span>＋</span><div><strong>${extraEscape(item.sourceActivityName||item.activityCategory)}</strong><small>Extra activity • ${extraEscape(item.source||"manual")}</small></div></div><p>${extraEscape(extraActivitySummary(item))}</p></article>`).join("")}${!entries.length&&!extras.length?'<p class="muted">No planned or extra activity recorded.</p>':""}</div>`,dateLabel);
  document.querySelectorAll("[data-start-calendar-workout]").forEach(button=>button.onclick=()=>{
    const session=state.workoutSessions.find(item=>item.id===button.dataset.startCalendarWorkout);
    if(!session)return;
