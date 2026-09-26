@@ -7,8 +7,8 @@ const payloads=require(path.join(root,"strava-strength-payload.js"));
 const sync=require(path.join(root,"strava-sync-state.js"));
 
 const mapped=identities.definitions.filter(item=>item.externalMappings.strava.exerciseType);
-assert.strictEqual(identities.definitions.length,41,"canonical identity coverage changed unexpectedly");
-assert.strictEqual(mapped.length,41,"every canonical exercise should have a reviewed Phase 1 mapping");
+assert.strictEqual(identities.definitions.length,42,"canonical identity coverage changed unexpectedly");
+assert.strictEqual(mapped.length,42,"every canonical exercise should have a reviewed Phase 1 mapping");
 mapped.forEach(item=>assert(
   identities.isSupportedStravaExerciseType(item.externalMappings.strava.exerciseType),
   `${item.name} uses a Strava token outside the canonical allowlist`
@@ -17,6 +17,8 @@ assert.strictEqual(identities.isSupportedStravaExerciseType("BENCH_PRES_TYPO"),f
 assert.strictEqual(identities.resolve("Cable Chest Press").id,"road12.press.cable-chest","legacy cable press identity was removed");
 assert.strictEqual(identities.resolve("Incline Cable Press").id,"road12.press.incline-cable","legacy incline press identity was removed");
 assert.strictEqual(identities.resolve("Smith Bulgarian Split Squat").id,"road12.lunge.smith-bulgarian","legacy split-squat alias was removed");
+assert.strictEqual(identities.resolve("Dumbbell Reverse Lunge").id,"road12.lunge.dumbbell-reverse");
+assert.strictEqual(identities.resolve("Dumbbell Reverse Lunge").externalMappings.strava.exerciseType,"DUMBBELL_REVERSE_LUNGE");
 
 const completedSet=(repetitions,weight,extra={})=>Object.assign({
   setType:"working",repetitions,weight,completed:true,skipped:false
@@ -66,6 +68,7 @@ assert.strictEqual(payloads.isSessionStravaEligible({...fullBodySession("Upper A
 
 assert.deepStrictEqual(payloads.normalizeExternalLoadLb(exercise("Smith Machine Squat",{mode:"total"},[]),{weight:100}),{loadLb:133,rule:"smith-total-plates-plus-bar"});
 assert.deepStrictEqual(payloads.normalizeExternalLoadLb(exercise("Dumbbell Romanian Deadlift",{mode:"total",paired:true},[]),{weight:50}),{loadLb:50,rule:"paired-dumbbells-combined"});
+assert.deepStrictEqual(payloads.normalizeExternalLoadLb(exercise("Dumbbell Reverse Lunge",{mode:"total",paired:true},[]),{weight:40}),{loadLb:40,rule:"paired-dumbbells-combined"});
 assert.deepStrictEqual(payloads.normalizeExternalLoadLb(exercise("Cable Shoulder Press",{mode:"dual"},[]),{weight:55}),{loadLb:110,rule:"dual-stack-combined"});
 assert.deepStrictEqual(payloads.normalizeExternalLoadLb(exercise("Cable Curl",{mode:"single"},[]),{weight:30}),{loadLb:30,rule:"single-stack"});
 assert.deepStrictEqual(payloads.normalizeExternalLoadLb(exercise("Standing Single-Leg Cable Hamstring Curl",{mode:"single"},[]),{weight:25}),{loadLb:25,rule:"single-stack"});

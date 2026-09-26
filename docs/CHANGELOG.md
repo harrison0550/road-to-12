@@ -14,6 +14,18 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Removed
 
+## [13.3.0] - 2026-09-26 (Build 2026.09.26.1)
+
+### Added
+
+- Added the supplied four-frame Dumbbell Reverse Lunge guide as offline primary media for the workout flow and Exercises section, plus regression coverage for Build prescriptions, combined paired-dumbbell load semantics, an independent progression baseline, historical Smith records, and Worker validation.
+
+### Changed
+
+- Replaced Smith Machine Single-Leg Squat in Build Lower A and Lower B with `road12.lunge.dumbbell-reverse`, prescribed at 2 × 8–12 per leg with 2–3 RIR. Existing Smith history and Foundation definitions remain unchanged.
+- Added Strava's documented `DUMBBELL_REVERSE_LUNGE` token to both the canonical client mapping and Worker allowlist while retaining strict activity-title and private-field boundaries.
+- Deployed maintenance build `2026.09.26.1`, rotated the offline caches, and deployed Cloudflare Worker version `c35bd4ed-64df-473d-aee0-585ff3406617` for the new Strava token.
+
 ## [13.3.0] - 2026-09-07 (Build 2026.09.07.2)
 
 ### Fixed

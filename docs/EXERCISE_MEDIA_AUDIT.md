@@ -6,7 +6,7 @@
 - Release target: version 13.2.0, build 2026.09.06.1
 - Active guided exercise names mapped: 63 of 63
 - Review-gated lower-ab Phase 2 names mapped: 3 of 3
-- Undeployed Build v1 exercise names mapped: 41 of 41 occurrences; 0 new assets required
+- Build v2 exercise names mapped: 41 of 41 occurrences; Dumbbell Reverse Lunge adds one supplied four-frame primary guide
 - Visible Library-only setup entries mapped: 1 of 1
 - Distinct reviewed movement animations: 61
 - New Road to 12% animations in the August 23 expansion: 13
@@ -14,7 +14,7 @@
 - Supplied static movement-sequence guides: 2
 - Offline cache targets: `road12-v13-2-71-shell` and `road12-v13-2-71-media`
 
-This audit covers the exercise names that can appear in the current Foundation A/B/C, Cardio + Mobility, Core + Recovery, and Zone 2 guided flows; all movements selected for the undeployed Build v1 A/B/C templates; the three explicitly approved movements gated behind the lower-ab Phase 2 review; and the Stationary Bike Setup entry visible only in the Exercise Library. Every Build v1 movement is an exact-name reuse of reviewed Foundation media, so Build adds no new visual asset. Upper / Lower and Hypertrophy / Definition remain out of scope.
+This audit covers the exercise names that can appear in the current Foundation A/B/C, Cardio + Mobility, Core + Recovery, and Zone 2 guided flows; all movements selected for the four-day Build templates; the three explicitly approved movements gated behind the lower-ab Phase 2 review; and the Stationary Bike Setup entry visible only in the Exercise Library. Dumbbell Reverse Lunge uses the supplied local four-frame composite at `assets/exercise-library/generated/dumbbell-reverse-lunge-sequence.png` in both the workout flow and Exercises section. Upper / Lower and Hypertrophy / Definition remain out of scope.
 
 ## Standing cable hamstring curl release
 

@@ -3,7 +3,7 @@
   if(typeof module!=="undefined"&&module.exports)module.exports=api;
   root.ROAD12_BUILD=api;
 })(typeof self!=="undefined"?self:globalThis,function(){
-  const VERSION="build-upper-lower-v1-2026-09-06";
+  const VERSION="build-upper-lower-v2-2026-09-26";
   const DEFAULT_RIR=Object.freeze([2,3]);
   const PRIORITY_GROUPS=Object.freeze(["chest","biceps","calves","core"]);
   const template=(id,name,planDay,emphasis,time,exercises)=>Object.freeze({id,name,planDay,emphasis,time,version:VERSION,exercises:Object.freeze(exercises.map(item=>Object.freeze(Object.assign({targetRirRange:DEFAULT_RIR},item))))});
@@ -25,7 +25,7 @@
       {name:"Smith Machine Squat",sets:4,reps:"8–12",rest:120,primaryGroup:"quads",purpose:"Primary quad compound."},
       {name:"Smith Machine Hip Thrust",sets:3,reps:"8–12",rest:120,primaryGroup:"glutes",purpose:"Stable glute loading."},
       {name:"Standing Single-Leg Cable Hamstring Curl",sets:2,reps:"10–15",rest:60,primaryGroup:"hamstrings",purpose:"Low-back-friendly hamstring work per leg."},
-      {name:"Smith Machine Single-Leg Squat",sets:2,reps:"8–12",rest:90,primaryGroup:"quads",purpose:"Supported unilateral quad work."},
+      {name:"Dumbbell Reverse Lunge",sets:2,reps:"8–12",rest:90,primaryGroup:"quads",purpose:"Controlled unilateral quad and glute work per leg."},
       {name:"Smith Machine Calf Raise",sets:4,reps:"8–12",rest:60,primaryGroup:"calves",purpose:"Priority calf work with full stretch and controlled eccentric."},
       {name:"Cable Crunch",sets:2,reps:"10–15",rest:60,primaryGroup:"core",purpose:"Progressive weighted abdominal flexion."},
       {name:"Lying Leg Raise",sets:2,reps:"10–15",rest:60,primaryGroup:"core",purpose:"Progressive lower-ab work with a controlled eccentric."},
@@ -48,7 +48,7 @@
       {name:"Smith Machine Hip Thrust",sets:3,reps:"8–12",rest:120,primaryGroup:"glutes",purpose:"Primary stable glute movement."},
       {name:"Standing Single-Leg Cable Hamstring Curl",sets:4,reps:"10–15",rest:60,primaryGroup:"hamstrings",purpose:"Primary direct hamstring work per leg."},
       {name:"Smith Machine Squat",sets:3,reps:"10–12",rest:120,primaryGroup:"quads",purpose:"Moderate-rep quad exposure."},
-      {name:"Smith Machine Single-Leg Squat",sets:2,reps:"10–12",rest:90,primaryGroup:"glutes",purpose:"Supported unilateral glute and quad work."},
+      {name:"Dumbbell Reverse Lunge",sets:2,reps:"8–12",rest:90,primaryGroup:"glutes",purpose:"Controlled unilateral glute and quad work per leg."},
       {name:"Smith Machine Calf Raise",sets:4,reps:"12–15",rest:60,primaryGroup:"calves",purpose:"Second priority calf exposure with controlled full range."},
       {name:"High to Low Cable Chop",sets:2,reps:"10–12",rest:60,primaryGroup:"core",purpose:"Progressive rotational abdominal work."},
       {name:"Reverse Crunch",sets:2,reps:"12–15",rest:60,primaryGroup:"core",purpose:"Progressive lower-ab pelvic-curl work."},
@@ -72,7 +72,7 @@
       item.exercises.filter(exercise=>exercise.sets).forEach(exercise=>{if(!exercise.reps||!exercise.rest||!exercise.primaryGroup)errors.push(`${item.name}: ${exercise.name} lacks a complete prescription.`);});
     });
     const names=values.flatMap(item=>item.exercises.map(exercise=>exercise.name));
-    ["GMWD Converging Chest Press","Seated Concentration Curl","Standing Single-Leg Cable Hamstring Curl"].forEach(name=>{if(!names.includes(name))errors.push(`Required exercise missing: ${name}.`);});
+    ["GMWD Converging Chest Press","Seated Concentration Curl","Standing Single-Leg Cable Hamstring Curl","Dumbbell Reverse Lunge"].forEach(name=>{if(!names.includes(name))errors.push(`Required exercise missing: ${name}.`);});
     const volume=weeklyPrimarySets(),expectedVolume={chest:12,back:12,shoulders:6,biceps:9,triceps:4,quads:9,glutes:8,hamstrings:6,calves:8,core:8};
     Object.entries(expectedVolume).forEach(([group,target])=>{if((volume[group]||0)!==target)errors.push(`${group} volume is ${volume[group]||0}; expected exactly ${target}.`);});
     return Object.freeze({valid:errors.length===0,errors:Object.freeze(errors),version:VERSION,weeklyPrimarySets:Object.freeze(volume)});

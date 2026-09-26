@@ -16,6 +16,13 @@ const validPayload=()=>({
 
 assert.equal(validateUploadPayload(validPayload()).valid,true);
 assert.equal(ALLOWED_EXERCISES.has("SMITH_MACHINE_SQUAT"),true);
+assert.equal(ALLOWED_EXERCISES.has("DUMBBELL_REVERSE_LUNGE"),true);
+for(const name of ["Upper A","Lower A","Upper B","Lower B"]){
+  const payload=validPayload();
+  payload.name=`Andy's Home Gym — ${name}`;
+  payload.file.sets[0].exercise_type="DUMBBELL_REVERSE_LUNGE";
+  assert.equal(validateUploadPayload(payload).valid,true,`${name} with Dumbbell Reverse Lunge must pass Worker validation`);
+}
 for(const mutation of [
   value=>{value.name="Road to 12% — Full Body A";},
   value=>{value.sportType="Run";},

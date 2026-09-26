@@ -19,7 +19,7 @@ const expected={
   ]},
   LOWER_A:{id:"build-lower-a",planDay:1,sets:19,exercises:[
     ["Smith Machine Squat",4,"8–12"],["Smith Machine Hip Thrust",3,"8–12"],["Standing Single-Leg Cable Hamstring Curl",2,"10–15"],
-    ["Smith Machine Single-Leg Squat",2,"8–12"],["Smith Machine Calf Raise",4,"8–12"],["Cable Crunch",2,"10–15"],["Lying Leg Raise",2,"10–15"]
+    ["Dumbbell Reverse Lunge",2,"8–12"],["Smith Machine Calf Raise",4,"8–12"],["Cable Crunch",2,"10–15"],["Lying Leg Raise",2,"10–15"]
   ]},
   UPPER_B:{id:"build-upper-b",planDay:3,sets:21,exercises:[
     ["Lat Pulldown",4,"8–12"],["Single Arm Cable Row",3,"8–12"],["Low-Incline Dumbbell Press",4,"10–15"],["Dumbbell Lateral Raise",2,"12–15"],
@@ -27,7 +27,7 @@ const expected={
   ]},
   LOWER_B:{id:"build-lower-b",planDay:4,sets:20,exercises:[
     ["Smith Machine Hip Thrust",3,"8–12"],["Standing Single-Leg Cable Hamstring Curl",4,"10–15"],["Smith Machine Squat",3,"10–12"],
-    ["Smith Machine Single-Leg Squat",2,"10–12"],["Smith Machine Calf Raise",4,"12–15"],["High to Low Cable Chop",2,"10–12"],["Reverse Crunch",2,"12–15"]
+    ["Dumbbell Reverse Lunge",2,"8–12"],["Smith Machine Calf Raise",4,"12–15"],["High to Low Cable Chop",2,"10–12"],["Reverse Crunch",2,"12–15"]
   ]}
 };
 

@@ -1,13 +1,13 @@
 const ALLOWED_EXERCISES=new Set([
   "BARBELL_HIP_THRUST_WITH_BENCH","BENCH_PRESS_GENERIC","CABLE_BICEPS_CURL","CABLE_CRUNCH","CABLE_HAMMER_CURL",
   "CABLE_LATERAL_RAISE","CABLE_REAR_DELT_FLY","CABLE_TRICEPS_PUSHDOWN","CHEST_PRESS","CRUNCH","DUMBBELL_FLOOR_PRESS",
-  "DUMBBELL_ROMANIAN_DEADLIFTS","FACE_PULL","GOBLET_SQUAT","HANGING_KNEE_RAISE","INCLINE_DUMBBELL_BENCH_PRESS",
+  "DUMBBELL_REVERSE_LUNGE","DUMBBELL_ROMANIAN_DEADLIFTS","FACE_PULL","GOBLET_SQUAT","HANGING_KNEE_RAISE","INCLINE_DUMBBELL_BENCH_PRESS",
   "KETTLEBELL_AROUND_THE_WORLD","KETTLEBELL_SWING","LATERAL_RAISE_GENERIC","LAT_PULLDOWN","LYING_STRAIGHT_LEG_RAISE",
   "MACHINE_INCLINE_CHEST_PRESS","PLANK_HOLD","ROMANIAN_DEADLIFTS","ROW_GENERIC","SEATED_CABLE_ROW","SHOULDER_PRESS_GENERIC",
   "SMITH_MACHINE_LUNGE","SMITH_MACHINE_SQUAT","STANDING_CALF_RAISE","STANDING_DUMBBELL_BICEPS_CURL","STANDING_LEG_CURL","STRAIGHT_ARM_PULLDOWN",
   "SUITCASE_CARRY","UP_TO_DOWN_CABLE_TWIST"
 ]);
-const PROHIBITED_KEYS=new Set(["bodyfat","bodyfatpercent","rir","repsinreserve","discomfort","formfeedback","progressionprescription","private","privatenotes","notes","coachingnotes","progressiondecision"]);
+const PROHIBITED_KEYS=new Set(["bodyfat","bodyfatgoal","bodyfatgoals","bodyfatpercent","rir","repsinreserve","pain","painnotes","discomfort","formfeedback","formnotes","progression","progressionprescription","private","privatenotes","notes","coachingnotes","progressiondecision"]);
 const normalizeKey=value=>String(value).replace(/[^a-z0-9]/gi,"").toLowerCase();
 export function hasProhibitedFields(value){
   if(!value||typeof value!=="object")return false;
@@ -21,7 +21,7 @@ export function validateUploadPayload(payload,{maxBytes=262144}={}){
   if(size>maxBytes)errors.push("Payload exceeds the 256 KB limit.");
   if(hasProhibitedFields(payload))errors.push("Payload contains a prohibited private field.");
   if(!/^road12-session-[A-Za-z0-9._:-]{1,120}$/.test(String(payload?.externalId||"")))errors.push("External ID is invalid.");
-  if(!/^Andy's Home Gym — Full Body [ABC]$/.test(String(payload?.name||"")))errors.push("Activity name is not allowed.");
+  if(!/^Andy's Home Gym — (?:Full Body [ABC]|(?:Upper|Lower) [AB])$/.test(String(payload?.name||"")))errors.push("Activity name is not allowed.");
   if(payload?.sportType!=="WeightTraining")errors.push("Only WeightTraining uploads are allowed.");
   if(payload?.dataType!=="json")errors.push("Only JSON uploads are allowed.");
   const file=payload?.file;

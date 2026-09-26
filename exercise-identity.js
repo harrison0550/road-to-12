@@ -15,6 +15,7 @@
     "LATERAL_RAISE_GENERIC","LAT_PULLDOWN","LYING_STRAIGHT_LEG_RAISE","MACHINE_INCLINE_CHEST_PRESS",
     "PLANK_HOLD","ROMANIAN_DEADLIFTS","ROW_GENERIC","SEATED_CABLE_ROW",
     "SHOULDER_PRESS_GENERIC","SMITH_MACHINE_LUNGE","SMITH_MACHINE_SQUAT",
+    "DUMBBELL_REVERSE_LUNGE",
     "STANDING_CALF_RAISE","STANDING_DUMBBELL_BICEPS_CURL","STRAIGHT_ARM_PULLDOWN",
     "STANDING_LEG_CURL","SUITCASE_CARRY","UP_TO_DOWN_CABLE_TWIST"
   ]);
@@ -35,6 +36,7 @@
     ["road12.curl.dumbbell-concentration","Seated Concentration Curl","STANDING_DUMBBELL_BICEPS_CURL",[]],
     ["road12.deadlift.smith-rdl","Smith Machine RDL","ROMANIAN_DEADLIFTS",[]],
     ["road12.lunge.smith-bulgarian","Smith Machine Single-Leg Squat","SMITH_MACHINE_LUNGE",["Smith Bulgarian Split Squat"]],
+    ["road12.lunge.dumbbell-reverse","Dumbbell Reverse Lunge","DUMBBELL_REVERSE_LUNGE",[]],
     ["road12.triceps.v-bar-pushdown","V-Bar Triceps Pushdown","CABLE_TRICEPS_PUSHDOWN",[]],
     ["road12.calf-raise.smith","Smith Machine Calf Raise","STANDING_CALF_RAISE",[]],
     ["road12.hip-thrust.smith","Smith Machine Hip Thrust","BARBELL_HIP_THRUST_WITH_BENCH",[]],

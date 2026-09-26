@@ -6,11 +6,11 @@ Read this file at the beginning of every Codex or engineering session. It is the
 
 - Product: Road to 12%
 - Version: 13.3.0
-- Build: 2026.09.07.2
-- Last updated: September 7, 2026
-- Service Worker cache: `road12-v13-3-73-shell`
-- Exercise media cache: `road12-v13-3-73-media`
-- Deployment status: targeted Home readiness navigation hotfix deployed for continued installed-PWA smoke testing; final release acceptance remains pending the manual checklist
+- Build: 2026.09.26.1
+- Last updated: September 26, 2026
+- Service Worker cache: `road12-v13-3-74-shell`
+- Exercise media cache: `road12-v13-3-74-media`
+- Deployment status: build `2026.09.26.1` and Cloudflare Worker `c35bd4ed-64df-473d-aee0-585ff3406617` deployed September 26, 2026
 - Runtime: static, client-only, offline-first PWA
 - Primary storage key: `road12v5`
 
@@ -81,7 +81,7 @@ See `KNOWN_BUGS.md` before diagnosing or fixing defects.
 
 ## Active sprint goals
 
-Build `2026.09.07.2` is the controlled production release for installed-PWA smoke testing. It includes the targeted Home-to-Progress readiness deep link on top of the approved four-day Build transition and Extra Activity/iFIT infrastructure under schema 21. Automatic phase activation, Strava autosync, cardio posting, read scopes, bulk history, and Phase 2B remain disabled. Final GO remains pending the installed-iPhone checklist.
+Build `2026.09.26.1` is the deployed maintenance release. Build Lower A and Lower B use Dumbbell Reverse Lunge with a separate canonical identity, new progression baseline, combined paired-dumbbell load entry, local four-frame media, and the documented Strava token. Historical Smith records remain unchanged. Cloudflare Worker version `c35bd4ed-64df-473d-aee0-585ff3406617` accepts that token. Automatic phase activation, Strava autosync, cardio posting, read scopes, bulk history, and Phase 2B remain disabled.
 
 Next recommended goals:
 

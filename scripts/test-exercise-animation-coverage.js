@@ -129,6 +129,7 @@ function generateLiveWorkouts(phaseId="foundation") {
     "behindBackCableCurlExercise",
     "seatedConcentrationCurlExercise",
     "fullBodyCWorkout",
+    "dumbbellReverseLungeExercise",
     "buildExerciseCatalog",
     "buildWorkoutForDay",
     "strengthWorkoutForDay",

@@ -195,7 +195,9 @@ function validateMediaFile(media, label, kind, missing, invalid) {
     } else if (entry.mediaType === "movement-sequence") {
       validateMediaFile(entry.media, `${label} guide`, "still", missing, invalid);
       requireListed(entry.media, `${label} guide`);
-      if (typeof entry.movementSequence !== "string" || !entry.movementSequence.trim()) {
+      if (entry.compositeMovementSequence === true) {
+        if (entry.movementSequence) invalid.push(`${label}: composite movement sequence must use the primary guide asset only`);
+      } else if (typeof entry.movementSequence !== "string" || !entry.movementSequence.trim()) {
         invalid.push(`${label}: movement-sequence media must provide a movementSequence asset`);
       } else {
         validateMediaFile(entry.movementSequence, `${label} movement sequence`, "still", missing, invalid);

@@ -3552,13 +3552,45 @@ function fullBodyCWorkout(includeHipThrust=true,includeLowInclinePress=true,useC
   ];
 }
 
+function dumbbellReverseLungeExercise(){
+  return Object.assign(cloneExerciseByName("Goblet Squat"),{
+    name:"Dumbbell Reverse Lunge",type:"strength",sets:2,reps:"8–12",rest:90,unilateral:true,
+    muscles:"Quads, glutes, hamstrings, adductors and core stability",
+    setup:[
+      "Hold a matched dumbbell in each hand with both arms relaxed at your sides",
+      "Stand tall with feet about hip-width apart",
+      "Keep the front foot fully planted before beginning each repetition",
+      "Optional support: hold one dumbbell in one hand and lightly hold the M1 upright with the other"
+    ],
+    steps:[
+      "Step one foot backward while keeping the front foot fully planted.",
+      "Lower under control to a comfortable depth.",
+      "Let the front knee track naturally over the toes.",
+      "Push through the front foot to return to standing.",
+      "Complete the prescribed repetitions, then switch legs."
+    ],
+    cues:[
+      "Stay tall and keep the front foot planted.",
+      "Control the backward step and lowering phase.",
+      "Do not force depth if the knee feels uncomfortable."
+    ],
+    why:"Provides unilateral quad and glute work with an independent baseline and a stable, knee-comfortable range.",
+    weightRecommendation:"Treat the first session as a new baseline. Choose a matched dumbbell pair that leaves 2 to 3 reps in reserve on each leg.",
+    targetRirRange:[2,3],progressionRirRange:[2,3],progressionModel:"double-progression",minimumProgressionExposures:2,
+    requires:["dumbbells"],substituteId:null,attachmentCard:null,m1:null,
+    weightEntry:{mode:"total",paired:true,label:"Combined dumbbell weight",help:"Enter the combined total weight of both dumbbells. Example: two 20 lb dumbbells = 40 lb total."},
+    correctedGuide:null,demoImage:"assets/exercise-library/generated/dumbbell-reverse-lunge-sequence.png"
+  });
+}
+
 function buildExerciseCatalog(){
  const definitions=[
    ...fullBodyAWorkout(),
    ...fullBodyBWorkout(false,true,true),
    ...fullBodyCWorkout(true,true,true),
    ...lowerAbsProgramExercises(1),
-   ...[0,2,4].flatMap(day=>[dumbbellAccessoryForDay(day,true),armAccessoryForDay(day)].filter(Boolean))
+   ...[0,2,4].flatMap(day=>[dumbbellAccessoryForDay(day,true),armAccessoryForDay(day)].filter(Boolean)),
+   dumbbellReverseLungeExercise()
  ];
  return new Map(definitions.map(exercise=>[exercise.name,exercise]));
 }

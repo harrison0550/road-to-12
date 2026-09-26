@@ -2,6 +2,8 @@
 
 This Cloudflare Worker is the only trusted boundary for the manual Strava proof of concept. The static PWA never receives the Strava client secret, access token, or refresh token.
 
+The upload contract allowlist includes Strava's documented `DUMBBELL_REVERSE_LUNGE` token and exact Foundation/Build activity titles. Any contract change requires a Worker redeploy before the client can upload sets that use the new token.
+
 ## Resources
 
 - Cloudflare Worker `road12-strava-phase2a`, deployed at `https://road12-strava-phase2a.homegym-sync.workers.dev`.

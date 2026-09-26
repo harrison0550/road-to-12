@@ -4,6 +4,7 @@ This file contains implementation-ready work. Move completed user-visible work t
 
 ## High priority
 
+- [x] Replace the active Build Lower A/B Smith single-leg squat with Dumbbell Reverse Lunge, preserve Smith history, add the supplied guide and documented Strava token, validate client/Worker privacy boundaries, and deploy build `2026.09.26.1` plus Worker version `c35bd4ed-64df-473d-aee0-585ff3406617`.
 - [x] Complete the Strava compliance deployment gate in `STRAVA_COMPLIANCE.md`: deploy disclosure, complete deletion, support, retention, backup, rate-limit, and AI-boundary changes; verify live D1/local deletion and backup anti-resurrection with the connected pilot account; re-audit before the first upload.
 - [x] Validate and implement the Foundation readiness weighting and explicit eligibility gates against qualified post-phase A/B/C history.
 - [x] Add the Phase 2 Build milestone review/acceptance shell with a template-validation gate; Start Build is available only after validated templates, live eligibility, and explicit acceptance.

@@ -85,6 +85,25 @@
       equipment: ["Two 15 lb dumbbells"],
       commonMistakes: ["Turning the hinge into a squat", "Rounding the back", "Letting the weights drift forward", "Leaning backward at the finish"]
     }),
+    "Dumbbell Reverse Lunge": {
+      slug: "dumbbell-reverse-lunge",
+      sourceType: "app-original",
+      provider: "Road to 12%",
+      providerUrl: "",
+      author: "Road to 12%",
+      sourceExercise: "Paired-dumbbell reverse lunge",
+      media: "assets/exercise-library/generated/dumbbell-reverse-lunge-sequence.png",
+      mediaAlt: "Four-frame movement sequence showing the Road to 12% trainer hold dumbbells at the sides, step one foot backward, lower under control with the front foot planted, and return to a tall stance",
+      movementSequenceAlt: "Four ordered positions for a dumbbell reverse lunge from a hip-width stance through the backward step and controlled lowering phase to the standing finish",
+      mediaType: "movement-sequence",
+      compositeMovementSequence: true,
+      reviewedOn: mediaReviewDate,
+      primaryMuscles: ["Quads", "Glutes"],
+      secondaryMuscles: ["Hamstrings", "Adductors", "Core and stability"],
+      equipment: ["Matched dumbbell pair", "Optional RitFit M1 upright for light balance support"],
+      commonMistakes: ["Stepping too narrowly", "Letting the front foot lift", "Forcing uncomfortable depth", "Pushing from the rear foot", "Losing a tall torso"],
+      rightsNote: "App-created four-frame movement sequence supplied for Road to 12%. Written setup and movement cues remain the authoritative coaching guide."
+    },
     "Standing Single-Leg Cable Hamstring Curl": {
       slug: "standing-single-leg-cable-hamstring-curl",
       sourceType: "app-original",
