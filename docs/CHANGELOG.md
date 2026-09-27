@@ -8,6 +8,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Exercise Media Library v2
 
+- Fixed Safari muscle-map rendering by replacing nested raster references with self-contained native SVG anatomy and semantic muscle groups.
 - Replaced the draft geometric muscle silhouettes with reusable detailed front/back anatomical plates, retained semantic SVG region overlays, and reduced the legend so the anatomy remains visually dominant.
 - Approved and activated the app-original Smith Machine Bench Press v2 poster, sequence, WebP animation, and MP4 animation with offline cache coverage and v1 fallback retained.
 - Added a canonical-ID v2 registry and separate planned/approved media manifest for twelve Build pilot exercises while preserving v1 fallback for every unapproved record.
