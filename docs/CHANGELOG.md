@@ -8,6 +8,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Exercise Media Library v2
 
+- Deployed build `2026.09.27.3` with neon-green full-muscle primary highlights, pink secondary highlights, Safari-safe SVG color inheritance, and cache generation 86.
+
+- Updated muscle-map emphasis to neon green for primary regions and lower-opacity pink for secondary regions.
 - Fixed Safari muscle-map rendering by replacing nested raster references with self-contained native SVG anatomy and semantic muscle groups.
 - Replaced the draft geometric muscle silhouettes with reusable detailed front/back anatomical plates, retained semantic SVG region overlays, and reduced the legend so the anatomy remains visually dominant.
 - Approved and activated the app-original Smith Machine Bench Press v2 poster, sequence, WebP animation, and MP4 animation with offline cache coverage and v1 fallback retained.

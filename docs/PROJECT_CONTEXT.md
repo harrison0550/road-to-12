@@ -6,11 +6,11 @@ Read this file at the beginning of every Codex or engineering session. It is the
 
 - Product: Road to 12%
 - Version: 13.3.0
-- Build: 2026.09.27.2
+- Build: 2026.09.27.3
 - Last updated: September 27, 2026
-- Service Worker cache: `road12-v13-3-85-shell`
-- Exercise media cache: `road12-v13-3-85-media`
-- Deployment status: build `2026.09.27.2` deploys Safari-safe native anatomical SVG maps for Smith Machine Bench Press; Cloudflare Worker remains `efdc2eff-4ab6-4226-bf7f-c08b61a6b679`
+- Service Worker cache: `road12-v13-3-86-shell`
+- Exercise media cache: `road12-v13-3-86-media`
+- Deployment status: build `2026.09.27.3` deploys neon-green primary and pink secondary semantic muscle highlights for Smith Machine Bench Press; Cloudflare Worker remains `efdc2eff-4ab6-4226-bf7f-c08b61a6b679`
 - Runtime: static, client-only, offline-first PWA
 - Primary storage key: `road12v5`
 

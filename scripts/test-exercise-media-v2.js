@@ -68,7 +68,13 @@ const back=fs.readFileSync(path.join(root,"assets/exercise-library/v2/shared/mus
 assert.match(app,/function muscleHighlightMarkup\(ex\)/);
 assert.match(app,/EXERCISE_MEDIA_V2\?\.resolve/);
 assert.match(css,/\.muscle-region\.primary\{[^}]*opacity:1/);
-assert.match(css,/\.muscle-region\.secondary\{[^}]*opacity:\.64/);
+assert.match(css,/\.muscle-region\.primary\{[^}]*fill:#39ff14/);
+assert.match(css,/\.muscle-region\.primary\{[^}]*color:#39ff14/);
+assert.match(css,/\.muscle-region\.secondary\{[^}]*fill:#ff5ca8[^}]*opacity:\.68/);
+assert.match(front,/<g id="muscle-chest" fill="currentColor">/);
+assert.match(back,/<g id="muscle-triceps" fill="currentColor">/);
+assert.match(css,/\.legend-primary\{color:#39ff14\}/);
+assert.match(css,/\.legend-secondary\{color:#ff5ca8\}/);
 assert.match(front,/Native vector anatomy derived from the approved Road to 12% Smith Machine Bench Press guide/);
 assert.match(back,/Native vector anatomy derived from the approved Road to 12% Smith Machine Bench Press guide/);
 assert.doesNotMatch(front,/<image\b/,"front anatomy SVG must be self-contained native vector artwork");
