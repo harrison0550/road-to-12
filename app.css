@@ -2570,7 +2570,18 @@ input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-vis
 .adaptive-profile-card,.history-protection-card,.body-measurements-import-card{border-top:3px solid var(--color-blue-primary)}
 .backup-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--space-3)}
 .import-label{display:grid;place-items:center;min-height:48px;text-align:center}
+.recovery-backup-card{border-color:var(--color-blue-primary);box-shadow:0 0 0 1px color-mix(in srgb,var(--color-blue-primary) 22%,transparent),var(--shadow-card)}
+.restore-backup-action{display:flex;align-items:center;justify-content:center;min-height:48px;cursor:pointer;text-align:center}
+.restore-preview-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--space-3);margin:var(--space-4) 0}
+.restore-preview-grid div{padding:var(--space-3);border:1px solid var(--color-border);border-radius:var(--radius-md);background:var(--color-surface-muted)}
+.restore-preview-grid dt{color:var(--color-text-muted);font-size:var(--font-size-xs);font-weight:800;letter-spacing:.06em;text-transform:uppercase}
+.restore-preview-grid dd{margin:var(--space-1) 0 0;color:var(--color-text-primary);font-weight:800}
+.restore-safety-step,.restore-confirm-step{margin:var(--space-4) 0;padding:var(--space-4);border:1px solid var(--color-border);border-radius:var(--radius-md);background:var(--color-surface-muted)}
+.restore-safety-step h3,.restore-confirm-step h3{margin-top:0;color:var(--color-blue-secondary)}
+.restore-safety-status{min-height:1.4em;margin-bottom:0;color:var(--color-success);font-weight:700}
+.restore-confirm-step .primary{width:100%;margin-top:var(--space-3)}
 @media(max-width:370px){.backup-actions{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:370px){.restore-preview-grid{grid-template-columns:minmax(0,1fr)}}
 
 /* Phase 2.6 — Extra Activity */
 .extra-activity-entry,.extra-activity-review{border-top:3px solid var(--color-gold)}

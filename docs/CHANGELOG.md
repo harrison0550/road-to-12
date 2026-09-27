@@ -6,6 +6,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+### Data recovery
+
+- Deployed build `2026.09.27.5` with a prominent Profile / Data & Backup recovery action that validates schema-21 Road to 12% JSON backups, previews export date, session count, date range, and phase, requires a current-store safety export and explicit confirmation, then replaces rather than merges the fresh store.
+- Added recovery regression coverage for a 49-session Build / Phase 2 backup with calendar and measurement records while preserving schema, scheduling, templates, progression, Strava, and completed-history behavior.
+
 ### App identity
 
 - Deployed build `2026.09.27.4` with the approved blue mountain and `12%` icon system for iPhone Home Screen, PWA, maskable, and favicon surfaces, including offline cache coverage.

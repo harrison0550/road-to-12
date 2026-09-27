@@ -17,6 +17,15 @@ No confirmed production behavior defects are currently documented.
 
 ## Resolved
 
+### BUG-028 — Profile does not expose backup recovery
+
+- Status: Resolved in v13.3.0 build 2026.09.27.5
+- Severity: Critical
+- Area: Profile / Data Recovery
+- Report: After an installed-PWA storage namespace loss, the valid schema-21 backup could not be restored from an obvious Profile action; the older Progress importer also merged immediately without a preview or safety export.
+- Resolution: Profile now exposes Restore Backup, validates current Road to 12% format and schema metadata, previews recovery contents, requires a safety export and explicit replacement confirmation, writes the validated backup without merging, and reloads from the restored store.
+- Regression tests: `scripts/test-backup-recovery-ui.js`, `scripts/test-backup-restore.js`, `scripts/test-body-measurements.js`
+
 ### BUG-027 — Home readiness card does not open Training readiness
 
 - Status: Resolved in v13.3.0 build 2026.09.07.2

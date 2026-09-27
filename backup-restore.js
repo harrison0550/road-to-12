@@ -84,6 +84,35 @@
     if(incoming.stravaPilotApproval!==undefined&&incoming.stravaPilotApproval!==null&&(!isObject(incoming.stravaPilotApproval)||typeof incoming.stravaPilotApproval.sessionId!=="string"))throw new Error("Backup Strava pilot approval is invalid.");
     return {modern,schema,state:clone(incoming)};
   }
+  function restorePreview(payload,currentSchemaVersion){
+    const validated=validate(payload,currentSchemaVersion);
+    if(!validated.modern)throw new Error("Choose a current Road to 12% backup with format metadata.");
+    if(payload.format!==FORMAT)throw new Error("This file uses an unknown backup format.");
+    if(payload.formatVersion!==FORMAT_VERSION)throw new Error("This backup format is not supported by this version of Road to 12%.");
+    if(!Number.isInteger(Number(payload.schemaVersion)))throw new Error("Backup schema metadata is missing or invalid.");
+    const sessionDates=validated.state.history.map(session=>session.completedAt||session.startedAt||session.dateKey||session.date)
+      .map(value=>({value,time:new Date(value).getTime()}))
+      .filter(item=>item.value&&Number.isFinite(item.time))
+      .sort((a,b)=>a.time-b.time);
+    const phaseId=String(validated.state.trainingPhase?.id||"unknown").toLowerCase();
+    const phaseLabel=phaseId==="build"?"Build / Phase 2":phaseId==="foundation"?"Foundation / Phase 1":validated.state.trainingPhase?.id||"Not recorded";
+    return {
+      validated,
+      exportedAt:payload.exportedAt,
+      sessionCount:validated.state.history.length,
+      firstSessionAt:sessionDates[0]?.value||null,
+      lastSessionAt:sessionDates.at(-1)?.value||null,
+      phaseId,
+      phaseLabel,
+      calendarEntryCount:(validated.state.workoutSessions||[]).length,
+      measurementCount:(validated.state.bodyMeasurements||[]).length||(validated.state.measurementHistory||[]).length
+    };
+  }
+  function replace(incoming){
+    const next={};
+    STATE_KEYS.forEach(key=>{if(incoming?.[key]!==undefined)next[key]=clone(incoming[key]);});
+    return stravaData?.enforce?stravaData.enforce(next,next.stravaDeletion):next;
+  }
   function mergeBy(itemsA=[],itemsB=[],identity){
     const map=new Map();
     [...itemsA,...itemsB].forEach((item,index)=>{if(isObject(item))map.set(identity(item,index),clone(item));});
@@ -133,5 +162,5 @@
     if(stravaData?.newestMarker)next.stravaDeletion=stravaData.newestMarker(current.stravaDeletion,source.stravaDeletion);
     return stravaData?.enforce?stravaData.enforce(next,next.stravaDeletion):next;
   }
-  return Object.freeze({FORMAT,FORMAT_VERSION,STATE_KEYS,create,validate,merge});
+  return Object.freeze({FORMAT,FORMAT_VERSION,STATE_KEYS,create,validate,restorePreview,replace,merge});
 });

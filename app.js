@@ -1575,6 +1575,27 @@ async function refreshStravaProfileCard(){
    document.querySelector("#retryStravaStatus")?.addEventListener("click",refreshStravaProfileCard);
  }
 }
+function backupRecoveryMarkup(){
+ return `<section class="card history-protection-card recovery-backup-card" aria-labelledby="recoveryBackupTitle">
+   <div class="section-title-row">
+     <div><small>DATA &amp; BACKUP</small><h2 id="recoveryBackupTitle">Protect and restore your history</h2></div>
+     <span class="history-total">${state.history.length} saved</span>
+   </div>
+   <p>Restore a Road to 12% JSON backup after reviewing its history and phase. Your current data must be downloaded first.</p>
+   <div class="backup-actions">
+     <button class="secondary" data-export-backup type="button">Export backup</button>
+     <label class="primary import-label restore-backup-action">Restore Backup<input data-restore-backup type="file" accept="application/json,.json"></label>
+   </div>
+ </section>`;
+}
+function bindBackupRecoveryActions(){
+ document.querySelectorAll("[data-export-backup]").forEach(button=>button.onclick=()=>exportV1131Backup());
+ document.querySelectorAll("[data-restore-backup]").forEach(input=>input.onchange=event=>{
+   const file=event.target.files?.[0];
+   event.target.value="";
+   if(file)previewBackupRestore(file);
+ });
+}
 function equipment(){
  const profile=state.trainingProfile;
  const items=[
@@ -1601,6 +1622,7 @@ function equipment(){
  ];
  app.innerHTML=`<section class="card"><h2>Profile</h2><label>What should the app call you?<input id="preferredName" value="${state.preferredName}" autocomplete="given-name"></label><button class="secondary profile-save" id="saveProfile">Save name</button></section>
  ${stravaProfileMarkup()}
+ ${backupRecoveryMarkup()}
  <section class="card adaptive-profile-card" aria-labelledby="trainingProfileTitle"><span class="pill">TRAINING PROFILE</span><h2 id="trainingProfileTitle">Foundation context</h2><p class="muted">These details provide context for future progression. They remain on this device and never change the current phase automatically.</p>
    <div class="adaptive-profile-grid">
      <label>Age<input id="profileAge" type="number" inputmode="numeric" min="18" max="100" value="${profile.age||""}"></label>
@@ -1631,6 +1653,7 @@ function equipment(){
  document.querySelector("#equipmentWorkout").onclick=()=>{startNewSession();setTab("workout")};
  document.querySelector("#imageLicenses").onclick=imageLicenses;
  document.querySelector("#stravaPrivacy").onclick=openStravaPrivacy;
+ bindBackupRecoveryActions();
  refreshStravaProfileCard();
 }
 function saveAttachmentPhoto(key,file){
@@ -2197,36 +2220,71 @@ function repairFalseActiveWorkout(){
  }
  localStorage.setItem(key,"1");
 }
-function exportV1131Backup(){
+function exportV1131Backup(filename=`road-to-12-backup-${localDateKey()}.json`){
  const payload=window.ROAD12_BACKUP.create(APP_META,state,ROAD12_SCHEMA_VERSION);
  const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});
  const url=URL.createObjectURL(blob);
  const a=document.createElement("a");
  a.href=url;
- a.download=`road-to-12-backup-${localDateKey()}.json`;
+ a.download=filename;
  document.body.appendChild(a);
  a.click();
  a.remove();
  setTimeout(()=>URL.revokeObjectURL(url),1000);
+ return payload;
 }
-function importV1131Backup(file){
+function backupPreviewDate(value){
+ if(!value)return "Not recorded";
+ const date=new Date(value);
+ return Number.isFinite(date.getTime())?date.toLocaleDateString(undefined,{month:"short",day:"numeric",year:"numeric"}):String(value);
+}
+function previewBackupRestore(file){
  const reader=new FileReader();
  reader.onload=()=>{
    try{
      const payload=JSON.parse(reader.result);
-     const validated=window.ROAD12_BACKUP.validate(payload,ROAD12_SCHEMA_VERSION);
-     const restored=road12Storage.migrate(window.ROAD12_BACKUP.merge(state,validated.state));
-     if(restored.trainingProfile)restored.trainingProfile=window.ROAD12_ADAPTIVE.normalizeProfile(restored.trainingProfile);
-     Object.keys(state).forEach(key=>delete state[key]);
-     Object.assign(state,restored);
-     save();
-     alert(`Backup imported from ${payload.appVersion||payload.version||"an earlier version"}. ${state.history.length} workout${state.history.length===1?"":"s"} available.`);
-     state.historyView=null;
-     progress();
+     const preview=window.ROAD12_BACKUP.restorePreview(payload,ROAD12_SCHEMA_VERSION);
+     const dateRange=preview.firstSessionAt&&preview.lastSessionAt
+       ?`${backupPreviewDate(preview.firstSessionAt)} – ${backupPreviewDate(preview.lastSessionAt)}`
+       :"No completed-session dates";
+     const dialog=v42Dialog(`<span class="pill">RESTORE PREVIEW</span><h2>Review backup before restoring</h2>
+       <p class="muted">Selected file: ${escapeAdaptiveText(file.name)}</p>
+       <dl class="restore-preview-grid">
+         <div><dt>Exported</dt><dd>${escapeAdaptiveText(backupPreviewDate(preview.exportedAt))}</dd></div>
+         <div><dt>Sessions</dt><dd>${preview.sessionCount}</dd></div>
+         <div><dt>Date range</dt><dd>${escapeAdaptiveText(dateRange)}</dd></div>
+         <div><dt>Current phase</dt><dd>${escapeAdaptiveText(preview.phaseLabel)}</dd></div>
+       </dl>
+       <section class="restore-safety-step"><h3>1. Save current data</h3><p>Download the current store before replacing it. The restore button unlocks after the safety backup starts.</p><button class="secondary" id="savePreRestoreBackup" type="button">Download safety backup</button><p class="restore-safety-status" id="restoreSafetyStatus" role="status"></p></section>
+       <section class="restore-confirm-step"><h3>2. Confirm replacement</h3><label class="adaptive-check"><input id="confirmBackupReplacement" type="checkbox"><span>I understand this replaces the current store with the selected backup. It will not merge the two.</span></label><button class="primary" id="confirmBackupRestore" type="button" disabled>Restore selected backup</button></section>
+       <button class="secondary" id="cancelBackupRestore" type="button">Cancel</button>`,`Restore backup`,{showClose:false});
+     const restoreButton=dialog.querySelector("#confirmBackupRestore"),confirmation=dialog.querySelector("#confirmBackupReplacement");
+     let safetySaved=false;
+     const updateRestoreAvailability=()=>{restoreButton.disabled=!(safetySaved&&confirmation.checked)};
+     confirmation.onchange=updateRestoreAvailability;
+     dialog.querySelector("#savePreRestoreBackup").onclick=event=>{
+       const stamp=new Date().toISOString().replace(/[:.]/g,"-");
+       exportV1131Backup(`road-to-12-safety-before-restore-${stamp}.json`);
+       safetySaved=true;
+       event.currentTarget.textContent="Safety backup downloaded ✓";
+       event.currentTarget.disabled=true;
+       dialog.querySelector("#restoreSafetyStatus").textContent="Current data backup started. Keep that downloaded file.";
+       updateRestoreAvailability();
+     };
+     dialog.querySelector("#cancelBackupRestore").onclick=closeV42Dialog;
+     restoreButton.onclick=()=>{
+       if(!safetySaved||!confirmation.checked)return;
+       const restored=road12Storage.migrate(window.ROAD12_BACKUP.replace(preview.validated.state));
+       if(!road12Storage.write(restored))throw new Error("This device could not save the restored backup. The current store was not replaced.");
+       closeV42Dialog();
+       alert(`Restore complete: ${restored.history.length} sessions, ${preview.phaseLabel}, ${preview.calendarEntryCount} calendar entries, and ${preview.measurementCount} measurements. Road to 12% will now reload.`);
+       location.reload();
+     };
    }catch(error){
-     alert(`Could not import backup: ${error.message}`);
+     alert(`Could not restore backup: ${error.message}`);
    }
  };
+ reader.onerror=()=>alert("Could not restore backup: the selected file could not be read.");
  reader.readAsText(file);
 }
 
@@ -2596,8 +2654,8 @@ function progress(){
    </div>
    <p>Export a backup before changing repositories, domains or installed app locations.</p>
    <div class="backup-actions">
-     <button class="secondary" id="exportHistory">Export backup</button>
-     <label class="secondary import-label">Import backup<input id="importHistory" type="file" accept="application/json,.json"></label>
+     <button class="secondary" data-export-backup type="button">Export backup</button>
+     <label class="primary import-label restore-backup-action">Restore Backup<input data-restore-backup type="file" accept="application/json,.json"></label>
    </div>
  </section>`)}
 
@@ -2670,11 +2728,7 @@ function progress(){
  };
  document.querySelector("#restoreRecommendedWeights")?.addEventListener("click",()=>resolveWeightHistory("restore"));
  document.querySelector("#keepRecordedWeights")?.addEventListener("click",()=>resolveWeightHistory("keep"));
- document.querySelector("#exportHistory").onclick=exportV1131Backup;
- document.querySelector("#importHistory").onchange=e=>{
-   const file=e.target.files?.[0];
-   if(file)importV1131Backup(file);
- };
+ bindBackupRecoveryActions();
  document.querySelectorAll("[data-history]").forEach(button=>{
    button.onclick=()=>{
      state.historyView=button.dataset.history;

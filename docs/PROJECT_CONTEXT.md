@@ -6,11 +6,11 @@ Read this file at the beginning of every Codex or engineering session. It is the
 
 - Product: Road to 12%
 - Version: 13.3.0
-- Build: 2026.09.27.4
+- Build: 2026.09.27.5
 - Last updated: September 27, 2026
-- Service Worker cache: `road12-v13-3-87-shell`
-- Exercise media cache: `road12-v13-3-87-media`
-- Deployment status: build `2026.09.27.4` deploys the blue mountain PWA icon system for iPhone, manifest, maskable, and favicon surfaces; Cloudflare Worker remains `efdc2eff-4ab6-4226-bf7f-c08b61a6b679`
+- Service Worker cache: `road12-v13-3-88-shell`
+- Exercise media cache: `road12-v13-3-88-media`
+- Deployment status: build `2026.09.27.5` adds the urgent Profile backup-recovery flow with validated preview, mandatory safety export, explicit confirmation, and full-store replacement; schema remains 21 and Cloudflare Worker remains `efdc2eff-4ab6-4226-bf7f-c08b61a6b679`
 - Runtime: static, client-only, offline-first PWA
 - Primary storage key: `road12v5`
 
@@ -22,7 +22,7 @@ Read this file at the beginning of every Codex or engineering session. It is the
 - `adaptive-coaching.js` owns pure phase-readiness and exercise-progression projections without mutating workout definitions.
 - `build-upper-lower-program.js` is the only production Build module. It owns the approved four-day Upper/Lower templates, validation, and pure future-schedule activation projection. It cannot activate without validated templates and explicit eligible-user acceptance, and it anchors midweek acceptance to the next intact unresolved Monday. The obsolete three-day prototype is not loaded or cached.
 - `workout-prescriptions.js` captures an approved target into the next matching session and classifies the completed prescription outcome without mutating Foundation definitions.
-- `backup-restore.js` owns versioned backup creation, untrusted-input validation, and compatibility-preserving merge rules.
+- `backup-restore.js` owns versioned backup creation, untrusted-input validation, compatibility-preserving merge rules, and the explicit validated full-store recovery replacement path.
 - `body-measurements.js` owns the canonical timestamped body-measurement model, source adapters, current-value derivation, rolling averages, and trend calculations.
 - `extra-activity.js` owns unscheduled manual/iFIT activity normalization, validation, duplicate detection, stable identity, and screenshot-free backup records. The Worker screenshot adapter uses constrained labeled plain text rather than JSON Mode, returns incomplete reads for editable manual completion, and never persists image bytes or raw model output. Extra Activity never alters the planned schedule or qualifies for Strava posting.
 - `wyze-xlsx-import.js` owns pure Wyze XLSX header discovery, local-time/unit/null parsing, review status, deterministic deduplication, and confirmed enrichment; the vendored XLSX reader is part of the offline shell.
