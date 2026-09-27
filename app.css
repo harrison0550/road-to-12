@@ -2594,3 +2594,16 @@ input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-vis
 .strava-sync-result.processing{border-color:var(--color-blue-primary);background:rgba(77,156,255,.09)}
 .strava-sync-result.failed{border-color:var(--color-error);background:#271018}
 .strava-payload-details{border-color:var(--color-border);background:#07101a}.strava-payload-details summary{color:var(--color-blue-secondary)}
+
+/* Phase 2.8 — remove remaining legacy brand-red interaction accents */
+.preview-exercise-list li{border-color:var(--color-border);background:#0b1420}
+.preview-exercise-list .preview-exercise-button:hover,.preview-exercise-list .preview-exercise-button:focus-visible{background:rgba(77,156,255,.09)}
+.preview-exercise-list .preview-exercise-button:focus-visible{outline-color:var(--color-focus);outline-offset:-3px}
+.preview-exercise-list li span{background:rgba(77,156,255,.13);color:var(--color-blue-primary)}
+.preview-exercise-list li b{color:var(--color-blue-primary)}
+.setup-section .section-number,.section-heading>span,.setup-route>div>span,.sequence-step>span{background:var(--color-blue-primary);color:#06111f}
+.setup-section small,.section-heading small,.sequence-step>strong,.performance-index,.exercise-feedback>div small{color:var(--color-blue-secondary)}
+.guide-actions button.primary-guide,.open-video-button,.is-motion-playing .motion-controls .secondary{border-color:var(--color-blue-primary);background:rgba(77,156,255,.12);color:var(--color-text-primary)}
+.photo-button,.native-file-picker{background:linear-gradient(135deg,#2e83ec,#175bb5);color:#fff}
+.native-file-picker:focus-within,.phase-readiness-card[data-readiness-link]:focus-visible,.progress-disclosure summary:focus-visible,.compact-progress-details summary:focus-visible{outline:3px solid var(--color-focus);outline-offset:3px}
+.compact-progress-details[open]>summary,.progress-disclosure>summary>b,.session-metric-icon{color:var(--color-blue-secondary)}
