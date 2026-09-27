@@ -1,5 +1,13 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-<rect width="512" height="512" rx="108" fill="#090b0e"/>
-<path d="M88 170h64v172H88zm272 0h64v172h-64zM152 226h208v60H152z" fill="#ef444b"/>
-<text x="256" y="422" text-anchor="middle" fill="#fff" font-family="Arial,Helvetica,sans-serif" font-size="74" font-weight="700">12%</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-labelledby="title desc">
+  <title id="title">Road to 12% app icon</title>
+  <desc id="desc">Blue mountain peaks above a rising trail and the number twelve percent on a dark navy background.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#051022"/><stop offset="1" stop-color="#062245"/></linearGradient>
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="18" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs>
+  <rect width="1024" height="1024" fill="url(#bg)"/>
+  <path d="M86 455 275 278l91 99 140-203 115 161 69-70 248 190" fill="none" stroke="#5bb2ff" stroke-width="34" stroke-linecap="square" stroke-linejoin="round" filter="url(#glow)"/>
+  <path d="m470 230 36-56 49 69-29-15-22 32z" fill="#e1f3ff"/>
+  <path d="m310 495 85-48 77 22 81-49 69 23 84-55" fill="none" stroke="#22d3ee" stroke-width="13"/>
+  <text x="512" y="765" text-anchor="middle" fill="#f7fbff" stroke="#73beff" stroke-width="3" paint-order="stroke" font-family="Arial,Helvetica,sans-serif" font-size="270" font-weight="700">12%</text>
 </svg>

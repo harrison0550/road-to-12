@@ -6,6 +6,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+### App identity
+
+- Deployed build `2026.09.27.4` with the approved blue mountain and `12%` icon system for iPhone Home Screen, PWA, maskable, and favicon surfaces, including offline cache coverage.
+
 ### Exercise Media Library v2
 
 - Deployed build `2026.09.27.3` with neon-green full-muscle primary highlights, pink secondary highlights, Safari-safe SVG color inheritance, and cache generation 86.

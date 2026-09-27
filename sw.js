@@ -1,6 +1,6 @@
 /* Keep this query aligned with app-meta.js so Safari cannot reuse stale imported metadata. */
-importScripts("./app-meta.js?build=2026.09.27.3");
-importScripts("./exercise-media-manifest-v2.js?build=2026.09.27.3");
+importScripts("./app-meta.js?build=2026.09.27.4");
+importScripts("./exercise-media-manifest-v2.js?build=2026.09.27.4");
 
 const CACHE=self.ROAD12_META.serviceWorkerCache;
 const MEDIA_CACHE=CACHE.endsWith("-shell")?`${CACHE.slice(0,-6)}-media`:`${CACHE}-media`;
@@ -32,7 +32,14 @@ const MUTABLE_ASSETS=[
   "scheduling.js",
   "workout-navigation.js",
   "app.js",
-  "manifest.webmanifest"
+  "manifest.webmanifest",
+  "assets/icon.svg",
+  "assets/icons/apple-touch-icon-180.png",
+  "assets/icons/road12-app-icon-192.png",
+  "assets/icons/road12-app-icon-512.png",
+  "assets/icons/road12-maskable-512.png",
+  "assets/icons/favicon-32.png",
+  "assets/icons/favicon-16.png"
 ];
 
 const CORE_ASSETS=[
@@ -61,7 +68,14 @@ const CORE_ASSETS=[
   "./scheduling.js",
   "./workout-navigation.js",
   "./app.js",
-  "./manifest.webmanifest"
+  "./manifest.webmanifest",
+  "./assets/icon.svg",
+  "./assets/icons/apple-touch-icon-180.png",
+  "./assets/icons/road12-app-icon-192.png",
+  "./assets/icons/road12-app-icon-512.png",
+  "./assets/icons/road12-maskable-512.png",
+  "./assets/icons/favicon-32.png",
+  "./assets/icons/favicon-16.png"
 ];
 
 const MEDIA_ASSETS=[
