@@ -9,7 +9,7 @@
   const stravaSupportedExerciseTypes=Object.freeze([
     "BARBELL_HIP_THRUST_WITH_BENCH","BENCH_PRESS_GENERIC","CABLE_BICEPS_CURL",
     "CABLE_CRUNCH","CABLE_HAMMER_CURL","CABLE_LATERAL_RAISE","CABLE_REAR_DELT_FLY",
-    "CABLE_TRICEPS_PUSHDOWN","CHEST_PRESS","CRUNCH","DUMBBELL_FLOOR_PRESS",
+    "CABLE_TRICEPS_PUSHDOWN","CHEST_PRESS","CORE_GENERIC","CRUNCH","DUMBBELL_FLOOR_PRESS",
     "DUMBBELL_ROMANIAN_DEADLIFTS","FACE_PULL","GOBLET_SQUAT","HANGING_KNEE_RAISE",
     "INCLINE_DUMBBELL_BENCH_PRESS","KETTLEBELL_AROUND_THE_WORLD","KETTLEBELL_SWING",
     "LATERAL_RAISE_GENERIC","LAT_PULLDOWN","LYING_STRAIGHT_LEG_RAISE","MACHINE_INCLINE_CHEST_PRESS",
@@ -58,11 +58,13 @@
     ["road12.core.lying-leg-raise","Lying Leg Raise","LYING_STRAIGHT_LEG_RAISE",[]],
     ["road12.core.forearm-plank-posterior-tilt","Forearm Plank with Posterior Pelvic Tilt","PLANK_HOLD",[]],
     ["road12.core.hanging-knee-raise","Hanging Knee Raise","HANGING_KNEE_RAISE",[]],
+    ["road12.core.seated-bench-knee-tuck","Seated Bench Knee Tuck","CORE_GENERIC",[]],
     ["road12.core.decline-reverse-crunch","Decline Bench Reverse Crunch","CRUNCH",[]],
     ["road12.core.hanging-garhammer","Hanging Garhammer Raise","HANGING_KNEE_RAISE",[]],
     ["road12.hinge.kettlebell-swing","Kettlebell Swing","KETTLEBELL_SWING",[]],
     ["road12.core.kettlebell-around-world","Kettlebell Around the World","KETTLEBELL_AROUND_THE_WORLD",[]],
-    ["road12.carry.kettlebell-suitcase","Kettlebell Suitcase Carry","SUITCASE_CARRY",[]]
+    ["road12.carry.kettlebell-suitcase","Kettlebell Suitcase Carry","SUITCASE_CARRY",[]],
+    ["road12.cooldown.treadmill-easy","Easy Treadmill Cooldown",null,[]]
   ].map(([id,name,stravaExerciseType,aliases])=>Object.freeze({id,name,aliases:Object.freeze(aliases),externalMappings:Object.freeze({strava:Object.freeze({exerciseType:stravaExerciseType})})}));
   const normalize=value=>String(value||"").trim().toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
   const byName=new Map();

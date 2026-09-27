@@ -66,7 +66,9 @@ assert.match(app,/id="acceptLowerAbsPhase2"/,"Progress must provide explicit Pha
 assert.match(app,/name:"Alternating Dumbbell Curl"[\s\S]*?sets:2[\s\S]*?reps:"10-12"/);
 assert.match(app,/name:"Behind-the-Back Single-Arm Cable Curl"[\s\S]*?sets:2[\s\S]*?reps:"12-15"/);
 assert.match(app,/function pelvicFloorRelaxationBlock\(\)\{\s*const shared=\{type:"mobility",duration:"1:00"/);
-assert.match(app,/name:"Supine Diaphragmatic Breathing"/);
-assert.match(app,/name:"90\/90 Hip Switch"/);
+const futureMobility=app.match(/function pelvicFloorRelaxationBlock\(\)[\s\S]*?\n}/)?.[0]||"";
+for(const removed of ["Supine Diaphragmatic Breathing","Wide-Knee Child's Pose Breathing","Happy Baby Pelvic Floor Stretch","90/90 Hip Switch"])
+  assert(!futureMobility.includes(removed),`${removed} must not remain in future mobility programming`);
+assert.match(futureMobility,/name:"Supported Deep Squat Breathing"/);
 
 console.log("Training expansion checks passed: additive arm work, relaxation blocks, review-gated lower-ab phases, completion tracking, and schema migration are protected.");

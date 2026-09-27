@@ -17,6 +17,7 @@ const validPayload=()=>({
 assert.equal(validateUploadPayload(validPayload()).valid,true);
 assert.equal(ALLOWED_EXERCISES.has("SMITH_MACHINE_SQUAT"),true);
 assert.equal(ALLOWED_EXERCISES.has("DUMBBELL_REVERSE_LUNGE"),true);
+assert.equal(ALLOWED_EXERCISES.has("CORE_GENERIC"),true);
 for(const name of ["Upper A","Lower A","Upper B","Lower B"]){
   const payload=validPayload();
   payload.name=`Andy's Home Gym — ${name}`;

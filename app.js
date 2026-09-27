@@ -529,7 +529,7 @@ const weekPlan=[
  {short:"MON",icon:"🏋️",title:"Full Body A",detail:"Guided strength • chest, back, quads and shoulders",action:"workout",time:"55–65 min",focus:"Full-body strength",items:["Treadmill warm-up","Mobility","Smith Machine Squat","Cable Shoulder Press","Cable Curl","Smith Machine Bench Press","Seated Cable Row","Lat Pulldown","Rope Triceps Pushdown","Dumbbell Lateral Raise","Treadmill cooldown"],setup:"Smith and cable stations → 10 lb dumbbells"},
  {short:"TUE",icon:"🚶",title:"Cardio + Mobility",detail:"Incline treadmill, rowing technique and mobility recovery",action:"cardio",time:"45–50 min",focus:"Recovery, rowing skill and aerobic base",items:["5-minute easy treadmill warm-up","20–25 minute incline walk at conversational pace","8-minute easy iFIT rowing technique","Hip flexor stretch","Hamstring stretch","Chest and shoulder mobility","Easy cooldown"],setup:"Treadmill → iFIT rower → floor/wall mobility"},
  {short:"WED",icon:"💪",title:"Full Body B",detail:"Alternate guided full-body strength session",action:"upcoming",time:"60–70 min",focus:"Back, legs, chest and arms",items:["Treadmill warm-up","Hip hinge mobility","Smith Machine RDL","Smith Machine Single-Leg Squat","Smith Machine Calf Raise","GMWD Converging Chest Press","Single Arm Cable Row","Lat Pulldown","V-Bar Triceps Pushdown","Cable Lateral Raise","Cable Crunch","Cable Hammer Curl","Dumbbell Floor Press","Cooldown"],setup:"Smith station → GMWD chest press → cable stations"},
- {short:"THU",icon:"🧘",title:"Core + Recovery",detail:"Kettlebell technique, core training, stretching and easy movement",action:"recovery",time:"35–45 min",focus:"Kettlebell skill, core control and mobility",items:["Easy walk or row","Kettlebell Around the World","Kettlebell Swing","Kettlebell Suitcase Carry","Dead bug","Bird dog","Side plank from knees","Hip mobility","Upper-back mobility","Slow breathing cooldown"],setup:"30 lb kettlebell → floor space; optional treadmill or rower"},
+ {short:"THU",icon:"🧘",title:"Core + Recovery",detail:"Kettlebell technique, core training, stretching and easy movement",action:"recovery",time:"35–45 min",focus:"Kettlebell skill, core control and mobility",items:["Easy walk or row","Kettlebell Around the World","Kettlebell Swing","Kettlebell Suitcase Carry","Dead bug","Bird dog","Side plank from knees","Hip mobility","Upper-back mobility","Easy treadmill cooldown"],setup:"30 lb kettlebell → floor space; optional treadmill or rower"},
  {short:"FRI",icon:"🏋️",title:"Full Body C",detail:"Third weekly guided full-body strength session",action:"upcoming",time:"70–80 min",focus:"Legs, glutes, pushing, pulling and arms",items:["Treadmill warm-up","Hip hinge mobility","Smith Machine Squat","Smith Machine Hip Thrust","Low-Incline Dumbbell Press","Cable Shoulder Press","Rear Delt Cable Fly","Cable Face Pull","Cable Straight Arm Pushdown","Rope Triceps Pushdown","High to Low Cable Chop","Standing Single-Leg Cable Hamstring Curl","Treadmill HIIT Intervals","Cooldown"],setup:"Smith station and outside bench → low-incline dumbbell press → cable stations → treadmill"},
  {short:"SAT",icon:"❤️",title:"Zone 2 Cardio",detail:"Longer easy bike, rower or treadmill session",action:"cardio",time:"35–50 min",focus:"Fat-loss supporting aerobic work",items:["5-minute easy warm-up","25–40 minutes at a pace where you can speak in sentences","5-minute cooldown","Light stretching"],setup:"Choose treadmill, rower or KICKR CORE"},
  {short:"SUN",icon:"📏",title:"Recovery + Check-in",detail:"Rest, measurements and weekly review",action:"progress",time:"10–20 min",focus:"Recovery and progress review",items:["Morning body weight","Waist measurement","Optional progress photos","Review completed workouts","Plan the coming week","Full rest or gentle walk"],setup:"No gym setup required"}
@@ -2406,7 +2406,7 @@ function home(){
 function lowerAbsProgramMarkup(){
  const status=lowerAbsProgramStatus();
  const phase1=["Reverse Crunch","Lying Leg Raise","Forearm Plank with Posterior Pelvic Tilt"];
- const phase2=["Hanging Knee Raise","Decline Bench Reverse Crunch","Hanging Garhammer Raise"];
+ const phase2=["Seated Bench Knee Tuck","Decline Bench Reverse Crunch","Kettlebell Suitcase Carry"];
  const movements=status.phase===1?phase1:phase2;
  const completed=status.phase===1?status.phase1Count:status.phase2Count;
  const heading=status.complete?"Four-week lower-ab block complete":status.readyForPhase2?"Phase 2 is ready for review":`Phase ${status.phase} - Week ${status.week}`;
@@ -2797,13 +2797,13 @@ function lowerAbsProgramExercises(phase=currentLowerAbsPhase()){
   };
   if(phase===2)return [
     Object.assign(cloneExerciseByName("Bodyweight Squat"),bodyweight,{
-      name:"Hanging Knee Raise",sets:3,reps:"10-12",muscles:"Lower abdominals, deep core and grip",
-      setup:["Use the M1 front pull-up bar","Take a shoulder-width overhand grip","Begin in a still active hang"],
-      steps:["Brace and stop any swinging.","Lift both knees toward the chest.","Curl the pelvis upward at the top rather than stopping at hip height.","Lower slowly to a still hang before repeating."],
-      cues:["Keep the shoulders active.","Move without swinging.","Stop before grip or trunk control fails."],
-      why:"Progresses the lower-ab pattern from the floor to a controlled hanging position.",
-      weightRecommendation:"Use bodyweight and shorten the range before using momentum.",
-      requires:["ritfitM1"],demoImage:"assets/exercise-library/generated/hanging-knee-raise-motion-guide.webp"
+      name:"Seated Bench Knee Tuck",sets:3,reps:"10-15",muscles:"Abdominals and hip flexors",
+      setup:["Sit near the edge of the bench","Hold the bench lightly with both hands for support","Lean the torso back slightly while keeping a neutral spine"],
+      steps:["Draw both knees toward the chest under control.","Extend the legs without letting the feet rest on the floor.","Repeat without swinging or using momentum."],
+      cues:["Keep the spine neutral.","Move under control.","Avoid swinging or using momentum."],
+      why:"Builds controlled abdominal strength without requiring a hanging position.",
+      weightRecommendation:"Begin with bodyweight at 2–3 RIR. Progress later by holding a light kettlebell at the chest if needed.",
+      targetRirRange:[2,3],progressionRirRange:[2,3],requires:["bench"],demoImage:"assets/placeholders/core-activation.svg"
     }),
     Object.assign(cloneExerciseByName("Bodyweight Squat"),bodyweight,{
       name:"Decline Bench Reverse Crunch",sets:3,reps:12,muscles:"Lower abdominals and deep core",
@@ -2814,14 +2814,17 @@ function lowerAbsProgramExercises(phase=currentLowerAbsPhase()){
       weightRecommendation:"Use only a slight decline and control every lowering phase for 2-3 seconds.",
       requires:["bench"],demoImage:"assets/exercise-library/generated/decline-bench-reverse-crunch-motion-guide.webp"
     }),
-    Object.assign(cloneExerciseByName("Bodyweight Squat"),bodyweight,{
-      name:"Hanging Garhammer Raise",sets:3,reps:15,muscles:"Lower abdominals, deep core and grip",
-      setup:["Use the M1 front pull-up bar","Begin with hips and knees already bent to 90 degrees","Keep the shoulders active and body still"],
-      steps:["Hold the 90-degree starting position without swinging.","Keep the knees bent and curl the pelvis upward.","Draw the knees closer to the chest using the abdominals.","Lower only to the 90-degree start and pause before repeating."],
-      cues:["Start at 90 degrees, not with straight legs.","Curl the tailbone toward the ribs.","Reduce repetitions before momentum appears."],
-      why:"Uses a shortened hanging range to emphasize the pelvic curl and reduce hip-flexor dominance.",
-      weightRecommendation:"Use bodyweight only. Stop the set if the 90-degree start cannot be held without swinging.",
-      requires:["ritfitM1"],demoImage:"assets/exercise-library/generated/hanging-garhammer-raise-motion-guide.webp"
+    Object.assign(cloneExerciseByName("Hip Hinge"),{
+      name:"Kettlebell Suitcase Carry",type:"strength",sets:3,reps:"30-45",repUnit:"seconds",rest:45,
+      muscles:"Obliques, core, grip, glutes and trunk stabilizers",
+      setup:["Hold one kettlebell at one side","Stand tall with ribs stacked over the pelvis","Clear a short walking path"],
+      steps:["Walk slowly and under control.","Keep the torso tall without leaning toward or away from the kettlebell.","Switch sides each set."],
+      cues:["Do not lean toward or away from the kettlebell.","Stop if it causes back or hip discomfort."],
+      why:"Builds practical anti-side-bending core strength without a hanging movement.",
+      weightRecommendation:"Use one controlled kettlebell weight at an effort equivalent to 2–3 RIR.",
+      targetRirRange:[2,3],progressionRirRange:[2,3],requires:["kettlebells"],substituteId:null,attachmentCard:null,
+      weightEntry:{mode:"total",label:"Single kettlebell weight",help:"Enter the weight of the one kettlebell carried."},
+      demoImage:"assets/exercise-library/generated/kettlebell-suitcase-carry-motion-guide.webp"
     })
   ];
   return [
@@ -2858,40 +2861,12 @@ function lowerAbsProgramExercises(phase=currentLowerAbsPhase()){
 function pelvicFloorRelaxationBlock(){
   const shared={type:"mobility",duration:"1:00",rest:0,requires:["bodyweight"],substituteId:null};
   return [
-    Object.assign(cloneExerciseByName("Post-Workout Stretch"),shared,{
-      name:"Supine Diaphragmatic Breathing",muscles:"Diaphragm, lower ribs and pelvic-floor relaxation",
-      setup:["Lie on your back with knees bent and feet flat","Place one hand on the upper chest and one on the lower ribs or belly"],
-      steps:["Relax the jaw and shoulders.","Inhale gently into the lower ribs and belly.","Let the pelvic area soften rather than bracing.","Exhale slowly without forcing the breath."],
-      cues:["Keep the upper chest quiet.","Never strain or hold your breath."],
-      why:"Coordinates relaxed diaphragmatic breathing with pelvic-floor lengthening.",demoImage:"assets/exercise-library/generated/supine-diaphragmatic-breathing-motion-guide.webp"
-    }),
-    Object.assign(cloneExerciseByName("Post-Workout Stretch"),shared,{
-      name:"Wide-Knee Child's Pose Breathing",muscles:"Pelvic floor, hips, lower back and breathing muscles",
-      setup:["Kneel on a mat with knees comfortably wide","Bring the big toes near each other","Reach the arms forward and let the hips move toward the heels"],
-      steps:["Settle into a pain-free Child's Pose.","Breathe into the back and side ribs.","Let the hips grow heavy toward the heels on each exhale.","Remain relaxed rather than pushing deeper."],
-      cues:["Support the forehead if needed.","Do not force the knees or hips."],
-      why:"Uses supported hip opening and breathing to reduce unnecessary pelvic tension.",demoImage:"assets/exercise-library/generated/wide-knee-childs-pose-breathing-motion-guide.webp"
-    }),
     Object.assign(cloneExerciseByName("Bodyweight Squat"),shared,{
       name:"Supported Deep Squat Breathing",muscles:"Pelvic floor, hips, adductors and ankles",
       setup:["Face the M1 cage and hold the front uprights lightly","Take a comfortable wide stance with toes turned slightly out","Keep both heels planted"],
       steps:["Use the cage for balance as you settle into a comfortable squat.","Keep the knees tracking with the toes.","Breathe into the lower ribs and belly.","Let the hips relax only as far as comfortable."],
       cues:["This is a supported hold, not a loaded squat.","Do not bounce or force depth."],
       why:"Combines supported hip mobility with relaxed breathing.",requires:["ritfitM1"],demoImage:"assets/exercise-library/generated/supported-deep-squat-breathing-motion-guide.webp"
-    }),
-    Object.assign(cloneExerciseByName("Post-Workout Stretch"),shared,{
-      name:"Happy Baby Pelvic Floor Stretch",muscles:"Pelvic floor, inner thighs, hips and lower back",
-      setup:["Lie on your back on a mat","Bring the knees wide toward the sides of the ribs","Hold the outside of the feet or lower shins gently"],
-      steps:["Keep the head, shoulders and sacrum relaxed on the mat.","Stack the ankles roughly above the knees.","Allow the knees to settle slightly wider on the exhale.","Hold without rocking or pulling forcefully."],
-      cues:["Keep the sacrum grounded.","Use the shins instead of the feet if that is more comfortable."],
-      why:"Provides a gentle pelvic-floor and inner-hip relaxation position.",demoImage:"assets/exercise-library/generated/happy-baby-pelvic-floor-stretch-motion-guide.webp"
-    }),
-    Object.assign(cloneExerciseByName("Post-Workout Stretch"),shared,{
-      name:"90/90 Hip Switch",muscles:"Hip rotators, glutes and pelvic mobility",
-      setup:["Sit on a mat with hands lightly behind you","Bend both knees and place the feet wider than the hips","Keep the chest tall"],
-      steps:["Lower both knees together toward one side.","Move only through a comfortable hip range.","Rotate both knees through the center.","Lower them toward the opposite side and continue slowly."],
-      cues:["Do not force the knees to the floor.","Keep the movement controlled and pain free."],
-      why:"Builds gentle hip rotation that supports comfortable pelvic movement.",demoImage:"assets/exercise-library/generated/ninety-ninety-hip-switch-motion-guide.webp"
     })
   ];
 }
@@ -3113,20 +3088,11 @@ function coreRecoveryWorkout(){
       why:"Maintains upper-back and shoulder mobility without adding training fatigue.",
       demoImage:"assets/exercise-library/generated/chest-shoulder-mobility-motion-guide.webp"
     }),
-    cloneExerciseByName("Post-Workout Stretch",{
-      name:"Slow Breathing Cooldown",
-      duration:"4:00",
-      muscles:"Recovery and relaxation",
-      setup:["Lie down or sit comfortably","Breathe slowly through the nose"],
-      steps:[
-        "Inhale gently for four seconds.",
-        "Exhale slowly for six seconds.",
-        "Relax your shoulders and jaw.",
-        "Continue until breathing feels calm."
-      ],
-      cues:["Never strain or hold your breath.","Let the exhale remain easy."],
-      why:"Helps transition from training into recovery.",
-      demoImage:"assets/placeholders/cooldown-recovery.svg"
+    cloneExerciseByName("Easy Treadmill Cooldown",{
+      duration:"5:00",
+      setup:["Speed: approximately 2–3 mph","Incline: 0–1%","Use the rails only when needed"],
+      why:"Gradually lowers heart rate and transitions you out of training.",
+      demoImage:"assets/phase3/treadmill-walking.jpg"
     })
   ];
 }

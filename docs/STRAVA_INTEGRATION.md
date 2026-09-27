@@ -33,7 +33,7 @@ Strava identifiers must be stored as strings because remote IDs can exceed JavaS
 
 `exercise-identity.js` contains one bounded allowlist of documented Strava tokens used by Road to 12%. Automated validation fails when a canonical mapping falls outside it, protecting against typos. Unknown future movements remain visible in preview with `UNMAPPED_EXERCISE`; they are omitted from the API-specific set list rather than assigned an invented token.
 
-Phase 1 maps all 42 current canonical identities. Dumbbell Reverse Lunge uses Strava's documented exact `DUMBBELL_REVERSE_LUNGE` token. Smith Machine Hip Thrust uses the documented `BARBELL_HIP_THRUST_WITH_BENCH` approximation because the movement uses a guided bar and an external bench and Strava has no exact Smith-machine equivalent. Mappings are explicit and can be revised without rewriting completed history.
+Phase 1 defines 44 stable identities; 43 strength/core identities have reviewed Strava mappings and the non-set Easy Treadmill Cooldown intentionally has none. Seated Bench Knee Tuck uses the documented generic core token `CORE_GENERIC`, because Strava lists no exact seated bench knee-tuck token. Kettlebell Suitcase Carry uses the documented exact `SUITCASE_CARRY`. Dumbbell Reverse Lunge uses `DUMBBELL_REVERSE_LUNGE`. Smith Machine Hip Thrust uses the documented `BARBELL_HIP_THRUST_WITH_BENCH` approximation because Strava has no exact Smith-machine equivalent. Mappings are explicit and can be revised without rewriting completed history.
 
 ## Load normalization
 

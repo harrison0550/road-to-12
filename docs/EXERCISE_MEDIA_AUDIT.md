@@ -2,9 +2,9 @@
 
 ## Status
 
-- Audit date: September 6, 2026
-- Release target: version 13.2.0, build 2026.09.06.1
-- Active guided exercise names mapped: 63 of 63
+- Audit date: September 26, 2026
+- Release target: version 13.3.0, build 2026.09.26.2 (undeployed)
+- Active guided exercise names mapped: 58 of 58
 - Review-gated lower-ab Phase 2 names mapped: 3 of 3
 - Build v2 exercise names mapped: 41 of 41 occurrences; Dumbbell Reverse Lunge adds one supplied four-frame primary guide
 - Visible Library-only setup entries mapped: 1 of 1
@@ -12,7 +12,7 @@
 - New Road to 12% animations in the August 23 expansion: 13
 - Previously approved Road to 12% animations retained: 6
 - Supplied static movement-sequence guides: 2
-- Offline cache targets: `road12-v13-2-71-shell` and `road12-v13-2-71-media`
+- Offline cache targets: `road12-v13-3-75-shell` and `road12-v13-3-75-media`
 
 This audit covers the exercise names that can appear in the current Foundation A/B/C, Cardio + Mobility, Core + Recovery, and Zone 2 guided flows; all movements selected for the four-day Build templates; the three explicitly approved movements gated behind the lower-ab Phase 2 review; and the Stationary Bike Setup entry visible only in the Exercise Library. Dumbbell Reverse Lunge uses the supplied local four-frame composite at `assets/exercise-library/generated/dumbbell-reverse-lunge-sequence.png` in both the workout flow and Exercises section. Upper / Lower and Hypertrophy / Definition remain out of scope.
 
@@ -32,7 +32,7 @@ Each active guided exercise resolves by its exact display name through `ROAD12_E
 
 An explicitly supplied static movement-sequence entry may instead contain one primary guide and one ordered sequence image with separate alternative text. The written setup, execution, cues, and safety guidance remain authoritative. App-created movement artwork supplements those instructions; it must not be presented as licensed footage or as a substitute for the written coaching.
 
-Several exact workout names intentionally share one accurate animation. Easy treadmill warm-ups, cooldowns, and recovery walks use the same easy-walk asset, while their written prescriptions remain distinct. The current 63 active names therefore map to 55 distinct GIF animations plus the supplied Seated Concentration Curl movement guide. The three gated Phase 2 movements plus retained legacy and alias mappings bring the reviewed registry to 61 distinct animations across 77 exact-name mappings, plus the concentration-curl guide.
+Several exact workout names intentionally share one accurate animation. Easy treadmill warm-ups, cooldowns, and recovery walks use the same easy-walk asset, while their written prescriptions remain distinct. The 58 active names map to 51 distinct reviewed media assets. Seated Bench Knee Tuck uses the cached `core-activation.svg` guide placeholder until an exact reviewed animation is supplied. Retired movement assets remain registered only so completed history can still render them.
 
 ## September 4 Seated Concentration Curl update
 
@@ -66,7 +66,7 @@ An older reference is deliberately omitted when it contradicts the active prescr
 
 ## Active Foundation coverage
 
-The following 63 exact names were checked against the current equipment-safe guided sequences.
+The following 58 exact names were checked against the current equipment-safe guided sequences.
 
 ### Full Body A
 
@@ -121,7 +121,6 @@ Full Body B also reuses Treadmill Walk, Lat Pulldown, and Easy Treadmill Cooldow
 38. Side Plank from Knees
 39. Hip and Glute Mobility
 40. Thoracic and Shoulder Mobility
-41. Slow Breathing Cooldown
 
 ### Full Body C additions
 
@@ -150,19 +149,15 @@ Full Body C also reuses Treadmill Walk, Hip Hinge, Cable Shoulder Press, Rope Tr
 56. Reverse Crunch
 57. Lying Leg Raise
 58. Forearm Plank with Posterior Pelvic Tilt
-59. Supine Diaphragmatic Breathing
-60. Wide-Knee Child's Pose Breathing
-61. Supported Deep Squat Breathing
-62. Happy Baby Pelvic Floor Stretch
-63. 90/90 Hip Switch
+59. Supported Deep Squat Breathing
 
 ### Review-gated lower-ab Phase 2
 
 These movements are locally ready but do not enter the workout until two Phase 1 sessions are completed and the user explicitly accepts the transition.
 
-64. Hanging Knee Raise
+64. Seated Bench Knee Tuck
 65. Decline Bench Reverse Crunch
-66. Hanging Garhammer Raise
+66. Kettlebell Suitcase Carry
 
 ## Visible Library-only setup coverage
 

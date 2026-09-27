@@ -473,7 +473,7 @@
 
   function registerAnimation(name, config) {
     const previous = entries[name] || {};
-    if (config.mediaType === "movement-sequence") {
+    if (["movement-sequence", "still"].includes(config.mediaType)) {
       entries[name] = Object.assign({}, previous, config);
       return;
     }
@@ -838,6 +838,17 @@
       mediaAlt: "Movement animation of the red-shirt trainer hanging from the red cage pull-up bar and drawing both knees toward the chest with a controlled pelvic curl",
       primaryMuscles: ["Lower abdominals", "Deep core"], secondaryMuscles: ["Hip flexors", "Grip"], equipment: ["RitFit M1 pull-up bar"],
       commonMistakes: ["Swinging", "Stopping without curling the pelvis", "Hanging passively from the shoulders", "Dropping the legs"]
+    },
+    "Seated Bench Knee Tuck": {
+      slug: "seated-bench-knee-tuck", reviewedOn: mediaReviewDate,
+      sourceType: "app-original", provider: "Road to 12%", author: "Road to 12%",
+      sourceExercise: "Supported seated bench knee tuck",
+      media: "assets/placeholders/core-activation.svg",
+      mediaAlt: "Instructional core guide placeholder for a seated bench knee tuck performed near the bench edge with a neutral spine and controlled knee movement",
+      mediaType: "still",
+      primaryMuscles: ["Abdominals"], secondaryMuscles: ["Hip flexors"], equipment: ["Stable bench"],
+      commonMistakes: ["Swinging the legs", "Rounding the spine", "Resting the feet between repetitions", "Pulling forcefully with the arms"],
+      rightsNote: "App-created instructional placeholder. Written setup and movement cues remain the authoritative coaching guide."
     },
     "Decline Bench Reverse Crunch": {
       slug: "decline-bench-reverse-crunch", reviewedOn: "2026-08-28",

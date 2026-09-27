@@ -15,6 +15,7 @@ The roadmap communicates direction rather than a guaranteed schedule. Completed 
 
 ## Next release — v13.3
 
+- [x] Prepare the undeployed core, mobility, and cooldown simplification with easier lower-ab work, fewer recovery drills, preserved history, and reviewed Strava mappings
 - [x] Deploy the Build Lower A/B Dumbbell Reverse Lunge replacement with independent progression history, supplied offline media, combined dumbbell-load semantics, and validated Strava Worker support
 - [x] Assemble the unified Build + Extra Activity release candidate with schema-21 collision recovery, combined backup preservation, canonical Upper/Lower Strava eligibility, and no obsolete three-day runtime fallback
 - [ ] Complete installed-PWA smoke testing and obtain explicit final acceptance for the controlled 13.3.0 production release

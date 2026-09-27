@@ -213,15 +213,10 @@ const activeFoundationExercises = [
   "Side Plank from Knees",
   "Hip and Glute Mobility",
   "Thoracic and Shoulder Mobility",
-  "Slow Breathing Cooldown",
   "Reverse Crunch",
   "Lying Leg Raise",
   "Forearm Plank with Posterior Pelvic Tilt",
-  "Supine Diaphragmatic Breathing",
-  "Wide-Knee Child's Pose Breathing",
   "Supported Deep Squat Breathing",
-  "Happy Baby Pelvic Floor Stretch",
-  "90/90 Hip Switch",
   "Smith Machine Squat",
   "Smith Machine Hip Thrust",
   "Rear Delt Cable Fly",
@@ -238,8 +233,8 @@ const activeFoundationExercises = [
 
 assert.strictEqual(
   new Set(activeFoundationExercises).size,
-  63,
-  "the active Foundation media audit must cover 63 distinct exercise names",
+  58,
+  "the active Foundation media audit must cover 58 distinct exercise names after the requested removals",
 );
 
 const liveFoundationWorkouts = generateLiveFoundationWorkouts();
@@ -442,14 +437,14 @@ assert(vBarEntry.equipment.some((item)=>/angled V-bar pressdown attachment/i.tes
 
 assert.strictEqual(
   new Set(activeFoundationExercises.map((name) => library.entries[name].media)).size,
-  56,
-  "the audit should resolve 61 animated active names plus two supplied movement-sequence guides",
+  51,
+  "the simplified active library should resolve 51 distinct reviewed media assets",
 );
 
-for (const name of ["Hanging Knee Raise", "Decline Bench Reverse Crunch", "Hanging Garhammer Raise"]) {
+assert.strictEqual(library.entries["Seated Bench Knee Tuck"]?.mediaType,"still","the easier bench core movement must have a resolved guide placeholder");
+for (const name of ["Decline Bench Reverse Crunch", "Kettlebell Suitcase Carry"])
   assert.strictEqual(library.entries[name]?.mediaType, "animation", `${name} must be ready before Phase 2 is accepted`);
-}
 
 console.log(
-  "Foundation media coverage passed: live workoutForDay(0..5) output matches all 63 audited names, including two supplied movement-sequence guides, and all three review-gated Phase 2 movements are ready.",
+  "Foundation media coverage passed: live future workouts exclude removed mobility/breathing entries and every replacement has resolved media.",
 );

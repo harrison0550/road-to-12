@@ -10,6 +10,7 @@ assert.match(previewSource, /previewExercises=day\.action==="progress"\?\[\]:wor
 assert.doesNotMatch(previewSource, /guided timer flow will be added/, "implemented cardio and recovery workouts must not show the obsolete preview-only alert");
 assert.match(previewSource, /if\(day\.action==="progress"\)return setTab\("progress"\);/, "Sunday check-in must continue to open Progress");
 assert.match(previewSource, /startNewSession\(dayIndex,selectedSchedule\);setTab\("workout"\);/, "every other scheduled program day must launch through the existing workout engine");
-assert.match(app, /function coreRecoveryWorkout\(\)[\s\S]*?Easy Recovery Walk[\s\S]*?Slow Breathing Cooldown/, "Core + Recovery must retain its complete guided sequence");
+assert.match(app, /function coreRecoveryWorkout\(\)[\s\S]*?Easy Recovery Walk[\s\S]*?cloneExerciseByName\("Easy Treadmill Cooldown"/, "Core + Recovery must use the requested treadmill cooldown");
+assert.doesNotMatch(app.match(/function coreRecoveryWorkout\(\)[\s\S]*?\n}/)?.[0]||"",/Slow Breathing Cooldown/);
 
 console.log("Guided preview checks passed: cardio and recovery previews match and launch the existing workout engine.");

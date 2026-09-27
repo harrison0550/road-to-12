@@ -7,8 +7,8 @@ const payloads=require(path.join(root,"strava-strength-payload.js"));
 const sync=require(path.join(root,"strava-sync-state.js"));
 
 const mapped=identities.definitions.filter(item=>item.externalMappings.strava.exerciseType);
-assert.strictEqual(identities.definitions.length,42,"canonical identity coverage changed unexpectedly");
-assert.strictEqual(mapped.length,42,"every canonical exercise should have a reviewed Phase 1 mapping");
+assert.strictEqual(identities.definitions.length,44,"canonical identity coverage changed unexpectedly");
+assert.strictEqual(mapped.length,43,"every structured strength/core identity should have a reviewed Phase 1 mapping");
 mapped.forEach(item=>assert(
   identities.isSupportedStravaExerciseType(item.externalMappings.strava.exerciseType),
   `${item.name} uses a Strava token outside the canonical allowlist`
@@ -19,6 +19,10 @@ assert.strictEqual(identities.resolve("Incline Cable Press").id,"road12.press.in
 assert.strictEqual(identities.resolve("Smith Bulgarian Split Squat").id,"road12.lunge.smith-bulgarian","legacy split-squat alias was removed");
 assert.strictEqual(identities.resolve("Dumbbell Reverse Lunge").id,"road12.lunge.dumbbell-reverse");
 assert.strictEqual(identities.resolve("Dumbbell Reverse Lunge").externalMappings.strava.exerciseType,"DUMBBELL_REVERSE_LUNGE");
+assert.strictEqual(identities.resolve("Seated Bench Knee Tuck").id,"road12.core.seated-bench-knee-tuck");
+assert.strictEqual(identities.resolve("Seated Bench Knee Tuck").externalMappings.strava.exerciseType,"CORE_GENERIC");
+assert.strictEqual(identities.resolve("Easy Treadmill Cooldown").id,"road12.cooldown.treadmill-easy");
+assert.strictEqual(identities.resolve("Easy Treadmill Cooldown").externalMappings.strava.exerciseType,null);
 
 const completedSet=(repetitions,weight,extra={})=>Object.assign({
   setType:"working",repetitions,weight,completed:true,skipped:false

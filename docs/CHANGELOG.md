@@ -8,7 +8,13 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Added
 
+- Added stable identities and regression coverage for Seated Bench Knee Tuck and the canonical Easy Treadmill Cooldown, including restored backups containing every retired movement and strict client/Worker Strava token validation.
+
 ### Changed
+
+- Replaced the review-gated Hanging Knee Raise with Seated Bench Knee Tuck, Hanging Garhammer Raise with Kettlebell Suitcase Carry, and Thursday Slow Breathing Cooldown with a five-minute Easy Treadmill Cooldown.
+- Removed Wide-Knee Child's Pose Breathing, Supine Diaphragmatic Breathing, Happy Baby Pelvic Floor Stretch, and 90/90 Hip Switch from future Tuesday and Saturday programming while retaining their completed-history identities and reviewed media.
+- Prepared undeployed build `2026.09.26.2` with cache generation 75. Seated Bench Knee Tuck uses Strava's documented `CORE_GENERIC`; Kettlebell Suitcase Carry retains `SUITCASE_CARRY`.
 
 ### Fixed
 
