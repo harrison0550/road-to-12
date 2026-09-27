@@ -6,11 +6,11 @@ Read this file at the beginning of every Codex or engineering session. It is the
 
 - Product: Road to 12%
 - Version: 13.3.0
-- Build: 2026.09.26.2 (undeployed candidate)
+- Build: 2026.09.26.2 (deployed)
 - Last updated: September 26, 2026
 - Service Worker cache: `road12-v13-3-75-shell`
 - Exercise media cache: `road12-v13-3-75-media`
-- Deployment status: build `2026.09.26.2` is undeployed; production remains build `2026.09.26.1` with Cloudflare Worker `c35bd4ed-64df-473d-aee0-585ff3406617`
+- Deployment status: build `2026.09.26.2` is deployed with Cloudflare Worker `efdc2eff-4ab6-4226-bf7f-c08b61a6b679`
 - Runtime: static, client-only, offline-first PWA
 - Primary storage key: `road12v5`
 
@@ -81,7 +81,7 @@ See `KNOWN_BUGS.md` before diagnosing or fixing defects.
 
 ## Active sprint goals
 
-Build `2026.09.26.2` is an undeployed maintenance candidate. It simplifies future core, mobility, and cooldown programming while preserving completed history exactly. Production remains `2026.09.26.1` with Cloudflare Worker version `c35bd4ed-64df-473d-aee0-585ff3406617`. Automatic phase activation, Strava autosync, cardio posting, read scopes, bulk history, and Phase 2B remain disabled.
+Build `2026.09.26.2` is deployed. It simplifies future core, mobility, and cooldown programming while preserving completed history exactly. The production Cloudflare Worker is version `efdc2eff-4ab6-4226-bf7f-c08b61a6b679`. Automatic phase activation, Strava autosync, cardio posting, read scopes, bulk history, and Phase 2B remain disabled.
 
 Next recommended goals:
 

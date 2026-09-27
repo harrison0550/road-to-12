@@ -3,7 +3,7 @@
 ## Status
 
 - Audit date: September 26, 2026
-- Release target: version 13.3.0, build 2026.09.26.2 (undeployed)
+- Release target: version 13.3.0, build 2026.09.26.2 (deployed)
 - Active guided exercise names mapped: 58 of 58
 - Review-gated lower-ab Phase 2 names mapped: 3 of 3
 - Build v2 exercise names mapped: 41 of 41 occurrences; Dumbbell Reverse Lunge adds one supplied four-frame primary guide
