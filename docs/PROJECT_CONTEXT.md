@@ -6,11 +6,11 @@ Read this file at the beginning of every Codex or engineering session. It is the
 
 - Product: Road to 12%
 - Version: 13.3.0
-- Build: 2026.09.26.10
-- Last updated: September 26, 2026
-- Service Worker cache: `road12-v13-3-83-shell`
-- Exercise media cache: `road12-v13-3-83-media`
-- Deployment status: build `2026.09.26.10` activates the approved Smith Machine Bench Press v2 media and is deployed to GitHub Pages; Cloudflare Worker remains `efdc2eff-4ab6-4226-bf7f-c08b61a6b679`
+- Build: 2026.09.27.1
+- Last updated: September 27, 2026
+- Service Worker cache: `road12-v13-3-84-shell`
+- Exercise media cache: `road12-v13-3-84-media`
+- Deployment status: build `2026.09.27.1` deploys the approved detailed anatomical muscle maps for Smith Machine Bench Press; Cloudflare Worker remains `efdc2eff-4ab6-4226-bf7f-c08b61a6b679`
 - Runtime: static, client-only, offline-first PWA
 - Primary storage key: `road12v5`
 
@@ -81,7 +81,7 @@ See `KNOWN_BUGS.md` before diagnosing or fixing defects.
 
 ## Active sprint goals
 
-Build `2026.09.26.10` adds the Exercise Media Library v2 registry and reusable muscle-highlight component, then activates only the separately approved Smith Machine Bench Press v2 media. The other eleven pilot records remain pending and retain v1 fallback. Phase 2 and the original Calendar semantic colors preserve completed history, scheduling, schema 21, and the existing Worker exactly. The production Cloudflare Worker remains version `efdc2eff-4ab6-4226-bf7f-c08b61a6b679`. Automatic phase activation, Strava autosync, cardio posting, read scopes, bulk history, and Phase 2B remain disabled.
+Build `2026.09.27.1` upgrades the reusable muscle-highlight component to detailed local anatomical plates and activates it for the approved Smith Machine Bench Press v2 media. The other eleven pilot records remain pending and retain v1 fallback. Phase 2 and the original Calendar semantic colors preserve completed history, scheduling, schema 21, and the existing Worker exactly. The production Cloudflare Worker remains version `efdc2eff-4ab6-4226-bf7f-c08b61a6b679`. Automatic phase activation, Strava autosync, cardio posting, read scopes, bulk history, and Phase 2B remain disabled.
 
 Next recommended goals:
 

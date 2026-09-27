@@ -1,17 +1,15 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 500" role="img" aria-labelledby="title desc">
-  <title id="title">Front muscle map</title><desc id="desc">Reusable front body silhouette with semantic muscle regions.</desc>
-  <g id="body-front" fill="#243246" stroke="#7890aa" stroke-width="2">
-    <circle cx="110" cy="42" r="28"/><path d="M88 72Q72 84 68 125L55 225Q54 238 65 241Q76 242 79 228L91 145L91 244L78 346L80 477Q82 490 94 490Q105 490 106 476L110 362L114 476Q115 490 127 490Q139 490 140 477L142 346L129 244L129 145L141 228Q144 242 155 241Q166 238 165 225L152 125Q148 84 132 72Z"/>
-  </g>
-  <g id="muscle-chest"><path d="M91 93Q109 82 109 119Q96 132 86 116Z"/><path d="M111 119Q111 82 129 93L134 116Q124 132 111 119Z"/></g>
-  <g id="muscle-front-deltoid"><ellipse cx="82" cy="102" rx="12" ry="18"/><ellipse cx="138" cy="102" rx="12" ry="18"/></g>
-  <g id="muscle-lateral-deltoid"><path d="M72 99Q80 83 90 96L85 121Q73 119 70 110Z"/><path d="M148 99Q140 83 130 96L135 121Q147 119 150 110Z"/></g>
-  <g id="muscle-biceps"><ellipse cx="76" cy="151" rx="9" ry="25"/><ellipse cx="144" cy="151" rx="9" ry="25"/></g>
-  <g id="muscle-forearms"><path d="M66 178L58 224Q58 234 65 235L76 184Z"/><path d="M154 178L162 224Q162 234 155 235L144 184Z"/></g>
-  <g id="muscle-abdominals"><path d="M96 126H108V210H94Q89 168 96 126Z"/><path d="M112 126H124Q131 168 126 210H112Z"/></g>
-  <g id="muscle-obliques"><path d="M89 129L94 210L86 231Q77 192 84 139Z"/><path d="M131 129L126 210L134 231Q143 192 136 139Z"/></g>
-  <g id="muscle-hip-flexors"><path d="M91 214L108 218L104 251L87 242Z"/><path d="M129 214L112 218L116 251L133 242Z"/></g>
-  <g id="muscle-adductors"><path d="M101 244L108 253L101 337L90 276Z"/><path d="M119 244L112 253L119 337L130 276Z"/></g>
-  <g id="muscle-quadriceps"><path d="M87 247Q104 240 106 264L102 340Q88 352 82 329Z"/><path d="M133 247Q116 240 114 264L118 340Q132 352 138 329Z"/></g>
-  <g id="muscle-calves"><path d="M83 354Q101 348 103 377L98 449Q84 460 80 432Z"/><path d="M137 354Q119 348 117 377L122 449Q136 460 140 432Z"/></g>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1536" role="img" aria-labelledby="title desc">
+  <title id="title">Front anatomical muscle map</title><desc id="desc">Detailed neutral front anatomy figure with semantic muscle regions.</desc>
+  <g id="body-front"><image href="muscles-front-anatomy.webp" width="1024" height="1536" preserveAspectRatio="xMidYMid meet"/></g>
+  <g id="muscle-chest"><path d="M339 286Q421 247 499 291L499 421Q413 438 336 379Z"/><path d="M525 291Q603 247 685 286L688 379Q611 438 525 421Z"/></g>
+  <g id="muscle-front-deltoid"><path d="M275 277Q323 230 372 281L350 389Q291 402 263 350Z"/><path d="M749 277Q701 230 652 281L674 389Q733 402 761 350Z"/></g>
+  <g id="muscle-lateral-deltoid"><path d="M262 280Q318 225 368 278L344 404Q278 396 253 346Z"/><path d="M762 280Q706 225 656 278L680 404Q746 396 771 346Z"/></g>
+  <g id="muscle-biceps"><path d="M268 390Q325 355 346 423L316 559Q270 579 248 518Z"/><path d="M756 390Q699 355 678 423L708 559Q754 579 776 518Z"/></g>
+  <g id="muscle-forearms"><path d="M249 532L169 727Q151 778 191 789Q226 790 245 743L304 568Z"/><path d="M775 532L855 727Q873 778 833 789Q798 790 779 743L720 568Z"/></g>
+  <g id="muscle-abdominals"><path d="M424 430Q512 407 512 473V749Q424 735 401 673L393 507Z"/><path d="M600 430Q512 407 512 473V749Q600 735 623 673L631 507Z"/></g>
+  <g id="muscle-obliques"><path d="M348 427L411 466L397 687L342 760Q303 601 326 478Z"/><path d="M676 427L613 466L627 687L682 760Q721 601 698 478Z"/></g>
+  <g id="muscle-hip-flexors"><path d="M361 725L500 754L467 873L340 830Z"/><path d="M663 725L524 754L557 873L684 830Z"/></g>
+  <g id="muscle-adductors"><path d="M446 807L499 850L467 1074L392 897Z"/><path d="M578 807L525 850L557 1074L632 897Z"/></g>
+  <g id="muscle-quadriceps"><path d="M332 789Q453 773 489 865L457 1081Q364 1125 309 1047L302 893Z"/><path d="M692 789Q571 773 535 865L567 1081Q660 1125 715 1047L722 893Z"/></g>
+  <g id="muscle-calves"><path d="M315 1078Q430 1051 463 1168L430 1388Q354 1442 303 1361L286 1192Z"/><path d="M709 1078Q594 1051 561 1168L594 1388Q670 1442 721 1361L738 1192Z"/></g>
 </svg>

@@ -67,8 +67,12 @@ const back=fs.readFileSync(path.join(root,"assets/exercise-library/v2/shared/mus
 ["upper-back","rear-deltoid","triceps","forearms","lats","spinal-erectors","gluteus-maximus","hamstrings","calves"].forEach(id=>assert(back.includes(`id="muscle-${id}"`),`back SVG missing ${id}`));
 assert.match(app,/function muscleHighlightMarkup\(ex\)/);
 assert.match(app,/EXERCISE_MEDIA_V2\?\.resolve/);
-assert.match(css,/\.muscle-region\.primary\{[^}]*opacity:\.96/);
-assert.match(css,/\.muscle-region\.secondary\{[^}]*opacity:\.58/);
+assert.match(css,/\.muscle-region\.primary\{[^}]*opacity:1/);
+assert.match(css,/\.muscle-region\.secondary\{[^}]*opacity:\.64/);
+assert.match(front,/Detailed neutral front anatomy figure/);
+assert.match(back,/Detailed neutral back anatomy figure/);
+assert.match(app,/legend-primary">Primary/);
+assert.doesNotMatch(app,/muscle-map-legend[^\n]*class="primary"/);
 assert.match(sw,/ROAD12_MEDIA_V2_MANIFEST\.cacheAssets\.forEach/);
 assert.match(app,/const ROAD12_SCHEMA_VERSION=21;/);
 

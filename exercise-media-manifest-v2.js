@@ -6,7 +6,9 @@
   const VERSION=2;
   const sharedAssets=Object.freeze([
     "assets/exercise-library/v2/shared/muscles-front.svg",
-    "assets/exercise-library/v2/shared/muscles-back.svg"
+    "assets/exercise-library/v2/shared/muscles-back.svg",
+    "assets/exercise-library/v2/shared/muscles-front-anatomy.webp",
+    "assets/exercise-library/v2/shared/muscles-back-anatomy.webp"
   ]);
   const pilotSlugs=Object.freeze([
     "smith-machine-bench-press","gmwd-converging-chest-press","lat-pulldown","seated-cable-row",

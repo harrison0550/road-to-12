@@ -91,13 +91,13 @@ function muscleFigureView(side,regions){
  const source=`assets/exercise-library/v2/shared/muscles-${side}.svg`;
  const supported=side==="front"?FRONT_MUSCLE_REGIONS:BACK_MUSCLE_REGIONS;
  const layers=[...regions.primary.filter(region=>supported.has(region)).map(region=>`<use class="muscle-region primary" data-muscle-region="${region}" href="${source}#muscle-${region}"></use>`),...regions.secondary.filter(region=>supported.has(region)).map(region=>`<use class="muscle-region secondary" data-muscle-region="${region}" href="${source}#muscle-${region}"></use>`)];
- return `<figure class="muscle-map-view"><svg viewBox="0 0 220 500" aria-hidden="true" focusable="false"><use class="muscle-body" href="${source}#body-${side}"></use>${layers.join("")}</svg><figcaption>${side}</figcaption></figure>`;
+ return `<figure class="muscle-map-view"><svg viewBox="0 0 1024 1536" aria-hidden="true" focusable="false"><use class="muscle-body" href="${source}#body-${side}"></use>${layers.join("")}</svg><figcaption>${side}</figcaption></figure>`;
 }
 function muscleHighlightMarkup(ex){
  const record=EXERCISE_MEDIA_V2?.getForName?.(ex?.name);
  if(!record?.muscleHighlights)return "";
  const regions={primary:[...record.muscleHighlights.primary],secondary:[...record.muscleHighlights.secondary]};
- return `<div class="muscle-highlight-map" data-media-version="${record.mediaVersion}" aria-label="Muscle highlight diagram"><div class="muscle-map-views">${muscleFigureView("front",regions)}${muscleFigureView("back",regions)}</div><div class="muscle-map-legend" aria-hidden="true"><span class="primary">Primary</span><span class="secondary">Secondary</span></div></div>`;
+ return `<div class="muscle-highlight-map" data-media-version="${record.mediaVersion}" aria-label="Muscle highlight diagram"><div class="muscle-map-views">${muscleFigureView("front",regions)}${muscleFigureView("back",regions)}</div><div class="muscle-map-legend" aria-hidden="true"><span class="legend-primary">Primary</span><span class="legend-secondary">Secondary</span></div></div>`;
 }
 function mediaStatus(entry){
  if(entry.mediaType==="animation")return "MOVEMENT ANIMATION";
