@@ -159,18 +159,38 @@ function exerciseTeachingMarkup(ex){
    "Changing the prescribed grip or body orientation",
    "Continuing after sharp pain or loss of control"
  ];
- return `<section class="teaching-grid">
-   <div class="teaching-card"><small>PRIMARY MUSCLES</small>${listMarkup(primary,"See the movement description.")}</div>
-   <div class="teaching-card"><small>SECONDARY MUSCLES</small>${listMarkup(secondary,"Supporting muscles vary by setup.")}</div>
-   <div class="teaching-card"><small>EQUIPMENT</small>${listMarkup(equipment,"No equipment required.")}</div>
+ const priorExposure=ex.engagementTarget&&state.history.some(session=>(session.exercises||[]).some(item=>item.name===ex.name));
+ const rirRange=priorExposure?ex.progressionRirRange:(ex.firstExposureRirRange||ex.progressionRirRange);
+ const category=ex.type==="strength"?"strength":(["cardio","warmup"].includes(ex.type)||/warm-up|cardio|treadmill|row/i.test(ex.name)?"cardio":"mobility");
+ const programming=category==="strength"
+   ? [["Sets",ex.sets],["Reps",`${ex.reps}${ex.repUnit==="seconds"?" sec":""}`],["Rest",`${ex.rest} sec`],["RIR",rirRange?.length?rirRange.join("–"):"—"]]
+   : [["Duration",ex.duration]];
+ const intensityGuidance=(ex.setup||[]).filter(item=>/zone|pace|speed|incline|resistance|effort|conversation/i.test(item));
+ const strengthDetails=`
+   <section class="ui-panel muscle-target-panel"><h3 class="ui-section-header">Muscles Worked</h3><div class="muscle-groups"><div><small>PRIMARY</small>${listMarkup(primary,"See the movement description.")}</div>${secondary.length?`<div><small>SECONDARY</small>${listMarkup(secondary,"")}</div>`:""}</div><div class="equipment-line"><small>EQUIPMENT</small><span>${equipment.join(" • ")||"No equipment required"}</span></div></section>
+   ${ex.cues?.length?`<section class="ui-panel success-panel"><h3 class="ui-section-header">Key Form Cues</h3><ul class="checklist-rows">${ex.cues.map(cue=>`<li><span aria-hidden="true">✓</span><span>${cue}</span></li>`).join("")}</ul></section>`:""}
+   <section class="ui-panel programming-panel"><h3 class="ui-section-header">Programming</h3><dl>${programming.map(([label,value])=>`<div><dt>${label}</dt><dd>${value}</dd></div>`).join("")}</dl></section>
+   ${ex.weightRecommendation?`<section class="ui-panel pro-tip-panel"><h3 class="ui-section-header">Pro Tips</h3>${listMarkup([ex.weightRecommendation],"")}</section>`:""}`;
+ const cardioDetails=`
+   ${ex.why?`<section class="ui-panel purpose-panel"><h3 class="ui-section-header">Purpose</h3><p>${ex.why}</p></section>`:""}
+   ${intensityGuidance.length?`<section class="ui-panel intensity-panel"><h3 class="ui-section-header">Intensity / Zone</h3>${listMarkup(intensityGuidance,"")}</section>`:""}
+   ${ex.setup?.length?`<section class="ui-panel setup-panel"><h3 class="ui-section-header">Setup</h3>${listMarkup(ex.setup,"")}</section>`:""}
+   <section class="ui-panel programming-panel"><h3 class="ui-section-header">Programming</h3><dl>${programming.map(([label,value])=>`<div><dt>${label}</dt><dd>${value}</dd></div>`).join("")}</dl></section>
+   ${ex.cues?.length?`<section class="ui-panel pro-tip-panel"><h3 class="ui-section-header">Pro Tips</h3>${listMarkup(ex.cues,"")}</section>`:""}`;
+ const mobilityDetails=`
+   ${primary.length?`<section class="ui-panel target-areas-panel"><h3 class="ui-section-header">Target Areas</h3>${listMarkup(primary,"")}</section>`:""}
+   ${ex.steps?.length?`<section class="ui-panel performance-panel"><h3 class="ui-section-header">How to Perform</h3><ol class="steps">${ex.steps.map(step=>`<li>${step}</li>`).join("")}</ol></section>`:""}
+   <section class="ui-panel programming-panel duration-panel"><h3 class="ui-section-header">Duration</h3><dl>${programming.map(([label,value])=>`<div><dt>${label}</dt><dd>${value}</dd></div>`).join("")}</dl></section>
+   ${ex.cues?.length?`<section class="ui-panel pro-tip-panel"><h3 class="ui-section-header">Pro Tips</h3>${listMarkup(ex.cues,"")}</section>`:""}`;
+ return `<section class="exercise-detail-system" aria-label="Exercise details">
+   ${category==="strength"?strengthDetails:category==="cardio"?cardioDetails:mobilityDetails}
  </section>
  ${licensedMediaMarkup(ex)}
- <section class="movement-instructions professional-instructions">
+ ${category==="strength"?`<section class="movement-instructions professional-instructions">
    <div class="instruction-block"><small>SETUP</small>${listMarkup(ex.setup,"Follow the setup shown above.")}</div>
    <div class="instruction-block"><small>EXECUTION</small><ol class="steps">${ex.steps.map(step=>`<li>${step}</li>`).join("")}</ol></div>
-   <div class="instruction-block cue"><small>COACHING CUES</small>${listMarkup(ex.cues,"Move slowly and stay in a pain-free range.")}</div>
    <div class="instruction-block mistakes"><small>COMMON MISTAKES</small>${listMarkup(mistakes,"")}</div>
- </section>`;
+ </section>`:""}`;
 }
 
 
@@ -844,7 +864,7 @@ function previewPerformanceMarkup(ex){
  return `<section class="card preview-performance-card" aria-labelledby="previewPerformanceTitle"><h3 id="previewPerformanceTitle">Workout details</h3>${quickSettings(ex)}<div class="preview-last-performance"><small>${strength?"LAST WEIGHT USED":"LAST PERFORMANCE"}</small><strong>${lastPerformance}</strong></div>${strength?`<div class="weight-coach-card"><h3>Weight recommendation</h3><p>${ex.weightRecommendation||"Choose a load that keeps every prescribed repetition controlled."}</p></div>`:""}</section>`;
 }
 function showPreviewExerciseDetails(ex,dayIndex){
- app.innerHTML=`<section class="card workout-card professional-exercise-detail preview-exercise-detail"><button class="secondary" data-preview-detail-back>Back to workout preview</button><span class="pill">EXERCISE GUIDE</span><h2>${ex.name}</h2><p class="muted workout-subtitle">${ex.muscles}</p><div class="why-card"><h3>Why this exercise?</h3><p>${ex.why||"Builds strength, control and confidence."}</p></div>${attachmentPhotoMarkup(ex)}${ex.m1?m1SetupCoach(ex):""}${exerciseTeachingMarkup(ex)}</section>${previewPerformanceMarkup(ex)}<button class="secondary preview-detail-bottom-back" data-preview-detail-back>Back to workout preview</button>`;
+ app.innerHTML=`<section class="card workout-card professional-exercise-detail preview-exercise-detail pilot-exercise-detail"><button class="secondary" data-preview-detail-back>Back to workout preview</button><span class="pill">EXERCISE GUIDE</span><h2>${ex.name}</h2><p class="muted workout-subtitle">${ex.muscles}</p><div class="why-card"><h3>Why this exercise?</h3><p>${ex.why||"Builds strength, control and confidence."}</p></div>${attachmentPhotoMarkup(ex)}${ex.m1?m1SetupCoach(ex):""}${exerciseTeachingMarkup(ex)}</section>${previewPerformanceMarkup(ex)}<button class="secondary preview-detail-bottom-back" data-preview-detail-back>Back to workout preview</button>`;
  const back=()=>{showDayPlan(dayIndex);requestAnimationFrame(()=>window.scrollTo({top:previewReturnScroll,behavior:"auto"}))};
  document.querySelectorAll("[data-preview-detail-back]").forEach(button=>button.onclick=back);
  document.querySelector("#openAsset")?.addEventListener("click",()=>openExerciseAsset(ex));
@@ -1932,7 +1952,7 @@ function summary(){
  const completedWorkout=workoutForDay(Number.isInteger(session.planDay)?session.planDay:currentPlanIndex());
  const cardioBlocks=cardioBlocksForWorkout(completedWorkout);
  const savedCardioBlocks=Array.isArray(session.cardioBlocks)?session.cardioBlocks:[];
- app.innerHTML=`<section class="card complete upgraded-complete"><div class="check">✓</div><span class="pill">SESSION ${state.sessions} COMPLETE</span><h2>You crushed it!</h2><p>${formatDuration(session.durationMs)} • ${totals.completedSets} sets • ${totals.totalReps} reps</p></section>
+ app.innerHTML=`<div class="pilot-summary"><section class="card complete upgraded-complete"><div class="check">✓</div><span class="pill">SESSION ${state.sessions} COMPLETE</span><h2>You crushed it!</h2><p>${formatDuration(session.durationMs)} • ${totals.completedSets} sets • ${totals.totalReps} reps</p></section>
  <section class="card workout-rating"><h3>How did it feel?</h3><p>This rating is one signal alongside completed sets, reps, weight and recovery.</p><div class="rating-grid">${["Easy","Good","Too Hard"].map((x,i)=>`<button data-rating="${x}" class="${rating===x?"selected":""}"><span>${["😀","🙂","😫"][i]}</span>${x}</button>`).join("")}</div><label>Workout notes<textarea id="workoutNote" placeholder="Energy, discomfort, equipment changes or wins...">${session.note||""}</textarea></label></section>
  ${cardioBlocks.length?`<section class="card cardio-log-card"><span class="pill">CARDIO PERFORMANCE</span><h3>Record each cardio block</h3><p>Your measured timer total is filled in automatically. You can still correct it or add metrics imported from iFIT or Strava.</p><div class="cardio-block-list">${cardioBlocks.map((block,index)=>{const runtime=state.cardioTimers[block.name],timedMinutes=runtime?Number((currentCardioSeconds(runtime)/60).toFixed(1)):null,saved=Object.assign({},savedCardioBlocks.find(item=>item.name===block.name)||{},timedMinutes?{actualDurationMinutes:timedMinutes}:{}),previous=previousCardioBlock(block.name,session.id);return `<fieldset class="cardio-block" data-cardio-block="${index}"><legend><strong>${block.name}</strong><small>Target: ${block.plannedDurationMinutes} min • ${block.modality}</small></legend><p class="cardio-previous">${cardioComparison(previous)}</p><div class="cardio-log-grid"><label>Actual time (min)<input data-cardio="actualDurationMinutes" type="number" inputmode="decimal" min="0" step="0.1" value="${saved.actualDurationMinutes??block.plannedDurationMinutes}"></label><label>Distance<input data-cardio="distance" type="number" inputmode="decimal" min="0" step="0.01" value="${saved.distance??""}"></label><label>Average heart rate<input data-cardio="averageHeartRate" type="number" inputmode="numeric" min="0" value="${saved.averageHeartRate??""}"></label><label>Average pace<input data-cardio="averagePace" placeholder="e.g. 18:30 / mi" value="${escapeAdaptiveText(saved.averagePace||"")}"></label><label>Incline / resistance<input data-cardio="inclineResistance" placeholder="e.g. 3% or level 5" value="${escapeAdaptiveText(saved.inclineResistance||"")}"></label><label>Effort<select data-cardio="effort">${["Easy","Good","Too Hard"].map(value=>`<option ${saved.effort===value?"selected":""}>${value}</option>`).join("")}</select></label></div></fieldset>`;}).join("")}</div></section>`:""}
  ${session.recoveryIndicator&&session.recoveryDecision==="pending"?`<section class="card recovery-completion-choice" aria-labelledby="recoveryCompletionTitle">
@@ -1945,7 +1965,7 @@ function summary(){
      <button class="choice-button" data-recovery-decision="later"><strong>Decide later</strong><small>Make no scheduling changes now.</small></button>
    </div>
  </section>`:""}
- <button class="primary" id="saveFinish">Save feedback and view workout</button><button class="secondary" id="home">Return home</button>`;
+ <button class="primary" id="saveFinish">Save feedback and view workout</button><button class="secondary" id="home">Return home</button></div>`;
  const captureCompletionInputs=()=>{session.note=document.querySelector("#workoutNote")?.value.trim()||session.note||"";session.cardioBlocks=cardioBlocks.map((block,index)=>{const field=document.querySelector(`[data-cardio-block="${index}"]`),value=key=>field?.querySelector(`[data-cardio="${key}"]`)?.value;return Object.assign({},block,{actualDurationMinutes:Number(value("actualDurationMinutes"))||0,distance:Number(value("distance"))||null,averageHeartRate:Number(value("averageHeartRate"))||null,averagePace:value("averagePace")?.trim()||"",inclineResistance:value("inclineResistance")?.trim()||"",effort:value("effort")||"Good"});});const main=session.cardioBlocks.slice().sort((a,b)=>b.plannedDurationMinutes-a.plannedDurationMinutes)[0];if(main)session.cardio=Object.assign({},main,{paceIncline:[main.averagePace,main.inclineResistance].filter(Boolean).join(" • ")});};
  document.querySelectorAll("[data-rating]").forEach(b=>b.onclick=()=>{captureCompletionInputs();state.workoutRatings[session.id]=b.dataset.rating;session.difficultyRating=b.dataset.rating;save();summary()});
  document.querySelectorAll("[data-recovery-decision]").forEach(button=>button.onclick=()=>{
@@ -2668,7 +2688,7 @@ function exercise(ex,workoutData=activeWorkout()){
  const previous=workoutData[state.step-2];
  const blockChanged=!previous||setupBlockLabel(previous)!==currentBlock;
 
- app.innerHTML=`<section class="card workout-card v111-workout-card">
+ app.innerHTML=`<div class="pilot-active-workout"><section class="card workout-card v111-workout-card">
    <div class="phase"><span class="tag">${ex.type}</span><strong>${state.step}/${workoutData.length}</strong></div>
    <div class="progress workout-progress"><i style="width:${pct}%"></i></div>
    ${blockChanged?`<div class="setup-block-banner compact-block-banner">
@@ -2689,7 +2709,7 @@ function exercise(ex,workoutData=activeWorkout()){
    ${strength?`<div class="weight-coach-card"><h3>Weight recommendation</h3><p>${ex.weightRecommendation}</p></div>`:""}
  </section>
  ${strength?sets(ex):timed(ex)}
- <div class="workout-actions"><button class="secondary" id="back">Back</button><button class="primary" id="next">${state.step===workoutData.length?"Finish session":"Complete & continue"}</button></div>`;
+ <div class="workout-actions"><button class="secondary" id="back">Back</button><button class="primary" id="next">${state.step===workoutData.length?"Finish session":"Complete & continue"}</button></div></div>`;
 
  document.querySelector("#back").onclick=()=>{
    state.step=Math.max(1,state.step-1);

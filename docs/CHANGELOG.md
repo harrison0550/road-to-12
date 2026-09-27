@@ -6,6 +6,20 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+### UI refresh Phase 2 rollout
+
+- Restored the exact pre-refresh Calendar semantic indicator mapping and missed/Extra Activity colors while retaining the Phase 2 layout and blue selected-day outline.
+- Extended the approved design tokens and reusable card, action, state, navigation, and dialog treatments across Calendar, Progress, Exercises, Profile/settings, Extra Activity, and Strava states.
+- Preserved mobile-first layouts, reduced motion, keyboard focus, offline media, storage schema 21, and all existing application behavior.
+
+### UI refresh Phase 1 pilot
+
+- Refined the approved pilot with category-aware exercise details, lighter active-workout information hierarchy, and a subtle selected-tab indicator while preserving the Home dashboard and workout-summary success treatment.
+- Prepared build `2026.09.26.5` with cache generation 78 and a semantic CSS token system based on the Dumbbell Reverse Lunge guide.
+- Applied the new navy, blue, gold, and green visual system to Home, active workout, exercise detail, and workout summary while preserving their existing behavior.
+- Reorganized existing exercise metadata into Muscles Worked, Key Form Cues, Programming, and Pro Tips panels without inventing missing content or changing storage.
+- Added regression coverage for pilot screen hooks, design tokens, reusable component styles, reduced motion, narrow screens, and offline cache rotation.
+
 ### Added
 
 - Added stable identities and regression coverage for Seated Bench Knee Tuck and the canonical Easy Treadmill Cooldown, including restored backups containing every retired movement and strict client/Worker Strava token validation.

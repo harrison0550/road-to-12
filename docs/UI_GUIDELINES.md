@@ -16,6 +16,10 @@ Home follows the Concept B “Training Command Center” direction: a compact br
 
 ## Color system
 
+Phase 1 of the visual refresh introduces semantic CSS custom properties for the app canvas, surfaces, blue hierarchy, gold callouts, success, warning, error, text, borders, focus, disabled controls, radii, spacing, type, and elevation. Compatibility aliases keep existing screens stable while Home, active workout, exercise detail, and workout summary use the new system first. New pilot work should use the semantic `--color-*`, `--radius-*`, `--space-*`, `--font-*`, and `--shadow-*` tokens rather than raw values.
+
+Exercise details select panels by category. Strength and core use muscles, form cues, programming, and tips. Cardio and warm-up use purpose, intensity, setup, programming, and tips. Mobility and recovery use target areas, performance steps, duration, and tips. Omit a panel when its source metadata is absent. In active workouts, secondary guidance uses dividers and flatter surfaces so the current exercise and completion controls remain dominant.
+
 Current production tokens are defined in `app.css`:
 
 | Role | Token / value | Usage |
@@ -54,6 +58,8 @@ Use a consistent 4px-based rhythm:
 Standard cards have approximately 14px bottom separation. Avoid nested cards unless the inner surface communicates a clear sub-state.
 
 ## Cards
+
+The pilot component vocabulary is `.ui-panel`, `.ui-stat-card`, `.ui-section-header`, `.programming-panel`, `.pro-tip-panel`, `.muscle-target-panel`, `.success-card`, `.warning-card`, and `.ui-badge`. Exercise detail pages group existing metadata into Muscles Worked, Key Form Cues, Programming, and Pro Tips without creating missing content.
 
 - Standard corner radius: 26px.
 - Compact inner panels: 13–18px.

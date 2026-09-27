@@ -4,6 +4,8 @@ This file contains implementation-ready work. Move completed user-visible work t
 
 ## High priority
 
+- [x] Prepare the undeployed Phase 1 UI refresh: audit the cumulative stylesheet, add semantic design tokens and reusable component styles, and pilot them on Home, active workout, exercise detail, and workout summary without data or behavior changes.
+
 - [x] Deploy build `2026.09.26.2` replacing the two review-gated hanging core movements and Thursday breathing cooldown, remove four mobility/breathing drills from future Tuesday/Saturday templates, preserve restored historical records unchanged, and deploy Worker version `efdc2eff-4ab6-4226-bf7f-c08b61a6b679`.
 - [x] Replace the active Build Lower A/B Smith single-leg squat with Dumbbell Reverse Lunge, preserve Smith history, add the supplied guide and documented Strava token, validate client/Worker privacy boundaries, and deploy build `2026.09.26.1` plus Worker version `c35bd4ed-64df-473d-aee0-585ff3406617`.
 - [x] Complete the Strava compliance deployment gate in `STRAVA_COMPLIANCE.md`: deploy disclosure, complete deletion, support, retention, backup, rate-limit, and AI-boundary changes; verify live D1/local deletion and backup anti-resurrection with the connected pilot account; re-audit before the first upload.

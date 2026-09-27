@@ -4,6 +4,8 @@ The roadmap communicates direction rather than a guaranteed schedule. Completed 
 
 ## Current release — v13.2
 
+- [x] Build and review the Phase 1 design-system pilot on four core screens before approving any full-app restyle.
+
 - [x] Flexible missed-workout recovery
 - [x] Monthly workout calendar
 - [x] Status and workout-type legend
