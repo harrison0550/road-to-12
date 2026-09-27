@@ -8,6 +8,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### UI refresh Phase 2 rollout
 
+- Deployed build `2026.09.26.7` with the bottom-navigation cascade fix so every selected tab uses the primary blue token, one top-edge indicator, and no legacy red or label-overlapping underline.
 - Restored the exact pre-refresh Calendar semantic indicator mapping and missed/Extra Activity colors while retaining the Phase 2 layout and blue selected-day outline.
 - Extended the approved design tokens and reusable card, action, state, navigation, and dialog treatments across Calendar, Progress, Exercises, Profile/settings, Extra Activity, and Strava states.
 - Preserved mobile-first layouts, reduced motion, keyboard focus, offline media, storage schema 21, and all existing application behavior.

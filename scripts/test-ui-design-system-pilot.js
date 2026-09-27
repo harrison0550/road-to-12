@@ -35,7 +35,7 @@ assert(css.includes(".card{border-color:var(--color-border)"),"full-app cards mu
 assert(css.includes(".primary{min-height:52px"),"full-app primary actions must use the approved prominent treatment");
 assert(css.includes("@media(prefers-reduced-motion:reduce)"),"pilot must preserve reduced-motion support");
 assert(css.includes("@media(max-width:370px)"),"pilot must include narrow-phone layout rules");
-assert(metadata.includes('build: "2026.09.26.6"'),"pilot must rotate the PWA build marker");
-assert(metadata.includes('serviceWorkerCache: "road12-v13-3-79-shell"'),"pilot must rotate the offline cache");
+assert(metadata.includes('build: "2026.09.26.7"'),"pilot must rotate the PWA build marker");
+assert(metadata.includes('serviceWorkerCache: "road12-v13-3-80-shell"'),"pilot must rotate the offline cache");
 assert(!app.includes("schemaVersion:22"),"visual pilot must not add a storage schema");
 console.log("UI design-system pilot regression tests passed.");

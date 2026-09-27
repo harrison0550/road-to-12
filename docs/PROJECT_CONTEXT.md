@@ -6,11 +6,11 @@ Read this file at the beginning of every Codex or engineering session. It is the
 
 - Product: Road to 12%
 - Version: 13.3.0
-- Build: 2026.09.26.6
+- Build: 2026.09.26.7
 - Last updated: September 26, 2026
-- Service Worker cache: `road12-v13-3-79-shell`
-- Exercise media cache: `road12-v13-3-79-media`
-- Deployment status: build `2026.09.26.6` is the approved production client release; Cloudflare Worker remains `efdc2eff-4ab6-4226-bf7f-c08b61a6b679`
+- Service Worker cache: `road12-v13-3-80-shell`
+- Exercise media cache: `road12-v13-3-80-media`
+- Deployment status: build `2026.09.26.7` is deployed; Cloudflare Worker remains `efdc2eff-4ab6-4226-bf7f-c08b61a6b679`
 - Runtime: static, client-only, offline-first PWA
 - Primary storage key: `road12v5`
 
@@ -81,7 +81,7 @@ See `KNOWN_BUGS.md` before diagnosing or fixing defects.
 
 ## Active sprint goals
 
-Build `2026.09.26.6` is the approved production client release. It includes the Phase 2 visual rollout and restores the original Calendar semantic status colors while preserving completed history, scheduling, schema 21, and the existing Worker exactly. The production Cloudflare Worker remains version `efdc2eff-4ab6-4226-bf7f-c08b61a6b679`. Automatic phase activation, Strava autosync, cardio posting, read scopes, bulk history, and Phase 2B remain disabled.
+Build `2026.09.26.7` is deployed with the bottom-navigation selected-state visual correction. Phase 2 and the original Calendar semantic colors preserve completed history, scheduling, schema 21, and the existing Worker exactly. The production Cloudflare Worker remains version `efdc2eff-4ab6-4226-bf7f-c08b61a6b679`. Automatic phase activation, Strava autosync, cardio posting, read scopes, bulk history, and Phase 2B remain disabled.
 
 Next recommended goals:
 

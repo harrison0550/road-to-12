@@ -1,6 +1,6 @@
 # Phase 2 UI rollout plan
 
-Status: approved for production in build `2026.09.26.6`.
+Status: Phase 2 and the approved bottom-navigation refinement are deployed in build `2026.09.26.7`.
 
 Phase 2 extends the approved semantic tokens and reusable components without changing navigation, storage, workout behavior, or the schema.
 
