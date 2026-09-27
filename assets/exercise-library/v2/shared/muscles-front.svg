@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 500" role="img" aria-labelledby="title desc">
+  <title id="title">Front muscle map</title><desc id="desc">Reusable front body silhouette with semantic muscle regions.</desc>
+  <g id="body-front" fill="#243246" stroke="#7890aa" stroke-width="2">
+    <circle cx="110" cy="42" r="28"/><path d="M88 72Q72 84 68 125L55 225Q54 238 65 241Q76 242 79 228L91 145L91 244L78 346L80 477Q82 490 94 490Q105 490 106 476L110 362L114 476Q115 490 127 490Q139 490 140 477L142 346L129 244L129 145L141 228Q144 242 155 241Q166 238 165 225L152 125Q148 84 132 72Z"/>
+  </g>
+  <g id="muscle-chest"><path d="M91 93Q109 82 109 119Q96 132 86 116Z"/><path d="M111 119Q111 82 129 93L134 116Q124 132 111 119Z"/></g>
+  <g id="muscle-front-deltoid"><ellipse cx="82" cy="102" rx="12" ry="18"/><ellipse cx="138" cy="102" rx="12" ry="18"/></g>
+  <g id="muscle-lateral-deltoid"><path d="M72 99Q80 83 90 96L85 121Q73 119 70 110Z"/><path d="M148 99Q140 83 130 96L135 121Q147 119 150 110Z"/></g>
+  <g id="muscle-biceps"><ellipse cx="76" cy="151" rx="9" ry="25"/><ellipse cx="144" cy="151" rx="9" ry="25"/></g>
+  <g id="muscle-forearms"><path d="M66 178L58 224Q58 234 65 235L76 184Z"/><path d="M154 178L162 224Q162 234 155 235L144 184Z"/></g>
+  <g id="muscle-abdominals"><path d="M96 126H108V210H94Q89 168 96 126Z"/><path d="M112 126H124Q131 168 126 210H112Z"/></g>
+  <g id="muscle-obliques"><path d="M89 129L94 210L86 231Q77 192 84 139Z"/><path d="M131 129L126 210L134 231Q143 192 136 139Z"/></g>
+  <g id="muscle-hip-flexors"><path d="M91 214L108 218L104 251L87 242Z"/><path d="M129 214L112 218L116 251L133 242Z"/></g>
+  <g id="muscle-adductors"><path d="M101 244L108 253L101 337L90 276Z"/><path d="M119 244L112 253L119 337L130 276Z"/></g>
+  <g id="muscle-quadriceps"><path d="M87 247Q104 240 106 264L102 340Q88 352 82 329Z"/><path d="M133 247Q116 240 114 264L118 340Q132 352 138 329Z"/></g>
+  <g id="muscle-calves"><path d="M83 354Q101 348 103 377L98 449Q84 460 80 432Z"/><path d="M137 354Q119 348 117 377L122 449Q136 460 140 432Z"/></g>
+</svg>

@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 500" role="img" aria-labelledby="title desc">
+  <title id="title">Back muscle map</title><desc id="desc">Reusable back body silhouette with semantic muscle regions.</desc>
+  <g id="body-back" fill="#243246" stroke="#7890aa" stroke-width="2">
+    <circle cx="110" cy="42" r="28"/><path d="M88 72Q72 84 68 125L55 225Q54 238 65 241Q76 242 79 228L91 145L91 244L78 346L80 477Q82 490 94 490Q105 490 106 476L110 362L114 476Q115 490 127 490Q139 490 140 477L142 346L129 244L129 145L141 228Q144 242 155 241Q166 238 165 225L152 125Q148 84 132 72Z"/>
+  </g>
+  <g id="muscle-upper-back"><path d="M88 86Q110 73 132 86L127 128Q110 142 93 128Z"/></g>
+  <g id="muscle-rear-deltoid"><ellipse cx="80" cy="103" rx="13" ry="18"/><ellipse cx="140" cy="103" rx="13" ry="18"/></g>
+  <g id="muscle-triceps"><ellipse cx="76" cy="151" rx="9" ry="26"/><ellipse cx="144" cy="151" rx="9" ry="26"/></g>
+  <g id="muscle-forearms"><path d="M66 178L58 224Q58 234 65 235L76 184Z"/><path d="M154 178L162 224Q162 234 155 235L144 184Z"/></g>
+  <g id="muscle-lats"><path d="M89 119Q105 133 106 177L94 218Q81 186 85 139Z"/><path d="M131 119Q115 133 114 177L126 218Q139 186 135 139Z"/></g>
+  <g id="muscle-spinal-erectors"><path d="M101 130H108V231L98 238Z"/><path d="M112 130H119L122 238L112 231Z"/></g>
+  <g id="muscle-gluteus-maximus"><path d="M87 216Q108 211 108 246Q95 261 84 245Z"/><path d="M133 216Q112 211 112 246Q125 261 136 245Z"/></g>
+  <g id="muscle-hamstrings"><path d="M86 252Q105 245 106 273L102 342Q87 350 82 326Z"/><path d="M134 252Q115 245 114 273L118 342Q133 350 138 326Z"/></g>
+  <g id="muscle-calves"><path d="M83 354Q101 348 103 377L98 449Q84 460 80 432Z"/><path d="M137 354Q119 348 117 377L122 449Q136 460 140 432Z"/></g>
+</svg>

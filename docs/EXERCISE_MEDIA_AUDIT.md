@@ -1,5 +1,13 @@
 # Exercise Media Audit
 
+## Exercise Media Library v2 pilot
+
+Build `2026.09.26.10` adds v2 infrastructure for twelve Build pilot exercises and activates the separately approved Smith Machine Bench Press record. `exercise-media-v2.js` provides canonical-ID records with poster, sequence, animation, primary/secondary muscle, and semantic highlight fields. The other eleven records remain `pending-review` and `approved: false`, so their production v1 media continues to resolve unchanged. `exercise-media-manifest-v2.js` separates planned paths from approved cache assets; the shared muscle SVGs and four approved Smith Machine Bench Press assets enter the media cache.
+
+The pilot renders reusable front/back SVG muscle silhouettes from metadata. Primary regions use the brighter blue treatment, secondary regions use the lower-opacity gold treatment, and the accessible primary/secondary text lists remain authoritative. No workout definition, identity, progression rule, Strava mapping, backup format, or schema value changes.
+
+Pilot records cover Smith Machine Bench Press, GMWD Converging Chest Press, Lat Pulldown, Seated Cable Row, Smith Machine Squat, Smith Machine Hip Thrust, Dumbbell Reverse Lunge, Standing Single-Leg Cable Hamstring Curl, Dumbbell Lateral Raise, Seated Concentration Curl, Smith Machine Calf Raise, and Cable Crunch. No v2 exercise media is preferred until its generated files receive separate approval.
+
 ## Status
 
 - Audit date: September 26, 2026
@@ -216,3 +224,5 @@ The repository currently contains RitFit poster crops that were supplied for thi
 - Do not generate speculative Phase 3 or Phase 4 assets before their exercise prescriptions exist.
 - Continue preferring exact official or appropriately licensed references where available, while preserving an offline app-created guide when it has been reviewed and approved.
 - Consider content-hashed or shared immutable media caching so future shell rotations do not redownload unchanged GIFs.
+
+\n

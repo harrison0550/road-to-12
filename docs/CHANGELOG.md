@@ -6,6 +6,13 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+### Exercise Media Library v2
+
+- Approved and activated the app-original Smith Machine Bench Press v2 poster, sequence, WebP animation, and MP4 animation with offline cache coverage and v1 fallback retained.
+- Added a canonical-ID v2 registry and separate planned/approved media manifest for twelve Build pilot exercises while preserving v1 fallback for every unapproved record.
+- Added reusable offline front/back SVG muscle maps with brighter blue primary regions, lower-opacity gold secondary regions, and authoritative accessible text lists.
+- Preserved schema 21, workout definitions, exercise identities, progression, scheduling, Strava mappings, backup compatibility, aliases, and every production media reference.
+
 ### UI refresh Phase 2 rollout
 
 - Deployed build `2026.09.26.8` to replace remaining legacy brand-red Workout Preview, numbered-guidance, import, disclosure, and active-control accents with design-system blue while preserving true error/destructive red.

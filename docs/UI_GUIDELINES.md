@@ -61,6 +61,8 @@ Standard cards have approximately 14px bottom separation. Avoid nested cards unl
 
 The pilot component vocabulary is `.ui-panel`, `.ui-stat-card`, `.ui-section-header`, `.programming-panel`, `.pro-tip-panel`, `.muscle-target-panel`, `.success-card`, `.warning-card`, and `.ui-badge`. Exercise detail pages group existing metadata into Muscles Worked, Key Form Cues, Programming, and Pro Tips without creating missing content.
 
+Exercise Media Library v2 may add a reusable metadata-driven front/back muscle map inside `.muscle-target-panel`. Primary regions use the primary blue at higher opacity; secondary regions use gold at lower opacity. The adjacent primary and secondary text lists remain the accessible source of truth, and an exercise without v2 muscle metadata renders the existing text-only panel.
+
 - Standard corner radius: 26px.
 - Compact inner panels: 13–18px.
 - Use a one-pixel `--line` border for separation.

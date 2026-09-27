@@ -1,5 +1,6 @@
 /* Keep this query aligned with app-meta.js so Safari cannot reuse stale imported metadata. */
-importScripts("./app-meta.js?build=2026.09.26.8");
+importScripts("./app-meta.js?build=2026.09.26.10");
+importScripts("./exercise-media-manifest-v2.js?build=2026.09.26.10");
 
 const CACHE=self.ROAD12_META.serviceWorkerCache;
 const MEDIA_CACHE=CACHE.endsWith("-shell")?`${CACHE.slice(0,-6)}-media`:`${CACHE}-media`;
@@ -12,6 +13,8 @@ const MUTABLE_ASSETS=[
   "app-meta.js",
   "exercise-library.js",
   "exercise-identity.js",
+  "exercise-media-v2.js",
+  "exercise-media-manifest-v2.js",
   "strava-sync-state.js",
   "strava-data-boundary.js",
   "strava-strength-payload.js",
@@ -39,6 +42,8 @@ const CORE_ASSETS=[
   "./app-meta.js",
   "./exercise-library.js",
   "./exercise-identity.js",
+  "./exercise-media-v2.js",
+  "./exercise-media-manifest-v2.js",
   "./strava-sync-state.js",
   "./strava-data-boundary.js",
   "./strava-strength-payload.js",
@@ -211,6 +216,7 @@ const MEDIA_ASSETS=[
   "./assets/exercise-library/original/dumbbell-romanian-deadlift-animation.gif",
   "./assets/exercise-library/original/side-plank-from-knees-animation.gif"
 ];
+self.ROAD12_MEDIA_V2_MANIFEST.cacheAssets.forEach(asset=>MEDIA_ASSETS.unshift(`./${asset}`));
 
 const MEDIA_ASSET_PATHS=MEDIA_ASSETS.map(asset=>asset.slice(1));
 const MEDIA_POSTER_REFERENCE_ASSETS=MEDIA_ASSETS.filter(asset=>!asset.toLowerCase().endsWith(".gif"));
@@ -389,3 +395,5 @@ self.addEventListener("fetch",event=>{
     })
   );
 });
+
+\n

@@ -70,8 +70,12 @@ const SAFE_EXERCISE_ASSET_OVERRIDES={
  "Cooldown":"assets/placeholders/cooldown-recovery.svg"
 };
 const LICENSED_EXERCISE_LIBRARY=window.ROAD12_EXERCISE_LIBRARY||{entries:{}};
+const EXERCISE_MEDIA_V2=window.ROAD12_EXERCISE_MEDIA_V2||null;
 function exerciseLibraryEntry(ex){
- return LICENSED_EXERCISE_LIBRARY.entries?.[ex?.name]||null;
+ const v1Entry=LICENSED_EXERCISE_LIBRARY.entries?.[ex?.name]||null;
+ const placeholderAsset=SAFE_EXERCISE_ASSET_OVERRIDES[ex?.name]||PHASE3_ASSET_MAP[ex?.name]||PHASE2_ASSET_MAP[ex?.name]||null;
+ const placeholderEntry=placeholderAsset?{media:placeholderAsset,mediaType:"still",mediaAlt:`Written exercise guide for ${ex?.name||"this movement"}`,sourceType:"placeholder"}:null;
+ return EXERCISE_MEDIA_V2?.resolve?.(ex?.name,v1Entry,placeholderEntry)||v1Entry||placeholderEntry;
 }
 function exerciseAsset(ex){
  const entry=exerciseLibraryEntry(ex);
@@ -80,6 +84,20 @@ function exerciseAsset(ex){
 function entryDisplayAsset(entry){return entry?.mediaType==="animation"&&entry.motionPoster?entry.motionPoster:entry?.media||null}
 function listMarkup(items,emptyText){
  return items?.length?`<ul>${items.map(item=>`<li>${item}</li>`).join("")}</ul>`:`<p class="muted">${emptyText}</p>`;
+}
+const FRONT_MUSCLE_REGIONS=new Set(["chest","front-deltoid","lateral-deltoid","biceps","forearms","abdominals","obliques","hip-flexors","adductors","quadriceps","calves"]);
+const BACK_MUSCLE_REGIONS=new Set(["upper-back","rear-deltoid","triceps","forearms","lats","spinal-erectors","gluteus-maximus","hamstrings","calves"]);
+function muscleFigureView(side,regions){
+ const source=`assets/exercise-library/v2/shared/muscles-${side}.svg`;
+ const supported=side==="front"?FRONT_MUSCLE_REGIONS:BACK_MUSCLE_REGIONS;
+ const layers=[...regions.primary.filter(region=>supported.has(region)).map(region=>`<use class="muscle-region primary" data-muscle-region="${region}" href="${source}#muscle-${region}"></use>`),...regions.secondary.filter(region=>supported.has(region)).map(region=>`<use class="muscle-region secondary" data-muscle-region="${region}" href="${source}#muscle-${region}"></use>`)];
+ return `<figure class="muscle-map-view"><svg viewBox="0 0 220 500" aria-hidden="true" focusable="false"><use class="muscle-body" href="${source}#body-${side}"></use>${layers.join("")}</svg><figcaption>${side}</figcaption></figure>`;
+}
+function muscleHighlightMarkup(ex){
+ const record=EXERCISE_MEDIA_V2?.getForName?.(ex?.name);
+ if(!record?.muscleHighlights)return "";
+ const regions={primary:[...record.muscleHighlights.primary],secondary:[...record.muscleHighlights.secondary]};
+ return `<div class="muscle-highlight-map" data-media-version="${record.mediaVersion}" aria-label="Muscle highlight diagram"><div class="muscle-map-views">${muscleFigureView("front",regions)}${muscleFigureView("back",regions)}</div><div class="muscle-map-legend" aria-hidden="true"><span class="primary">Primary</span><span class="secondary">Secondary</span></div></div>`;
 }
 function mediaStatus(entry){
  if(entry.mediaType==="animation")return "MOVEMENT ANIMATION";
@@ -167,7 +185,7 @@ function exerciseTeachingMarkup(ex){
    : [["Duration",ex.duration]];
  const intensityGuidance=(ex.setup||[]).filter(item=>/zone|pace|speed|incline|resistance|effort|conversation/i.test(item));
  const strengthDetails=`
-   <section class="ui-panel muscle-target-panel"><h3 class="ui-section-header">Muscles Worked</h3><div class="muscle-groups"><div><small>PRIMARY</small>${listMarkup(primary,"See the movement description.")}</div>${secondary.length?`<div><small>SECONDARY</small>${listMarkup(secondary,"")}</div>`:""}</div><div class="equipment-line"><small>EQUIPMENT</small><span>${equipment.join(" • ")||"No equipment required"}</span></div></section>
+   <section class="ui-panel muscle-target-panel"><h3 class="ui-section-header">Muscles Worked</h3>${muscleHighlightMarkup(ex)}<div class="muscle-groups"><div><small>PRIMARY</small>${listMarkup(primary,"See the movement description.")}</div>${secondary.length?`<div><small>SECONDARY</small>${listMarkup(secondary,"")}</div>`:""}</div><div class="equipment-line"><small>EQUIPMENT</small><span>${equipment.join(" • ")||"No equipment required"}</span></div></section>
    ${ex.cues?.length?`<section class="ui-panel success-panel"><h3 class="ui-section-header">Key Form Cues</h3><ul class="checklist-rows">${ex.cues.map(cue=>`<li><span aria-hidden="true">✓</span><span>${cue}</span></li>`).join("")}</ul></section>`:""}
    <section class="ui-panel programming-panel"><h3 class="ui-section-header">Programming</h3><dl>${programming.map(([label,value])=>`<div><dt>${label}</dt><dd>${value}</dd></div>`).join("")}</dl></section>
    ${ex.weightRecommendation?`<section class="ui-panel pro-tip-panel"><h3 class="ui-section-header">Pro Tips</h3>${listMarkup([ex.weightRecommendation],"")}</section>`:""}`;
