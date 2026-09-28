@@ -120,6 +120,7 @@ function generateLiveWorkouts(phaseId="foundation") {
     "zone2CardioWorkout",
     "smithMachineBenchPressExercise",
     "gmwdConvergingChestPressExercise",
+    "seatedCableChestFlyExercise",
     "lowInclineDumbbellPressExercise",
     "fullBodyAWorkout",
     "dumbbellAccessoryForDay",
@@ -243,8 +244,8 @@ const buildProgram=require(path.join(root,"build-upper-lower-program.js"));
 const foundationStrengthSets=[0,2,4].map(day=>liveFoundationWorkouts[day].filter(exercise=>exercise.type==="strength").reduce((sum,exercise)=>sum+(Number(exercise.sets)||0),0));
 const buildStrengthSets=[0,1,3,4].map(day=>liveBuildWorkouts[day].filter(exercise=>exercise.type==="strength").reduce((sum,exercise)=>sum+(Number(exercise.sets)||0),0));
 assert.deepStrictEqual(foundationStrengthSets,[22,26,27],"Foundation working-set baseline changed unexpectedly");
-assert.deepStrictEqual(buildStrengthSets,[22,19,21,20],"Build working-set allocation changed unexpectedly");
-assert.strictEqual(buildStrengthSets.reduce((sum,value)=>sum+value,0),82,"Build must use the approved 82-set weekly strength allocation");
+assert.deepStrictEqual(buildStrengthSets,[22,19,22,20],"Build working-set allocation changed unexpectedly");
+assert.strictEqual(buildStrengthSets.reduce((sum,value)=>sum+value,0),83,"Build must use the approved 83-set weekly strength allocation");
 [0,1,3,4].forEach(day=>{
   const template=buildProgram.templateForPlanDay(day);
   assert.deepStrictEqual(liveBuildWorkouts[day].map(exercise=>exercise.name),template.exercises.map(exercise=>exercise.name),`${template.name} runtime output must exactly match its approved template`);
@@ -296,7 +297,8 @@ assert.deepStrictEqual(
 );
 assert(library.entries["Incline Cable Press"], "the legacy Incline Cable Press media entry must remain available");
 for (const name of visibleLibraryNames) {
-  assert(library.entries[name], `visible Exercise Library item ${name} must resolve to reviewed media`);
+  assert(library.entries[name], `visible Exercise Library item ${name} must resolve to library metadata`);
+  if(name==="Seated Cable Chest Fly")assert.strictEqual(library.entries[name].mediaType,"text","pending v2 media must fall back to written guidance");
 }
 const bikeSetup = library.entries["Stationary Bike Setup"];
 assert.strictEqual(bikeSetup.mediaType, "still");

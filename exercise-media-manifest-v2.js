@@ -10,6 +10,7 @@
   ]);
   const pilotSlugs=Object.freeze([
     "smith-machine-bench-press","gmwd-converging-chest-press","lat-pulldown","seated-cable-row",
+    "seated-cable-chest-fly",
     "smith-machine-squat","smith-machine-hip-thrust","dumbbell-reverse-lunge","standing-single-leg-cable-hamstring-curl",
     "dumbbell-lateral-raise","seated-concentration-curl","smith-machine-calf-raise","cable-crunch"
   ]);
@@ -25,7 +26,11 @@
     "assets/exercise-library/v2/smith-machine-bench-press/road12-v2-smith-machine-bench-press-poster.webp",
     "assets/exercise-library/v2/smith-machine-bench-press/road12-v2-smith-machine-bench-press-sequence.webp",
     "assets/exercise-library/v2/smith-machine-bench-press/road12-v2-smith-machine-bench-press-motion.mp4",
-    "assets/exercise-library/v2/smith-machine-bench-press/road12-v2-smith-machine-bench-press-motion.webp"
+    "assets/exercise-library/v2/smith-machine-bench-press/road12-v2-smith-machine-bench-press-motion.webp",
+    "assets/exercise-library/v2/seated-cable-chest-fly/road12-v2-seated-cable-chest-fly-poster.webp",
+    "assets/exercise-library/v2/seated-cable-chest-fly/road12-v2-seated-cable-chest-fly-sequence.webp",
+    "assets/exercise-library/v2/seated-cable-chest-fly/road12-v2-seated-cable-chest-fly-motion.mp4",
+    "assets/exercise-library/v2/seated-cable-chest-fly/road12-v2-seated-cable-chest-fly-motion.webp"
   ]);
   const cacheAssets=Object.freeze([...sharedAssets,...approvedAssets]);
   return Object.freeze({VERSION,pilotSlugs,sharedAssets,plannedAssets,approvedAssets,cacheAssets});

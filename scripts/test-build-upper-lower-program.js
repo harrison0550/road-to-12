@@ -20,10 +20,10 @@ assert.strictEqual(build.validation.valid,true,build.validation.errors.join("\n"
 assert.deepStrictEqual(Object.keys(build.TEMPLATES),["UPPER_A","LOWER_A","UPPER_B","LOWER_B"]);
 assert.deepStrictEqual(Object.values(build.TEMPLATES).map(item=>item.id),["build-upper-a","build-lower-a","build-upper-b","build-lower-b"]);
 assert.deepStrictEqual(Object.values(build.TEMPLATES).map(item=>item.planDay),[0,1,3,4]);
-assert.deepStrictEqual(Object.values(build.TEMPLATES).map(item=>build.strengthSetCount(item)),[22,19,21,20]);
+assert.deepStrictEqual(Object.values(build.TEMPLATES).map(item=>build.strengthSetCount(item)),[22,19,22,20]);
 assert.deepStrictEqual(build.PRIORITY_GROUPS,["chest","biceps","calves","core"]);
 assert(Object.values(build.TEMPLATES).every(item=>build.strengthSetCount(item)>=16&&build.strengthSetCount(item)<=22));
-assert.strictEqual(Object.values(build.TEMPLATES).reduce((sum,item)=>sum+build.strengthSetCount(item),0),82);
+assert.strictEqual(Object.values(build.TEMPLATES).reduce((sum,item)=>sum+build.strengthSetCount(item),0),83);
 assert(!Object.values(build.TEMPLATES).some(item=>item.id.startsWith("build-full-body-")),"prototype IDs must never be active");
 
 const exercises=Object.values(build.TEMPLATES).flatMap(template=>template.exercises);
@@ -33,17 +33,18 @@ for(const name of ["Smith Machine Bench Press","GMWD Converging Chest Press","Lo
   assert(names.includes(name),`${name} must be present`);
 }
 for(const template of Object.values(build.TEMPLATES))for(const exercise of template.exercises){
-  assert(media[exercise.name],`${template.name}: ${exercise.name} needs reviewed media`);
+  assert(media[exercise.name],`${template.name}: ${exercise.name} needs library metadata`);
   if(!exercise.sets)continue;
   assert.deepStrictEqual(exercise.targetRirRange,[2,3]);
   assert(exercise.primaryGroup&&exercise.reps&&exercise.rest,`${template.name}: ${exercise.name} needs a complete prescription`);
   const identity=identities.resolve(exercise.name);
   assert(!identity.id.startsWith("road12.exercise."),`${exercise.name} needs a canonical identity`);
-  assert(identities.isSupportedStravaExerciseType(identity.externalMappings.strava?.exerciseType),`${exercise.name} needs a supported Strava mapping`);
+  if(exercise.name==="Seated Cable Chest Fly")assert.strictEqual(identity.externalMappings.strava?.exerciseType,null,"the fly must remain unmapped rather than inventing a provider token");
+  else assert(identities.isSupportedStravaExerciseType(identity.externalMappings.strava?.exerciseType),`${exercise.name} needs a supported Strava mapping`);
 }
 
 const volume=build.weeklyPrimarySets();
-assert.deepStrictEqual(volume,{chest:12,back:12,shoulders:6,biceps:9,triceps:4,quads:9,glutes:8,hamstrings:6,calves:8,core:8});
+assert.deepStrictEqual(volume,{chest:13,back:12,shoulders:6,biceps:9,triceps:4,quads:9,glutes:8,hamstrings:6,calves:8,core:8});
 assert(volume.chest>=12&&volume.chest<=14);
 assert(volume.biceps>=9&&volume.biceps<=12);
 assert(volume.calves>=8&&volume.calves<=10);

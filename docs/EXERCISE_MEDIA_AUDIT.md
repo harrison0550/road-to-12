@@ -2,7 +2,7 @@
 
 ## Exercise Media Library v2 pilot
 
-Build `2026.09.26.10` adds v2 infrastructure for twelve Build pilot exercises and activates the separately approved Smith Machine Bench Press record. `exercise-media-v2.js` provides canonical-ID records with poster, sequence, animation, primary/secondary muscle, and semantic highlight fields. The other eleven records remain `pending-review` and `approved: false`, so their production v1 media continues to resolve unchanged. `exercise-media-manifest-v2.js` separates planned paths from approved cache assets; the shared muscle SVGs and four approved Smith Machine Bench Press assets enter the media cache.
+Build `2026.09.28.1` extends Media Library v2 to thirteen records and activates the separately approved Smith Machine Bench Press and Seated Cable Chest Fly records. `exercise-media-v2.js` provides canonical-ID records with poster, sequence, animation, primary/secondary muscle, and semantic highlight fields. The other eleven records remain `pending-review` and `approved: false`, so their reviewed v1 media continues to resolve unchanged. `exercise-media-manifest-v2.js` separates planned paths from approved cache assets; the shared muscle SVGs and eight approved exercise assets enter the media cache.
 
 The shared muscle component uses self-contained native front/back SVG anatomy derived from the approved Smith Machine Bench Press guide. Anatomy and addressable semantic region groups live in the same SVG documents; no SVG fragment depends on a nested raster image. Primary regions render in neon green and secondary regions in lower-opacity pink. The accessible primary and secondary text lists remain authoritative.
 
@@ -16,7 +16,7 @@ Pilot records cover Smith Machine Bench Press, GMWD Converging Chest Press, Lat 
 - Release target: version 13.3.0, build 2026.09.26.2 (deployed)
 - Active guided exercise names mapped: 58 of 58
 - Review-gated lower-ab Phase 2 names mapped: 3 of 3
-- Build v2 exercise names mapped: 41 of 41 occurrences; Dumbbell Reverse Lunge adds one supplied four-frame primary guide
+- Build v3 exercise names represented: 42 of 42 occurrences; Seated Cable Chest Fly uses its approved v2 poster, movement sequence, WebP animation, MP4 animation, and semantic muscle highlights
 - Visible Library-only setup entries mapped: 1 of 1
 - Distinct reviewed movement animations: 61
 - New Road to 12% animations in the August 23 expansion: 13

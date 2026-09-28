@@ -3,7 +3,7 @@
   if(typeof module!=="undefined"&&module.exports)module.exports=api;
   root.ROAD12_BUILD=api;
 })(typeof self!=="undefined"?self:globalThis,function(){
-  const VERSION="build-upper-lower-v2-2026-09-26";
+  const VERSION="build-upper-lower-v3-2026-09-27";
   const DEFAULT_RIR=Object.freeze([2,3]);
   const PRIORITY_GROUPS=Object.freeze(["chest","biceps","calves","core"]);
   const template=(id,name,planDay,emphasis,time,exercises)=>Object.freeze({id,name,planDay,emphasis,time,version:VERSION,exercises:Object.freeze(exercises.map(item=>Object.freeze(Object.assign({targetRirRange:DEFAULT_RIR},item))))});
@@ -35,7 +35,8 @@
       {name:"Treadmill Walk",purpose:"Raise temperature."},{name:"Arm Circles",purpose:"Prepare the shoulders."},
       {name:"Lat Pulldown",sets:4,reps:"8–12",rest:90,primaryGroup:"back",purpose:"Primary vertical pull."},
       {name:"Single Arm Cable Row",sets:3,reps:"8–12",rest:75,primaryGroup:"back",purpose:"Unilateral horizontal pull."},
-      {name:"Low-Incline Dumbbell Press",sets:4,reps:"10–15",rest:90,primaryGroup:"chest",purpose:"Second weekly chest exposure."},
+      {name:"Low-Incline Dumbbell Press",sets:3,reps:"10–15",rest:90,primaryGroup:"chest",purpose:"Second weekly compound chest exposure."},
+      {name:"Seated Cable Chest Fly",sets:2,reps:"12–15",rest:60,primaryGroup:"chest",purpose:"Chest isolation with a controlled stretch and hard squeeze."},
       {name:"Dumbbell Lateral Raise",sets:2,reps:"12–15",rest:60,primaryGroup:"shoulders",purpose:"Side-delt work without redundant front-delt pressing."},
       {name:"Rear Delt Cable Fly",sets:2,reps:"12–15",rest:60,primaryGroup:"shoulders",purpose:"Rear-delt balance."},
       {name:"Alternating Dumbbell Curl",sets:2,reps:"8–12",rest:60,primaryGroup:"biceps",purpose:"Free-weight curl progression."},
@@ -72,8 +73,8 @@
       item.exercises.filter(exercise=>exercise.sets).forEach(exercise=>{if(!exercise.reps||!exercise.rest||!exercise.primaryGroup)errors.push(`${item.name}: ${exercise.name} lacks a complete prescription.`);});
     });
     const names=values.flatMap(item=>item.exercises.map(exercise=>exercise.name));
-    ["GMWD Converging Chest Press","Seated Concentration Curl","Standing Single-Leg Cable Hamstring Curl","Dumbbell Reverse Lunge"].forEach(name=>{if(!names.includes(name))errors.push(`Required exercise missing: ${name}.`);});
-    const volume=weeklyPrimarySets(),expectedVolume={chest:12,back:12,shoulders:6,biceps:9,triceps:4,quads:9,glutes:8,hamstrings:6,calves:8,core:8};
+    ["GMWD Converging Chest Press","Seated Cable Chest Fly","Seated Concentration Curl","Standing Single-Leg Cable Hamstring Curl","Dumbbell Reverse Lunge"].forEach(name=>{if(!names.includes(name))errors.push(`Required exercise missing: ${name}.`);});
+    const volume=weeklyPrimarySets(),expectedVolume={chest:13,back:12,shoulders:6,biceps:9,triceps:4,quads:9,glutes:8,hamstrings:6,calves:8,core:8};
     Object.entries(expectedVolume).forEach(([group,target])=>{if((volume[group]||0)!==target)errors.push(`${group} volume is ${volume[group]||0}; expected exactly ${target}.`);});
     return Object.freeze({valid:errors.length===0,errors:Object.freeze(errors),version:VERSION,weeklyPrimarySets:Object.freeze(volume)});
   }

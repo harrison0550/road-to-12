@@ -26,6 +26,10 @@
   const records=Object.freeze({
     "road12.press.smith-bench":record("road12.press.smith-bench","smith-machine-bench-press",["Chest"],["Front shoulders","Triceps"],["chest"],["front-deltoid","triceps"],true),
     "road12.press.gmwd-converging-chest-press":record("road12.press.gmwd-converging-chest-press","gmwd-converging-chest-press",["Chest"],["Front shoulders","Triceps"],["chest"],["front-deltoid","triceps"]),
+    /* Serratus anterior remains authoritative accessible text. The shared
+       anatomy SVG has no serratus region, so only supported front-deltoid and
+       biceps secondary paths are highlighted. */
+    "road12.fly.cable-seated":record("road12.fly.cable-seated","seated-cable-chest-fly",["Chest"],["Front deltoids","Serratus anterior","Biceps stabilizer"],["chest"],["front-deltoid","biceps"],true),
     "road12.pull.lat-pulldown":record("road12.pull.lat-pulldown","lat-pulldown",["Lats","Upper back"],["Biceps"],["lats","upper-back"],["biceps"]),
     "road12.row.seated-cable":record("road12.row.seated-cable","seated-cable-row",["Lats","Upper back"],["Rear shoulders","Biceps"],["lats","upper-back"],["rear-deltoid","biceps"]),
     "road12.squat.smith-machine":record("road12.squat.smith-machine","smith-machine-squat",["Quadriceps","Glutes"],["Hamstrings","Adductors","Core"],["quadriceps","gluteus-maximus"],["hamstrings","adductors","abdominals"]),

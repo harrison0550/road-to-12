@@ -14,6 +14,7 @@ const sw=fs.readFileSync(path.join(root,"sw.js"),"utf8");
 const expected={
   "Smith Machine Bench Press":"road12.press.smith-bench",
   "GMWD Converging Chest Press":"road12.press.gmwd-converging-chest-press",
+  "Seated Cable Chest Fly":"road12.fly.cable-seated",
   "Lat Pulldown":"road12.pull.lat-pulldown",
   "Seated Cable Row":"road12.row.seated-cable",
   "Smith Machine Squat":"road12.squat.smith-machine",
@@ -33,7 +34,7 @@ for(const [name,id] of Object.entries(expected)){
   assert(record,`${name} must have pilot metadata`);
   assert.strictEqual(record.exerciseId,id);
   assert.strictEqual(record.mediaVersion,2);
-  const approved=name==="Smith Machine Bench Press";
+  const approved=["Smith Machine Bench Press","Seated Cable Chest Fly"].includes(name);
   assert.strictEqual(record.status,approved?"approved":"pending-review");
   assert.strictEqual(record.approved,approved);
   assert(record.assets.poster.endsWith(`road12-v2-${record.slug}-poster.webp`));
@@ -52,9 +53,9 @@ for(const [name,id] of Object.entries(expected)){
 }
 const placeholder={media:"placeholder.svg",mediaType:"still"};
 assert.strictEqual(mediaV2.resolve("Unregistered Movement",null,placeholder),placeholder,"resolution must fall back to a local placeholder after v2 and v1");
-assert.strictEqual(manifest.pilotSlugs.length,12);
-assert.strictEqual(manifest.plannedAssets.length,48);
-assert.strictEqual(manifest.approvedAssets.length,4);
+assert.strictEqual(manifest.pilotSlugs.length,13);
+assert.strictEqual(manifest.plannedAssets.length,52);
+assert.strictEqual(manifest.approvedAssets.length,8);
 assert.deepStrictEqual(manifest.cacheAssets,[...manifest.sharedAssets,...manifest.approvedAssets]);
 manifest.cacheAssets.forEach(asset=>assert(fs.existsSync(path.join(root,asset)),`${asset} must exist before entering the cache manifest`));
 manifest.plannedAssets
@@ -90,4 +91,4 @@ assert.match(app,/const ROAD12_SCHEMA_VERSION=21;/);
 
 const buildNames=new Set(Object.values(build.TEMPLATES).flatMap(template=>template.exercises.map(exercise=>exercise.name)));
 Object.keys(expected).forEach(name=>assert(buildNames.has(name),`${name} must remain present in the unchanged Build templates`));
-console.log("Exercise Media Library v2 pilot tests passed: Smith Bench approved, 11 records pending, v1 fallback, shared muscle SVGs, offline manifest safety, and schema 21 are intact.");
+console.log("Exercise Media Library v2 tests passed: Smith Bench and Seated Cable Chest Fly approved, 11 records pending, fallbacks, shared muscle SVGs, offline manifest safety, and schema 21 are intact.");

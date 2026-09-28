@@ -6,7 +6,7 @@ Read this file at the beginning of every Codex or engineering session. It is the
 
 - Product: Road to 12%
 - Version: 13.3.0
-- Build: 2026.09.27.6
+- Build: 2026.09.28.1
 - Last updated: September 27, 2026
 - Service Worker cache: `road12-v13-3-89-shell`
 - Exercise media cache: `road12-v13-3-89-media`
@@ -21,6 +21,7 @@ Read this file at the beginning of every Codex or engineering session. It is the
 - `scheduling.js` owns pure recovery and date-shifting rules without DOM or storage access.
 - `adaptive-coaching.js` owns pure phase-readiness and exercise-progression projections without mutating workout definitions.
 - `build-upper-lower-program.js` is the only production Build module. It owns the approved four-day Upper/Lower templates, validation, and pure future-schedule activation projection. It cannot activate without validated templates and explicit eligible-user acceptance, and it anchors midweek acceptance to the next intact unresolved Monday. The obsolete three-day prototype is not loaded or cached.
+- Build v3 keeps Upper A, Lower A, and Lower B unchanged. Upper B reduces Low-Incline Dumbbell Press from four to three sets and adds two 12–15-rep Seated Cable Chest Fly sets at 2–3 RIR, producing 22 Upper B working sets and 13 weekly direct chest sets. `road12.fly.cable-seated` uses dual-stack load semantics and intentionally has no Strava exercise token; preview excludes only its sets with an unmapped-exercise warning. Its approved v2 poster, sequence, WebP/MP4 animation, and neon-green/pink semantic muscle highlights are cached offline in build `2026.09.28.1`.
 - `workout-prescriptions.js` captures an approved target into the next matching session and classifies the completed prescription outcome without mutating Foundation definitions.
 - `backup-restore.js` owns versioned backup creation, untrusted-input validation, compatibility-preserving merge rules, and the explicit validated full-store recovery replacement path.
 - `body-measurements.js` owns the canonical timestamped body-measurement model, source adapters, current-value derivation, rolling averages, and trend calculations.

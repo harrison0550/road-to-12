@@ -42,6 +42,7 @@
     ["road12.hip-thrust.smith","Smith Machine Hip Thrust","BARBELL_HIP_THRUST_WITH_BENCH",[]],
     ["road12.press.incline-cable","Incline Cable Press","MACHINE_INCLINE_CHEST_PRESS",[]],
     ["road12.press.dumbbell-low-incline","Low-Incline Dumbbell Press","INCLINE_DUMBBELL_BENCH_PRESS",[]],
+    ["road12.fly.cable-seated","Seated Cable Chest Fly",null,["Cable Seated Chest Fly","Seated Chest Fly","Seated Cable Fly","Chest Fly (Seated Cable)"]],
     ["road12.row.single-arm-cable","Single Arm Cable Row","ROW_GENERIC",["Single-Arm Cable Row"]],
     ["road12.lateral-raise.cable","Cable Lateral Raise","CABLE_LATERAL_RAISE",[]],
     ["road12.crunch.cable","Cable Crunch","CABLE_CRUNCH",[]],

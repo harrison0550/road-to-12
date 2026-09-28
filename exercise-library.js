@@ -473,7 +473,7 @@
 
   function registerAnimation(name, config) {
     const previous = entries[name] || {};
-    if (["movement-sequence", "still"].includes(config.mediaType)) {
+    if (["movement-sequence", "still", "text"].includes(config.mediaType)) {
       entries[name] = Object.assign({}, previous, config);
       return;
     }
@@ -640,6 +640,20 @@
     "Cable Chest Press": {
       slug: "cable-chest-press",
       mediaAlt: "Movement animation of the red-shirt trainer pressing two cable handles forward from chest height on the red RitFit cage while keeping the torso braced"
+    },
+    "Seated Cable Chest Fly": {
+      slug: "seated-cable-chest-fly",
+      sourceType: "app-original",
+      provider: "Road to 12%",
+      author: "Road to 12%",
+      sourceExercise: "Supported seated dual-cable chest fly",
+      mediaType: "text",
+      mediaAlt: "Written movement guide for a supported seated cable chest fly using two even front-post pulleys and an upright centered bench",
+      primaryMuscles: ["Chest"],
+      secondaryMuscles: ["Front delts", "Serratus anterior", "Biceps stabilizer"],
+      equipment: ["RitFit M1 Pro dual front-post pulleys", "Upright centered bench", "Two D-handles"],
+      commonMistakes: ["Turning the fly into a press", "Shrugging", "Bouncing from the stretched position", "Letting the shoulders roll forward"],
+      rightsNote: "Written coaching guide pending reviewed Media v2 assets. Written setup and movement cues remain authoritative."
     },
     "Smith Machine Bench Press": {
       slug: "smith-machine-bench-press",

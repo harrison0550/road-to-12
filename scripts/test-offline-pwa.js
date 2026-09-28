@@ -35,7 +35,7 @@ vm.runInNewContext(
 const exerciseEntries = libraryContext.self.ROAD12_EXERCISE_LIBRARY.entries;
 const reviewedMedia = new Set();
 for (const entry of Object.values(exerciseEntries)) {
-  reviewedMedia.add(`./${entry.media}`);
+  if (entry.media) reviewedMedia.add(`./${entry.media}`);
   if (entry.motionPoster) reviewedMedia.add(`./${entry.motionPoster}`);
   if (entry.reference?.media) reviewedMedia.add(`./${entry.reference.media}`);
 }

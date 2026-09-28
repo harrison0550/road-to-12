@@ -131,7 +131,7 @@ function mediaCredit(entry){
 }
 function licensedMediaMarkup(ex){
  const entry=exerciseLibraryEntry(ex);
- if(!entry){
+ if(!entry||!entryDisplayAsset(entry)){
    return `<section class="exercise-media-card media-unavailable">
      <span class="media-status">COACHED INSTRUCTIONS</span>
      <h3>Follow the guided movement steps</h3>
@@ -3276,6 +3276,40 @@ function gmwdConvergingChestPressExercise(){
   });
 }
 
+function seatedCableChestFlyExercise(){
+  return cloneExerciseByName("Cable Chest Press",{
+    name:"Seated Cable Chest Fly",type:"strength",sets:2,reps:"12–15",rest:60,
+    muscles:"Chest, front delts, serratus anterior and biceps stabilizers",
+    setup:[
+      "Center the upright bench between the two RitFit M1 Pro front pulleys",
+      "Set both pulleys around chest-to-shoulder height and attach one D-handle to each",
+      "Sit tall with the chest up, shoulders down and back, and feet planted",
+      "Begin in a wide fly position with a soft, fixed bend in both elbows"
+    ],
+    steps:[
+      "Bring both handles together in front of the chest in a wide hugging arc.",
+      "Pause briefly and squeeze the chest without straightening the elbows.",
+      "Return slowly under control and feel a comfortable chest stretch.",
+      "Keep the shoulders down and back throughout the repetition."
+    ],
+    cues:[
+      "Sit tall with the chest up.",
+      "Keep a soft bend in the elbows and move in a wide arc, not a press.",
+      "Squeeze the chest at the finish and return slowly.",
+      "Do not shrug, bounce, or turn the movement into a front raise."
+    ],
+    why:"Adds direct chest isolation through a controlled stretch and strong squeeze while keeping weekly chest volume reasonable.",
+    weightRecommendation:"Use lighter weight than you think and prioritize the chest squeeze over load. If the shoulders work more than the chest, reduce the weight, slow the return, and stop slightly short of an uncomfortable stretch. Keep both cable stacks even.",
+    requires:["ritfitM1","bench"],substituteId:null,
+    attachmentCard:{key:"dHandles",name:"Two D-handles",qty:2},
+    m1:{pinLeft:7,pinRight:7,attachment:"One D-handle on each front-post cable",bench:"Bench upright and centered between the front pulleys",facing:"Face away from the M1",stance:"Supported seated position with feet planted",start:"Arms wide with chest up and a soft elbow bend",finish:"Handles together in front of the chest without rolling the shoulders forward",view:"Front-side view",pinNote:"Set both pulleys evenly around chest-to-shoulder height; fine-tune the numbered position for the seated bench height."},
+    demoImage:null,correctedGuide:null,videoResource:null,youtubeQuery:null,
+    weightEntry:{mode:"dual",label:"Weight selected on each stack",help:"Enter the selector setting on ONE stack. Keep both stacks equal. The app doubles it only when calculating combined external load."},
+    engagementTarget:"chest",targetRirRange:[2,3],progressionRirRange:[2,3],progressionModel:"double-progression",
+    movementType:"Isolation chest fly"
+  });
+}
+
 /* Retained for legacy history, progression references, and future library access.
    This definition is intentionally not scheduled by the current Foundation plan. */
 function legacyInclineCablePressExercise(){
@@ -3648,7 +3682,8 @@ function buildExerciseCatalog(){
    ...fullBodyCWorkout(true,true,true),
    ...lowerAbsProgramExercises(1),
    ...[0,2,4].flatMap(day=>[dumbbellAccessoryForDay(day,true),armAccessoryForDay(day)].filter(Boolean)),
-   dumbbellReverseLungeExercise()
+   dumbbellReverseLungeExercise(),
+   seatedCableChestFlyExercise()
  ];
  return new Map(definitions.map(exercise=>[exercise.name,exercise]));
 }

@@ -21,8 +21,8 @@ const expected={
     ["Smith Machine Squat",4,"8–12"],["Smith Machine Hip Thrust",3,"8–12"],["Standing Single-Leg Cable Hamstring Curl",2,"10–15"],
     ["Dumbbell Reverse Lunge",2,"8–12"],["Smith Machine Calf Raise",4,"8–12"],["Cable Crunch",2,"10–15"],["Lying Leg Raise",2,"10–15"]
   ]},
-  UPPER_B:{id:"build-upper-b",planDay:3,sets:21,exercises:[
-    ["Lat Pulldown",4,"8–12"],["Single Arm Cable Row",3,"8–12"],["Low-Incline Dumbbell Press",4,"10–15"],["Dumbbell Lateral Raise",2,"12–15"],
+  UPPER_B:{id:"build-upper-b",planDay:3,sets:22,exercises:[
+    ["Lat Pulldown",4,"8–12"],["Single Arm Cable Row",3,"8–12"],["Low-Incline Dumbbell Press",3,"10–15"],["Seated Cable Chest Fly",2,"12–15"],["Dumbbell Lateral Raise",2,"12–15"],
     ["Rear Delt Cable Fly",2,"12–15"],["Alternating Dumbbell Curl",2,"8–12"],["Cable Curl",2,"10–15"],["V-Bar Triceps Pushdown",2,"10–15"]
   ]},
   LOWER_B:{id:"build-lower-b",planDay:4,sets:20,exercises:[
@@ -43,10 +43,11 @@ for(const [key,spec] of Object.entries(expected)){
   assert.deepStrictEqual(working.map(exercise=>[exercise.name,exercise.sets,exercise.reps]),spec.exercises,`${key} order or prescription changed`);
   working.forEach(exercise=>{
     assert.deepStrictEqual(exercise.targetRirRange,[2,3]);
-    assert(media[exercise.name],`${exercise.name} lacks reviewed media`);
+    assert(media[exercise.name],`${exercise.name} lacks library metadata`);
     const identity=identities.resolve(exercise.name);
     assert(!identity.id.startsWith("road12.exercise."),`${exercise.name} lacks a canonical identity`);
-    assert(identities.isSupportedStravaExerciseType(identity.externalMappings.strava?.exerciseType),`${exercise.name} lacks a supported Strava mapping`);
+    if(exercise.name==="Seated Cable Chest Fly")assert.strictEqual(identity.externalMappings.strava?.exerciseType,null);
+    else assert(identities.isSupportedStravaExerciseType(identity.externalMappings.strava?.exerciseType),`${exercise.name} lacks a supported Strava mapping`);
   });
 }
 
@@ -59,7 +60,7 @@ for(const key of ["LOWER_A","LOWER_B"]){
   assert(build.TEMPLATES[key].exercises.some(exercise=>exercise.name==="Smith Machine Calf Raise"));
   assert(build.TEMPLATES[key].exercises.some(exercise=>exercise.primaryGroup==="core"));
 }
-assert.deepStrictEqual(build.weeklyPrimarySets(),{chest:12,back:12,shoulders:6,biceps:9,triceps:4,quads:9,glutes:8,hamstrings:6,calves:8,core:8});
+assert.deepStrictEqual(build.weeklyPrimarySets(),{chest:13,back:12,shoulders:6,biceps:9,triceps:4,quads:9,glutes:8,hamstrings:6,calves:8,core:8});
 
 const history=["one","two"].map(id=>({id,name:"Full Body A",completionStatus:"completed",exercises:[{name:"Smith Machine Bench Press",sets:[1,2,3,4].map(()=>({done:true,reps:10,weight:60})),feedback:{rir:3,form:"Clean",discomfort:false}}]}));
 assert.strictEqual(coach.exerciseRecommendation(history,{one:"Good",two:"Good"},{name:"Smith Machine Bench Press",type:"strength",sets:4,reps:"6–10",progressionRirRange:[2,3]}).action,"PROGRESS","canonical continuing history must remain usable");

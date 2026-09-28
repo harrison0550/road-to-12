@@ -206,8 +206,12 @@ function validateMediaFile(media, label, kind, missing, invalid) {
       if (typeof entry.movementSequenceAlt !== "string" || entry.movementSequenceAlt.trim().length < 30) {
         invalid.push(`${label}: movement-sequence alternative text is missing or too generic`);
       }
+    } else if (entry.mediaType === "text") {
+      if (entry.media || entry.motionPoster || entry.movementSequence) {
+        invalid.push(`${label}: text guidance must not reference unreviewed media`);
+      }
     } else {
-      invalid.push(`${label}: mediaType must be animation, still, or movement-sequence`);
+      invalid.push(`${label}: mediaType must be animation, still, movement-sequence, or text`);
     }
 
     if (entry.reference) {

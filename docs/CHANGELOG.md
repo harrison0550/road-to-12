@@ -6,6 +6,13 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+### Seated Cable Chest Fly
+
+- Deployed build `2026.09.28.1` with the approved v2 poster, four-position sequence, looping WebP/MP4 animation, neon-green chest and pink front-delt/biceps semantic highlights, and cache generation 90.
+- Added canonical exercise `road12.fly.cable-seated` with aliases, RitFit M1 Pro dual-pulley setup, one-stack entry semantics, Exercise Library metadata, and a pending Media v2 record. Serratus remains in authoritative accessible text because the current shared anatomy SVG has no serratus region.
+- Updated future Build Upper B to three Low-Incline Dumbbell Press sets plus two Seated Cable Chest Fly sets, raising weekly direct chest volume from 12 to 13 and weekly Build working sets from 82 to 83 while retaining the 65–75 minute estimate.
+- Kept Seated Cable Chest Fly out of structured Strava sets because the current app/Worker allowlist has no supported chest-fly token; other mapped sets remain postable and preview shows the existing unmapped-exercise warning.
+
 ### Data recovery
 
 - Deployed build `2026.09.27.5` with a prominent Profile / Data & Backup recovery action that validates schema-21 Road to 12% JSON backups, previews export date, session count, date range, and phase, requires a current-store safety export and explicit confirmation, then replaces rather than merges the fresh store.
