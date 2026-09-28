@@ -1,6 +1,6 @@
 /* Keep this query aligned with app-meta.js so Safari cannot reuse stale imported metadata. */
-importScripts("./app-meta.js?build=2026.09.28.2");
-importScripts("./exercise-media-manifest-v2.js?build=2026.09.28.2");
+importScripts("./app-meta.js?build=2026.09.28.3");
+importScripts("./exercise-media-manifest-v2.js?build=2026.09.28.3");
 
 const CACHE=self.ROAD12_META.serviceWorkerCache;
 const MEDIA_CACHE=CACHE.endsWith("-shell")?`${CACHE.slice(0,-6)}-media`:`${CACHE}-media`;
@@ -14,6 +14,7 @@ const MUTABLE_ASSETS=[
   "exercise-library.js",
   "exercise-identity.js",
   "exercise-media-v2.js",
+  "exercise-muscle-anatomy.js",
   "exercise-media-manifest-v2.js",
   "strava-sync-state.js",
   "strava-data-boundary.js",
@@ -50,6 +51,7 @@ const CORE_ASSETS=[
   "./exercise-library.js",
   "./exercise-identity.js",
   "./exercise-media-v2.js",
+  "./exercise-muscle-anatomy.js",
   "./exercise-media-manifest-v2.js",
   "./strava-sync-state.js",
   "./strava-data-boundary.js",

@@ -10,6 +10,8 @@ Exercise media may be an official equipment reference, reviewed licensed media, 
 
 ## Exercise media
 
+Muscle maps are compiled from the shared front/back anatomical SVG sources into `exercise-muscle-anatomy.js`. Exercise Detail inserts those paths directly into its own inline SVG. Selected paths receive semantic `primary` or `secondary` classes, `data-muscle-region`, and explicit neon fill values. External SVG fragment `<use>` references are not permitted for muscle highlights because iOS Safari does not reliably inherit the host document's color cascade into an external fragment.
+
 `exercise-library.js` is the canonical media registry. Active guided exercises resolve by their exact display name to a reviewed entry containing media type, motion-poster path, animation path, meaningful alternative text, review date, and any retained source reference. Alias entries may share an exact movement asset, but the Workout Engine keeps each exercise's written prescription and identity separate.
 
 The current Foundation program maps 61 animation-based active guided names to 54 distinct Road to 12% GIFs and maps Seated Concentration Curl plus Standing Single-Leg Cable Hamstring Curl to supplied two-image movement-sequence guides. Three explicitly approved, review-gated lower-ab Phase 2 movements are also registered. Legacy and alias mappings bring the registry to 61 distinct GIFs across 78 exact-name mappings. The visible Library-only Stationary Bike Setup uses a reviewed static equipment guide. Scope and exact names are recorded in `EXERCISE_MEDIA_AUDIT.md`. The registry must not pre-create or map speculative media for later training phases whose workout definitions are not approved.

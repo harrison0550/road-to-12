@@ -36,7 +36,7 @@
     "road12.hip-thrust.smith":record("road12.hip-thrust.smith","smith-machine-hip-thrust",["Glutes"],["Hamstrings","Adductors","Core"],["gluteus-maximus"],["hamstrings","adductors","abdominals"]),
     "road12.lunge.dumbbell-reverse":record("road12.lunge.dumbbell-reverse","dumbbell-reverse-lunge",["Quadriceps","Glutes"],["Hamstrings","Adductors","Core and stability"],["quadriceps","gluteus-maximus"],["hamstrings","adductors","abdominals","obliques"]),
     "road12.hamstring.cable-standing-single-leg-curl":record("road12.hamstring.cable-standing-single-leg-curl","standing-single-leg-cable-hamstring-curl",["Hamstrings"],["Calves","Glute stabilizers"],["hamstrings"],["calves","gluteus-maximus"]),
-    "road12.lateral-raise.dumbbell":record("road12.lateral-raise.dumbbell","dumbbell-lateral-raise",["Side shoulders"],["Upper back","Core stabilizers"],["lateral-deltoid"],["upper-back","abdominals","obliques"]),
+    "road12.lateral-raise.dumbbell":record("road12.lateral-raise.dumbbell","dumbbell-lateral-raise",["Side shoulders"],["Upper back","Core stabilizers"],["lateral-deltoid"],["upper-back"]),
     "road12.curl.dumbbell-concentration":record("road12.curl.dumbbell-concentration","seated-concentration-curl",["Biceps"],["Brachialis","Forearms"],["biceps"],["brachialis","forearms"]),
     "road12.calf-raise.smith":record("road12.calf-raise.smith","smith-machine-calf-raise",["Calves"],["Foot and ankle stabilizers"],["calves"],[]),
     "road12.crunch.cable":record("road12.crunch.cable","cable-crunch",["Abdominals"],["Obliques","Hip flexors"],["abdominals"],["obliques","hip-flexors"])
