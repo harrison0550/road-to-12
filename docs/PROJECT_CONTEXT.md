@@ -6,11 +6,11 @@ Read this file at the beginning of every Codex or engineering session. It is the
 
 - Product: Road to 12%
 - Version: 13.3.0
-- Build: 2026.09.27.5
+- Build: 2026.09.27.6
 - Last updated: September 27, 2026
-- Service Worker cache: `road12-v13-3-88-shell`
-- Exercise media cache: `road12-v13-3-88-media`
-- Deployment status: build `2026.09.27.5` adds the urgent Profile backup-recovery flow with validated preview, mandatory safety export, explicit confirmation, and full-store replacement; schema remains 21 and Cloudflare Worker remains `efdc2eff-4ab6-4226-bf7f-c08b61a6b679`
+- Service Worker cache: `road12-v13-3-89-shell`
+- Exercise media cache: `road12-v13-3-89-media`
+- Deployment status: build `2026.09.27.6` applies neon green primary and neon pink secondary colors to the semantic anatomical muscle paths while preserving visible grayscale texture; schema remains 21 and Cloudflare Worker remains `efdc2eff-4ab6-4226-bf7f-c08b61a6b679`
 - Runtime: static, client-only, offline-first PWA
 - Primary storage key: `road12v5`
 

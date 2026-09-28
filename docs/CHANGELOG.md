@@ -17,6 +17,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Exercise Media Library v2
 
+- Deployed build `2026.09.27.6` with `#39FF14` primary and `#FF4FD8` secondary semantic muscle-path recoloring, path-level color blending that preserves anatomical texture, and cache generation 89.
 - Deployed build `2026.09.27.3` with neon-green full-muscle primary highlights, pink secondary highlights, Safari-safe SVG color inheritance, and cache generation 86.
 
 - Updated muscle-map emphasis to neon green for primary regions and lower-opacity pink for secondary regions.

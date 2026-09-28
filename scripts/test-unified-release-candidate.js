@@ -73,6 +73,6 @@ assert.equal(strava.isSessionStravaEligible({...strengthSession("Upper A","build
 
 assert.match(index,/build-upper-lower-program\.js/);assert.match(index,/extra-activity\.js/);assert.doesNotMatch(index,/build-program\.js/);
 assert(sw.includes('"./build-upper-lower-program.js"'));assert(sw.includes('"./extra-activity.js"'));assert(!sw.includes('"./build-program.js"'));
-assert.match(app,/const ROAD12_SCHEMA_VERSION=21;/);assert.match(index,/build=2026\.09\.27\.5/);assert.match(sw,/app-meta\.js\?build=2026\.09\.27\.5/);
+assert.match(app,/const ROAD12_SCHEMA_VERSION=21;/);assert.match(index,/build=2026\.09\.27\.6/);assert.match(sw,/app-meta\.js\?build=2026\.09\.27\.6/);
 
 console.log("Unified release candidate tests passed: schema 21 collision recovery, combined backup roundtrips, canonical Build Strava eligibility, Extra Activity isolation, and stale-module removal.");
