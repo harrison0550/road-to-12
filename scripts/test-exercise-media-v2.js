@@ -64,16 +64,16 @@ manifest.plannedAssets
 
 const front=fs.readFileSync(path.join(root,"assets/exercise-library/v2/shared/muscles-front.svg"),"utf8");
 const back=fs.readFileSync(path.join(root,"assets/exercise-library/v2/shared/muscles-back.svg"),"utf8");
-["chest","front-deltoid","lateral-deltoid","biceps","forearms","abdominals","obliques","hip-flexors","adductors","quadriceps","calves"].forEach(id=>assert(front.includes(`id="muscle-${id}"`),`front SVG missing ${id}`));
+["chest","front-deltoid","lateral-deltoid","biceps","brachialis","forearms","abdominals","obliques","hip-flexors","adductors","quadriceps","calves"].forEach(id=>assert(front.includes(`id="muscle-${id}"`),`front SVG missing ${id}`));
 ["upper-back","rear-deltoid","triceps","forearms","lats","spinal-erectors","gluteus-maximus","hamstrings","calves"].forEach(id=>assert(back.includes(`id="muscle-${id}"`),`back SVG missing ${id}`));
 assert.match(app,/function muscleHighlightMarkup\(ex\)/);
 assert.match(app,/EXERCISE_MEDIA_V2\?\.resolve/);
-assert.match(css,/\.muscle-region\.primary\{[^}]*opacity:1/);
+assert.match(css,/\.muscle-region\.primary\{[^}]*opacity:\.94/);
 assert.match(css,/\.muscle-region\.primary\{[^}]*fill:#39ff14/);
 assert.match(css,/\.muscle-region\.primary\{[^}]*color:#39ff14/);
-assert.match(css,/\.muscle-region\{[^}]*mix-blend-mode:color/);
-assert.match(css,/\.muscle-region\.secondary\{[^}]*color:#ff4fd8[^}]*fill:#ff4fd8[^}]*opacity:\.72/);
-assert.match(css,/rgba\(255,79,216,\.38\)/);
+assert.match(css,/\.muscle-region\{[^}]*mix-blend-mode:normal/);
+assert.match(css,/\.muscle-region\.secondary\{[^}]*color:#ff4fd8[^}]*fill:#ff4fd8[^}]*opacity:\.74/);
+assert.match(css,/rgba\(255,79,216,\.42\)/);
 assert.match(front,/<g id="muscle-chest" fill="currentColor">/);
 assert.match(back,/<g id="muscle-triceps" fill="currentColor">/);
 assert.match(css,/\.legend-primary\{color:#39ff14\}/);

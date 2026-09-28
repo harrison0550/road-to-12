@@ -85,19 +85,19 @@ function entryDisplayAsset(entry){return entry?.mediaType==="animation"&&entry.m
 function listMarkup(items,emptyText){
  return items?.length?`<ul>${items.map(item=>`<li>${item}</li>`).join("")}</ul>`:`<p class="muted">${emptyText}</p>`;
 }
-const FRONT_MUSCLE_REGIONS=new Set(["chest","front-deltoid","lateral-deltoid","biceps","forearms","abdominals","obliques","hip-flexors","adductors","quadriceps","calves"]);
+const FRONT_MUSCLE_REGIONS=new Set(["chest","front-deltoid","lateral-deltoid","biceps","brachialis","forearms","abdominals","obliques","hip-flexors","adductors","quadriceps","calves"]);
 const BACK_MUSCLE_REGIONS=new Set(["upper-back","rear-deltoid","triceps","forearms","lats","spinal-erectors","gluteus-maximus","hamstrings","calves"]);
 function muscleFigureView(side,regions){
  const source=`assets/exercise-library/v2/shared/muscles-${side}.svg`;
  const supported=side==="front"?FRONT_MUSCLE_REGIONS:BACK_MUSCLE_REGIONS;
  const layers=[...regions.primary.filter(region=>supported.has(region)).map(region=>`<use class="muscle-region primary" data-muscle-region="${region}" href="${source}#muscle-${region}"></use>`),...regions.secondary.filter(region=>supported.has(region)).map(region=>`<use class="muscle-region secondary" data-muscle-region="${region}" href="${source}#muscle-${region}"></use>`)];
- return `<figure class="muscle-map-view"><svg viewBox="0 0 220 500" aria-hidden="true" focusable="false"><use class="muscle-body" href="${source}#body-${side}"></use>${layers.join("")}</svg><figcaption>${side}</figcaption></figure>`;
+ return `<figure class="muscle-map-view muscle-anatomy-${side}" data-anatomy-figure="${side}"><svg viewBox="0 0 220 500" role="img" aria-label="${side} anatomical muscle figure" focusable="false"><use class="muscle-anatomy-base" data-anatomy-layer="base" href="${source}#body-${side}"></use><g class="muscle-anatomy-highlights" data-anatomy-layer="highlights">${layers.join("")}</g></svg><figcaption>${side}</figcaption></figure>`;
 }
 function muscleHighlightMarkup(ex){
  const record=EXERCISE_MEDIA_V2?.getForName?.(ex?.name);
  if(!record?.muscleHighlights)return "";
  const regions={primary:[...record.muscleHighlights.primary],secondary:[...record.muscleHighlights.secondary]};
- return `<div class="muscle-highlight-map" data-media-version="${record.mediaVersion}" aria-label="Muscle highlight diagram"><div class="muscle-map-views">${muscleFigureView("front",regions)}${muscleFigureView("back",regions)}</div><div class="muscle-map-legend" aria-hidden="true"><span class="legend-primary">Primary</span><span class="legend-secondary">Secondary</span></div></div>`;
+ return `<div class="muscle-highlight-map anatomy-only" data-media-version="${record.mediaVersion}" data-renderer="anatomical-svg" aria-label="Muscle highlight diagram"><div class="muscle-map-views">${muscleFigureView("front",regions)}${muscleFigureView("back",regions)}</div><div class="muscle-map-legend" aria-hidden="true"><span class="legend-primary">Primary</span><span class="legend-secondary">Secondary</span></div></div>`;
 }
 function mediaStatus(entry){
  if(entry.mediaType==="animation")return "MOVEMENT ANIMATION";
