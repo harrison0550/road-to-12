@@ -1,6 +1,6 @@
 /* Keep this query aligned with app-meta.js so Safari cannot reuse stale imported metadata. */
-importScripts("./app-meta.js?build=2026.09.28.3");
-importScripts("./exercise-media-manifest-v2.js?build=2026.09.28.3");
+importScripts("./app-meta.js?build=2026.09.28.4");
+importScripts("./exercise-media-manifest-v2.js?build=2026.09.28.4");
 
 const CACHE=self.ROAD12_META.serviceWorkerCache;
 const MEDIA_CACHE=CACHE.endsWith("-shell")?`${CACHE.slice(0,-6)}-media`:`${CACHE}-media`;

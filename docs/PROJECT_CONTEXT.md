@@ -6,15 +6,15 @@ Read this file at the beginning of every Codex or engineering session. It is the
 
 - Product: Road to 12%
 - Version: 13.3.0
-- Build: 2026.09.28.3
+- Build: 2026.09.28.4
 - Last updated: September 28, 2026
-- Service Worker cache: `road12-v13-3-92-shell`
-- Exercise media cache: `road12-v13-3-92-media`
-- Deployment status: build `2026.09.28.3` renders one inline anatomical front/back pair without external SVG fragments, assigns exact neon fills in the runtime DOM, removes unrelated Dumbbell Lateral Raise torso/pelvis regions, and preserves schema 21 and Cloudflare Worker `efdc2eff-4ab6-4226-bf7f-c08b61a6b679`.
+- Service Worker cache: `road12-v13-3-93-shell`
+- Exercise media cache: `road12-v13-3-93-media`
+- Deployment status: build `2026.09.28.4` activates the approved GMWD Converging Chest Press v2 poster, sequence, WebP/MP4 motion assets, and offline cache entries while preserving schema 21 and Cloudflare Worker `efdc2eff-4ab6-4226-bf7f-c08b61a6b679`.
 - Runtime: static, client-only, offline-first PWA
 - Primary storage key: `road12v5`
 
-Media v2 generation remains paused. Build `2026.09.28.3` validates six exercises through the real Exercise Detail renderer using generated inline anatomical paths. Schema remains 21 and the Worker is unchanged.
+Media v2 generation remains paused outside explicitly approved assets. Build `2026.09.28.4` activates GMWD Converging Chest Press v2 media; schema remains 21 and the Worker is unchanged.
 
 ## Current architecture
 
@@ -84,7 +84,7 @@ See `KNOWN_BUGS.md` before diagnosing or fixing defects.
 
 ## Active sprint goals
 
-Build `2026.09.28.3` uses generated inline native SVG anatomy with one front/back pair, bounded semantic highlights, and no legacy fallback or decorative circle in Muscles Worked. The unapproved pilot records retain v1 fallback. Phase 2 and the original Calendar semantic colors preserve completed history, scheduling, schema 21, and the existing Worker exactly. The production Cloudflare Worker remains version `efdc2eff-4ab6-4226-bf7f-c08b61a6b679`. Automatic phase activation, Strava autosync, cardio posting, read scopes, bulk history, and Phase 2B remain disabled.
+Build `2026.09.28.4` uses generated inline native SVG anatomy with one front/back pair, bounded semantic highlights, and no legacy fallback or decorative circle in Muscles Worked. The unapproved pilot records retain v1 fallback. Phase 2 and the original Calendar semantic colors preserve completed history, scheduling, schema 21, and the existing Worker exactly. The production Cloudflare Worker remains version `efdc2eff-4ab6-4226-bf7f-c08b61a6b679`. Automatic phase activation, Strava autosync, cardio posting, read scopes, bulk history, and Phase 2B remain disabled.
 
 Next recommended goals:
 

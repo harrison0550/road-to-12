@@ -24,6 +24,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Exercise Media Library v2
 
+- Deployed build `2026.09.28.4` with the approved GMWD Converging Chest Press v2 poster, movement sequence, 2.1-second WebP/MP4 motion loop, and offline cache coverage; v1 fallback remains available.
+
 - Deployed build `2026.09.28.3` with an iOS runtime repair that replaces external SVG fragments with generated inline anatomical paths, assigns exact neon fills directly in the final Exercise Detail DOM, and removes unrelated torso and pelvis regions from Dumbbell Lateral Raise. Media generation remains paused.
 - Deployed build `2026.09.28.2` with an anatomical-only Muscles Worked renderer, corrected shoulder/lat/upper-back/rear-delt/brachialis semantic regions, removal of the decorative card circle, and cache generation 91. Primary paths remain neon green and secondary paths neon pink.
 - Deployed build `2026.09.27.6` with `#39FF14` primary and `#FF4FD8` secondary semantic muscle-path recoloring, path-level color blending that preserves anatomical texture, and cache generation 89.

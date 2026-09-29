@@ -25,7 +25,7 @@
   });
   const records=Object.freeze({
     "road12.press.smith-bench":record("road12.press.smith-bench","smith-machine-bench-press",["Chest"],["Front shoulders","Triceps"],["chest"],["front-deltoid","triceps"],true),
-    "road12.press.gmwd-converging-chest-press":record("road12.press.gmwd-converging-chest-press","gmwd-converging-chest-press",["Chest"],["Front shoulders","Triceps"],["chest"],["front-deltoid","triceps"]),
+    "road12.press.gmwd-converging-chest-press":record("road12.press.gmwd-converging-chest-press","gmwd-converging-chest-press",["Chest"],["Front shoulders","Triceps"],["chest"],["front-deltoid","triceps"],true),
     /* Serratus anterior remains authoritative accessible text. The shared
        anatomy SVG has no serratus region, so only supported front-deltoid and
        biceps secondary paths are highlighted. */
