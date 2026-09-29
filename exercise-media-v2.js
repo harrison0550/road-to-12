@@ -30,8 +30,8 @@
        anatomy SVG has no serratus region, so only supported front-deltoid and
        biceps secondary paths are highlighted. */
     "road12.fly.cable-seated":record("road12.fly.cable-seated","seated-cable-chest-fly",["Chest"],["Front deltoids","Serratus anterior","Biceps stabilizer"],["chest"],["front-deltoid","biceps"],true),
-    "road12.pull.lat-pulldown":record("road12.pull.lat-pulldown","lat-pulldown",["Lats","Upper back"],["Biceps"],["lats","upper-back"],["biceps"]),
-    "road12.row.seated-cable":record("road12.row.seated-cable","seated-cable-row",["Lats","Upper back"],["Rear shoulders","Biceps"],["lats","upper-back"],["rear-deltoid","biceps"]),
+    "road12.pull.lat-pulldown":record("road12.pull.lat-pulldown","lat-pulldown",["Lats","Upper back"],["Biceps"],["lats","upper-back"],["biceps"],true),
+    "road12.row.seated-cable":record("road12.row.seated-cable","seated-cable-row",["Lats","Upper back"],["Rear shoulders","Biceps"],["lats","upper-back"],["rear-deltoid","biceps"],true),
     "road12.squat.smith-machine":record("road12.squat.smith-machine","smith-machine-squat",["Quadriceps","Glutes"],["Hamstrings","Adductors","Core"],["quadriceps","gluteus-maximus"],["hamstrings","adductors","abdominals"]),
     "road12.hip-thrust.smith":record("road12.hip-thrust.smith","smith-machine-hip-thrust",["Glutes"],["Hamstrings","Adductors","Core"],["gluteus-maximus"],["hamstrings","adductors","abdominals"]),
     "road12.lunge.dumbbell-reverse":record("road12.lunge.dumbbell-reverse","dumbbell-reverse-lunge",["Quadriceps","Glutes"],["Hamstrings","Adductors","Core and stability"],["quadriceps","gluteus-maximus"],["hamstrings","adductors","abdominals","obliques"]),

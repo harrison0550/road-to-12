@@ -34,7 +34,7 @@ for(const [name,id] of Object.entries(expected)){
   assert(record,`${name} must have pilot metadata`);
   assert.strictEqual(record.exerciseId,id);
   assert.strictEqual(record.mediaVersion,2);
-  const approved=["Smith Machine Bench Press","GMWD Converging Chest Press","Seated Cable Chest Fly"].includes(name);
+  const approved=["Smith Machine Bench Press","GMWD Converging Chest Press","Seated Cable Chest Fly","Lat Pulldown","Seated Cable Row"].includes(name);
   assert.strictEqual(record.status,approved?"approved":"pending-review");
   assert.strictEqual(record.approved,approved);
   assert(record.assets.poster.endsWith(`road12-v2-${record.slug}-poster.webp`));
@@ -55,7 +55,7 @@ const placeholder={media:"placeholder.svg",mediaType:"still"};
 assert.strictEqual(mediaV2.resolve("Unregistered Movement",null,placeholder),placeholder,"resolution must fall back to a local placeholder after v2 and v1");
 assert.strictEqual(manifest.pilotSlugs.length,13);
 assert.strictEqual(manifest.plannedAssets.length,52);
-assert.strictEqual(manifest.approvedAssets.length,12);
+assert.strictEqual(manifest.approvedAssets.length,20);
 assert.deepStrictEqual(manifest.cacheAssets,[...manifest.sharedAssets,...manifest.approvedAssets]);
 manifest.cacheAssets.forEach(asset=>assert(fs.existsSync(path.join(root,asset)),`${asset} must exist before entering the cache manifest`));
 manifest.plannedAssets
@@ -91,4 +91,4 @@ assert.match(app,/const ROAD12_SCHEMA_VERSION=21;/);
 
 const buildNames=new Set(Object.values(build.TEMPLATES).flatMap(template=>template.exercises.map(exercise=>exercise.name)));
 Object.keys(expected).forEach(name=>assert(buildNames.has(name),`${name} must remain present in the unchanged Build templates`));
-console.log("Exercise Media Library v2 tests passed: Smith Bench, GMWD Chest Press, and Seated Cable Chest Fly approved, 10 records pending, fallbacks, shared muscle SVGs, offline manifest safety, and schema 21 are intact.");
+console.log("Exercise Media Library v2 tests passed: five approved exercise bundles, eight records pending, fallbacks, shared muscle SVGs, offline manifest safety, and schema 21 are intact.");

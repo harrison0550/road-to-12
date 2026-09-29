@@ -24,6 +24,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Exercise Media Library v2
 
+- Deployed build `2026.09.29.1` with approved Lat Pulldown and Seated Cable Row v2 posters, movement sequences, 2.1-second WebP/MP4 motion loops, and offline cache coverage; existing v1 fallbacks remain available.
+
 - Deployed build `2026.09.28.4` with the approved GMWD Converging Chest Press v2 poster, movement sequence, 2.1-second WebP/MP4 motion loop, and offline cache coverage; v1 fallback remains available.
 
 - Deployed build `2026.09.28.3` with an iOS runtime repair that replaces external SVG fragments with generated inline anatomical paths, assigns exact neon fills directly in the final Exercise Detail DOM, and removes unrelated torso and pelvis regions from Dumbbell Lateral Raise. Media generation remains paused.

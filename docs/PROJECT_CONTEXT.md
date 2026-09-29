@@ -6,15 +6,15 @@ Read this file at the beginning of every Codex or engineering session. It is the
 
 - Product: Road to 12%
 - Version: 13.3.0
-- Build: 2026.09.28.4
-- Last updated: September 28, 2026
-- Service Worker cache: `road12-v13-3-93-shell`
-- Exercise media cache: `road12-v13-3-93-media`
-- Deployment status: build `2026.09.28.4` activates the approved GMWD Converging Chest Press v2 poster, sequence, WebP/MP4 motion assets, and offline cache entries while preserving schema 21 and Cloudflare Worker `efdc2eff-4ab6-4226-bf7f-c08b61a6b679`.
+- Build: 2026.09.29.1
+- Last updated: September 29, 2026
+- Service Worker cache: `road12-v13-3-94-shell`
+- Exercise media cache: `road12-v13-3-94-media`
+- Deployment status: build `2026.09.29.1` activates the approved Lat Pulldown and Seated Cable Row v2 poster, sequence, WebP/MP4 motion assets, and offline cache entries while preserving schema 21 and Cloudflare Worker `efdc2eff-4ab6-4226-bf7f-c08b61a6b679`.
 - Runtime: static, client-only, offline-first PWA
 - Primary storage key: `road12v5`
 
-Media v2 generation remains paused outside explicitly approved assets. Build `2026.09.28.4` activates GMWD Converging Chest Press v2 media; schema remains 21 and the Worker is unchanged.
+Media v2 generation remains limited to explicitly approved assets. Build `2026.09.29.1` activates Lat Pulldown and Seated Cable Row v2 media; schema remains 21 and the Worker is unchanged.
 
 ## Current architecture
 
