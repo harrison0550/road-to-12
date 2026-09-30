@@ -4,7 +4,14 @@ Use this file as the durable defect tracker. Do not delete resolved records; upd
 
 ## Active
 
-No confirmed production behavior defects are currently documented.
+### BUG-029 — Recovered Build workout consumes a future repeated occurrence
+
+- Status: Resolved in v13.3.0 build 2026.09.30.1
+- Severity: High
+- Area: Build Scheduling / Workout Completion
+- Report: Starting a missed Monday Upper A through the weekday preview resolved by `planDay` and selected the next future Monday Upper A, so completion consumed the wrong occurrence and the recovery shift was bypassed.
+- Resolution: Preview, launch, active session, history, and completion now retain the exact occurrence ID. Delayed completion shifts later unresolved occurrences only through Sunday, uses Sunday recovery as the catch-up buffer when needed, restores normal cadence Monday, and provides a guarded repair routine that relinks the existing history session without duplication.
+- Regression test: `scripts/test-build-schedule-occurrences.js`
 
 ### RISK-001 — Public redistribution permission is not recorded for RitFit crops
 

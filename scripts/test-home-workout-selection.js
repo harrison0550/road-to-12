@@ -11,6 +11,7 @@ const context = {};
 vm.runInNewContext(`${helperSource}; result=previewScheduleForDay;`, context);
 const selectPreview = context.result;
 const sessions = [
+  {id:"missed-monday",planDay:0,scheduledDate:"2026-08-03",status:"missed"},
   {id:"today",planDay:1,scheduledDate:"2026-08-04",status:"scheduled"},
   {id:"tomorrow",planDay:2,scheduledDate:"2026-08-05",status:"scheduled"},
   {id:"next-week",planDay:2,scheduledDate:"2026-08-12",status:"scheduled"}
@@ -18,8 +19,9 @@ const sessions = [
 
 assert.strictEqual(selectPreview(sessions,2,"2026-08-04").id,"tomorrow","starting tomorrow's preview must select tomorrow's schedule entry");
 assert.strictEqual(selectPreview(sessions,1,"2026-08-04").id,"today","starting today's preview must select today's schedule entry");
+assert.strictEqual(selectPreview(sessions,0,"2026-08-04","missed-monday").id,"missed-monday","an explicitly selected missed occurrence must beat a future same-day match");
 assert.match(app, /startNewSession\(dayIndex,selectedSchedule\)/, "preview launch must pass the selected day and schedule to the workout engine");
-assert.match(app, /isToday=dayIndex===currentPlanIndex\(\)/, "preview must identify today on every weekday, not only Monday");
+assert.match(app, /selectedOccurrence\?selectedOccurrence\.scheduledDate===localDateKey\(\):dayIndex===currentPlanIndex\(\)/, "preview status must follow the selected occurrence when one exists");
 const selectedSessionSource = app.match(/function selectedWorkoutSessionForToday\([\s\S]*?\n}/)?.[0];
 assert(selectedSessionSource, "workout landing must preserve a newly selected session before step one");
 const landingContext = {};

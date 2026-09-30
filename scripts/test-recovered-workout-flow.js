@@ -21,12 +21,10 @@ assert.match(app, /Reschedule Workout/);
 assert.match(app, /if\(!alreadyActive\)startNewSession\(session\.planDay,session\)/);
 assert.match(
   app,
-  /You completed a workout that was originally scheduled for yesterday\./,
+  /The completed occurrence stayed linked to its original planned date/,
 );
-assert.match(app, /What would you like to do with today’s scheduled workout\?/);
-assert.match(app, /Replace today’s workout with the one I just completed/);
-assert.match(app, /Keep today’s workout/);
-assert.match(app, /Decide later/);
+assert.match(app, /associateCompletedSession\(state\.workoutSessions,session\)/);
+assert.doesNotMatch(app, /data-recovery-decision/);
 assert.match(app, /actualCompletionDate/);
 assert.match(app, /completedDate/);
 assert.match(app, /recoveryIndicator/);
@@ -40,5 +38,5 @@ assert.match(sw, /"\.\/app\.js"/);
 assert.match(app, /const ROAD12_STORAGE_KEY="road12v5"/);
 
 console.log(
-  "Recovered workout flow tests passed: Calendar recovery launch, deferred scheduling choice, history dates, responsive layout, offline shell, and storage compatibility.",
+  "Recovered workout flow tests passed: Calendar recovery launch, occurrence-linked completion, history dates, responsive layout, offline shell, and storage compatibility.",
 );

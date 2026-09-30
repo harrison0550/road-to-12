@@ -864,9 +864,11 @@ function render(){
  if(brand)brand.textContent=`${state.preferredName.toUpperCase()}'S HOME GYM`;
  document.querySelector('#phase1LibraryButton')?.remove();clearInterval(timerId);document.body.classList.toggle("workout-mode",state.tab==="workout");document.body.classList.toggle("home-mode",state.tab==="home");nav.forEach(b=>b.classList.toggle("active",b.dataset.tab===state.tab));({home:home,calendar:calendar,workout:workout,library:library,equipment:equipment,progress:progress}[state.tab]||home)()}
 
-function previewScheduleForDay(sessions,dayIndex,today){
+function previewScheduleForDay(sessions,dayIndex,today,scheduleOccurrenceId=null){
+ const exact=scheduleOccurrenceId?sessions.find(item=>item.id===scheduleOccurrenceId):null;
+ if(exact&&exact.planDay===dayIndex&&!['completed','restDay','displaced'].includes(exact.status))return exact;
  return sessions
-   .filter(item=>item.planDay===dayIndex&&item.scheduledDate>=today&&!['completed','restDay'].includes(item.status))
+   .filter(item=>item.planDay===dayIndex&&item.scheduledDate>=today&&!['completed','restDay','displaced'].includes(item.status))
    .sort((a,b)=>a.scheduledDate.localeCompare(b.scheduledDate))[0]||null;
 }
 let previewReturnScroll=0;
@@ -879,27 +881,29 @@ function previewPerformanceMarkup(ex){
    :previousCardio?`${previousCardio.actualDurationMinutes} min${previousCardio.distance?` · ${previousCardio.distance}`:""}`:"No previous performance logged yet";
  return `<section class="card preview-performance-card" aria-labelledby="previewPerformanceTitle"><h3 id="previewPerformanceTitle">Workout details</h3>${quickSettings(ex)}<div class="preview-last-performance"><small>${strength?"LAST WEIGHT USED":"LAST PERFORMANCE"}</small><strong>${lastPerformance}</strong></div>${strength?`<div class="weight-coach-card"><h3>Weight recommendation</h3><p>${ex.weightRecommendation||"Choose a load that keeps every prescribed repetition controlled."}</p></div>`:""}</section>`;
 }
-function showPreviewExerciseDetails(ex,dayIndex){
+function showPreviewExerciseDetails(ex,dayIndex,scheduleOccurrenceId=null){
  app.innerHTML=`<section class="card workout-card professional-exercise-detail preview-exercise-detail pilot-exercise-detail"><button class="secondary" data-preview-detail-back>Back to workout preview</button><span class="pill">EXERCISE GUIDE</span><h2>${ex.name}</h2><p class="muted workout-subtitle">${ex.muscles}</p><div class="why-card"><h3>Why this exercise?</h3><p>${ex.why||"Builds strength, control and confidence."}</p></div>${attachmentPhotoMarkup(ex)}${ex.m1?m1SetupCoach(ex):""}${exerciseTeachingMarkup(ex)}</section>${previewPerformanceMarkup(ex)}<button class="secondary preview-detail-bottom-back" data-preview-detail-back>Back to workout preview</button>`;
- const back=()=>{showDayPlan(dayIndex);requestAnimationFrame(()=>window.scrollTo({top:previewReturnScroll,behavior:"auto"}))};
+ const back=()=>{showDayPlan(dayIndex,scheduleOccurrenceId);requestAnimationFrame(()=>window.scrollTo({top:previewReturnScroll,behavior:"auto"}))};
  document.querySelectorAll("[data-preview-detail-back]").forEach(button=>button.onclick=back);
  document.querySelector("#openAsset")?.addEventListener("click",()=>openExerciseAsset(ex));
  window.scrollTo({top:0,behavior:"auto"});
 }
-function showDayPlan(dayIndex=state.selectedDay){
- const day=trainingPlanForDay(dayIndex),isToday=dayIndex===currentPlanIndex();
- const previewExercises=day.action==="progress"?[]:workoutForDay(dayIndex);
+function showDayPlan(dayIndex=state.selectedDay,scheduleOccurrenceId=null){
+ const selectedOccurrence=scheduleOccurrenceId?state.workoutSessions.find(item=>item.id===scheduleOccurrenceId):null;
+ const day=trainingPlanForDay(dayIndex,selectedOccurrence?.phaseId||state.trainingPhase?.id),isToday=selectedOccurrence?selectedOccurrence.scheduledDate===localDateKey():dayIndex===currentPlanIndex();
+ const isRecoveredPreview=!!selectedOccurrence&&selectedOccurrence.scheduledDate<localDateKey();
+ const previewExercises=day.action==="progress"?[]:workoutForDay(dayIndex,selectedOccurrence?.phaseId||null);
  const previewItems=day.action==="progress"?day.items:previewExercises.map(exercise=>exercise.name);
  app.innerHTML=`<section class="card day-preview-card"><button class="secondary" id="previewBack">Back to schedule</button><div class="preview-title"><span class="large-icon">${day.icon}</span><div><span class="pill">${day.short} PREVIEW</span><h2>${day.title}</h2><p class="muted">${day.detail}</p></div></div><div class="brief-grid"><div><small>TIME</small><strong>${day.time}</strong></div><div><small>FOCUS</small><strong>${day.focus}</strong></div><div><small>STATUS</small><strong>${isToday&&todayCompleted()?"Completed":isToday?"Today":"Preview"}</strong></div><div><small>SETUP FLOW</small><strong>${day.setup}</strong></div></div></section>
  <section class="card"><h2>Workout preview</h2><p class="muted">Tap an exercise to review its animation, setup and previous performance. Previewing does not start or change your active workout.</p><ol class="preview-exercise-list">${previewItems.map((item,i)=>previewExercises[i]?`<li><button type="button" class="preview-exercise-button" data-preview-exercise="${i}" aria-label="View ${item} exercise details"><span>${i+1}</span><strong>${item}</strong><b aria-hidden="true">›</b></button></li>`:`<li class="preview-static-item"><span>${i+1}</span><strong>${item}</strong></li>`).join("")}</ol></section>
  ${day.action==="workout"||day.action==="upcoming"?`<section class="card setup-efficiency-card"><h3>M1 setup efficiency</h3><p>The sequence is grouped so you finish one pulley zone before moving to the next.</p><div class="setup-flow">${day.setup.split(" → ").map(x=>`<span>${x}</span>`).join("")}</div></section>`:""}
- <button class="primary" id="previewAction">${isToday?"Start today’s workout":"Start this workout early"}</button>`;
+ <button class="primary" id="previewAction">${isRecoveredPreview?"Complete missed workout":isToday?"Start today’s workout":"Start this workout early"}</button>`;
  document.querySelector("#previewBack").onclick=()=>{state.previewDay=null;save();home()};
- document.querySelectorAll("[data-preview-exercise]").forEach(button=>button.onclick=()=>{previewReturnScroll=window.scrollY;showPreviewExerciseDetails(previewExercises[Number(button.dataset.previewExercise)],dayIndex)});
+ document.querySelectorAll("[data-preview-exercise]").forEach(button=>button.onclick=()=>{previewReturnScroll=window.scrollY;showPreviewExerciseDetails(previewExercises[Number(button.dataset.previewExercise)],dayIndex,scheduleOccurrenceId)});
  document.querySelector("#previewAction").onclick=()=>{
    if(day.action==="progress")return setTab("progress");
-   if(!isToday&&!confirm(`Start ${day.title} early?`))return;
-   const selectedSchedule=previewScheduleForDay(state.workoutSessions,dayIndex,localDateKey());
+   if(!isToday&&!isRecoveredPreview&&!confirm(`Start ${day.title} early?`))return;
+   const selectedSchedule=previewScheduleForDay(state.workoutSessions,dayIndex,localDateKey(),scheduleOccurrenceId);
    startNewSession(dayIndex,selectedSchedule);setTab("workout");
  };
 }
@@ -1960,7 +1964,7 @@ function summary(){
    session=state.history.find(h=>h.id===state.currentSession.completedId);
  }else{
    const endedAt=new Date(),startedAt=state.currentSession?.startedAt?new Date(state.currentSession.startedAt):endedAt;
-   session={id:state.currentSession?.id||`session-${Date.now()}`,scheduleId:state.currentSession?.scheduleId||null,planDay:Number.isInteger(state.currentSession?.planDay)?state.currentSession.planDay:currentPlanIndex(),date:endedAt.toLocaleDateString(),dateKey:localDateKey(endedAt),completedAt:endedAt.toISOString(),completedDate:localDateKey(endedAt),actualCompletionDate:localDateKey(endedAt),startedAt:startedAt.toISOString(),durationMs:Math.max(0,endedAt-startedAt),name:state.currentSession?.name||trainingPlanForDay(currentPlanIndex(),state.currentSession?.trainingPhase?.id).title,templateId:state.currentSession?.templateId||null,templateVersion:state.currentSession?.templateVersion||null,exercises:sessionExerciseSnapshot(),equipment:deepCopy(state.equipment)};
+   session={id:state.currentSession?.id||`session-${Date.now()}`,scheduleOccurrenceId:state.currentSession?.scheduleOccurrenceId||state.currentSession?.scheduleId||null,scheduleId:state.currentSession?.scheduleOccurrenceId||state.currentSession?.scheduleId||null,planDay:Number.isInteger(state.currentSession?.planDay)?state.currentSession.planDay:currentPlanIndex(),date:endedAt.toLocaleDateString(),dateKey:localDateKey(endedAt),completedAt:endedAt.toISOString(),completedDate:localDateKey(endedAt),actualCompletionDate:localDateKey(endedAt),startedAt:startedAt.toISOString(),durationMs:Math.max(0,endedAt-startedAt),name:state.currentSession?.name||trainingPlanForDay(currentPlanIndex(),state.currentSession?.trainingPhase?.id).title,templateId:state.currentSession?.templateId||null,templateVersion:state.currentSession?.templateVersion||null,exercises:sessionExerciseSnapshot(),equipment:deepCopy(state.equipment)};
    session.endedAt=session.completedAt;
    session.utcOffsetSeconds=-startedAt.getTimezoneOffset()*60;
    session.elapsedDurationMs=session.durationMs;
@@ -1975,14 +1979,9 @@ function summary(){
      session.recoveryIndicator=true;
      session.plannedDate=state.currentSession.plannedDate;
      session.originalScheduledDate=state.currentSession.originalScheduledDate;
-     session.recoveryDecision="pending";
+     session.recoveryDecision="replace";
    }
-   const scheduled=state.workoutSessions.find(item=>item.id===session.scheduleId);
-   if(scheduled){
-     scheduled.status="completed";
-     scheduled.completedDate=session.completedDate;
-     scheduled.actualCompletionDate=session.actualCompletionDate;
-   }
+   window.ROAD12_SCHEDULING.associateCompletedSession(state.workoutSessions,session);
    recordLowerAbsCompletion(session);
    state.approvedProgressions=window.ROAD12_PRESCRIPTIONS.completeApprovals(state.approvedProgressions,state.currentSession?.sessionPrescriptions,session.exercises,session.id,session.completedAt);
    state.sessions++;state.history.push(session);state.currentSession={completedId:session.id};state.step=0;state.setupReady=false;save();
@@ -1994,31 +1993,10 @@ function summary(){
  app.innerHTML=`<div class="pilot-summary"><section class="card complete upgraded-complete"><div class="check">✓</div><span class="pill">SESSION ${state.sessions} COMPLETE</span><h2>You crushed it!</h2><p>${formatDuration(session.durationMs)} • ${totals.completedSets} sets • ${totals.totalReps} reps</p></section>
  <section class="card workout-rating"><h3>How did it feel?</h3><p>This rating is one signal alongside completed sets, reps, weight and recovery.</p><div class="rating-grid">${["Easy","Good","Too Hard"].map((x,i)=>`<button data-rating="${x}" class="${rating===x?"selected":""}"><span>${["😀","🙂","😫"][i]}</span>${x}</button>`).join("")}</div><label>Workout notes<textarea id="workoutNote" placeholder="Energy, discomfort, equipment changes or wins...">${session.note||""}</textarea></label></section>
  ${cardioBlocks.length?`<section class="card cardio-log-card"><span class="pill">CARDIO PERFORMANCE</span><h3>Record each cardio block</h3><p>Your measured timer total is filled in automatically. You can still correct it or add metrics imported from iFIT or Strava.</p><div class="cardio-block-list">${cardioBlocks.map((block,index)=>{const runtime=state.cardioTimers[block.name],timedMinutes=runtime?Number((currentCardioSeconds(runtime)/60).toFixed(1)):null,saved=Object.assign({},savedCardioBlocks.find(item=>item.name===block.name)||{},timedMinutes?{actualDurationMinutes:timedMinutes}:{}),previous=previousCardioBlock(block.name,session.id);return `<fieldset class="cardio-block" data-cardio-block="${index}"><legend><strong>${block.name}</strong><small>Target: ${block.plannedDurationMinutes} min • ${block.modality}</small></legend><p class="cardio-previous">${cardioComparison(previous)}</p><div class="cardio-log-grid"><label>Actual time (min)<input data-cardio="actualDurationMinutes" type="number" inputmode="decimal" min="0" step="0.1" value="${saved.actualDurationMinutes??block.plannedDurationMinutes}"></label><label>Distance<input data-cardio="distance" type="number" inputmode="decimal" min="0" step="0.01" value="${saved.distance??""}"></label><label>Average heart rate<input data-cardio="averageHeartRate" type="number" inputmode="numeric" min="0" value="${saved.averageHeartRate??""}"></label><label>Average pace<input data-cardio="averagePace" placeholder="e.g. 18:30 / mi" value="${escapeAdaptiveText(saved.averagePace||"")}"></label><label>Incline / resistance<input data-cardio="inclineResistance" placeholder="e.g. 3% or level 5" value="${escapeAdaptiveText(saved.inclineResistance||"")}"></label><label>Effort<select data-cardio="effort">${["Easy","Good","Too Hard"].map(value=>`<option ${saved.effort===value?"selected":""}>${value}</option>`).join("")}</select></label></div></fieldset>`;}).join("")}</div></section>`:""}
- ${session.recoveryIndicator&&session.recoveryDecision==="pending"?`<section class="card recovery-completion-choice" aria-labelledby="recoveryCompletionTitle">
-   <span class="pill">RECOVERED WORKOUT</span>
-   <h2 id="recoveryCompletionTitle">You completed a workout that was originally scheduled for yesterday.</h2>
-   <p>What would you like to do with today’s scheduled workout?</p>
-   <div class="choice-list">
-     <button class="choice-button recommended-choice" data-recovery-decision="replace"><strong>Replace today’s workout with the one I just completed</strong><small>Recommended — move today’s workout forward while preserving the program order.</small></button>
-     <button class="choice-button" data-recovery-decision="keep"><strong>Keep today’s workout</strong><small>Today’s workout remains available as scheduled.</small></button>
-     <button class="choice-button" data-recovery-decision="later"><strong>Decide later</strong><small>Make no scheduling changes now.</small></button>
-   </div>
- </section>`:""}
+ ${session.recoveryIndicator?`<section class="card recovery-completion-choice" aria-labelledby="recoveryCompletionTitle"><span class="pill">RECOVERED WORKOUT</span><h2 id="recoveryCompletionTitle">Schedule updated</h2><p>The completed occurrence stayed linked to its original planned date, and later unresolved workouts moved forward by the recovery delay.</p></section>`:""}
  <button class="primary" id="saveFinish">Save feedback and view workout</button><button class="secondary" id="home">Return home</button></div>`;
  const captureCompletionInputs=()=>{session.note=document.querySelector("#workoutNote")?.value.trim()||session.note||"";session.cardioBlocks=cardioBlocks.map((block,index)=>{const field=document.querySelector(`[data-cardio-block="${index}"]`),value=key=>field?.querySelector(`[data-cardio="${key}"]`)?.value;return Object.assign({},block,{actualDurationMinutes:Number(value("actualDurationMinutes"))||0,distance:Number(value("distance"))||null,averageHeartRate:Number(value("averageHeartRate"))||null,averagePace:value("averagePace")?.trim()||"",inclineResistance:value("inclineResistance")?.trim()||"",effort:value("effort")||"Good"});});const main=session.cardioBlocks.slice().sort((a,b)=>b.plannedDurationMinutes-a.plannedDurationMinutes)[0];if(main)session.cardio=Object.assign({},main,{paceIncline:[main.averagePace,main.inclineResistance].filter(Boolean).join(" • ")});};
  document.querySelectorAll("[data-rating]").forEach(b=>b.onclick=()=>{captureCompletionInputs();state.workoutRatings[session.id]=b.dataset.rating;session.difficultyRating=b.dataset.rating;save();summary()});
- document.querySelectorAll("[data-recovery-decision]").forEach(button=>button.onclick=()=>{
-   const decision=button.dataset.recoveryDecision;
-   window.ROAD12_SCHEDULING.completeRecoveredWorkout(
-     state.workoutSessions,
-     session.scheduleId,
-     session.completedDate,
-     decision
-   );
-   session.recoveryDecision=decision;
-   save();
-   summary();
- });
  const saveCompletionFeedback=()=>{captureCompletionInputs();if(cardioBlocks.length){state.cardioHistory=state.cardioHistory.filter(item=>item.sessionId!==session.id);session.cardioBlocks.forEach(block=>state.cardioHistory.push(Object.assign({sessionId:session.id,date:session.dateKey},block)));}save();};
  document.querySelector("#saveFinish").onclick=()=>{saveCompletionFeedback();state.historyView=session.id;setTab("progress")};
  document.querySelector("#home").onclick=()=>{saveCompletionFeedback();setTab("home")};
@@ -2404,12 +2382,14 @@ function home(){
   const latest=latestV1131Session();
   const historyCount=state.history.length;
   const preparedSession=selectedWorkoutSessionForToday(state.currentSession,todayKey);
-  const preparedSchedule=preparedSession?.scheduleId?state.workoutSessions.find(item=>item.id===preparedSession.scheduleId):null;
+ const preparedOccurrenceId=preparedSession?.scheduleOccurrenceId||preparedSession?.scheduleId;
+ const preparedSchedule=preparedOccurrenceId?state.workoutSessions.find(item=>item.id===preparedOccurrenceId):null;
   const selectedSession=isCompletedScheduleSession(preparedSchedule,state.history)?null:preparedSession;
   const selectedWorkout=selectedSession?workoutForDay(selectedSession.planDay):activeWorkout();
   const active=!!selectedSession&&state.step>0&&state.step<=selectedWorkout.length&&hasActualWorkoutProgress();
   const nextSession=nextHomeWorkoutSession(state.workoutSessions,state.history,todayKey);
-  const linkedSession=selectedSession?.scheduleId?state.workoutSessions.find(item=>item.id===selectedSession.scheduleId):null;
+ const linkedOccurrenceId=selectedSession?.scheduleOccurrenceId||selectedSession?.scheduleId;
+ const linkedSession=linkedOccurrenceId?state.workoutSessions.find(item=>item.id===linkedOccurrenceId):null;
   const primarySession=linkedSession||nextSession;
   const nextDayIndex=selectedSession
     ?selectedSession.planDay
@@ -2430,7 +2410,7 @@ function home(){
     const status=session?.status||"scheduled";
     const statusInfo=V42_STATUS[status]||V42_STATUS.scheduled;
     const isToday=key===todayKey;
-    return `<button class="command-day ${isToday?"today":""} status-${status}" data-day="${index}" aria-label="${day.short}, ${isToday?"Today, ":""}${statusInfo.label}"><strong>${day.short.slice(0,1)}</strong><small>${isToday?"Today":day.short[0]+day.short.slice(1).toLowerCase()}</small><span aria-hidden="true">${statusInfo.icon}</span><em>${statusInfo.label}</em></button>`;
+   return `<button class="command-day ${isToday?"today":""} status-${status}" data-day="${index}"${session?.id?` data-schedule-occurrence="${session.id}"`:""} aria-label="${day.short}, ${isToday?"Today, ":""}${statusInfo.label}"><strong>${day.short.slice(0,1)}</strong><small>${isToday?"Today":day.short[0]+day.short.slice(1).toLowerCase()}</small><span aria-hidden="true">${statusInfo.icon}</span><em>${statusInfo.label}</em></button>`;
   }).join("");
   const followingSession=nextHomeWorkoutSession(state.workoutSessions,state.history,todayKey,primarySession?.id);
   const followingPlan=followingSession?trainingPlanForDay(followingSession.planDay,followingSession.phaseId||state.trainingPhase?.id):null;
@@ -2476,16 +2456,16 @@ function home(){
    save();
    render();
  };
- document.querySelector("#previewSelected")?.addEventListener("click",()=>showDayPlan(nextDayIndex));
- document.querySelector("#previewNextWorkout")?.addEventListener("click",()=>showDayPlan(nextDayIndex));
- document.querySelector("#previewFollowingWorkout")?.addEventListener("click",()=>showDayPlan(followingSession.planDay));
+ document.querySelector("#previewSelected")?.addEventListener("click",()=>showDayPlan(nextDayIndex,primarySession?.id||null));
+ document.querySelector("#previewNextWorkout")?.addEventListener("click",()=>showDayPlan(nextDayIndex,primarySession?.id||null));
+ document.querySelector("#previewFollowingWorkout")?.addEventListener("click",()=>showDayPlan(followingSession.planDay,followingSession.id));
  document.querySelector("#logExtraActivity")?.addEventListener("click",()=>{extraActivityNotice="";extraActivityEntry();});
  document.querySelectorAll("[data-day]").forEach(button=>{
    button.onclick=()=>{
      state.selectedDay=Number(button.dataset.day);
      state.previewDay=state.selectedDay;
      save();
-     showDayPlan(state.selectedDay);
+     showDayPlan(state.selectedDay,button.dataset.scheduleOccurrence||null);
    };
  });
  document.querySelector("#startWorkout")?.addEventListener("click",()=>{
@@ -3753,7 +3733,7 @@ function startNewSession(dayIndex=currentPlanIndex(),selectedSchedule=null){
  ensureWorkoutSchedule();
  const todayKey=localDateKey();
  const todaySchedule=selectedSchedule||state.workoutSessions
-   .filter(item=>item.scheduledDate===todayKey&&item.status!=="restDay")
+   .filter(item=>item.scheduledDate===todayKey&&!['restDay','displaced'].includes(item.status))
    .sort((a,b)=>(a.status==="rescheduled"?-1:1)-(b.status==="rescheduled"?-1:1))[0];
  const isRecovered=!!selectedSchedule&&selectedSchedule.scheduledDate<todayKey;
  const sessionDay=Number.isInteger(todaySchedule?.planDay)?todaySchedule.planDay:dayIndex;
@@ -3771,14 +3751,15 @@ function startNewSession(dayIndex=currentPlanIndex(),selectedSchedule=null){
    planDay:sessionDay,
    startedAt:new Date().toISOString(),
    dateKey:todayKey,
+   scheduleOccurrenceId:todaySchedule?.id||null,
    scheduleId:todaySchedule?.id||null,
    recoveredWorkout:isRecovered,
    plannedDate:isRecovered?selectedSchedule.plannedDate:null,
    originalScheduledDate:isRecovered?selectedSchedule.scheduledDate:null,
    trainingPhase:deepCopy(sessionPhaseId==="build"?state.trainingPhase:{id:"foundation",number:1,status:"active",advancementLocked:true}),
    programRevision:sessionPhaseId==="build"?window.ROAD12_BUILD.VERSION:FOUNDATION_PROGRAM_REVISION,
-   templateId:sessionPhaseId==="build"?plan.templateId:null,
-   templateVersion:sessionPhaseId==="build"?plan.templateVersion:null,
+   templateId:sessionPhaseId==="build"?(todaySchedule?.templateId||plan.templateId):null,
+   templateVersion:sessionPhaseId==="build"?(todaySchedule?.templateVersion||plan.templateVersion):null,
    equipment:deepCopy(state.equipment),
    sessionPrescriptions
  };
@@ -3796,7 +3777,7 @@ function selectedWorkoutSessionForToday(currentSession,today){
    :null;
 }
 function completedScheduleIds(history=[]){
- return new Set(history.map(item=>item.scheduleId).filter(Boolean));
+ return new Set(history.map(item=>item.scheduleOccurrenceId||item.scheduleId).filter(Boolean));
 }
 function isCompletedScheduleSession(session,history=[]){
  return !!session&&(session.status==="completed"||completedScheduleIds(history).has(session.id));
@@ -3805,7 +3786,7 @@ function nextHomeWorkoutSession(sessions,history,today,excludeId=null){
  return sessions
    .filter(item=>item.id!==excludeId
      &&item.scheduledDate>=today
-     &&item.status!=="restDay"
+     &&!['restDay','displaced'].includes(item.status)
      &&!isCompletedScheduleSession(item,history))
    .sort((a,b)=>a.scheduledDate.localeCompare(b.scheduledDate)||(a.plannedDate||a.scheduledDate).localeCompare(b.plannedDate||b.scheduledDate))[0]||null;
 }
@@ -3823,7 +3804,8 @@ function workoutLanding(){
  const plan=trainingPlanForDay(dayIndex,selectedSession?.trainingPhase?.id||state.trainingPhase?.id);
  const workoutData=workoutForDay(dayIndex);
  const hasActive=resumableSession;
- const linkedSchedule=selectedSession?.scheduleId?state.workoutSessions.find(item=>item.id===selectedSession.scheduleId):null;
+ const selectedOccurrenceId=selectedSession?.scheduleOccurrenceId||selectedSession?.scheduleId;
+ const linkedSchedule=selectedOccurrenceId?state.workoutSessions.find(item=>item.id===selectedOccurrenceId):null;
  const isStartingEarly=!!linkedSchedule&&linkedSchedule.scheduledDate>todayKey;
 
   if(plan.action==="progress"){
@@ -3879,7 +3861,8 @@ const V42_STATUS={
  inProgress:{icon:"🟡",label:"In Progress",description:"Workout has started but is not finished."},
  rescheduled:{icon:"🟠",label:"Rescheduled",description:"Workout moved from its original planned date."},
  missed:{icon:"⚫",label:"Missed",description:"Workout was not completed on its scheduled date."},
- restDay:{icon:"🟣",label:"Rest Day",description:"Protected recovery day; shifting workouts will not remove it."}
+ restDay:{icon:"🟣",label:"Rest Day",description:"Protected recovery day; shifting workouts will not remove it."},
+ displaced:{icon:"◌",label:"Recovery displaced",description:"This recovery occurrence yielded its day to a delayed workout inside the same week."}
 };
 const V42_TYPES={
  strength:{icon:"💪",label:"Strength",description:"Resistance training for strength and muscle."},
@@ -3960,20 +3943,21 @@ function ensureWorkoutSchedule(){
    known.add(`planned-${key}`);
  });
  state.history.forEach(historyItem=>{
-   if(!historyItem.scheduleId)return;
-   const scheduled=state.workoutSessions.find(item=>item.id===historyItem.scheduleId);
+   const occurrenceId=historyItem.scheduleOccurrenceId||historyItem.scheduleId;
+   if(!occurrenceId)return;
+   const scheduled=state.workoutSessions.find(item=>item.id===occurrenceId);
    if(!scheduled)return;
    scheduled.status="completed";
    scheduled.completedDate=historyItem.completedDate||historyItem.actualCompletionDate||historyItem.dateKey||(historyItem.completedAt?localDateKey(new Date(historyItem.completedAt)):null);
    scheduled.actualCompletionDate=scheduled.completedDate;
  });
  const completedKeys=new Set(state.history
-   .filter(item=>!item.scheduleId)
+   .filter(item=>!(item.scheduleOccurrenceId||item.scheduleId))
    .map(item=>item.dateKey||(item.completedAt?localDateKey(new Date(item.completedAt)):null))
    .filter(Boolean));
  state.workoutSessions.forEach(item=>{
    if(completedKeys.has(item.scheduledDate)&&item.status!=="rescheduled")item.status="completed";
-   if(item.planDay===6)item.status="restDay";
+   if(item.planDay===6&&item.status!=="displaced")item.status="restDay";
  });
 }
 function sessionsForDate(key){
@@ -4079,7 +4063,7 @@ function openCalendarDay(key){
  const entries=sessionsForDate(key);
  const extras=state.extraActivities.filter(item=>item.date===key);
  const todayKey=localDateKey();
- const isIncomplete=item=>!["completed","restDay"].includes(item.status);
+ const isIncomplete=item=>!["completed","restDay","displaced"].includes(item.status);
  const isPastIncomplete=item=>item.scheduledDate<todayKey&&isIncomplete(item);
  const isStartable=item=>item.scheduledDate<=todayKey&&isIncomplete(item);
  const dateLabel=parseDateKey(key).toLocaleDateString(undefined,{weekday:"long",month:"long",day:"numeric"});

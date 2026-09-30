@@ -6,6 +6,13 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+### Scheduling
+
+- Deployed build `2026.09.30.1` with the occurrence-linked completion fix and Monday–Sunday recovery boundary; schema remains 21 and no data repair or migration runs automatically.
+- Fixed Build recovery launches and completions to retain the exact schedule occurrence ID instead of selecting the next future workout with the same weekday or template.
+- Recovered occurrences now preserve `plannedDate`, record the actual completion date, move their own `scheduledDate`, and shift only the remaining unresolved occurrences inside that Monday–Sunday recovery week. Sunday recovery may yield to a catch-up workout, while the following Monday returns to the standard Build cadence.
+- Added a guarded repair operation that reassigns an existing completed history session from an incorrectly consumed future occurrence to the intended missed occurrence without duplicating or rewriting the workout.
+
 ### Seated Cable Chest Fly
 
 - Deployed build `2026.09.28.1` with the approved v2 poster, four-position sequence, looping WebP/MP4 animation, neon-green chest and pink front-delt/biceps semantic highlights, and cache generation 90.

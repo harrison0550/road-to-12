@@ -53,6 +53,8 @@ Scheduling represents training intent separately from execution:
 - `status` records scheduled, in-progress, completed, missed, rescheduled, or rest-day state.
 - `reason` records optional recovery context such as travel, illness, or competing priorities.
 
+Workout launch and completion are occurrence-based. An active session retains `scheduleOccurrenceId` for the exact schedule row that launched it, with `scheduleId` kept as a compatibility alias. Completion resolves that ID first and never searches forward by workout name, weekday, or `templateId`. Legacy sessions without an occurrence ID may resolve only to an unresolved matching occurrence on or before the actual completion date, so a future repetition cannot be silently consumed. Completing a delayed occurrence preserves its `plannedDate`, moves its `scheduledDate` to the actual completion date, and shifts only later unresolved occurrences before the next Monday. Sunday recovery may be marked displaced when its date is used as the weekly catch-up buffer. The following Monday and all later weeks retain their normal cadence, and completed history never moves.
+
 Recovery operations move `scheduledDate` values while preserving `plannedDate`, workout order, completed sessions, and protected rest days. Scheduling rules should remain deterministic and independently testable as the codebase evolves.
 
 Starting a recovered workout does not mutate the schedule. It creates a normal Workout Engine session linked to the missed schedule entry. Completion records `completedDate` while retaining `actualCompletionDate` as a compatibility alias; any shift of today and future workouts occurs only after the user explicitly chooses the replacement option.
