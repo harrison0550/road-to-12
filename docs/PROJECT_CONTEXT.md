@@ -5,12 +5,12 @@ Read this file at the beginning of every Codex or engineering session. It is the
 ## Current release
 
 - Product: Road to 12%
-- Version: 13.3.4
-- Build: 2026.10.22.4
+- Version: 13.3.5
+- Build: 2026.10.22.5
 - Last updated: October 22, 2026
-- Service Worker cache: `road12-v13-3-99-shell`
-- Exercise media cache: `road12-v13-3-99-media`
-- Deployment status: build `2026.10.22.4` activates approved black-shirt v2 media for Smith Machine Hip Thrust and Smith Machine Calf Raise with offline cache coverage. Schema remains 21 and Cloudflare Worker `efdc2eff-4ab6-4226-bf7f-c08b61a6b679` is unchanged.
+- Service Worker cache: `road12-v13-3-100-shell`
+- Exercise media cache: `road12-v13-3-100-media`
+- Deployment status: build `2026.10.22.5` activates approved black-shirt v2 media for Dumbbell Lateral Raise and Seated Concentration Curl with offline cache coverage. Schema remains 21 and Cloudflare Worker `efdc2eff-4ab6-4226-bf7f-c08b61a6b679` is unchanged.
 - Runtime: static, client-only, offline-first PWA
 - Primary storage key: `road12v5`
 
@@ -25,6 +25,8 @@ Build `2026.10.22.2` extends semantic anatomy metadata from the original 13 Medi
 Build `2026.10.22.3` replaces the red-shirt Smith Machine Squat and Standing Single-Leg Cable Hamstring Curl demonstrations with approved black-shirt v2 poster, sequence, WebP animation, and MP4 assets. Their prior v1 media remains available as fallback and historical media is not deleted.
 
 Build `2026.10.22.4` replaces the red-shirt Smith Machine Hip Thrust and Smith Machine Calf Raise demonstrations with approved black-shirt v2 poster, sequence, WebP animation, and MP4 assets. Their prior v1 media remains available as fallback and historical media is not deleted.
+
+Build `2026.10.22.5` replaces the red-shirt Dumbbell Lateral Raise and Seated Concentration Curl demonstrations with approved black-shirt v2 poster, sequence, WebP animation, and MP4 assets. Their prior v1 media remains available as fallback and historical media is not deleted.
 
 ## Current architecture
 

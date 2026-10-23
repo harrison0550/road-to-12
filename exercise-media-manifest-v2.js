@@ -58,7 +58,15 @@
     "assets/exercise-library/v2/smith-machine-calf-raise/road12-v2-smith-machine-calf-raise-poster.webp",
     "assets/exercise-library/v2/smith-machine-calf-raise/road12-v2-smith-machine-calf-raise-sequence.webp",
     "assets/exercise-library/v2/smith-machine-calf-raise/road12-v2-smith-machine-calf-raise-motion.mp4",
-    "assets/exercise-library/v2/smith-machine-calf-raise/road12-v2-smith-machine-calf-raise-motion.webp"
+    "assets/exercise-library/v2/smith-machine-calf-raise/road12-v2-smith-machine-calf-raise-motion.webp",
+    "assets/exercise-library/v2/dumbbell-lateral-raise/road12-v2-dumbbell-lateral-raise-poster.webp",
+    "assets/exercise-library/v2/dumbbell-lateral-raise/road12-v2-dumbbell-lateral-raise-sequence.webp",
+    "assets/exercise-library/v2/dumbbell-lateral-raise/road12-v2-dumbbell-lateral-raise-motion.mp4",
+    "assets/exercise-library/v2/dumbbell-lateral-raise/road12-v2-dumbbell-lateral-raise-motion.webp",
+    "assets/exercise-library/v2/seated-concentration-curl/road12-v2-seated-concentration-curl-poster.webp",
+    "assets/exercise-library/v2/seated-concentration-curl/road12-v2-seated-concentration-curl-sequence.webp",
+    "assets/exercise-library/v2/seated-concentration-curl/road12-v2-seated-concentration-curl-motion.mp4",
+    "assets/exercise-library/v2/seated-concentration-curl/road12-v2-seated-concentration-curl-motion.webp"
   ]);
   const cacheAssets=Object.freeze([...sharedAssets,...approvedAssets]);
   return Object.freeze({VERSION,pilotSlugs,sharedAssets,plannedAssets,approvedAssets,cacheAssets});

@@ -31,6 +31,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Exercise Media Library v2
 
+- Deployed build `2026.10.22.5` with approved black-shirt v2 poster, four-position sequence, 2.3-second animated WebP, and MP4 assets for Dumbbell Lateral Raise and Seated Concentration Curl, with offline cache coverage and v1 fallback retained.
 - Deployed build `2026.10.22.4` with approved black-shirt v2 poster, four-position sequence, 2.3-second animated WebP, and MP4 assets for Smith Machine Hip Thrust and Smith Machine Calf Raise, with offline cache coverage and v1 fallback retained.
 - Deployed build `2026.10.22.3` with approved black-shirt v2 poster, four-position sequence, 2.3-second animated WebP, and MP4 assets for Smith Machine Squat and Standing Single-Leg Cable Hamstring Curl, with offline cache coverage and v1 fallback retained.
 - Deployed build `2026.10.22.2` with semantic anatomical Muscles Worked mappings for every canonical strength/core exercise. All active Build and Foundation strength movements now resolve primary and secondary metadata to native SVG muscle paths while cardio, warm-up, mobility, and recovery activities retain their approved category-aware detail panels.
