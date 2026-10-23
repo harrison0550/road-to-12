@@ -50,7 +50,15 @@
     "assets/exercise-library/v2/standing-single-leg-cable-hamstring-curl/road12-v2-standing-single-leg-cable-hamstring-curl-poster.webp",
     "assets/exercise-library/v2/standing-single-leg-cable-hamstring-curl/road12-v2-standing-single-leg-cable-hamstring-curl-sequence.webp",
     "assets/exercise-library/v2/standing-single-leg-cable-hamstring-curl/road12-v2-standing-single-leg-cable-hamstring-curl-motion.mp4",
-    "assets/exercise-library/v2/standing-single-leg-cable-hamstring-curl/road12-v2-standing-single-leg-cable-hamstring-curl-motion.webp"
+    "assets/exercise-library/v2/standing-single-leg-cable-hamstring-curl/road12-v2-standing-single-leg-cable-hamstring-curl-motion.webp",
+    "assets/exercise-library/v2/smith-machine-hip-thrust/road12-v2-smith-machine-hip-thrust-poster.webp",
+    "assets/exercise-library/v2/smith-machine-hip-thrust/road12-v2-smith-machine-hip-thrust-sequence.webp",
+    "assets/exercise-library/v2/smith-machine-hip-thrust/road12-v2-smith-machine-hip-thrust-motion.mp4",
+    "assets/exercise-library/v2/smith-machine-hip-thrust/road12-v2-smith-machine-hip-thrust-motion.webp",
+    "assets/exercise-library/v2/smith-machine-calf-raise/road12-v2-smith-machine-calf-raise-poster.webp",
+    "assets/exercise-library/v2/smith-machine-calf-raise/road12-v2-smith-machine-calf-raise-sequence.webp",
+    "assets/exercise-library/v2/smith-machine-calf-raise/road12-v2-smith-machine-calf-raise-motion.mp4",
+    "assets/exercise-library/v2/smith-machine-calf-raise/road12-v2-smith-machine-calf-raise-motion.webp"
   ]);
   const cacheAssets=Object.freeze([...sharedAssets,...approvedAssets]);
   return Object.freeze({VERSION,pilotSlugs,sharedAssets,plannedAssets,approvedAssets,cacheAssets});

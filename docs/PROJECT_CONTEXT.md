@@ -5,12 +5,12 @@ Read this file at the beginning of every Codex or engineering session. It is the
 ## Current release
 
 - Product: Road to 12%
-- Version: 13.3.3
-- Build: 2026.10.22.3
+- Version: 13.3.4
+- Build: 2026.10.22.4
 - Last updated: October 22, 2026
-- Service Worker cache: `road12-v13-3-98-shell`
-- Exercise media cache: `road12-v13-3-98-media`
-- Deployment status: build `2026.10.22.3` activates approved black-shirt v2 media for Smith Machine Squat and Standing Single-Leg Cable Hamstring Curl with offline cache coverage. Schema remains 21 and Cloudflare Worker `efdc2eff-4ab6-4226-bf7f-c08b61a6b679` is unchanged.
+- Service Worker cache: `road12-v13-3-99-shell`
+- Exercise media cache: `road12-v13-3-99-media`
+- Deployment status: build `2026.10.22.4` activates approved black-shirt v2 media for Smith Machine Hip Thrust and Smith Machine Calf Raise with offline cache coverage. Schema remains 21 and Cloudflare Worker `efdc2eff-4ab6-4226-bf7f-c08b61a6b679` is unchanged.
 - Runtime: static, client-only, offline-first PWA
 - Primary storage key: `road12v5`
 
@@ -23,6 +23,8 @@ Build `2026.10.22.1` renders Muscles Worked highlights directly on 157 detailed 
 Build `2026.10.22.2` extends semantic anatomy metadata from the original 13 Media v2 pilot records to all 44 canonical strength/core exercises. Every active Build and Foundation strength exercise resolves a Muscles Worked diagram; cardio, warm-up, mobility, and recovery screens keep their category-aware panels.
 
 Build `2026.10.22.3` replaces the red-shirt Smith Machine Squat and Standing Single-Leg Cable Hamstring Curl demonstrations with approved black-shirt v2 poster, sequence, WebP animation, and MP4 assets. Their prior v1 media remains available as fallback and historical media is not deleted.
+
+Build `2026.10.22.4` replaces the red-shirt Smith Machine Hip Thrust and Smith Machine Calf Raise demonstrations with approved black-shirt v2 poster, sequence, WebP animation, and MP4 assets. Their prior v1 media remains available as fallback and historical media is not deleted.
 
 ## Current architecture
 
