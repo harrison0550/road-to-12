@@ -118,7 +118,19 @@
     "assets/exercise-library/v2/reverse-crunch/road12-v2-reverse-crunch-poster.webp",
     "assets/exercise-library/v2/reverse-crunch/road12-v2-reverse-crunch-sequence.webp",
     "assets/exercise-library/v2/reverse-crunch/road12-v2-reverse-crunch-motion.mp4",
-    "assets/exercise-library/v2/reverse-crunch/road12-v2-reverse-crunch-motion.webp"
+    "assets/exercise-library/v2/reverse-crunch/road12-v2-reverse-crunch-motion.webp",
+    "assets/exercise-library/v2/seated-bench-knee-tuck/road12-v2-seated-bench-knee-tuck-poster.webp",
+    "assets/exercise-library/v2/seated-bench-knee-tuck/road12-v2-seated-bench-knee-tuck-sequence.webp",
+    "assets/exercise-library/v2/seated-bench-knee-tuck/road12-v2-seated-bench-knee-tuck-motion.mp4",
+    "assets/exercise-library/v2/seated-bench-knee-tuck/road12-v2-seated-bench-knee-tuck-motion.webp",
+    "assets/exercise-library/v2/kettlebell-suitcase-carry/road12-v2-kettlebell-suitcase-carry-poster.webp",
+    "assets/exercise-library/v2/kettlebell-suitcase-carry/road12-v2-kettlebell-suitcase-carry-sequence.webp",
+    "assets/exercise-library/v2/kettlebell-suitcase-carry/road12-v2-kettlebell-suitcase-carry-motion.mp4",
+    "assets/exercise-library/v2/kettlebell-suitcase-carry/road12-v2-kettlebell-suitcase-carry-motion.webp",
+    "assets/exercise-library/v2/kettlebell-swing/road12-v2-kettlebell-swing-poster.webp",
+    "assets/exercise-library/v2/kettlebell-swing/road12-v2-kettlebell-swing-sequence.webp",
+    "assets/exercise-library/v2/kettlebell-swing/road12-v2-kettlebell-swing-motion.mp4",
+    "assets/exercise-library/v2/kettlebell-swing/road12-v2-kettlebell-swing-motion.webp"
   ]);
   const cacheAssets=Object.freeze([...sharedAssets,...approvedAssets]);
   return Object.freeze({VERSION,pilotSlugs,sharedAssets,plannedAssets,approvedAssets,cacheAssets});
