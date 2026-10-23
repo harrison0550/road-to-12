@@ -42,7 +42,7 @@ for(const [name,id] of Object.entries(expected)){
   assert(record,`${name} must have pilot metadata`);
   assert.strictEqual(record.exerciseId,id);
   assert.strictEqual(record.mediaVersion,2);
-  const approved=["Smith Machine Bench Press","GMWD Converging Chest Press","Seated Cable Chest Fly","Lat Pulldown","Seated Cable Row","Smith Machine Squat","Standing Single-Leg Cable Hamstring Curl","Smith Machine Hip Thrust","Smith Machine Calf Raise","Dumbbell Lateral Raise","Seated Concentration Curl","Dumbbell Reverse Lunge","Cable Crunch","Low-Incline Dumbbell Press","Single Arm Cable Row","Cable Hammer Curl","Rope Triceps Pushdown","Rear Delt Cable Fly","V-Bar Triceps Pushdown","Alternating Dumbbell Curl","Cable Curl","Lying Leg Raise","High to Low Cable Chop","Reverse Crunch","Seated Bench Knee Tuck","Kettlebell Suitcase Carry","Kettlebell Swing","Cable Chest Press","Cable Shoulder Press","Smith Machine RDL","Cable Lateral Raise","Cable Face Pull","Cable Straight Arm Pushdown"].includes(name);
+  const approved=["Smith Machine Bench Press","GMWD Converging Chest Press","Seated Cable Chest Fly","Lat Pulldown","Seated Cable Row","Smith Machine Squat","Standing Single-Leg Cable Hamstring Curl","Smith Machine Hip Thrust","Smith Machine Calf Raise","Dumbbell Lateral Raise","Seated Concentration Curl","Dumbbell Reverse Lunge","Cable Crunch","Low-Incline Dumbbell Press","Single Arm Cable Row","Cable Hammer Curl","Rope Triceps Pushdown","Rear Delt Cable Fly","V-Bar Triceps Pushdown","Alternating Dumbbell Curl","Cable Curl","Lying Leg Raise","High to Low Cable Chop","Reverse Crunch","Seated Bench Knee Tuck","Kettlebell Suitcase Carry","Kettlebell Swing","Cable Chest Press","Cable Shoulder Press","Smith Machine RDL","Cable Lateral Raise","Cable Face Pull","Cable Straight Arm Pushdown","Dumbbell Floor Press","Dumbbell Romanian Deadlift","Kettlebell Around the World"].includes(name);
   assert.strictEqual(record.status,approved?"approved":"pending-review");
   assert.strictEqual(record.approved,approved);
   assert(record.assets.poster.endsWith(`road12-v2-${record.slug}-poster.webp`));
@@ -63,7 +63,7 @@ const placeholder={media:"placeholder.svg",mediaType:"still"};
 assert.strictEqual(mediaV2.resolve("Unregistered Movement",null,placeholder),placeholder,"resolution must fall back to a local placeholder after v2 and v1");
 assert.strictEqual(manifest.pilotSlugs.length,13);
 assert.strictEqual(manifest.plannedAssets.length,52);
-assert.strictEqual(manifest.approvedAssets.length,132);
+assert.strictEqual(manifest.approvedAssets.length,144);
 assert.deepStrictEqual(manifest.cacheAssets,[...manifest.sharedAssets,...manifest.approvedAssets]);
 manifest.cacheAssets.forEach(asset=>assert(fs.existsSync(path.join(root,asset)),`${asset} must exist before entering the cache manifest`));
 manifest.plannedAssets

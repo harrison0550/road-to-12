@@ -154,7 +154,19 @@
     "assets/exercise-library/v2/cable-straight-arm-pushdown/road12-v2-cable-straight-arm-pushdown-poster.webp",
     "assets/exercise-library/v2/cable-straight-arm-pushdown/road12-v2-cable-straight-arm-pushdown-sequence.webp",
     "assets/exercise-library/v2/cable-straight-arm-pushdown/road12-v2-cable-straight-arm-pushdown-motion.mp4",
-    "assets/exercise-library/v2/cable-straight-arm-pushdown/road12-v2-cable-straight-arm-pushdown-motion.webp"
+    "assets/exercise-library/v2/cable-straight-arm-pushdown/road12-v2-cable-straight-arm-pushdown-motion.webp",
+    "assets/exercise-library/v2/dumbbell-floor-press/road12-v2-dumbbell-floor-press-poster.webp",
+    "assets/exercise-library/v2/dumbbell-floor-press/road12-v2-dumbbell-floor-press-sequence.webp",
+    "assets/exercise-library/v2/dumbbell-floor-press/road12-v2-dumbbell-floor-press-motion.mp4",
+    "assets/exercise-library/v2/dumbbell-floor-press/road12-v2-dumbbell-floor-press-motion.webp",
+    "assets/exercise-library/v2/dumbbell-romanian-deadlift/road12-v2-dumbbell-romanian-deadlift-poster.webp",
+    "assets/exercise-library/v2/dumbbell-romanian-deadlift/road12-v2-dumbbell-romanian-deadlift-sequence.webp",
+    "assets/exercise-library/v2/dumbbell-romanian-deadlift/road12-v2-dumbbell-romanian-deadlift-motion.mp4",
+    "assets/exercise-library/v2/dumbbell-romanian-deadlift/road12-v2-dumbbell-romanian-deadlift-motion.webp",
+    "assets/exercise-library/v2/kettlebell-around-the-world/road12-v2-kettlebell-around-the-world-poster.webp",
+    "assets/exercise-library/v2/kettlebell-around-the-world/road12-v2-kettlebell-around-the-world-sequence.webp",
+    "assets/exercise-library/v2/kettlebell-around-the-world/road12-v2-kettlebell-around-the-world-motion.mp4",
+    "assets/exercise-library/v2/kettlebell-around-the-world/road12-v2-kettlebell-around-the-world-motion.webp"
   ]);
   const cacheAssets=Object.freeze([...sharedAssets,...approvedAssets]);
   return Object.freeze({VERSION,pilotSlugs,sharedAssets,plannedAssets,approvedAssets,cacheAssets});

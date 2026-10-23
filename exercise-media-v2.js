@@ -55,8 +55,8 @@
     "road12.row.single-arm-cable":record("road12.row.single-arm-cable","single-arm-cable-row",["Lats","Mid-back"],["Rear shoulders","Biceps","Core"],["lats","upper-back"],["rear-deltoid","biceps","abdominals"],true),
     "road12.lateral-raise.cable":record("road12.lateral-raise.cable","cable-lateral-raise",["Side shoulders"],["Upper traps"],["lateral-deltoid"],["upper-back"],true),
     "road12.curl.cable-hammer":record("road12.curl.cable-hammer","cable-hammer-curl",["Biceps","Brachialis"],["Forearms"],["biceps","brachialis"],["forearms"],true),
-    "road12.press.dumbbell-floor":record("road12.press.dumbbell-floor","dumbbell-floor-press",["Chest"],["Front shoulders","Triceps"],["chest"],["front-deltoid","triceps"]),
-    "road12.deadlift.dumbbell-rdl":record("road12.deadlift.dumbbell-rdl","dumbbell-romanian-deadlift",["Hamstrings","Glutes"],["Upper back","Core","Grip"],["hamstrings","gluteus-maximus"],["upper-back","abdominals","forearms"]),
+    "road12.press.dumbbell-floor":record("road12.press.dumbbell-floor","dumbbell-floor-press",["Chest"],["Front shoulders","Triceps"],["chest"],["front-deltoid","triceps"],true),
+    "road12.deadlift.dumbbell-rdl":record("road12.deadlift.dumbbell-rdl","dumbbell-romanian-deadlift",["Hamstrings","Glutes"],["Upper back","Core","Grip"],["hamstrings","gluteus-maximus"],["upper-back","abdominals","forearms"],true),
     "road12.fly.cable-rear-delt":record("road12.fly.cable-rear-delt","rear-delt-cable-fly",["Rear shoulders"],["Upper back"],["rear-deltoid"],["upper-back"],true),
     "road12.pull.cable-face":record("road12.pull.cable-face","cable-face-pull",["Rear shoulders","Upper back"],["Rotator cuff","Biceps"],["rear-deltoid","upper-back"],["biceps"],true),
     "road12.pull.cable-straight-arm":record("road12.pull.cable-straight-arm","cable-straight-arm-pushdown",["Lats"],["Triceps","Core"],["lats"],["triceps","abdominals"],true),
@@ -69,7 +69,7 @@
     "road12.core.decline-reverse-crunch":record("road12.core.decline-reverse-crunch","decline-bench-reverse-crunch",["Lower abdominals","Deep core"],["Hip flexors"],["abdominals"],["hip-flexors"]),
     "road12.core.hanging-garhammer":record("road12.core.hanging-garhammer","hanging-garhammer-raise",["Lower abdominals","Deep core"],["Hip flexors","Grip"],["abdominals"],["hip-flexors","forearms"]),
     "road12.hinge.kettlebell-swing":record("road12.hinge.kettlebell-swing","kettlebell-swing",["Glutes","Hamstrings"],["Core","Grip","Upper back"],["gluteus-maximus","hamstrings"],["abdominals","forearms","upper-back"],true),
-    "road12.core.kettlebell-around-world":record("road12.core.kettlebell-around-world","kettlebell-around-the-world",["Deep core","Obliques"],["Shoulders","Forearms","Grip"],["abdominals","obliques"],["front-deltoid","lateral-deltoid","forearms"]),
+    "road12.core.kettlebell-around-world":record("road12.core.kettlebell-around-world","kettlebell-around-the-world",["Deep core","Obliques"],["Shoulders","Forearms","Grip"],["abdominals","obliques"],["front-deltoid","lateral-deltoid","forearms"],true),
     "road12.carry.kettlebell-suitcase":record("road12.carry.kettlebell-suitcase","kettlebell-suitcase-carry",["Obliques","Deep core","Grip"],["Shoulders","Glutes","Walking muscles"],["obliques","abdominals","forearms"],["lateral-deltoid","glute-stabilizers"],true)
   });
   function identityFor(name){return exercises?.resolve?.(name)||null;}
