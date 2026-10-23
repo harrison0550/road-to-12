@@ -89,7 +89,8 @@ function listMarkup(items,emptyText){
 function muscleFigureView(side,regions){
  const anatomy=EXERCISE_MUSCLE_ANATOMY?.renderFigure?.(side,regions);
  if(!anatomy)return "";
- return `<figure class="muscle-map-view muscle-anatomy-${side}" data-anatomy-figure="${side}"><svg viewBox="0 0 220 500" role="img" aria-label="${side} anatomical muscle figure" focusable="false" data-anatomy-inline="true">${anatomy}</svg><figcaption>${side}</figcaption></figure>`;
+ const viewBox=EXERCISE_MUSCLE_ANATOMY.viewBox?.(side)||"0 0 32 76";
+ return `<figure class="muscle-map-view muscle-anatomy-${side}" data-anatomy-figure="${side}"><svg viewBox="${viewBox}" role="img" aria-label="${side} anatomical muscle figure" focusable="false" data-anatomy-inline="true">${anatomy}</svg><figcaption>${side}</figcaption></figure>`;
 }
 function muscleHighlightMarkup(ex){
  const record=EXERCISE_MEDIA_V2?.getForName?.(ex?.name);

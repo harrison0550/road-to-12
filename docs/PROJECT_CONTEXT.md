@@ -5,18 +5,20 @@ Read this file at the beginning of every Codex or engineering session. It is the
 ## Current release
 
 - Product: Road to 12%
-- Version: 13.3.0
-- Build: 2026.09.30.1
-- Last updated: September 29, 2026
-- Service Worker cache: `road12-v13-3-95-shell`
-- Exercise media cache: `road12-v13-3-95-media`
-- Deployment status: build `2026.09.30.1` fixes exact occurrence completion and limits missed-workout catch-up shifts to the current Monday–Sunday week. Schema remains 21 and Cloudflare Worker `efdc2eff-4ab6-4226-bf7f-c08b61a6b679` is unchanged.
+- Version: 13.3.1
+- Build: 2026.10.22.1
+- Last updated: October 22, 2026
+- Service Worker cache: `road12-v13-3-96-shell`
+- Exercise media cache: `road12-v13-3-96-media`
+- Deployment status: build `2026.10.22.1` replaces coarse Muscles Worked overlays with licensed native anatomical paths and exact neon primary/secondary highlighting. Schema remains 21 and Cloudflare Worker `efdc2eff-4ab6-4226-bf7f-c08b61a6b679` is unchanged.
 - Runtime: static, client-only, offline-first PWA
 - Primary storage key: `road12v5`
 
 Media v2 generation remains limited to explicitly approved assets. Build `2026.09.29.1` activates Lat Pulldown and Seated Cable Row v2 media; schema remains 21 and the Worker is unchanged.
 
 Build `2026.09.30.1` carries the exact schedule occurrence ID through preview, launch, completion, history, and backup. It prevents a recovered Build workout from consuming a future occurrence with the same template, shifts catch-up work only inside the affected Monday–Sunday week, returns to normal cadence the following Monday, and includes a guarded no-duplication repair utility that is never run automatically. Schema remains 21.
+
+Build `2026.10.22.1` renders Muscles Worked highlights directly on 157 detailed front/back anatomical SVG paths. Primary regions use `#39FF14`, secondary regions use `#FF4FD8`, and unselected anatomy remains grayscale; legacy stick figures, coarse overlay geometry, and unrelated body-region highlights are absent.
 
 ## Current architecture
 
@@ -86,7 +88,7 @@ See `KNOWN_BUGS.md` before diagnosing or fixing defects.
 
 ## Active sprint goals
 
-Build `2026.09.28.4` uses generated inline native SVG anatomy with one front/back pair, bounded semantic highlights, and no legacy fallback or decorative circle in Muscles Worked. The unapproved pilot records retain v1 fallback. Phase 2 and the original Calendar semantic colors preserve completed history, scheduling, schema 21, and the existing Worker exactly. The production Cloudflare Worker remains version `efdc2eff-4ab6-4226-bf7f-c08b61a6b679`. Automatic phase activation, Strava autosync, cardio posting, read scopes, bulk history, and Phase 2B remain disabled.
+The current undeployed Muscles Worked repair uses generated inline native SVG anatomy with one detailed front/back pair and 157 named paths. Primary and secondary colors are assigned directly to those anatomical paths; no coarse overlays, legacy fallback, or decorative circle remain. The unapproved pilot records retain v1 fallback. Phase 2 and the original Calendar semantic colors preserve completed history, scheduling, schema 21, and the existing Worker exactly. The production Cloudflare Worker remains version `efdc2eff-4ab6-4226-bf7f-c08b61a6b679`. Automatic phase activation, Strava autosync, cardio posting, read scopes, bulk history, and Phase 2B remain disabled.
 
 Next recommended goals:
 

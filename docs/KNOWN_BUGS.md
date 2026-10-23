@@ -24,6 +24,15 @@ Use this file as the durable defect tracker. Do not delete resolved records; upd
 
 ## Resolved
 
+### BUG-030 — Muscles Worked highlights render as flat body-part blobs
+
+- Status: Resolved in v13.3.1 build 2026.10.22.1
+- Severity: High
+- Area: Exercise Detail / Media v2 anatomy
+- Report: The production card placed coarse hamstring, calf, glute, arm, and torso shapes over a detailed grayscale figure. This produced ankle blocks, oversized back regions, and other highlights that did not follow muscle boundaries.
+- Resolution: The runtime renderer now builds both figures from detailed native anatomical paths and applies primary or secondary color directly to the named path. Coarse overlay geometry and legacy body layers are absent.
+- Regression tests: `scripts/test-muscles-worked-rendering.js`, `scripts/test-exercise-media-v2.js`
+
 ### BUG-028 — Profile does not expose backup recovery
 
 - Status: Resolved in v13.3.0 build 2026.09.27.5
