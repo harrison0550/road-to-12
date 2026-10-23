@@ -66,7 +66,15 @@
     "assets/exercise-library/v2/seated-concentration-curl/road12-v2-seated-concentration-curl-poster.webp",
     "assets/exercise-library/v2/seated-concentration-curl/road12-v2-seated-concentration-curl-sequence.webp",
     "assets/exercise-library/v2/seated-concentration-curl/road12-v2-seated-concentration-curl-motion.mp4",
-    "assets/exercise-library/v2/seated-concentration-curl/road12-v2-seated-concentration-curl-motion.webp"
+    "assets/exercise-library/v2/seated-concentration-curl/road12-v2-seated-concentration-curl-motion.webp",
+    "assets/exercise-library/v2/dumbbell-reverse-lunge/road12-v2-dumbbell-reverse-lunge-poster.webp",
+    "assets/exercise-library/v2/dumbbell-reverse-lunge/road12-v2-dumbbell-reverse-lunge-sequence.webp",
+    "assets/exercise-library/v2/dumbbell-reverse-lunge/road12-v2-dumbbell-reverse-lunge-motion.mp4",
+    "assets/exercise-library/v2/dumbbell-reverse-lunge/road12-v2-dumbbell-reverse-lunge-motion.webp",
+    "assets/exercise-library/v2/cable-crunch/road12-v2-cable-crunch-poster.webp",
+    "assets/exercise-library/v2/cable-crunch/road12-v2-cable-crunch-sequence.webp",
+    "assets/exercise-library/v2/cable-crunch/road12-v2-cable-crunch-motion.mp4",
+    "assets/exercise-library/v2/cable-crunch/road12-v2-cable-crunch-motion.webp"
   ]);
   const cacheAssets=Object.freeze([...sharedAssets,...approvedAssets]);
   return Object.freeze({VERSION,pilotSlugs,sharedAssets,plannedAssets,approvedAssets,cacheAssets});
