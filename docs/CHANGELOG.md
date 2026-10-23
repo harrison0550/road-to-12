@@ -31,6 +31,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Exercise Media Library v2
 
+- Deployed build `2026.10.22.2` with semantic anatomical Muscles Worked mappings for every canonical strength/core exercise. All active Build and Foundation strength movements now resolve primary and secondary metadata to native SVG muscle paths while cardio, warm-up, mobility, and recovery activities retain their approved category-aware detail panels.
 - Deployed build `2026.10.22.1` with licensed detailed front/back anatomy containing 157 native vector paths. Runtime highlights now recolor only named muscle paths, including individual pectoral, deltoid, lat, trapezius, arm, glute, hamstring, calf, quadriceps, adductor, abdominal, and oblique regions; schema remains 21 and the Worker is unchanged.
 
 - Deployed build `2026.09.29.1` with approved Lat Pulldown and Seated Cable Row v2 posters, movement sequences, 2.1-second WebP/MP4 motion loops, and offline cache coverage; existing v1 fallbacks remain available.

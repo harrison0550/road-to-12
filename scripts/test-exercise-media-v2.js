@@ -27,7 +27,15 @@ const expected={
   "Cable Crunch":"road12.crunch.cable"
 };
 assert.strictEqual(mediaV2.VERSION,2);
-assert.deepStrictEqual(Object.keys(mediaV2.records).sort(),Object.values(expected).sort());
+Object.values(expected).forEach(id=>assert(mediaV2.records[id],`${id} pilot record must remain registered`));
+const muscleMappedDefinitions=identities.definitions.filter(item=>item.id!=="road12.cooldown.treadmill-easy");
+assert.strictEqual(Object.keys(mediaV2.records).length,muscleMappedDefinitions.length,"every canonical strength/core exercise needs a muscle-map record");
+muscleMappedDefinitions.forEach(item=>{
+  const record=mediaV2.getById(item.id);
+  assert(record,`${item.name} needs canonical muscle-map metadata`);
+  assert(record.primaryMuscles.length,`${item.name} needs authoritative primary muscle text`);
+  assert(record.muscleHighlights.primary.length,`${item.name} needs a primary anatomical region`);
+});
 for(const [name,id] of Object.entries(expected)){
   assert.strictEqual(identities.resolve(name).id,id,`${name} canonical identity changed`);
   const record=mediaV2.getForName(name);
@@ -90,4 +98,7 @@ assert.match(app,/const ROAD12_SCHEMA_VERSION=21;/);
 
 const buildNames=new Set(Object.values(build.TEMPLATES).flatMap(template=>template.exercises.map(exercise=>exercise.name)));
 Object.keys(expected).forEach(name=>assert(buildNames.has(name),`${name} must remain present in the unchanged Build templates`));
-console.log("Exercise Media Library v2 tests passed: five approved exercise bundles, eight records pending, fallbacks, shared muscle SVGs, offline manifest safety, and schema 21 are intact.");
+Object.values(build.TEMPLATES).flatMap(template=>template.exercises).filter(exercise=>exercise.sets).forEach(exercise=>{
+  assert(mediaV2.getForName(exercise.name),`${exercise.name} needs Muscles Worked anatomy in active Build programming`);
+});
+console.log("Exercise Media Library v2 tests passed: every canonical strength/core exercise and active Build movement has muscle-map metadata; approved media, fallbacks, offline manifest safety, and schema 21 are intact.");

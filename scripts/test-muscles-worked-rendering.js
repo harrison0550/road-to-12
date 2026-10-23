@@ -50,6 +50,20 @@ for(const [id,expected] of Object.entries(fixtures)){
   }
 }
 
+const knownRegions=new Set([...Object.keys(anatomy.REGION_PATHS.front),...Object.keys(anatomy.REGION_PATHS.back)]);
+for(const [id,record] of Object.entries(media.records)){
+  const regions=[...record.muscleHighlights.primary,...record.muscleHighlights.secondary];
+  assert(record.muscleHighlights.primary.length,`${id} must define at least one primary anatomy region`);
+  for(const region of regions){
+    assert(knownRegions.has(region),`${id} uses unknown anatomy region ${region}`);
+    const pathIds=[...(anatomy.REGION_PATHS.front[region]||[]),...(anatomy.REGION_PATHS.back[region]||[])];
+    assert(pathIds.length,`${id} region ${region} must resolve to native anatomical paths`);
+  }
+  const runtime=`${anatomy.renderFigure("front",record.muscleHighlights)}${anatomy.renderFigure("back",record.muscleHighlights)}`;
+  assert.match(runtime,/class="anatomy-path muscle-region primary"/,`${id} must render a primary anatomical highlight`);
+  assert.doesNotMatch(runtime,/<(?:rect|ellipse|polygon|image|use|mask)\b/i,`${id} must never introduce overlay geometry`);
+}
+
 const expectedRegions={
   calves:["gastrocnemius_l","gastrocnemius_r"],
   hamstrings:["biceps_femoris_l","biceps_femoris_r","semitendinosus_l","semitendinosus_r","semimembranosus_1_l","semimembranosus_1_r","semimembranosus_2_l","semimembranosus_2_r"],
@@ -73,4 +87,4 @@ assert.doesNotMatch(front+back,/<(?:rect|ellipse|polygon|image|use|mask)\b/i);
 assert.match(front,/id="pectoralis_major_l"/);
 assert.match(back,/id="latissimus_dorsi_l"/);
 
-console.log("Muscles Worked rendering tests passed: 13 runtime fixtures use one set of licensed anatomical paths, exact neon fills, semantic source IDs, grayscale neutral anatomy, and no overlay geometry.");
+console.log(`Muscles Worked rendering tests passed: ${Object.keys(media.records).length} canonical strength/core mappings use licensed anatomical paths, exact neon fills, semantic source IDs, grayscale neutral anatomy, and no overlay geometry.`);

@@ -5,12 +5,12 @@ Read this file at the beginning of every Codex or engineering session. It is the
 ## Current release
 
 - Product: Road to 12%
-- Version: 13.3.1
-- Build: 2026.10.22.1
+- Version: 13.3.2
+- Build: 2026.10.22.2
 - Last updated: October 22, 2026
-- Service Worker cache: `road12-v13-3-96-shell`
-- Exercise media cache: `road12-v13-3-96-media`
-- Deployment status: build `2026.10.22.1` replaces coarse Muscles Worked overlays with licensed native anatomical paths and exact neon primary/secondary highlighting. Schema remains 21 and Cloudflare Worker `efdc2eff-4ab6-4226-bf7f-c08b61a6b679` is unchanged.
+- Service Worker cache: `road12-v13-3-97-shell`
+- Exercise media cache: `road12-v13-3-97-media`
+- Deployment status: build `2026.10.22.2` extends native anatomical Muscles Worked highlighting to all 44 canonical strength/core exercises and every active Build/Foundation strength movement. Schema remains 21 and Cloudflare Worker `efdc2eff-4ab6-4226-bf7f-c08b61a6b679` is unchanged.
 - Runtime: static, client-only, offline-first PWA
 - Primary storage key: `road12v5`
 
@@ -19,6 +19,8 @@ Media v2 generation remains limited to explicitly approved assets. Build `2026.0
 Build `2026.09.30.1` carries the exact schedule occurrence ID through preview, launch, completion, history, and backup. It prevents a recovered Build workout from consuming a future occurrence with the same template, shifts catch-up work only inside the affected Monday–Sunday week, returns to normal cadence the following Monday, and includes a guarded no-duplication repair utility that is never run automatically. Schema remains 21.
 
 Build `2026.10.22.1` renders Muscles Worked highlights directly on 157 detailed front/back anatomical SVG paths. Primary regions use `#39FF14`, secondary regions use `#FF4FD8`, and unselected anatomy remains grayscale; legacy stick figures, coarse overlay geometry, and unrelated body-region highlights are absent.
+
+Build `2026.10.22.2` extends semantic anatomy metadata from the original 13 Media v2 pilot records to all 44 canonical strength/core exercises. Every active Build and Foundation strength exercise resolves a Muscles Worked diagram; cardio, warm-up, mobility, and recovery screens keep their category-aware panels.
 
 ## Current architecture
 
