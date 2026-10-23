@@ -31,6 +31,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Exercise Media Library v2
 
+- Deployed build `2026.10.22.8` with approved black-shirt v2 poster, four-position sequence, 2.3-second animated WebP, and MP4 assets for Cable Hammer Curl and Rope Triceps Pushdown, with offline cache coverage and v1 fallback retained.
 - Deployed build `2026.10.22.7` with approved black-shirt v2 poster, four-position sequence, 2.3-second animated WebP, and MP4 assets for Low-Incline Dumbbell Press and Single Arm Cable Row, with offline cache coverage and v1 fallback retained.
 - Deployed build `2026.10.22.6` with approved black-shirt v2 poster, four-position sequence, 2.3-second animated WebP, and MP4 assets for Dumbbell Reverse Lunge and the corrected fixed-hip Cable Crunch, with offline cache coverage and v1 fallback retained.
 - Deployed build `2026.10.22.5` with approved black-shirt v2 poster, four-position sequence, 2.3-second animated WebP, and MP4 assets for Dumbbell Lateral Raise and Seated Concentration Curl, with offline cache coverage and v1 fallback retained.

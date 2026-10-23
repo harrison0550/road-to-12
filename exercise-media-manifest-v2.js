@@ -82,7 +82,15 @@
     "assets/exercise-library/v2/single-arm-cable-row/road12-v2-single-arm-cable-row-poster.webp",
     "assets/exercise-library/v2/single-arm-cable-row/road12-v2-single-arm-cable-row-sequence.webp",
     "assets/exercise-library/v2/single-arm-cable-row/road12-v2-single-arm-cable-row-motion.mp4",
-    "assets/exercise-library/v2/single-arm-cable-row/road12-v2-single-arm-cable-row-motion.webp"
+    "assets/exercise-library/v2/single-arm-cable-row/road12-v2-single-arm-cable-row-motion.webp",
+    "assets/exercise-library/v2/cable-hammer-curl/road12-v2-cable-hammer-curl-poster.webp",
+    "assets/exercise-library/v2/cable-hammer-curl/road12-v2-cable-hammer-curl-sequence.webp",
+    "assets/exercise-library/v2/cable-hammer-curl/road12-v2-cable-hammer-curl-motion.mp4",
+    "assets/exercise-library/v2/cable-hammer-curl/road12-v2-cable-hammer-curl-motion.webp",
+    "assets/exercise-library/v2/rope-triceps-pushdown/road12-v2-rope-triceps-pushdown-poster.webp",
+    "assets/exercise-library/v2/rope-triceps-pushdown/road12-v2-rope-triceps-pushdown-sequence.webp",
+    "assets/exercise-library/v2/rope-triceps-pushdown/road12-v2-rope-triceps-pushdown-motion.mp4",
+    "assets/exercise-library/v2/rope-triceps-pushdown/road12-v2-rope-triceps-pushdown-motion.webp"
   ]);
   const cacheAssets=Object.freeze([...sharedAssets,...approvedAssets]);
   return Object.freeze({VERSION,pilotSlugs,sharedAssets,plannedAssets,approvedAssets,cacheAssets});
