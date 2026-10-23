@@ -90,7 +90,15 @@
     "assets/exercise-library/v2/rope-triceps-pushdown/road12-v2-rope-triceps-pushdown-poster.webp",
     "assets/exercise-library/v2/rope-triceps-pushdown/road12-v2-rope-triceps-pushdown-sequence.webp",
     "assets/exercise-library/v2/rope-triceps-pushdown/road12-v2-rope-triceps-pushdown-motion.mp4",
-    "assets/exercise-library/v2/rope-triceps-pushdown/road12-v2-rope-triceps-pushdown-motion.webp"
+    "assets/exercise-library/v2/rope-triceps-pushdown/road12-v2-rope-triceps-pushdown-motion.webp",
+    "assets/exercise-library/v2/rear-delt-cable-fly/road12-v2-rear-delt-cable-fly-poster.webp",
+    "assets/exercise-library/v2/rear-delt-cable-fly/road12-v2-rear-delt-cable-fly-sequence.webp",
+    "assets/exercise-library/v2/rear-delt-cable-fly/road12-v2-rear-delt-cable-fly-motion.mp4",
+    "assets/exercise-library/v2/rear-delt-cable-fly/road12-v2-rear-delt-cable-fly-motion.webp",
+    "assets/exercise-library/v2/v-bar-triceps-pushdown/road12-v2-v-bar-triceps-pushdown-poster.webp",
+    "assets/exercise-library/v2/v-bar-triceps-pushdown/road12-v2-v-bar-triceps-pushdown-sequence.webp",
+    "assets/exercise-library/v2/v-bar-triceps-pushdown/road12-v2-v-bar-triceps-pushdown-motion.mp4",
+    "assets/exercise-library/v2/v-bar-triceps-pushdown/road12-v2-v-bar-triceps-pushdown-motion.webp"
   ]);
   const cacheAssets=Object.freeze([...sharedAssets,...approvedAssets]);
   return Object.freeze({VERSION,pilotSlugs,sharedAssets,plannedAssets,approvedAssets,cacheAssets});
