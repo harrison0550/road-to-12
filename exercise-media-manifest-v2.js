@@ -42,7 +42,15 @@
     "assets/exercise-library/v2/seated-cable-chest-fly/road12-v2-seated-cable-chest-fly-poster.webp",
     "assets/exercise-library/v2/seated-cable-chest-fly/road12-v2-seated-cable-chest-fly-sequence.webp",
     "assets/exercise-library/v2/seated-cable-chest-fly/road12-v2-seated-cable-chest-fly-motion.mp4",
-    "assets/exercise-library/v2/seated-cable-chest-fly/road12-v2-seated-cable-chest-fly-motion.webp"
+    "assets/exercise-library/v2/seated-cable-chest-fly/road12-v2-seated-cable-chest-fly-motion.webp",
+    "assets/exercise-library/v2/smith-machine-squat/road12-v2-smith-machine-squat-poster.webp",
+    "assets/exercise-library/v2/smith-machine-squat/road12-v2-smith-machine-squat-sequence.webp",
+    "assets/exercise-library/v2/smith-machine-squat/road12-v2-smith-machine-squat-motion.mp4",
+    "assets/exercise-library/v2/smith-machine-squat/road12-v2-smith-machine-squat-motion.webp",
+    "assets/exercise-library/v2/standing-single-leg-cable-hamstring-curl/road12-v2-standing-single-leg-cable-hamstring-curl-poster.webp",
+    "assets/exercise-library/v2/standing-single-leg-cable-hamstring-curl/road12-v2-standing-single-leg-cable-hamstring-curl-sequence.webp",
+    "assets/exercise-library/v2/standing-single-leg-cable-hamstring-curl/road12-v2-standing-single-leg-cable-hamstring-curl-motion.mp4",
+    "assets/exercise-library/v2/standing-single-leg-cable-hamstring-curl/road12-v2-standing-single-leg-cable-hamstring-curl-motion.webp"
   ]);
   const cacheAssets=Object.freeze([...sharedAssets,...approvedAssets]);
   return Object.freeze({VERSION,pilotSlugs,sharedAssets,plannedAssets,approvedAssets,cacheAssets});

@@ -28,7 +28,7 @@ This audit covers the exercise names that can appear in the current Foundation A
 
 ## Standing cable hamstring curl release
 
-The current program revision replaces the Full Body C Dumbbell Romanian Deadlift slot with Standing Single-Leg Cable Hamstring Curl while retaining the old RDL animation and identity for completed history and active older revisions. The supplied `standing-single-leg-cable-hamstring-curl-guide.png` and `standing-single-leg-cable-hamstring-curl-sequence.png` show the established red-shirt trainer facing the M1-style tower, one ankle connected to a low cable, one hand lightly supporting balance, a mostly vertical working thigh, knee flexion toward the glute, and a controlled return without hip extension. Both assets are in the production offline manifest.
+The current program revision replaces the Full Body C Dumbbell Romanian Deadlift slot with Standing Single-Leg Cable Hamstring Curl while retaining the old RDL animation and identity for completed history and active older revisions. Build `2026.10.22.3` activates the approved black-shirt v2 poster, four-position sequence, WebP animation, and MP4 for the curl while retaining its red-shirt v1 files as fallback. The guide shows the athlete facing the M1-style tower, one ankle connected to a low cable, one hand lightly supporting balance, a mostly vertical working thigh, knee flexion toward the glute, and a controlled return without hip extension.
 
 ## Media contract
 
