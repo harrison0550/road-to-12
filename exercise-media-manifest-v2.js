@@ -106,7 +106,19 @@
     "assets/exercise-library/v2/cable-curl/road12-v2-cable-curl-poster.webp",
     "assets/exercise-library/v2/cable-curl/road12-v2-cable-curl-sequence.webp",
     "assets/exercise-library/v2/cable-curl/road12-v2-cable-curl-motion.mp4",
-    "assets/exercise-library/v2/cable-curl/road12-v2-cable-curl-motion.webp"
+    "assets/exercise-library/v2/cable-curl/road12-v2-cable-curl-motion.webp",
+    "assets/exercise-library/v2/lying-leg-raise/road12-v2-lying-leg-raise-poster.webp",
+    "assets/exercise-library/v2/lying-leg-raise/road12-v2-lying-leg-raise-sequence.webp",
+    "assets/exercise-library/v2/lying-leg-raise/road12-v2-lying-leg-raise-motion.mp4",
+    "assets/exercise-library/v2/lying-leg-raise/road12-v2-lying-leg-raise-motion.webp",
+    "assets/exercise-library/v2/high-to-low-cable-chop/road12-v2-high-to-low-cable-chop-poster.webp",
+    "assets/exercise-library/v2/high-to-low-cable-chop/road12-v2-high-to-low-cable-chop-sequence.webp",
+    "assets/exercise-library/v2/high-to-low-cable-chop/road12-v2-high-to-low-cable-chop-motion.mp4",
+    "assets/exercise-library/v2/high-to-low-cable-chop/road12-v2-high-to-low-cable-chop-motion.webp",
+    "assets/exercise-library/v2/reverse-crunch/road12-v2-reverse-crunch-poster.webp",
+    "assets/exercise-library/v2/reverse-crunch/road12-v2-reverse-crunch-sequence.webp",
+    "assets/exercise-library/v2/reverse-crunch/road12-v2-reverse-crunch-motion.mp4",
+    "assets/exercise-library/v2/reverse-crunch/road12-v2-reverse-crunch-motion.webp"
   ]);
   const cacheAssets=Object.freeze([...sharedAssets,...approvedAssets]);
   return Object.freeze({VERSION,pilotSlugs,sharedAssets,plannedAssets,approvedAssets,cacheAssets});
