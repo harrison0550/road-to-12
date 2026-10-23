@@ -130,7 +130,19 @@
     "assets/exercise-library/v2/kettlebell-swing/road12-v2-kettlebell-swing-poster.webp",
     "assets/exercise-library/v2/kettlebell-swing/road12-v2-kettlebell-swing-sequence.webp",
     "assets/exercise-library/v2/kettlebell-swing/road12-v2-kettlebell-swing-motion.mp4",
-    "assets/exercise-library/v2/kettlebell-swing/road12-v2-kettlebell-swing-motion.webp"
+    "assets/exercise-library/v2/kettlebell-swing/road12-v2-kettlebell-swing-motion.webp",
+    "assets/exercise-library/v2/cable-chest-press/road12-v2-cable-chest-press-poster.webp",
+    "assets/exercise-library/v2/cable-chest-press/road12-v2-cable-chest-press-sequence.webp",
+    "assets/exercise-library/v2/cable-chest-press/road12-v2-cable-chest-press-motion.mp4",
+    "assets/exercise-library/v2/cable-chest-press/road12-v2-cable-chest-press-motion.webp",
+    "assets/exercise-library/v2/cable-shoulder-press/road12-v2-cable-shoulder-press-poster.webp",
+    "assets/exercise-library/v2/cable-shoulder-press/road12-v2-cable-shoulder-press-sequence.webp",
+    "assets/exercise-library/v2/cable-shoulder-press/road12-v2-cable-shoulder-press-motion.mp4",
+    "assets/exercise-library/v2/cable-shoulder-press/road12-v2-cable-shoulder-press-motion.webp",
+    "assets/exercise-library/v2/smith-machine-rdl/road12-v2-smith-machine-rdl-poster.webp",
+    "assets/exercise-library/v2/smith-machine-rdl/road12-v2-smith-machine-rdl-sequence.webp",
+    "assets/exercise-library/v2/smith-machine-rdl/road12-v2-smith-machine-rdl-motion.mp4",
+    "assets/exercise-library/v2/smith-machine-rdl/road12-v2-smith-machine-rdl-motion.webp"
   ]);
   const cacheAssets=Object.freeze([...sharedAssets,...approvedAssets]);
   return Object.freeze({VERSION,pilotSlugs,sharedAssets,plannedAssets,approvedAssets,cacheAssets});

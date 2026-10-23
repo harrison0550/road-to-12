@@ -31,6 +31,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Exercise Media Library v2
 
+- Deployed build `2026.10.23.4` with approved black-shirt v2 poster, four-position sequence, 2.3-second animated WebP, and MP4 assets for Cable Chest Press, Cable Shoulder Press, and Smith Machine RDL, with offline cache coverage and v1 fallback retained.
 - Deployed build `2026.10.23.3` with approved black-shirt v2 poster, four-position sequence, 2.3-second animated WebP, and MP4 assets for Seated Bench Knee Tuck, Kettlebell Suitcase Carry, and Kettlebell Swing, with offline cache coverage and v1 fallback retained.
 - Deployed build `2026.10.23.2` with approved black-shirt v2 poster, four-position sequence, 2.3-second animated WebP, and MP4 assets for Lying Leg Raise, High to Low Cable Chop, and Reverse Crunch, with offline cache coverage and v1 fallback retained.
 - Deployed build `2026.10.23.1` with approved black-shirt v2 poster, four-position sequence, 2.3-second animated WebP, and MP4 assets for Alternating Dumbbell Curl and Cable Curl, with offline cache coverage and v1 fallback retained.
