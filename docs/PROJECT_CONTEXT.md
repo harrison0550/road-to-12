@@ -5,12 +5,12 @@ Read this file at the beginning of every Codex or engineering session. It is the
 ## Current release
 
 - Product: Road to 12%
-- Version: 13.3.13
-- Build: 2026.10.23.4
+- Version: 13.3.14
+- Build: 2026.10.23.5
 - Last updated: October 23, 2026
-- Service Worker cache: `road12-v13-3-108-shell`
-- Exercise media cache: `road12-v13-3-108-media`
-- Deployment status: build `2026.10.23.4` activates approved black-shirt v2 media for Cable Chest Press, Cable Shoulder Press, and Smith Machine RDL with offline cache coverage. Schema remains 21 and Cloudflare Worker `efdc2eff-4ab6-4226-bf7f-c08b61a6b679` is unchanged.
+- Service Worker cache: `road12-v13-3-109-shell`
+- Exercise media cache: `road12-v13-3-109-media`
+- Deployment status: build `2026.10.23.5` activates approved black-shirt v2 media for Cable Lateral Raise, Cable Face Pull, and Cable Straight Arm Pushdown with offline cache coverage. Schema remains 21 and Cloudflare Worker `efdc2eff-4ab6-4226-bf7f-c08b61a6b679` is unchanged.
 - Runtime: static, client-only, offline-first PWA
 - Primary storage key: `road12v5`
 

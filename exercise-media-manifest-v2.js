@@ -142,7 +142,19 @@
     "assets/exercise-library/v2/smith-machine-rdl/road12-v2-smith-machine-rdl-poster.webp",
     "assets/exercise-library/v2/smith-machine-rdl/road12-v2-smith-machine-rdl-sequence.webp",
     "assets/exercise-library/v2/smith-machine-rdl/road12-v2-smith-machine-rdl-motion.mp4",
-    "assets/exercise-library/v2/smith-machine-rdl/road12-v2-smith-machine-rdl-motion.webp"
+    "assets/exercise-library/v2/smith-machine-rdl/road12-v2-smith-machine-rdl-motion.webp",
+    "assets/exercise-library/v2/cable-lateral-raise/road12-v2-cable-lateral-raise-poster.webp",
+    "assets/exercise-library/v2/cable-lateral-raise/road12-v2-cable-lateral-raise-sequence.webp",
+    "assets/exercise-library/v2/cable-lateral-raise/road12-v2-cable-lateral-raise-motion.mp4",
+    "assets/exercise-library/v2/cable-lateral-raise/road12-v2-cable-lateral-raise-motion.webp",
+    "assets/exercise-library/v2/cable-face-pull/road12-v2-cable-face-pull-poster.webp",
+    "assets/exercise-library/v2/cable-face-pull/road12-v2-cable-face-pull-sequence.webp",
+    "assets/exercise-library/v2/cable-face-pull/road12-v2-cable-face-pull-motion.mp4",
+    "assets/exercise-library/v2/cable-face-pull/road12-v2-cable-face-pull-motion.webp",
+    "assets/exercise-library/v2/cable-straight-arm-pushdown/road12-v2-cable-straight-arm-pushdown-poster.webp",
+    "assets/exercise-library/v2/cable-straight-arm-pushdown/road12-v2-cable-straight-arm-pushdown-sequence.webp",
+    "assets/exercise-library/v2/cable-straight-arm-pushdown/road12-v2-cable-straight-arm-pushdown-motion.mp4",
+    "assets/exercise-library/v2/cable-straight-arm-pushdown/road12-v2-cable-straight-arm-pushdown-motion.webp"
   ]);
   const cacheAssets=Object.freeze([...sharedAssets,...approvedAssets]);
   return Object.freeze({VERSION,pilotSlugs,sharedAssets,plannedAssets,approvedAssets,cacheAssets});
