@@ -74,7 +74,15 @@
     "assets/exercise-library/v2/cable-crunch/road12-v2-cable-crunch-poster.webp",
     "assets/exercise-library/v2/cable-crunch/road12-v2-cable-crunch-sequence.webp",
     "assets/exercise-library/v2/cable-crunch/road12-v2-cable-crunch-motion.mp4",
-    "assets/exercise-library/v2/cable-crunch/road12-v2-cable-crunch-motion.webp"
+    "assets/exercise-library/v2/cable-crunch/road12-v2-cable-crunch-motion.webp",
+    "assets/exercise-library/v2/low-incline-dumbbell-press/road12-v2-low-incline-dumbbell-press-poster.webp",
+    "assets/exercise-library/v2/low-incline-dumbbell-press/road12-v2-low-incline-dumbbell-press-sequence.webp",
+    "assets/exercise-library/v2/low-incline-dumbbell-press/road12-v2-low-incline-dumbbell-press-motion.mp4",
+    "assets/exercise-library/v2/low-incline-dumbbell-press/road12-v2-low-incline-dumbbell-press-motion.webp",
+    "assets/exercise-library/v2/single-arm-cable-row/road12-v2-single-arm-cable-row-poster.webp",
+    "assets/exercise-library/v2/single-arm-cable-row/road12-v2-single-arm-cable-row-sequence.webp",
+    "assets/exercise-library/v2/single-arm-cable-row/road12-v2-single-arm-cable-row-motion.mp4",
+    "assets/exercise-library/v2/single-arm-cable-row/road12-v2-single-arm-cable-row-motion.webp"
   ]);
   const cacheAssets=Object.freeze([...sharedAssets,...approvedAssets]);
   return Object.freeze({VERSION,pilotSlugs,sharedAssets,plannedAssets,approvedAssets,cacheAssets});
