@@ -98,7 +98,15 @@
     "assets/exercise-library/v2/v-bar-triceps-pushdown/road12-v2-v-bar-triceps-pushdown-poster.webp",
     "assets/exercise-library/v2/v-bar-triceps-pushdown/road12-v2-v-bar-triceps-pushdown-sequence.webp",
     "assets/exercise-library/v2/v-bar-triceps-pushdown/road12-v2-v-bar-triceps-pushdown-motion.mp4",
-    "assets/exercise-library/v2/v-bar-triceps-pushdown/road12-v2-v-bar-triceps-pushdown-motion.webp"
+    "assets/exercise-library/v2/v-bar-triceps-pushdown/road12-v2-v-bar-triceps-pushdown-motion.webp",
+    "assets/exercise-library/v2/alternating-dumbbell-curl/road12-v2-alternating-dumbbell-curl-poster.webp",
+    "assets/exercise-library/v2/alternating-dumbbell-curl/road12-v2-alternating-dumbbell-curl-sequence.webp",
+    "assets/exercise-library/v2/alternating-dumbbell-curl/road12-v2-alternating-dumbbell-curl-motion.mp4",
+    "assets/exercise-library/v2/alternating-dumbbell-curl/road12-v2-alternating-dumbbell-curl-motion.webp",
+    "assets/exercise-library/v2/cable-curl/road12-v2-cable-curl-poster.webp",
+    "assets/exercise-library/v2/cable-curl/road12-v2-cable-curl-sequence.webp",
+    "assets/exercise-library/v2/cable-curl/road12-v2-cable-curl-motion.mp4",
+    "assets/exercise-library/v2/cable-curl/road12-v2-cable-curl-motion.webp"
   ]);
   const cacheAssets=Object.freeze([...sharedAssets,...approvedAssets]);
   return Object.freeze({VERSION,pilotSlugs,sharedAssets,plannedAssets,approvedAssets,cacheAssets});
