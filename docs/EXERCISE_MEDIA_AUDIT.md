@@ -2,7 +2,7 @@
 
 ## Exercise Media Library v2 pilot
 
-Build `2026.10.23.6` activates approved v2 media for Dumbbell Floor Press, Dumbbell Romanian Deadlift, and Kettlebell Around the World. `exercise-media-v2.js` keeps canonical-ID records with poster, sequence, animation, primary/secondary muscle, and semantic highlight fields, while pending records continue resolving to reviewed v1 media. `exercise-media-manifest-v2.js` separates planned paths from approved cache assets so only reviewed files enter the offline media cache.
+Build `2026.10.23.7` completes v2 media coverage for all 44 canonical strength/core records. Every record now has an approved poster, movement sequence, animated WebP, MP4, primary/secondary muscle metadata, and semantic highlight map. `exercise-media-manifest-v2.js` keeps all 176 reviewed exercise assets in the offline media cache while retained v1 files remain available as compatibility fallback.
 
 The shared muscle component uses self-contained native front/back SVG anatomy derived from the approved Smith Machine Bench Press guide. Anatomy and addressable semantic region groups live in the same SVG documents; no SVG fragment depends on a nested raster image. Primary regions render in neon green and secondary regions in lower-opacity pink. The accessible primary and secondary text lists remain authoritative.
 

@@ -31,6 +31,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Exercise Media Library v2
 
+- Deployed build `2026.10.23.7` to complete v2 media coverage for all 44 canonical strength/core exercises, activating Goblet Squat, Behind-the-Back Single-Arm Cable Curl, Smith Machine Single-Leg Squat, Incline Cable Press, Forearm Plank with Posterior Pelvic Tilt, Hanging Knee Raise, Decline Bench Reverse Crunch, and Hanging Garhammer Raise with poster, sequence, WebP, MP4, offline cache coverage, and retained v1 fallback.
 - Deployed build `2026.10.23.6` with approved black-shirt v2 poster, four-position sequence, 2.3-second animated WebP, and MP4 assets for Dumbbell Floor Press, Dumbbell Romanian Deadlift, and Kettlebell Around the World, with offline cache coverage and v1 fallback retained.
 - Deployed build `2026.10.23.5` with approved black-shirt v2 poster, four-position sequence, 2.3-second animated WebP, and MP4 assets for Cable Lateral Raise, Cable Face Pull, and Cable Straight Arm Pushdown, with offline cache coverage and v1 fallback retained.
 - Deployed build `2026.10.23.4` with approved black-shirt v2 poster, four-position sequence, 2.3-second animated WebP, and MP4 assets for Cable Chest Press, Cable Shoulder Press, and Smith Machine RDL, with offline cache coverage and v1 fallback retained.
